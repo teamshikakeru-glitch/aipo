@@ -15,24 +15,24 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
-  --bg: #f2f1ed;
-  --surface: #ffffff;
-  --surface2: #f7f6f3;
-  --border: rgba(0,0,0,0.07);
-  --border2: rgba(0,0,0,0.12);
-  --text: #1a1916;
-  --text2: #6b6860;
-  --text3: #b0aea6;
-  --amber: #bf6d00;
-  --amber-bg: #fff8ed;
+  --bg: #2d1f0e;
+  --surface: #3d2a12;
+  --surface2: #4a3318;
+  --border: rgba(255,200,100,0.12);
+  --border2: rgba(255,200,100,0.22);
+  --text: #fdf0dc;
+  --text2: #c9a86c;
+  --text3: #8a6a3a;
+  --amber: #f5c060;
+  --amber-bg: #4a3318;
   --amber-mid: #e8850a;
-  --amber-border: #f5d68a;
-  --green: #1a7a4a;
+  --amber-border: rgba(255,180,60,0.3);
+  --green: #5ec99a;
   --green-light: #22a85f;
-  --green-bg: #edf7f2;
-  --green-border: #9de0cc;
-  --red: #c0392b;
-  --teal: #0f7a5e;
+  --green-bg: rgba(34,168,95,0.15);
+  --green-border: rgba(34,168,95,0.3);
+  --red: #e05050;
+  --teal: #1d9e75;
   --mono: 'Space Mono', monospace;
   --sans: 'Noto Sans JP', sans-serif;
   --r-xl: 22px;
@@ -61,9 +61,9 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); over
 .votes-chip { background: var(--amber-bg); border: 1.5px solid var(--amber-border); border-radius: 20px; padding: 5px 12px; display: flex; align-items: center; gap: 4px; }
 .votes-n { font-family: var(--mono); font-size: 15px; font-weight: 700; color: var(--amber); }
 .votes-l { font-size: 10px; color: var(--amber-mid); font-weight: 700; }
-.seg { display: flex; background: #e0ded8; border-radius: 11px; padding: 3px; margin-bottom: 12px; gap: 2px; }
+.seg { display: flex; background: #1e1208; border-radius: 11px; padding: 3px; margin-bottom: 12px; gap: 2px; }
 .seg-item { flex: 1; text-align: center; font-size: 12px; font-weight: 700; color: #888680; padding: 6px 0; border-radius: 9px; cursor: pointer; transition: all .15s; }
-.seg-item.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.13); }
+.seg-item.active { background: #4a3318; color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.4); }
 
 /* ── FEED ── */
 .feed-body { padding: 10px 14px 0; }
@@ -197,7 +197,7 @@ input[type=file] { display: none; }
 
 
 /* ── GUIDE ── */
-.guide-screen { position:fixed; inset:0; background:var(--surface); z-index:997; display:none; flex-direction:column; }
+.guide-screen { position:fixed; inset:0; background:#2d1f0e; z-index:997; display:none; flex-direction:column; }
 .guide-screen.active { display:flex; }
 .guide-slides { flex:1; overflow:hidden; position:relative; }
 .guide-slide { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:32px 28px; opacity:0; transform:translateX(60px); transition:all .4s cubic-bezier(.4,0,.2,1); pointer-events:none; }
@@ -215,22 +215,22 @@ input[type=file] { display: none; }
 .guide-skip { display:block; text-align:center; font-size:13px; color:var(--text3); margin-top:12px; cursor:pointer; padding:4px; }
 
 /* ── SPLASH ── */
-.splash { position: fixed; inset: 0; background: var(--amber-bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999; transition: opacity .5s; }
+.splash { position: fixed; inset: 0; background: #2d1f0e; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999; transition: opacity .5s; }
 .splash.hide { opacity: 0; pointer-events: none; }
 .splash-logo { margin-bottom: 20px; animation: splashPop .6s cubic-bezier(.34,1.56,.64,1) forwards; }
 @keyframes splashPop { 0%{opacity:0;transform:scale(.7)} 100%{opacity:1;transform:scale(1)} }
-.splash-name { font-size: 32px; font-weight: 700; color: var(--text); letter-spacing: -.03em; animation: splashFade .6s .2s both; }
+.splash-name { font-size: 32px; font-weight: 700; color: #fdf0dc; letter-spacing: -.03em; animation: splashFade .6s .2s both; }
 .splash-sub { font-size: 13px; color: var(--text3); margin-top: 6px; animation: splashFade .6s .3s both; }
 @keyframes splashFade { 0%{opacity:0;transform:translateY(8px)} 100%{opacity:1;transform:translateY(0)} }
 
 /* ── LOGIN ── */
-.login-screen { position: fixed; inset: 0; background: var(--surface); display: none; flex-direction: column; align-items: center; justify-content: space-between; padding: 60px 32px 60px; z-index: 998; }
+.login-screen { position: fixed; inset: 0; background: #2d1f0e; display: none; flex-direction: column; align-items: center; justify-content: space-between; padding: 60px 32px 60px; z-index: 998; }
 .login-screen.active { display: flex; }
 .login-top { display: flex; flex-direction: column; align-items: center; gap: 0; }
 .login-hero { margin-bottom: 28px; }
 .login-title { font-size: 28px; font-weight: 700; color: var(--text); letter-spacing: -.03em; text-align: center; margin-bottom: 8px; }
 .login-desc { font-size: 14px; color: var(--text2); text-align: center; line-height: 1.75; }
-.login-features { width: 100%; background: var(--surface2); border-radius: var(--r-xl); padding: 20px; margin-top: 32px; }
+.login-features { width: 100%; background: #3d2a12; border-radius: var(--r-xl); padding: 20px; margin-top: 32px; }
 .login-feature { display: flex; align-items: center; gap: 14px; padding: 10px 0; border-bottom: 0.5px solid var(--border); }
 .login-feature:last-child { border-bottom: none; }
 .lf-ico { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -396,7 +396,7 @@ input[type=file] { display: none; }
   </div>
 
   <div class="login-bottom">
-    <button class="x-login-btn" onclick="doLogin()" style="background:#fff;color:#1a1916;border:1.5px solid #e0ded8">
+    <button class="x-login-btn" onclick="doLogin()" style="background:#4a3318;color:#fdf0dc;border:1.5px solid rgba(255,200,100,0.3)">
       <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
       Googleでログインする
     </button>
@@ -765,7 +765,7 @@ function showUpgradeModal(reason) {
   modal.id = 'upgrade-modal';
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:flex;align-items:flex-end;justify-content:center';
   modal.innerHTML = `
-    <div style="background:var(--surface);border-radius:24px 24px 0 0;padding:28px 24px 40px;width:100%;max-width:390px">
+    <div style="background:#3d2a12;border-radius:24px 24px 0 0;padding:28px 24px 40px;width:100%;max-width:390px">
       <div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 20px"></div>
       <div style="font-size:22px;text-align:center;margin-bottom:8px">💡</div>
       <div style="font-size:17px;font-weight:700;text-align:center;margin-bottom:6px">${reason}</div>
