@@ -789,16 +789,61 @@ function showUpgradeModal(reason) {
   modal.addEventListener('click', e => { if(e.target===modal) modal.remove(); });
 }
 
-function upgradePro() {
-  isPro = true;
-  votesLeft += 1; // Pro特典: +1票
-  document.getElementById('votes-left').textContent = votesLeft;
-  document.getElementById('upgrade-modal').remove();
-  showToast('Proにアップグレードしました！全機能が使えます🥃');
-  updatePlanBadge();
+async function upgradePro() {
+  const modal = document.getElementById('upgrade-modal');
+  const btn = modal.querySelector('button');
+  if (btn) { btn.textContent = '決済ページを準備中...'; btn.disabled = true; }
+
+  if (!currentUser) {
+    showToast('先にログインしてください');
+    if (btn) { btn.textContent = 'Proにアップグレード（¥300/月）'; btn.disabled = false; }
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: currentUser.id })
+    });
+    const data = await res.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      showToast('エラーが発生しました。もう一度お試しください。');
+      if (btn) { btn.textContent = 'Proにアップグレード（¥300/月）'; btn.disabled = false; }
+    }
+  } catch (err) {
+    showToast('通信エラーが発生しました');
+    if (btn) { btn.textContent = 'Proにアップグレード（¥300/月）'; btn.disabled = false; }
+  }
 }
 
-function updatePlanBadge() {
+// ログイン後にProステータスをDBから確認
+async function checkProStatus() {
+  if (!currentUser) return;
+  const { data } = await sb.from('profiles').select('is_pro').eq('id', currentUser.id).single();
+  if (data?.is_pro) {
+    isPro = true;
+    votesLeft = 4;
+    document.getElementById('votes-left').textContent = votesLeft;
+    updatePlanBadge();
+  }
+}
+
+// 決済成功後の処理（URLパラメータで判定）
+function checkUpgradeSuccess() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('upgraded') === 'true') {
+    isPro = true;
+    votesLeft = 4;
+    document.getElementById('votes-left').textContent = votesLeft;
+    updatePlanBadge();
+    showToast('Proにアップグレードしました！🥃');
+    // URLからパラメータを除去
+    window.history.replaceState({}, '', '/');
+  }
+}
   const badge = document.getElementById('plan-badge');
   if (badge) {
     badge.textContent = isPro ? 'PRO' : `残${FREE_COMMENT_LIMIT - commentCount}回`;
@@ -1313,6 +1358,8 @@ sb.auth.onAuthStateChange(async (event, session) => {
     if (loginScreen.classList.contains('active')) {
       enterApp();
       await fetchIdeas();
+      await checkProStatus();
+      checkUpgradeSuccess();
       showToast('ログインしました🥃');
     }
   } else if (event === 'SIGNED_OUT') {
@@ -1358,6 +1405,8 @@ async function startApp() {
       const loggedIn = await checkSession();
       if (loggedIn) {
         await fetchIdeas();
+        await checkProStatus();
+        checkUpgradeSuccess();
         showToast('おかえりなさい🥃');
       } else {
         const guideDone = localStorage.getItem('aipo_guide_done');
