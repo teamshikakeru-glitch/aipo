@@ -853,6 +853,8 @@ function checkUpgradeSuccess() {
     window.history.replaceState({}, '', '/');
   }
 }
+
+function updatePlanBadge() {
   const badge = document.getElementById('plan-badge');
   if (badge) {
     badge.textContent = isPro ? 'PRO' : `残${FREE_COMMENT_LIMIT - commentCount}回`;
@@ -1120,7 +1122,7 @@ function showDetail(id) {
         ${idea.actions.map((a,i)=>`<div class="action-row"><div class="action-num">0${i+1}</div><div class="action-text">${a}</div></div>`).join('')}
       </div>
       <div id="actions-edit-${idea.id}" style="display:none">
-        ${idea.actions.map((a,i)=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-family:var(--mono);font-size:12px;color:var(--amber-mid);min-width:22px;font-weight:700">0${i+1}</span><input class="inp inp-sm" id="action-inp-${idea.id}-${i}" value="${a}" style="flex:1"></div>`).join('')}
+        ${idea.actions.map(function(a,i){ return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-family:var(--mono);font-size:12px;color:var(--amber-mid);min-width:22px;font-weight:700">0'+(i+1)+'</span><input class=\"inp inp-sm\" id=\"action-inp-'+idea.id+'-'+i+'\" value=\"'+a.replace(/"/g,'&quot;')+'\" style=\"flex:1\"></div>'; }).join('')}
         <button onclick="saveField(${idea.id},'actions')" style="margin-top:4px;width:100%;padding:10px;background:var(--amber-mid);border:none;border-radius:var(--r-md);font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">保存する</button>
       </div>
     </div>
@@ -1131,7 +1133,7 @@ function showDetail(id) {
         ${[['0','アイデア段階'],['1','開発中'],['2','テスト中'],['3','リリース済み']].map(([val,label])=>`
         <div onclick="updateProgress(${idea.id},${val})" style="border:1.5px solid ${idea.progressStep==val?'var(--amber-mid)':'var(--border2)'};background:${idea.progressStep==val?'var(--amber-bg)':'var(--surface)'};border-radius:var(--r-md);padding:10px 12px;cursor:pointer;transition:all .15s">
           <div style="font-size:12px;font-weight:700;color:${idea.progressStep==val?'var(--amber)':'var(--text2)'}">${label}</div>
-          ${val>0?`<div style="font-size:10px;color:${idea.progressStep==val?'var(--amber-mid)':'var(--text3)'};margin-top:2px">+${val*10}pt</div>`:'<div style="font-size:10px;color:var(--text3);margin-top:2px">基本</div>'}
+          ${val>0?('<div style="font-size:10px;color:'+(idea.progressStep==val?'var(--amber-mid)':'var(--text3)')+';margin-top:2px">+'+val*10+'pt</div>'):'<div style="font-size:10px;color:var(--text3);margin-top:2px">基本</div>'}
         </div>`).join('')}
       </div>
     </div>` : ''}
@@ -1411,27 +1413,29 @@ async function startApp() {
     splash.classList.add('hide');
     setTimeout(async () => {
       splash.style.display = 'none';
-      const loggedIn = await checkSession();
-      if (loggedIn) {
-        await fetchIdeas();
-        await checkProStatus();
-        checkUpgradeSuccess();
-        showToast('おかえりなさい🥃');
-      } else {
-        const guideDone = localStorage.getItem('aipo_guide_done');
-      if (!guideDone) {
-        showGuide();
-        document.getElementById('guide-next-btn').addEventListener('click', function onFirst() {
-        }, {once:true});
-        // ガイド終了後にログイン画面
-        const origFinish = guideFinish;
-        window.guideFinish = function() {
-          origFinish();
-          document.getElementById('login-screen').classList.add('active');
-        };
-      } else {
+      try {
+        const loggedIn = await checkSession();
+        if (loggedIn) {
+          await fetchIdeas();
+          await checkProStatus();
+          checkUpgradeSuccess();
+          showToast('おかえりなさい🥃');
+        } else {
+          const guideDone = localStorage.getItem('aipo_guide_done');
+          if (!guideDone) {
+            showGuide();
+            window.guideFinish = function() {
+              document.getElementById('guide-screen').classList.remove('active');
+              localStorage.setItem('aipo_guide_done', '1');
+              document.getElementById('login-screen').classList.add('active');
+            };
+          } else {
+            document.getElementById('login-screen').classList.add('active');
+          }
+        }
+      } catch(e) {
+        console.error('startApp error:', e);
         document.getElementById('login-screen').classList.add('active');
-      }
       }
     }, 500);
   }, 1800);
