@@ -892,33 +892,8 @@ function showUpgradeModal(reason) {
 }
 
 async function upgradePro() {
-  const modal = document.getElementById('upgrade-modal');
-  const btn = modal.querySelector('button');
-  if (btn) { btn.textContent = '決済ページを準備中...'; btn.disabled = true; }
-
-  if (!currentUser) {
-    showToast('先にログインしてください');
-    if (btn) { btn.textContent = 'Proにアップグレード（¥300/月）'; btn.disabled = false; }
-    return;
-  }
-
-  try {
-    const res = await fetch('/api/checkout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: currentUser.id })
-    });
-    const data = await res.json();
-    if (data.url) {
-      window.location.href = data.url;
-    } else {
-      showToast('エラーが発生しました。もう一度お試しください。');
-      if (btn) { btn.textContent = 'Proにアップグレード（¥300/月）'; btn.disabled = false; }
-    }
-  } catch (err) {
-    showToast('通信エラーが発生しました');
-    if (btn) { btn.textContent = 'Proにアップグレード（¥300/月）'; btn.disabled = false; }
-  }
+  document.getElementById('upgrade-modal')?.remove();
+  window.location.href = 'https://buy.stripe.com/aFacN7dxLbiCdrifDPfbq00';
 }
 
 // ログイン後にProステータスをDBから確認
