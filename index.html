@@ -598,38 +598,47 @@ let currentUser = null;
 
 // ── DB: アイデア一覧を取得 ──
 async function fetchIdeas() {
-  const { data, error } = await sb
-    .from('ideas')
-    .select(`*, actions(*), comments(*, profiles(x_username))`)
-    .order('score', { ascending: false });
-  if (error) { console.error('fetchIdeas:', error); return; }
-  ideas = data.map(row => ({
-    id: row.id,
-    ticker: row.ticker,
-    emoji: row.emoji || '💡',
-    name: row.name,
-    desc: row.description,
-    genre: row.genre,
-    tech: row.tech,
-    baseScore: parseFloat(row.base_score),
-    score: parseFloat(row.score),
-    votes: row.votes,
-    views: row.views,
-    progress: row.progress_step,
-    progressStep: row.progress_step,
-    postedDaysAgo: (Date.now() - new Date(row.posted_at)) / 86400000,
-    history: [parseFloat(row.score)],
-    lastReason: '最新データを取得しました',
-    lastDelta: 0,
-    commentList: (row.comments || []).map(c => ({
-      name: '@' + (c.profiles?.x_username || 'ユーザー'),
-      text: c.text,
-      time: timeAgo(c.created_at)
-    })),
-    actions: (row.actions || []).sort((a,b) => a.order_num - b.order_num).map(a => a.text),
-    userId: row.user_id,
-  }));
-  renderFeed();
+  try {
+    const { data, error } = await sb
+      .from('ideas')
+      .select(`*, actions(*), comments(*, profiles(x_username))`)
+      .order('score', { ascending: false });
+    if (error || !data || data.length === 0) {
+      console.log('DBからデータなし、デモデータを使用');
+      renderFeed();
+      return;
+    }
+    ideas = data.map(row => ({
+      id: row.id,
+      ticker: row.ticker,
+      emoji: row.emoji || '💡',
+      name: row.name,
+      desc: row.description,
+      genre: row.genre,
+      tech: row.tech,
+      baseScore: parseFloat(row.base_score),
+      score: parseFloat(row.score),
+      votes: row.votes,
+      views: row.views,
+      progress: row.progress_step,
+      progressStep: row.progress_step,
+      postedDaysAgo: (Date.now() - new Date(row.posted_at)) / 86400000,
+      history: [parseFloat(row.score)],
+      lastReason: '最新データを取得しました',
+      lastDelta: 0,
+      commentList: (row.comments || []).map(c => ({
+        name: '@' + (c.profiles?.x_username || 'ユーザー'),
+        text: c.text,
+        time: timeAgo(c.created_at)
+      })),
+      actions: (row.actions || []).sort((a,b) => a.order_num - b.order_num).map(a => a.text),
+      userId: row.user_id,
+    }));
+    renderFeed();
+  } catch (e) {
+    console.error('fetchIdeas error:', e);
+    renderFeed();
+  }
 }
 
 // ── DB: アイデアを上場 ──
