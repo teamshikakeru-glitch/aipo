@@ -39,11 +39,12 @@
   --r-lg: 16px;
   --r-md: 10px;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; max-width: 100%; }
+html, body { overflow-x: hidden !important; width: 100%; max-width: 100vw; position: relative; }
 html { overflow-x: hidden; }
-body { background: var(--bg); color: var(--text); font-family: var(--sans); overscroll-behavior: none; overflow-x: hidden; width: 100%; }
-.app { max-width: 390px; margin: 0 auto; min-height: 100vh; overflow-x: hidden; }
-.screen { display: none; min-height: 100vh; padding-bottom: 90px; }
+body { background: var(--bg); color: var(--text); font-family: var(--sans); overscroll-behavior: none; overflow-x: hidden !important; width: 100%; touch-action: pan-y pinch-zoom; }
+.app { max-width: 390px; margin: 0 auto; min-height: 100vh; overflow: hidden; width: 100%; }
+.screen { display: none; min-height: 100vh; padding-bottom: 90px; overflow-x: hidden; width: 100%; }
 .screen.active { display: block; }
 
 /* ── HEADER ── */
@@ -91,6 +92,10 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); over
 .srow-spark { width: 60px; height: 32px; flex-shrink: 0; margin: 0 10px; }
 .srow-right { text-align: right; flex-shrink: 0; min-width: 66px; }
 .srow-score { font-family: var(--mono); font-size: 17px; font-weight: 700; color: var(--text); }
+.srow-vote-btn { margin-top: 4px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; font-family: var(--sans); cursor: pointer; border: none; transition: all .15s; width: 100%; }
+.srow-vote-btn.can { background: var(--green-bg); color: var(--green); border: 1.5px solid var(--green-border); }
+.srow-vote-btn.can:active { background: var(--green-light); color: #fff; }
+.srow-vote-btn.voted { background: var(--surface2); color: var(--text3); border: 1.5px solid var(--border2); }
 .pill { display: inline-block; padding: 3px 9px; border-radius: 7px; font-family: var(--mono); font-size: 11px; font-weight: 700; margin-top: 3px; }
 .pill-g { background: var(--green-light); color: #fff; }
 .pill-r { background: var(--red); color: #fff; }
@@ -122,7 +127,10 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); over
 .nav-post-btn svg { width: 22px; height: 22px; color: #fff; }
 
 /* ── DETAIL ── */
-.sub-header { background: var(--surface); border-bottom: 0.5px solid var(--border); padding: 14px 18px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 20; }
+.sub-header { background: var(--surface); border-bottom: 0.5px solid var(--border); padding: 14px 18px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 20; overflow: hidden; }
+.sub-header-vote { margin-left: auto; flex-shrink: 0; padding: 7px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; font-family: var(--sans); cursor: pointer; border: none; transition: all .15s; }
+.sub-header-vote.can { background: var(--green-light); color: #fff; }
+.sub-header-vote.voted { background: var(--surface2); color: var(--text3); border: 1.5px solid var(--border2); }
 .back-btn { cursor: pointer; color: var(--text2); display: flex; align-items: center; }
 .sub-title { font-size: 16px; font-weight: 700; }
 .detail-body { padding: 14px; }
@@ -316,10 +324,43 @@ input[type=file] { display: none; }
       <div class="guide-desc">3票を使い切ったあとに<br>Xでリポスト・フォロー・コメントすると<br>追加票がもらえます。<br><br>最大6票/日まで投票できます。</div>
     </div>
 
+    <div class="guide-slide" id="gs-5">
+      <div class="guide-ico" style="background:linear-gradient(135deg,#fff8ed,#fde8b8);box-shadow:0 4px 16px rgba(232,133,10,.2)">
+        <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+          <circle cx="30" cy="30" r="24" fill="#f5d68a" opacity=".2"/>
+          <path d="M18 38V24L30 16L42 24V38H18Z" fill="#e8850a" opacity=".15" stroke="#e8850a" stroke-width="2" stroke-linejoin="round"/>
+          <text x="30" y="35" text-anchor="middle" font-size="14" font-weight="700" fill="#bf6d00">PRO</text>
+          <path d="M24 44h12M22 48h16" stroke="#e8850a" stroke-width="2" stroke-linecap="round" opacity=".5"/>
+        </svg>
+      </div>
+      <div class="guide-title">あいぽ Pro</div>
+      <div class="guide-desc" style="text-align:left;background:var(--surface2);border-radius:16px;padding:16px 18px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <span style="font-weight:700;font-size:15px">月額 ¥300</span>
+          <span style="font-size:11px;color:var(--text3)">いつでも解約可能</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:20px;height:20px;border-radius:50%;background:var(--green-light);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <span style="font-size:13px">コメント・上場が<strong>無制限</strong></span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:20px;height:20px;border-radius:50%;background:var(--green-light);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <span style="font-size:13px">応援票が<strong>+1票</strong>（計4票/日）</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:20px;height:20px;border-radius:50%;background:var(--amber-mid);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 2l1.2 2.4L10 5l-2 1.9.5 2.6L6 8.2 3.5 9.5 4 6.9 2 5l2.8-.6L6 2z" fill="#fff"/></svg></div>
+            <span style="font-size:13px">創業期ユーザーの<strong>証明書</strong></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <div class="guide-dots" id="guide-dots">
     <div class="guide-dot active"></div>
+    <div class="guide-dot"></div>
     <div class="guide-dot"></div>
     <div class="guide-dot"></div>
     <div class="guide-dot"></div>
@@ -433,7 +474,7 @@ input[type=file] { display: none; }
       </div>
       <div class="hd-right">
         <div class="live-wrap"><div class="live-dot"></div><div class="live-lbl">LIVE</div></div>
-        <div id="plan-badge" onclick="isPro?null:showUpgradeModal('あいぽ Proにアップグレード')" style="font-size:10px;font-weight:700;background:var(--surface2);color:var(--text3);border:1px solid var(--border2);border-radius:20px;padding:4px 10px;cursor:pointer">残3回</div>
+        <div id="plan-badge" onclick="toggleProMenu()" style="font-size:10px;font-weight:700;background:var(--surface2);color:var(--text3);border:1px solid var(--border2);border-radius:20px;padding:4px 10px;cursor:pointer">残3回</div>
         <div class="votes-chip">
           <span class="votes-n" id="votes-left">3</span>
           <span class="votes-l">票</span>
@@ -906,6 +947,33 @@ function checkUpgradeSuccess() {
   }
 }
 
+function toggleProMenu() {
+  const existing = document.getElementById('pro-menu');
+  if (existing) { existing.remove(); return; }
+  const badge = document.getElementById('plan-badge');
+  const rect = badge.getBoundingClientRect();
+  const menu = document.createElement('div');
+  menu.id = 'pro-menu';
+  menu.style.cssText = `position:fixed;top:${rect.bottom+6}px;right:16px;background:var(--surface);border:1.5px solid var(--border2);border-radius:14px;padding:8px;z-index:100;box-shadow:0 4px 20px rgba(0,0,0,0.12);min-width:200px`;
+  menu.innerHTML = isPro
+    ? `<div style="padding:10px 12px;font-size:13px;color:var(--text2);border-bottom:0.5px solid var(--border)">現在：あいぽ Pro 🥃</div>
+       <div onclick="downgradeFree();document.getElementById('pro-menu').remove()" style="padding:10px 12px;font-size:13px;color:var(--red);cursor:pointer;font-weight:700">無料プランに戻す</div>`
+    : `<div style="padding:10px 12px;font-size:13px;color:var(--text2);border-bottom:0.5px solid var(--border)">現在：無料プラン</div>
+       <div onclick="showUpgradeModal('あいぽ Proにアップグレード');document.getElementById('pro-menu').remove()" style="padding:10px 12px;font-size:13px;color:var(--amber);cursor:pointer;font-weight:700">✦ Proにアップグレード（¥300/月）</div>`;
+  document.body.appendChild(menu);
+  setTimeout(() => document.addEventListener('click', function close(e) {
+    if (!menu.contains(e.target) && e.target !== badge) { menu.remove(); document.removeEventListener('click', close); }
+  }), 100);
+}
+
+function downgradeFree() {
+  isPro = false;
+  votesLeft = Math.min(votesLeft, 3);
+  document.getElementById('votes-left').textContent = votesLeft;
+  updatePlanBadge();
+  showToast('無料プランに戻しました');
+}
+
 function updatePlanBadge() {
   const badge = document.getElementById('plan-badge');
   if (badge) {
@@ -1056,9 +1124,10 @@ function buildRow(idea) {
   const ds = (delta>=0?'+':'')+delta.toFixed(1);
   const pc = delta>0.3?'pill-g':delta<-0.3?'pill-r':'pill-f';
   const isHot = idea.votes >= HOT_THRESHOLD;
+  const voted = votedIds.has(idea.id);
   return `<div class="srow" id="row-${idea.id}" onclick="showDetail(${idea.id})">
-    ${icoSVG(idea.emoji, 42)}
-    <div class="srow-left">
+    ${icoSVG(idea.emoji, 40)}
+    <div class="srow-left" style="margin-left:10px">
       <div class="srow-ticker">${idea.ticker}${isHot?'<span class="hot-badge">注目</span>':''}</div>
       <div class="srow-name">${idea.name}</div>
       <div class="srow-tags">
@@ -1066,11 +1135,10 @@ function buildRow(idea) {
         ${idea.tech?`<span class="stag stag-a">${idea.tech}</span>`:''}
       </div>
     </div>
-    <canvas class="srow-spark" id="spark-${idea.id}"></canvas>
-    <div class="srow-right">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;margin-left:8px;flex-shrink:0">
       <div class="srow-score">${idea.score.toFixed(1)}</div>
       <div class="pill ${pc}">${ds}</div>
-      <div class="srow-votes">${idea.votes}票</div>
+      <button onclick="event.stopPropagation();voteIdea(${idea.id})" style="margin-top:2px;padding:5px 10px;border-radius:20px;font-size:10px;font-weight:700;font-family:var(--sans);border:none;cursor:pointer;white-space:nowrap;${voted?'background:var(--surface2);color:var(--text3)':'background:var(--green-light);color:#fff'}">${voted?'✓済':'応援'} ${idea.votes}</button>
     </div>
   </div>`;
 }
@@ -1126,8 +1194,15 @@ function showDetail(id) {
   const isHot = idea.votes >= HOT_THRESHOLD;
   const v1=Math.min(idea.votes*3,30), v2=Math.min(Math.round(idea.views*0.1),20), v3=idea.progress*10;
   const isMyIdea = myIdeas.has(idea.id);
+  const voted = votedIds.has(idea.id);
   document.getElementById('detail-sub-title').textContent = idea.ticker;
   document.getElementById('detail-content').innerHTML = `
+    <div style="display:flex;gap:10px;margin-bottom:14px">
+      <button onclick="voteFromDetail(${idea.id})" style="flex:1;padding:13px;border-radius:var(--r-lg);font-size:14px;font-weight:700;font-family:var(--sans);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;${voted?'background:var(--surface2);color:var(--text3);border:1.5px solid var(--border2)':'background:var(--green-light);color:#fff'}">
+        <svg width="14" height="14" viewBox="0 0 20 20" fill="${voted?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z"/></svg>
+        ${voted?'応援済み（'+idea.votes+'票）':'応援する（残り'+votesLeft+'票）'}
+      </button>
+    </div>
     <div class="hero-card">
       <div class="hero-top">
         <div class="hero-left">
@@ -1515,7 +1590,7 @@ sb.auth.onAuthStateChange(async (event, session) => {
 
 // ── ガイド ──
 let guideStep = 0;
-const GUIDE_TOTAL = 5;
+const GUIDE_TOTAL = 6;
 
 function showGuide() {
   document.getElementById('guide-screen').classList.add('active');
