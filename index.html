@@ -449,85 +449,58 @@ input[type=file] { display: none; }
   <div class="feed-body">
     <div class="next-update" id="next-lbl"></div>
 
-    <!-- 使い方バナー -->
-    <div class="howto-card" id="howto-card">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <div style="font-size:13px;font-weight:700;color:var(--text)">📖 あいぽの使い方</div>
-        <div onclick="document.getElementById('howto-card').style.display='none'" style="font-size:11px;color:var(--text3);cursor:pointer;padding:2px 8px;border:1px solid var(--border2);border-radius:20px">閉じる</div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <div style="display:flex;align-items:flex-start;gap:10px">
-          <div style="width:24px;height:24px;border-radius:8px;background:var(--amber-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:700;color:var(--amber)">1</div>
-          <div style="font-size:12px;color:var(--text2);line-height:1.6">「＋」ボタンからアイデアを一行投稿する</div>
-        </div>
-        <div style="display:flex;align-items:flex-start;gap:10px">
-          <div style="width:24px;height:24px;border-radius:8px;background:var(--green-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:700;color:var(--green)">2</div>
-          <div style="font-size:12px;color:var(--text2);line-height:1.6">1日3票で気になるアイデアを応援する</div>
-        </div>
-        <div style="display:flex;align-items:flex-start;gap:10px">
-          <div style="width:24px;height:24px;border-radius:8px;background:#f0f7ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:700;color:#185FA5">3</div>
-          <div style="font-size:12px;color:var(--text2);line-height:1.6">スコアが上がると「注目銘柄」に認定される</div>
-        </div>
-      </div>
-    </div>
-
     <!-- 見本バナー -->
     <div class="sample-banner">
       <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="var(--amber)" stroke-width="1.5"/><line x1="10" y1="9" x2="10" y2="14" stroke="var(--amber)" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="6.5" r="1" fill="var(--amber)"/></svg>
-      以下は見本アイデアです。スコアへの反映はされません
+      見本アイデアです。スコアへの反映はされません
     </div>
 
-    <!-- 見本アイデア -->
-    <div class="sample-group">
-      <div class="srow" style="pointer-events:none">
-        <div style="width:42px;height:42px;border-radius:12px;background:#fff8ed;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:12px">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 4C8.7 4 6 6.7 6 10C6 12.2 7.2 14.1 9 15.2L9 17L15 17L15 15.2C16.8 14.1 18 12.2 18 10C18 6.7 15.3 4 12 4Z" fill="#f5d68a" opacity=".4"/><polyline points="8.5,13 10,10.5 12,12 14,8.5 16,5.5" stroke="#bf6d00" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="16" cy="5.5" r="1.8" fill="#bf6d00"/></svg>
+    <!-- 見本アイデア（こだわり版） -->
+    <div class="sample-group" onclick="showSampleDetail()">
+      <div class="srow" style="padding:14px 16px">
+        <div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#fff8ed,#fde8b8);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:13px;box-shadow:0 2px 8px rgba(232,133,10,.18)">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+            <path d="M12 3C8.5 3 5.5 6 5.5 9.5C5.5 12.2 7.1 14.5 9.5 15.7L9.5 18L14.5 18L14.5 15.7C16.9 14.5 18.5 12.2 18.5 9.5C18.5 6 15.5 3 12 3Z" fill="#f5d68a" opacity=".5"/>
+            <polyline points="8,13.5 9.8,10.8 11.5,12 13.5,9 16,5.5" stroke="#bf6d00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <circle cx="16" cy="5.5" r="2.2" fill="#bf6d00"/>
+            <circle cx="16" cy="5.5" r="0.9" fill="#fff8ed"/>
+            <line x1="9.8" y1="19" x2="14.2" y2="19" stroke="#bf6d00" stroke-width="1.6" stroke-linecap="round"/>
+            <line x1="10.4" y1="20.8" x2="13.6" y2="20.8" stroke="#bf6d00" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
         </div>
         <div class="srow-left">
-          <div class="srow-ticker">HABIT <span style="font-size:9px;background:#f0f0f0;color:#999;border-radius:4px;padding:1px 5px;font-weight:700">見本</span></div>
-          <div class="srow-name">習い事スケジュール管理アプリ</div>
-          <div class="srow-tags"><span class="stag stag-genre">副業・フリーランス</span></div>
+          <div class="srow-ticker" style="font-size:16px">
+            HBIT
+            <span style="font-size:9px;background:#f5f0e8;color:#a07840;border:1px solid #e8d5a0;border-radius:5px;padding:2px 6px;font-weight:700;letter-spacing:.03em">見本</span>
+            <span style="font-size:9px;background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border);border-radius:5px;padding:2px 6px;font-weight:700">注目</span>
+          </div>
+          <div style="font-size:13px;font-weight:700;color:var(--text);margin-top:3px;line-height:1.3">子どもの習い事を家族全員で<br>リアルタイム共有するアプリ</div>
+          <div style="display:flex;gap:5px;margin-top:6px;flex-wrap:wrap">
+            <span class="stag stag-genre">副業・フリーランス</span>
+            <span class="stag stag-a">React Native</span>
+          </div>
         </div>
-        <div class="srow-right">
-          <div class="srow-score" style="color:var(--green-light)">84.0</div>
-          <div class="pill pill-g">+2.0</div>
-          <div class="srow-votes">23票</div>
-        </div>
-      </div>
-      <div class="srow" style="pointer-events:none">
-        <div style="width:42px;height:42px;border-radius:12px;background:#fff8ed;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:12px">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="13" r="7" fill="#f5d68a" opacity=".4"/><circle cx="12" cy="13" r="7" stroke="#bf6d00" stroke-width="1.5" fill="none"/><path d="M12 8V9M12 17V18M9.5 11C9.5 10 10.2 9.5 12 9.5C13.8 9.5 14.5 10.2 14.5 11C14.5 12 13.5 12.5 12 13C10.5 13.5 9.5 14 9.5 15.2" stroke="#bf6d00" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg>
-        </div>
-        <div class="srow-left">
-          <div class="srow-ticker">INVCE <span style="font-size:9px;background:#f0f0f0;color:#999;border-radius:4px;padding:1px 5px;font-weight:700">見本</span></div>
-          <div class="srow-name">請求書ワンクリック自動生成</div>
-          <div class="srow-tags"><span class="stag stag-genre">起業家・スタートアップ</span></div>
-        </div>
-        <div class="srow-right">
-          <div class="srow-score">71.0</div>
-          <div class="pill pill-g">+1.0</div>
-          <div class="srow-votes">12票</div>
+        <div class="srow-right" style="min-width:72px">
+          <div style="font-family:var(--mono);font-size:20px;font-weight:700;color:var(--green-light)">92.4</div>
+          <div class="pill pill-g" style="font-size:12px">+4.2</div>
+          <div class="srow-votes" style="margin-top:4px">🔥 31票</div>
         </div>
       </div>
-      <div class="srow" style="pointer-events:none;border-bottom:none">
-        <div style="width:42px;height:42px;border-radius:12px;background:#f5f0ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:12px">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="6" y="8" width="12" height="10" rx="2" fill="#AFA9EC" opacity=".3"/><rect x="6" y="8" width="12" height="10" rx="2" stroke="#534AB7" stroke-width="1.5" fill="none"/><circle cx="9.5" cy="12" r="1.5" fill="#534AB7"/><circle cx="14.5" cy="12" r="1.5" fill="#534AB7"/><line x1="9.5" y1="15" x2="14.5" y2="15" stroke="#534AB7" stroke-width="1.2" stroke-linecap="round"/></svg>
+      <!-- スコア内訳バー -->
+      <div style="padding:0 16px 14px">
+        <div style="display:flex;gap:3px;height:4px;border-radius:2px;overflow:hidden;margin-bottom:6px">
+          <div style="flex:3;background:var(--amber-mid);border-radius:2px"></div>
+          <div style="flex:2;background:var(--green-light);border-radius:2px"></div>
+          <div style="flex:1.5;background:#378ADD;border-radius:2px"></div>
+          <div style="flex:1;background:#a0a0a0;border-radius:2px;opacity:.3"></div>
         </div>
-        <div class="srow-left">
-          <div class="srow-ticker">AIBOX <span style="font-size:9px;background:#f0f0f0;color:#999;border-radius:4px;padding:1px 5px;font-weight:700">見本</span></div>
-          <div class="srow-name">社内FAQ自動応答AIチャットbot</div>
-          <div class="srow-tags"><span class="stag stag-genre">テクノロジー</span></div>
-        </div>
-        <div class="srow-right">
-          <div class="srow-score">67.0</div>
-          <div class="pill pill-g">+2.0</div>
-          <div class="srow-votes">8票</div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3)">
+          <span>応援票 +31</span><span>閲覧 +18</span><span>進捗中</span><span>タップで詳細</span>
         </div>
       </div>
-      <div class="sample-overlay"></div>
     </div>
 
-    <div class="sec-label" id="sec-label">銘柄一覧</div>
+    <div class="sec-label" id="sec-label"></div>
     <div class="stock-group" id="stock-list"></div>
     <div class="xbonus" id="xbonus-card" style="display:none">
       <div class="xb-hd">
@@ -824,11 +797,7 @@ function timeAgo(dateStr) {
 const HOT_THRESHOLD = 20;
 const HOT_DISPLAY = 5;
 
-const IDEAS = [
-  { id:1, ticker:'HABIT', emoji:'💡', name:'習い事スケジュール管理', desc:'子供の習い事をAIが自動整理し、家族全員でリアルタイム共有できるアプリ。リマインダー機能付き。', genre:'副業・フリーランス', tech:'React Native', baseScore:82, score:84, votes:23, views:341, comments:8, progress:1, progressStep:1, postedDaysAgo:2, history:[78,79,80,81,80,82,81,83,84,83,85,84], lastReason:'@yamada_devが応援しました', commentList:[{name:'@tanaka_pm',text:'これ絶対需要ある！うちの奥さんも困ってた',time:'2時間前'},{name:'@sato_ux',text:'UIどんな感じで考えてますか？',time:'5時間前'}], actions:['競合アプリのレビューを100件読む','Twitterで困っている人を20件収集する','Figmaで画面1枚だけ作ってみる'] },
-  { id:2, ticker:'INVCE', emoji:'💰', name:'請求書ワンクリック生成', desc:'作業ログを入力するだけで請求書を自動生成。PDF出力・メール送信まで一気通貫。', genre:'起業家・スタートアップ', tech:'Next.js', baseScore:70, score:71, votes:12, views:188, comments:3, progress:0, progressStep:0, postedDaysAgo:4, history:[68,69,70,71,70,72,71,70,71,72,71], lastReason:'閲覧数が増加しています', commentList:[{name:'@ito_freelance',text:'毎月これで30分は消えてる。マジで欲しい',time:'1日前'}], actions:['請求書作成時間を計測する','同じ悩みを持つ人に5人ヒアリングする','最小フォームをHTMLで作ってみる'] },
-  { id:3, ticker:'SLBOT', emoji:'🛠', name:'本の要点Slack自動投稿Bot', desc:'Kindleメモをもとにチームの知識共有Botを作成。読書がチームの財産になる。', genre:'業務効率', tech:'Python', baseScore:65, score:67, votes:8, views:122, comments:1, progress:0, progressStep:0, postedDaysAgo:6, history:[64,65,65,66,67,66,67,68,67,66,67], lastReason:'新着投稿があり競合評価が変動しました', commentList:[], actions:['Kindleメモエクスポートを試す','Slack Botを1時間で動かす','要約精度をClaudeで検証する'] },
-];
+const IDEAS = [];
 
 let ideas = IDEAS.map(i => ({...i}));
 let votesLeft = 3;
@@ -1294,7 +1263,88 @@ async function postComment(id) {
   showDetail(id);
 }
 
-function voteFromDetail(id) { voteIdea(id); showDetail(id); }
+function showSampleDetail() {
+  document.getElementById('detail-sub-title').textContent = 'HBIT（見本）';
+  document.getElementById('detail-content').innerHTML = `
+    <div style="background:var(--amber-bg);border:1.5px solid var(--amber-border);border-radius:12px;padding:10px 16px;margin-bottom:14px;font-size:12px;color:var(--amber);display:flex;align-items:center;gap:6px">
+      <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="var(--amber)" stroke-width="1.5"/><line x1="10" y1="9" x2="10" y2="14" stroke="var(--amber)" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="6.5" r="1" fill="var(--amber)"/></svg>
+      これは見本アイデアです。実際のスコアには反映されません。
+    </div>
+    <div class="hero-card">
+      <div class="hero-top">
+        <div class="hero-left">
+          <div style="width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,#fff8ed,#fde8b8);display:flex;align-items:center;justify-content:center;box-shadow:0 3px 12px rgba(232,133,10,.2);margin-bottom:10px">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M12 3C8.5 3 5.5 6 5.5 9.5C5.5 12.2 7.1 14.5 9.5 15.7L9.5 18L14.5 18L14.5 15.7C16.9 14.5 18.5 12.2 18.5 9.5C18.5 6 15.5 3 12 3Z" fill="#f5d68a" opacity=".5"/><polyline points="8,13.5 9.8,10.8 11.5,12 13.5,9 16,5.5" stroke="#bf6d00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="16" cy="5.5" r="2.2" fill="#bf6d00"/><circle cx="16" cy="5.5" r="0.9" fill="#fff8ed"/><line x1="9.8" y1="19" x2="14.2" y2="19" stroke="#bf6d00" stroke-width="1.6" stroke-linecap="round"/><line x1="10.4" y1="20.8" x2="13.6" y2="20.8" stroke="#bf6d00" stroke-width="1.3" stroke-linecap="round"/></svg>
+          </div>
+          <div style="font-size:11px;color:var(--text3);font-weight:700;letter-spacing:.06em">HBIT · 見本</div>
+          <div style="font-size:19px;font-weight:700;line-height:1.35;margin-top:3px">子どもの習い事を<br>家族全員でリアルタイム共有</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:5px">副業・フリーランス · React Native</div>
+        </div>
+        <div class="hero-score-wrap">
+          <div class="hero-score up">92.4</div>
+          <div class="hero-pill" style="background:var(--green-light)">+4.2</div>
+        </div>
+      </div>
+    </div>
+    <div class="desc-card">
+      <div class="ic-title">DESCRIPTION</div>
+      <div style="font-size:13px;color:var(--text);line-height:1.85">
+        共働き家庭で「今日ピアノだっけ？サッカーだっけ？」という会話、毎週起きていませんか？<br><br>
+        子どもの習い事スケジュールをAIが自動で整理し、家族全員のスマホにリアルタイム反映。送迎担当も自動でアサインされるので、「誰が迎えに行く？」という調整が不要になります。<br><br>
+        月謝の支払い管理・振替連絡の通知・兄弟姉妹のスケジュール一覧表示にも対応予定。
+      </div>
+    </div>
+    <div class="info-card">
+      <div class="ic-title">SCORE BREAKDOWN</div>
+      <div class="bar-row"><div class="bar-name">応援票</div><div class="bar-track"><div class="bar-fill bar-a" style="width:100%"></div></div><div class="bar-num">30</div></div>
+      <div class="bar-row"><div class="bar-name">閲覧数</div><div class="bar-track"><div class="bar-fill bar-g" style="width:90%"></div></div><div class="bar-num">18</div></div>
+      <div class="bar-row"><div class="bar-name">進捗更新</div><div class="bar-track"><div class="bar-fill bar-t" style="width:66%"></div></div><div class="bar-num">20</div></div>
+    </div>
+    <div class="action-card">
+      <div class="ic-title" style="margin-bottom:12px">NEXT ACTIONS</div>
+      <div class="action-row"><div class="action-num">01</div><div class="action-text">共働き家庭30組にヒアリングして課題を深掘りする</div></div>
+      <div class="action-row"><div class="action-num">02</div><div class="action-text">Figmaで家族カレンダー画面のプロトタイプを作る</div></div>
+      <div class="action-row"><div class="action-num">03</div><div class="action-text">React Nativeで最小構成のMVPを2週間で完成させる</div></div>
+    </div>
+    <div style="background:var(--surface2);border-radius:var(--r-lg);padding:14px;text-align:center">
+      <div style="font-size:12px;color:var(--text3);margin-bottom:4px">これはあいぽの見本アイデアです</div>
+      <div style="font-size:13px;color:var(--text2);font-weight:700">「＋」ボタンであなたのアイデアを上場してみましょう</div>
+    </div>
+  `;
+  goTo('detail');
+}
+
+// ── スワイプナビゲーション ──
+let swipeStartX = 0;
+let swipeStartY = 0;
+
+document.addEventListener('touchstart', e => {
+  swipeStartX = e.touches[0].clientX;
+  swipeStartY = e.touches[0].clientY;
+}, { passive: true });
+
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - swipeStartX;
+  const dy = e.changedTouches[0].clientY - swipeStartY;
+  if (Math.abs(dx) < 60 || Math.abs(dy) > Math.abs(dx) * 0.8) return;
+
+  const active = document.querySelector('.screen.active');
+  if (!active) return;
+  const id = active.id;
+
+  // 右スワイプ（戻る）
+  if (dx > 60) {
+    if (id === 'screen-detail') goTo('feed');
+    else if (id === 'screen-post') goTo('feed');
+    else if (id === 'screen-portfolio') goTo('feed');
+  }
+
+  // 左スワイプ（進む）
+  if (dx < -60) {
+    if (id === 'screen-feed') goTo('portfolio');
+    else if (id === 'screen-portfolio') goTo('feed');
+  }
+}, { passive: true });
 
 function editField(id, field) {
   const view = document.getElementById(`${field}-view-${id}`);
