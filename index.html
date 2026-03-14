@@ -190,7 +190,11 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); over
 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .hint { font-size: 11px; color: var(--text3); margin-top: 6px; line-height: 1.6; }
 
-/* ── TOAST ── */
+.howto-card { background:var(--surface); border-radius:var(--r-xl); padding:16px 18px; margin-bottom:10px; border:1.5px solid var(--amber-border); }
+.sample-banner { display:flex; align-items:center; gap:6px; background:var(--amber-bg); border:1px solid var(--amber-border); border-radius:var(--r-md); padding:8px 14px; margin-bottom:8px; font-size:11px; color:var(--amber); font-weight:700; }
+.sample-group { background:var(--surface); border-radius:var(--r-xl); overflow:hidden; margin-bottom:12px; position:relative; }
+.sample-overlay { position:absolute; inset:0; background:rgba(255,255,255,0.4); border-radius:var(--r-xl); pointer-events:none; }
+
 .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(8px); background: var(--text); border-radius: 20px; padding: 11px 22px; font-size: 13px; color: #fff; opacity: 0; transition: all .25s; pointer-events: none; z-index: 100; max-width: 320px; width: 90%; text-align: center; font-weight: 700; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 input[type=file] { display: none; }
@@ -444,6 +448,85 @@ input[type=file] { display: none; }
   </div>
   <div class="feed-body">
     <div class="next-update" id="next-lbl"></div>
+
+    <!-- 使い方バナー -->
+    <div class="howto-card" id="howto-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="font-size:13px;font-weight:700;color:var(--text)">📖 あいぽの使い方</div>
+        <div onclick="document.getElementById('howto-card').style.display='none'" style="font-size:11px;color:var(--text3);cursor:pointer;padding:2px 8px;border:1px solid var(--border2);border-radius:20px">閉じる</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <div style="width:24px;height:24px;border-radius:8px;background:var(--amber-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:700;color:var(--amber)">1</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.6">「＋」ボタンからアイデアを一行投稿する</div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <div style="width:24px;height:24px;border-radius:8px;background:var(--green-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:700;color:var(--green)">2</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.6">1日3票で気になるアイデアを応援する</div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <div style="width:24px;height:24px;border-radius:8px;background:#f0f7ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:700;color:#185FA5">3</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.6">スコアが上がると「注目銘柄」に認定される</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 見本バナー -->
+    <div class="sample-banner">
+      <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="var(--amber)" stroke-width="1.5"/><line x1="10" y1="9" x2="10" y2="14" stroke="var(--amber)" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="6.5" r="1" fill="var(--amber)"/></svg>
+      以下は見本アイデアです。スコアへの反映はされません
+    </div>
+
+    <!-- 見本アイデア -->
+    <div class="sample-group">
+      <div class="srow" style="pointer-events:none">
+        <div style="width:42px;height:42px;border-radius:12px;background:#fff8ed;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:12px">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 4C8.7 4 6 6.7 6 10C6 12.2 7.2 14.1 9 15.2L9 17L15 17L15 15.2C16.8 14.1 18 12.2 18 10C18 6.7 15.3 4 12 4Z" fill="#f5d68a" opacity=".4"/><polyline points="8.5,13 10,10.5 12,12 14,8.5 16,5.5" stroke="#bf6d00" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="16" cy="5.5" r="1.8" fill="#bf6d00"/></svg>
+        </div>
+        <div class="srow-left">
+          <div class="srow-ticker">HABIT <span style="font-size:9px;background:#f0f0f0;color:#999;border-radius:4px;padding:1px 5px;font-weight:700">見本</span></div>
+          <div class="srow-name">習い事スケジュール管理アプリ</div>
+          <div class="srow-tags"><span class="stag stag-genre">副業・フリーランス</span></div>
+        </div>
+        <div class="srow-right">
+          <div class="srow-score" style="color:var(--green-light)">84.0</div>
+          <div class="pill pill-g">+2.0</div>
+          <div class="srow-votes">23票</div>
+        </div>
+      </div>
+      <div class="srow" style="pointer-events:none">
+        <div style="width:42px;height:42px;border-radius:12px;background:#fff8ed;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:12px">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="13" r="7" fill="#f5d68a" opacity=".4"/><circle cx="12" cy="13" r="7" stroke="#bf6d00" stroke-width="1.5" fill="none"/><path d="M12 8V9M12 17V18M9.5 11C9.5 10 10.2 9.5 12 9.5C13.8 9.5 14.5 10.2 14.5 11C14.5 12 13.5 12.5 12 13C10.5 13.5 9.5 14 9.5 15.2" stroke="#bf6d00" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg>
+        </div>
+        <div class="srow-left">
+          <div class="srow-ticker">INVCE <span style="font-size:9px;background:#f0f0f0;color:#999;border-radius:4px;padding:1px 5px;font-weight:700">見本</span></div>
+          <div class="srow-name">請求書ワンクリック自動生成</div>
+          <div class="srow-tags"><span class="stag stag-genre">起業家・スタートアップ</span></div>
+        </div>
+        <div class="srow-right">
+          <div class="srow-score">71.0</div>
+          <div class="pill pill-g">+1.0</div>
+          <div class="srow-votes">12票</div>
+        </div>
+      </div>
+      <div class="srow" style="pointer-events:none;border-bottom:none">
+        <div style="width:42px;height:42px;border-radius:12px;background:#f5f0ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:12px">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="6" y="8" width="12" height="10" rx="2" fill="#AFA9EC" opacity=".3"/><rect x="6" y="8" width="12" height="10" rx="2" stroke="#534AB7" stroke-width="1.5" fill="none"/><circle cx="9.5" cy="12" r="1.5" fill="#534AB7"/><circle cx="14.5" cy="12" r="1.5" fill="#534AB7"/><line x1="9.5" y1="15" x2="14.5" y2="15" stroke="#534AB7" stroke-width="1.2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="srow-left">
+          <div class="srow-ticker">AIBOX <span style="font-size:9px;background:#f0f0f0;color:#999;border-radius:4px;padding:1px 5px;font-weight:700">見本</span></div>
+          <div class="srow-name">社内FAQ自動応答AIチャットbot</div>
+          <div class="srow-tags"><span class="stag stag-genre">テクノロジー</span></div>
+        </div>
+        <div class="srow-right">
+          <div class="srow-score">67.0</div>
+          <div class="pill pill-g">+2.0</div>
+          <div class="srow-votes">8票</div>
+        </div>
+      </div>
+      <div class="sample-overlay"></div>
+    </div>
+
     <div class="sec-label" id="sec-label">銘柄一覧</div>
     <div class="stock-group" id="stock-list"></div>
     <div class="xbonus" id="xbonus-card" style="display:none">
