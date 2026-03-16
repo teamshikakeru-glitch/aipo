@@ -702,6 +702,7 @@ async function fetchIdeas() {
       progress: row.progress_step,
       progressStep: row.progress_step,
       postedDaysAgo: (Date.now() - new Date(row.posted_at)) / 86400000,
+          daysSinceLastVote: row.last_voted_at ? (Date.now() - new Date(row.last_voted_at).getTime()) / 86400000 : (Date.now() - new Date(row.posted_at).getTime()) / 86400000,
       history: [parseFloat(row.score)],
       lastReason: '最新データを取得しました',
       lastDelta: 0,
@@ -779,7 +780,12 @@ async function voteIdeaToDB(ideaId) {
     created_at: new Date().toISOString(),
   });
   if (error) { console.error('vote:', error); return false; }
-  await sb.from('ideas').update({ votes: sb.rpc('increment', { row_id: ideaId }) }).eq('id', ideaId);
+  const idea = ideas.find(i => i.id === ideaId);
+  const newVotes = (idea?.votes || 0) + 1;
+  await sb.from('ideas').update({
+    votes: newVotes,
+    last_voted_at: new Date().toISOString()
+  }).eq('id', ideaId);
   return true;
 }
 
@@ -1028,18 +1034,38 @@ function icoSVG(emoji, size=42) {
 }
 
 function calcScore(idea) {
+  // 基本スコア
   let s = 50;
-  s += Math.min(idea.votes * 3, 30);
-  s -= idea.postedDaysAgo * 0.5;
+
+  // 応援票（上限なし）
+  s += idea.votes * 3;
+
+  // 閲覧数ボーナス
   s += Math.min(idea.views * 0.1, 20);
+
+  // コメントボーナス
   s += Math.min((idea.commentList||[]).length * 2, 20);
+
+  // 進捗ステータスボーナス
   s += idea.progress * 10;
+
+  // 説明・技術情報ボーナス
   s += idea.desc ? 5 : 0;
   s += idea.tech ? 3 : 0;
+
+  // 同ジャンル内ランキングボーナス
   const same = ideas.filter(i => i.genre === idea.genre && i.id !== idea.id);
   if (same.length > 0 && same.every(i => i.votes <= idea.votes)) s += 5;
-  if (Math.random() > 0.85) s += 5;
-  return Math.max(0, Math.min(100, Math.round(s * 10) / 10));
+
+  // 毎日-1点の自然減衰（上場からの日数）
+  s -= idea.postedDaysAgo * 1.0;
+
+  // 7日間無投票ペナルティ（-5点）
+  const daysSinceVote = idea.daysSinceLastVote || idea.postedDaysAgo;
+  if (daysSinceVote >= 7) s -= 5;
+
+  // 下限なし（0点以下もあり）・上限なし
+  return Math.round(s * 10) / 10;
 }
 
 setInterval(() => {
