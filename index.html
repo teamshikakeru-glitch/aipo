@@ -220,6 +220,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); over
 .hint { font-size: 11px; color: var(--text3); margin-top: 6px; line-height: 1.6; }
 .sample-banner { display:flex; align-items:center; gap:6px; background:var(--amber-bg); border:1px solid var(--amber-border); border-radius:var(--r-md); padding:8px 16px; margin:0 0 6px; font-size:11px; color:var(--amber); font-weight:700; }
 .sample-group { background:var(--surface); border-radius:var(--r-xl); overflow:hidden; margin-bottom:12px; box-shadow:0 1px 6px rgba(0,0,0,.06); position:relative; }
+.stock-group > div:last-child, .sample-group > div:last-child { border-bottom:none !important; }
 .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(8px); background: var(--text); border-radius: 20px; padding: 11px 22px; font-size: 13px; color: #fff; opacity: 0; transition: all .25s; pointer-events: none; z-index: 100; max-width: 320px; width: 90%; text-align: center; font-weight: 700; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 input[type=file] { display: none; }
@@ -538,7 +539,7 @@ input[type=file] { display: none; }
 
 <!-- ═══ DETAIL ═══ -->
 <div class="screen" id="screen-detail" style="padding-bottom:90px">
-  <div class="float-vote-btn" id="float-vote-wrap" style="display:none"><button id="float-vote-btn" class="can">応援する</button></div>
+  <div class="float-vote-btn" id="float-vote-wrap" style="display:none !important"><button id="float-vote-btn" class="can">応援する</button></div>
   <div class="sub-header">
     <div class="back-btn" onclick="goTo('feed')">
       <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 5l-5 5 5 5"/></svg>
@@ -616,8 +617,8 @@ input[type=file] { display: none; }
       </div>
     </div>
   </div>
-  <div class="feed-body">
-    <div id="portfolio-founder-badge" style="padding:4px 0 8px"></div>
+  <div class="feed-body" style="padding:10px 14px 0">
+    <div id="portfolio-founder-badge" style="padding:4px 0 8px;padding-left:0"></div>
     <div class="stock-group" id="portfolio-list"></div>
   </div>
 </div>
@@ -1052,7 +1053,7 @@ function renderPortfolio() {
   // マイ銘柄セクション
   if (myList.length > 0) {
     html_out += `<div style="font-size:11px;font-weight:700;color:var(--text3);padding:2px 0 6px;letter-spacing:.06em;text-transform:uppercase">自分のアイデア</div>`;
-    html_out += `<div class="stock-group">` + myList.map(idea => buildPortfolioRow(idea)).join('') + `</div>`;
+    html_out += `<div class="stock-group" style="margin-bottom:0">` + myList.map(idea => buildPortfolioRow(idea)).join('') + `</div>`;
   }
 
   if (myList.length === 0 && favList.length === 0) {
@@ -1231,12 +1232,10 @@ function showDetail(id) {
   const voted = votedIds.has(idea.id);
   document.getElementById('detail-sub-title').textContent = idea.ticker;
   document.getElementById('detail-content').innerHTML = `
-    <div style="display:flex;gap:10px;margin-bottom:14px">
-      <button onclick="voteFromDetail('${idea.id}')" style="flex:1;padding:13px;border-radius:var(--r-lg);font-size:14px;font-weight:700;font-family:var(--sans);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;${voted?'background:var(--surface2);color:var(--text3);border:1.5px solid var(--border2)':'background:var(--green-light);color:#fff'}">
-        <svg width="14" height="14" viewBox="0 0 20 20" fill="${voted?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z"/></svg>
-        ${voted?'応援済み（'+idea.votes+'票）':'応援する（残り'+votesLeft+'票）'}
-      </button>
-    </div>
+    <button onclick="voteFromDetail('${idea.id}')" style="width:100%;padding:15px;border-radius:var(--r-lg);font-size:15px;font-weight:700;font-family:var(--sans);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px;${voted?'background:var(--surface2);color:var(--text3);border:1.5px solid var(--border2)':'background:var(--green-light);color:#fff'}">
+      <svg width="16" height="16" viewBox="0 0 20 20" fill="${voted?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z"/></svg>
+      ${voted?'応援済み（'+idea.votes+'票）':'このアイデアを応援する（残り'+votesLeft+'票）'}
+    </button>
     <div class="hero-card">
       <div class="hero-top">
         <div class="hero-left">
