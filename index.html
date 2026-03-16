@@ -1839,7 +1839,7 @@ async function postComment(id) {
   if (!text) { showToast('コメントを入力してください'); return; }
   if (currentUser) await postCommentToDB(id, text);
   if (!idea.commentList) idea.commentList = [];
-  idea.commentList.unshift({ name: currentUser ? '@' + (currentUser.user_metadata?.user_name || 'あなた') : '@あなた', text, time:'たった今' });
+  idea.commentList.unshift({ name: currentUser ? '@' + (currentUser.x_username || currentUser.user_metadata?.user_name || 'ユーザー') : '@ユーザー', text, time:'たった今' });
   commentCount++;
   idea.score = calcScore(idea);
   idea.history = [...idea.history.slice(-11), idea.score];
