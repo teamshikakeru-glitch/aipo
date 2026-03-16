@@ -465,32 +465,32 @@ input[type=file] { display: none; }
       見本アイデアです。スコアへの反映はされません
     </div>
     <div class="sample-group">
-      <div style="padding:12px 14px 0;cursor:pointer" onclick="showSampleDetail()">
-        <div style="display:flex;align-items:flex-start;gap:10px">
+      <div style="border-bottom:none;cursor:pointer;position:relative" onclick="showSampleDetail()">
+        <div style="padding:12px 14px 8px;display:flex;align-items:flex-start;gap:10px">
           <div style="display:flex;flex-direction:column;align-items:center;min-width:58px;flex-shrink:0;padding:4px 0">
             <div style="font-family:var(--mono);font-size:24px;font-weight:700;color:#22a85f;line-height:1;letter-spacing:-.02em">92.4</div>
             <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:#22a85f;background:rgba(34,168,95,.12);padding:2px 7px;border-radius:5px;margin-top:4px">+4.2</div>
             <div style="font-size:9px;color:var(--text3);margin-top:3px">31票</div>
           </div>
           <div style="flex:1;min-width:0">
-            <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-bottom:2px">
+            <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-bottom:3px">
               <span style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text2);letter-spacing:.04em">HBIT</span>
               <span style="font-size:9px;background:#f5f0e8;color:#a07840;border:1px solid #e8d5a0;border-radius:5px;padding:2px 6px;font-weight:700">見本</span>
               <span class="hot-badge">注目</span>
             </div>
             <div style="font-size:14px;font-weight:700;color:var(--text);line-height:1.4;margin-bottom:5px">子どもの習い事を家族全員でリアルタイム共有するアプリ</div>
-            <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px">
+            <div style="display:flex;gap:4px;flex-wrap:wrap">
               <span class="stag stag-genre">副業・フリーランス</span>
               <span class="stag stag-a">React Native</span>
             </div>
           </div>
           <div style="width:60px;height:38px;flex-shrink:0;margin-top:4px;background:linear-gradient(135deg,rgba(34,168,95,.08),rgba(34,168,95,.02));border-radius:4px"></div>
         </div>
-        <div style="display:flex;align-items:center;justify-content:center;gap:6px;width:calc(100% + 28px);margin:0 -14px;padding:11px;font-size:13px;font-weight:700;color:var(--green);background:rgba(34,168,95,.06);border:none;border-top:0.5px solid var(--border)">
+        <div onclick="event.stopPropagation()" style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:11px;font-size:13px;font-weight:700;color:var(--green);background:rgba(34,168,95,.06);border:none;border-top:0.5px solid var(--border)">
           <svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z"/></svg>
           応援する · 31票
         </div>
-      </div></div>
+      </div>
       <div style="padding:0 16px 14px">
         <div style="display:flex;gap:3px;height:4px;border-radius:2px;overflow:hidden;margin-bottom:6px">
           <div style="flex:3;background:var(--amber-mid);border-radius:2px"></div>
@@ -1141,38 +1141,35 @@ function buildRow(idea) {
   const voted = votedIds.has(idea.id);
   const fb = founderBadgeHTML(idea.userId);
   const isFav = favIdeas.has(idea.id);
-  return `<div id="row-${idea.id}" onclick="showDetail('${idea.id}')" style="padding:12px 14px 0;border-bottom:0.5px solid var(--border);cursor:pointer;transition:background .1s;position:relative;overflow:hidden">
-    ${isFav ? '<div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#e8850a,#bf6d00);border-radius:0 2px 2px 0"></div>' : ''}
-    <div style="display:flex;align-items:flex-start;gap:10px">
-      <!-- 左: スコアブロック -->
+  const voteBtnStyle = voted
+    ? 'background:var(--surface2);color:var(--text3)'
+    : 'background:rgba(34,168,95,.06);color:var(--green)';
+  return `<div id="row-${idea.id}" onclick="showDetail('${idea.id}')" style="border-bottom:0.5px solid var(--border);cursor:pointer;position:relative">
+    ${isFav ? '<div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#e8850a,#bf6d00);z-index:1"></div>' : ''}
+    <div style="padding:12px 14px 8px;display:flex;align-items:flex-start;gap:10px">
       <div style="display:flex;flex-direction:column;align-items:center;min-width:58px;flex-shrink:0;padding:4px 0">
         <div style="font-family:var(--mono);font-size:24px;font-weight:700;color:${scoreColor};line-height:1;letter-spacing:-.02em">${idea.score.toFixed(1)}</div>
         <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:${deltaColor};background:${deltaBg};padding:2px 7px;border-radius:5px;margin-top:4px">${ds}</div>
         <div style="font-size:9px;color:var(--text3);margin-top:3px">${idea.votes}票</div>
       </div>
-      <!-- 中: テキスト -->
       <div style="flex:1;min-width:0">
-        <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-bottom:2px">
+        <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-bottom:3px">
           <span style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text2);letter-spacing:.04em">${idea.ticker}</span>
+          <button onclick="event.stopPropagation();toggleFav('${idea.id}')" style="background:none;border:none;cursor:pointer;padding:0;line-height:1;display:flex;align-items:center">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="${isFav?'#e8850a':'none'}" stroke="${isFav?'#e8850a':'#ccc'}" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          </button>
           ${isHot?'<span class="hot-badge">注目</span>':''}
           ${fb ? fb : ''}
         </div>
         <div style="font-size:14px;font-weight:700;color:var(--text);line-height:1.4;margin-bottom:5px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${idea.name}</div>
-        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px">
+        <div style="display:flex;gap:4px;flex-wrap:wrap">
           <span class="stag stag-genre">${idea.genre}</span>
           ${idea.tech?`<span class="stag stag-a">${idea.tech}</span>`:''}
         </div>
       </div>
-      <!-- 右: スパーク -->
-      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0">
-        <canvas style="width:60px;height:38px" id="spark-${idea.id}"></canvas>
-        <button onclick="event.stopPropagation();toggleFav('${idea.id}')" style="background:none;border:none;cursor:pointer;padding:0;line-height:1">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="${isFav?'#e8850a':'none'}" stroke="${isFav?'#e8850a':'#ccc'}" stroke-width="1.8"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-        </button>
-      </div>
+      <canvas style="width:60px;height:38px;flex-shrink:0;margin-top:4px" id="spark-${idea.id}"></canvas>
     </div>
-    <!-- 下部: 投票ボタン横幅いっぱい -->
-    <button onclick="event.stopPropagation();voteIdea('${idea.id}')" style="display:flex;align-items:center;justify-content:center;gap:6px;width:calc(100% + 28px);margin:0 -14px;padding:11px;font-size:13px;font-weight:700;font-family:var(--sans);border:none;border-top:0.5px solid var(--border);cursor:pointer;transition:all .15s;${voted?'background:var(--surface2);color:var(--text3)':'background:rgba(34,168,95,.06);color:var(--green)'}">
+    <button onclick="event.stopPropagation();voteIdea('${idea.id}')" style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:11px;font-size:13px;font-weight:700;font-family:var(--sans);border:none;border-top:0.5px solid var(--border);cursor:pointer;transition:all .15s;${voteBtnStyle}">
       <svg width="13" height="13" viewBox="0 0 20 20" fill="${voted?'currentColor':'none'}" stroke="currentColor" stroke-width="2.2"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z"/></svg>
       ${voted?'応援済み':'応援する'} · ${idea.votes}票
     </button>
