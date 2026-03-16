@@ -790,7 +790,9 @@ async function checkSession() {
 }
 
 function timeAgo(dateStr) {
-  const diff = Date.now() - new Date(dateStr);
+  // SupabaseはUTCで保存 → 末尾にZを付けてUTCとして解釈させる
+  const str = dateStr.endsWith('Z') ? dateStr : dateStr + 'Z';
+  const diff = Date.now() - new Date(str).getTime();
   const m = Math.floor(diff / 60000);
   if (m < 1) return 'たった今';
   if (m < 60) return m + '分前';
