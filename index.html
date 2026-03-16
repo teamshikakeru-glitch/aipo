@@ -1530,7 +1530,17 @@ function showEditIdea(id) {
       <textarea id="edit-desc" class="inp inp-sm" rows="3" style="margin-bottom:14px">${idea.desc||''}</textarea>
 
       <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:6px">テクノロジー・技術</div>
-      <input id="edit-tech" class="inp inp-sm" value="${idea.tech||''}" style="margin-bottom:20px">
+      <input id="edit-tech" class="inp inp-sm" value="${idea.tech||''}" style="margin-bottom:14px">
+
+      <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:6px">進捗ステータス</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px" id="edit-progress-grid">
+        ${[{label:'アイデア段階',val:0,sub:'基本'},{label:'開発中',val:1,sub:'+10pt'},{label:'テスト中',val:2,sub:'+20pt'},{label:'リリース済み',val:3,sub:'+30pt'}].map(p =>
+          `<div onclick="this.parentElement.querySelectorAll('.ep-item').forEach(x=>x.classList.remove('selected'));this.classList.add('selected')" class="genre-item ep-item${idea.progress===p.val?' selected':''}" data-val="${p.val}">
+            <div style="font-weight:700">${p.label}</div>
+            <div style="font-size:10px;opacity:.7">${p.sub}</div>
+          </div>`
+        ).join('')}
+      </div>
 
       <button onclick="saveEditIdea('${id}')" style="width:100%;padding:14px;background:var(--amber-mid);border:none;border-radius:var(--r-lg);font-size:15px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans);margin-bottom:8px">保存する</button>
       <button onclick="document.getElementById('edit-idea-modal').remove()" style="width:100%;padding:12px;background:transparent;border:none;font-size:14px;color:var(--text3);cursor:pointer;font-family:var(--sans)">キャンセル</button>
@@ -1550,9 +1560,11 @@ async function saveEditIdea(id) {
   const tech = document.getElementById('edit-tech')?.value.trim();
   const genreEl = document.querySelector('#edit-genre-grid .eg-item.selected');
   const genre = genreEl ? genreEl.textContent : idea.genre;
+  const progressEl = document.querySelector('#edit-progress-grid .ep-item.selected');
+  const progress = progressEl ? parseInt(progressEl.dataset.val) : idea.progress;
   if (!name) { showToast('アイデア名を入力してください'); return; }
   const { error } = await sb.from('ideas').update({
-    name, ticker, description: desc, tech, genre, updated_at: new Date()
+    name, ticker, description: desc, tech, genre, progress_step: progress, updated_at: new Date()
   }).eq('id', id).eq('user_id', currentUser.id);
   if (error) { showToast('保存に失敗しました'); return; }
   idea.name = name;
@@ -1560,6 +1572,7 @@ async function saveEditIdea(id) {
   idea.desc = desc;
   idea.tech = tech;
   idea.genre = genre;
+  idea.progress = progress;
   document.getElementById('edit-idea-modal')?.remove();
   showToast('更新しました🥃');
   renderPortfolio();
