@@ -45,7 +45,7 @@ nav.scrolled{background:rgba(249,247,243,.95);backdrop-filter:blur(16px);border-
 .hero-eyebrow{position:relative;z-index:1;display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:.5px solid var(--border);border-radius:20px;padding:6px 14px;font-size:11px;font-weight:700;color:var(--text3);margin-bottom:28px;opacity:0;animation:fadeUp .5s .1s ease forwards}
 .hero-eyebrow span{width:6px;height:6px;background:var(--green);border-radius:50%;display:inline-block;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
-.hero h1{position:relative;z-index:1;font-size:clamp(40px,9vw,72px);font-weight:900;line-height:1.1;letter-spacing:-.02em;margin-bottom:20px;opacity:0;animation:fadeUp .5s .2s ease forwards}
+.hero h1{position:relative;z-index:1;font-size:clamp(32px,8vw,72px);font-weight:900;line-height:1.2;letter-spacing:-.02em;margin-bottom:20px;opacity:0;animation:fadeUp .5s .2s ease forwards;word-break:keep-all}
 .hero h1 em{font-style:normal;color:var(--amber);position:relative}
 .hero h1 em::after{content:'';position:absolute;bottom:-4px;left:0;right:0;height:3px;background:var(--amber);border-radius:2px;transform:scaleX(0);animation:lineIn .4s .8s ease forwards}
 @keyframes lineIn{to{transform:scaleX(1)}}
@@ -57,11 +57,11 @@ nav.scrolled{background:rgba(249,247,243,.95);backdrop-filter:blur(16px);border-
 .btn-ghost:hover{border-color:var(--amber);color:var(--amber)}
 
 /* リアルタイム統計 */
-.hero-stats{position:relative;z-index:1;display:flex;gap:24px;justify-content:center;opacity:0;animation:fadeUp .5s .5s ease forwards}
-.stat-item{text-align:center}
-.stat-val{font-family:'Space Mono',monospace;font-size:28px;font-weight:700;color:var(--text);line-height:1}
+.hero-stats{position:relative;z-index:1;display:grid;grid-template-columns:repeat(2,1fr);gap:12px;justify-items:center;width:100%;max-width:320px;opacity:0;animation:fadeUp .5s .5s ease forwards}
+.stat-item{text-align:center;background:var(--surface);border:.5px solid var(--border);border-radius:12px;padding:10px 16px;width:100%}
+.stat-val{font-family:'Space Mono',monospace;font-size:24px;font-weight:700;color:var(--text);line-height:1}
 .stat-label{font-size:10px;color:var(--text3);margin-top:4px;font-weight:700;letter-spacing:.06em}
-.stat-div{width:1px;background:var(--border);align-self:stretch}
+.stat-div{display:none}
 
 /* モックアップ */
 .mock-wrap{position:relative;z-index:1;margin-top:56px;opacity:0;animation:fadeUp .6s .6s ease forwards}
@@ -217,7 +217,7 @@ footer{border-top:.5px solid var(--border);padding:20px;text-align:center;font-s
   <div class="hero-bg-grid"></div>
   <div class="hero-bg-glow"></div>
   <div class="hero-eyebrow"><span></span>アイデアIPO市場 — 2026</div>
-  <h1>あなたの思いつきを、<br><em>世界に証明</em>しよう。</h1>
+  <h1>あなたの思いつきを、<em>世界に証明</em>しよう。</h1>
   <p class="hero-sub">AIが進化するほど、人間の「思いつき」の価値は上がる。あいぽは、あなたのアイデアを市場に上場させる新しいSNSです。</p>
   <div class="hero-actions">
     <a href="https://aipo-tau.vercel.app" class="btn-primary">無料で上場してみる →</a>
