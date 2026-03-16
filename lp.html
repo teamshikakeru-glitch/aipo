@@ -501,15 +501,7 @@ footer {
       <a href="https://aipo-tau.vercel.app" class="btn-p">無料で上場してみる →</a>
       <a href="#about" class="btn-g">使い方を見る</a>
     </div>
-    <div class="hero-stats">
-      <div class="stat-box"><div class="stat-v" id="su">—</div><div class="stat-l">ユーザー</div></div>
-      <div class="stat-box"><div class="stat-v" id="si">—</div><div class="stat-l">上場アイデア</div></div>
-      <div class="stat-box"><div class="stat-v" id="sv">—</div><div class="stat-l">累計応援票</div></div>
-      <div class="stat-box" style="cursor:pointer" onclick="document.getElementById('plans').scrollIntoView({behavior:'smooth'})">
-        <div class="stat-v amber" id="sf">—</div>
-        <div class="stat-l amber">創設メンバー残り</div>
-      </div>
-    </div>
+
     <div class="mock-wrap">
       <div class="mock">
         <div class="mock-notch"><div class="mock-notch-inner"></div></div>
@@ -681,11 +673,11 @@ footer {
   <div class="faq-max">
     <div class="label rev">FAQ</div>
     <h2 class="title rev">よくある質問</h2>
-    <div class="faq-item"><div class="faq-q">あいぽって何ですか？<span class="faq-ic">+</span></div><div class="faq-a">アイデアを株式市場のように「上場」して市場に問うSNSです。応援票が集まるほどスコアが上がり、本当に価値あるアイデアが浮かび上がります。</div></div>
-    <div class="faq-item"><div class="faq-q">投票は毎日リセットされますか？<span class="faq-ic">+</span></div><div class="faq-a">はい。次にアプリを開いた時点で今日の投票数が計算され、3票（Pro/創設メンバーは4票）が使えます。</div></div>
-    <div class="faq-item"><div class="faq-q">スコアが下がることはありますか？<span class="faq-ic">+</span></div><div class="faq-a">あります。上場から毎日1点ずつ自然に減衰します。また7日間投票がないと追加ペナルティが入ります。</div></div>
-    <div class="faq-item"><div class="faq-q">スマホで使えますか？<span class="faq-ic">+</span></div><div class="faq-a">はい、スマートフォン専用設計です。SafariまたはChromeからホーム画面に追加するとアプリとして使えます。</div></div>
-    <div class="faq-item"><div class="faq-q">創設メンバーはいつまで申し込めますか？<span class="faq-ic">+</span></div><div class="faq-a">先着100名限定です。枠が埋まり次第終了します。後から取得することはできません。</div></div>
+    <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q">あいぽって何ですか？<span class="faq-ic">+</span></div><div class="faq-a">アイデアを株式市場のように「上場」して市場に問うSNSです。応援票が集まるほどスコアが上がり、本当に価値あるアイデアが浮かび上がります。</div></div>
+    <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q">投票は毎日リセットされますか？<span class="faq-ic">+</span></div><div class="faq-a">はい。次にアプリを開いた時点で今日の投票数が計算され、3票（Pro/創設メンバーは4票）が使えます。</div></div>
+    <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q">スコアが下がることはありますか？<span class="faq-ic">+</span></div><div class="faq-a">あります。上場から毎日1点ずつ自然に減衰します。また7日間投票がないと追加ペナルティが入ります。</div></div>
+    <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q">スマホで使えますか？<span class="faq-ic">+</span></div><div class="faq-a">はい、スマートフォン専用設計です。SafariまたはChromeからホーム画面に追加するとアプリとして使えます。</div></div>
+    <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q">創設メンバーはいつまで申し込めますか？<span class="faq-ic">+</span></div><div class="faq-a">先着100名限定です。枠が埋まり次第終了します。後から取得することはできません。</div></div>
   </div>
 </div>
 
@@ -710,115 +702,52 @@ window.addEventListener('scroll', () => {
   document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 40);
 });
 
-// リビール
-const revObserver = new IntersectionObserver(entries => {
-  entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('vis'); } });
-}, {threshold: 0.05, rootMargin: '0px 0px -20px 0px'});
-document.querySelectorAll('.rev').forEach(el => revObserver.observe(el));
+// スクロールアニメ
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('vis'); });
+}, {threshold: 0.05});
+document.querySelectorAll('.rev').forEach(el => obs.observe(el));
 
-// FAQ（クリック委譲でより確実に）
-['click','touchend'].forEach(ev => {
-  document.addEventListener(ev, function(e) {
-    const item = e.target.closest('.faq-item');
-    if(item) {
-      e.preventDefault();
-      item.classList.toggle('open');
-    }
-  }, {passive: false});
-});
-
-// Supabase
-const SB_URL = 'https://qjffvspnnxyykoyhnazm.supabase.co';
-const SB_KEY = atob('ZXlKaGJHY2lPaUpJVXpJMU5pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SnBjM01pT2lKemRYQmhZbUZ6WlNJc0luSmxaaUk2SW5GcVptWjJjM0J1Ym5sNWVXdHZlV2h1WVhwdElpd2ljbTlzWlNJNkltRnViMjRpTENKcFlYUWlPakUzTkRJd05ESTVNRFFzSW1WNGNDSTZNakExTnpZeE9Ea3dOSDAueHdQQmFLTm1WSnBKWnVDRldMTXZ2OVY3RzFQaW9RVFVYa09sZ1FmRGkzbw==');
-
-// Supabase REST APIを直接fetchで呼ぶ（ライブラリ不要）
-const H = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY };
-
-async function sbGet(table, params = '') {
-  const res = await fetch(`${SB_URL}/rest/v1/${table}?${params}`, { headers: H });
-  if(!res.ok) return [];
-  return res.json();
-}
-async function sbCount(table, filter = '') {
-  try {
-    // select=countで直接件数取得を試みる
-    const url = `${SB_URL}/rest/v1/rpc/get_count_${table}`;
-    // REST APIで件数だけ取得
-    const url2 = `${SB_URL}/rest/v1/${table}?select=created_at${filter ? '&' + filter : ''}`;
-    const res = await fetch(url2, { headers: H });
-    if(!res.ok) return 0;
-    const data = await res.json();
-    if(!Array.isArray(data)) return 0;
-    return data.length;
-  } catch(e) { return 0; }
-}
-
-const countUp = (el, val) => {
-  if(!el || val == null) return;
-  let c = 0, step = Math.max(1, Math.ceil(val/25));
-  const t = setInterval(() => {
-    c = Math.min(c + step, val);
-    el.textContent = c;
-    if(c >= val) clearInterval(t);
-  }, 50);
-};
-
-// モックアップにDBのアイデアを表示
+// モックアップ投票
 let mockLeft = 3;
-
-async function initData() {
-  try {
-    const [users, ideas, votes, founders] = await Promise.all([
-      sbCount('profiles'),
-      sbCount('ideas'),
-      sbCount('votes'),
-      sbCount('profiles', 'is_founder=eq.true'),
-    ]);
-    countUp(document.getElementById('su'), users);
-    countUp(document.getElementById('si'), ideas);
-    countUp(document.getElementById('sv'), votes);
-    countUp(document.getElementById('sf'), Math.max(0, 100 - founders));
-  } catch(e) { console.log('stats error:', e); }
-  try {
-    const data = await sbGet('ideas', 'ticker=neq.HBIT&order=score.desc&limit=3&select=id,ticker,name,genre,score,base_score,votes');
-    if(!data || !data.length) { document.getElementById('mock-list').innerHTML = '<div style="padding:12px;text-align:center;font-size:11px;color:var(--text3)">データなし</div>'; return; }
-    document.getElementById('mock-count').textContent = `銘柄一覧 · ${data.length}件`;
-    document.getElementById('mock-list').innerHTML = data.map((d,i) => {
-      const delta = (d.score||50) - (d.base_score||50);
-      const ds = (delta>=0?'+':'') + delta.toFixed(1);
-      const sc = delta>0.3?'#22a85f':delta<-0.3?'#c0392b':'#1a1400';
-      const dc = delta>0.3?'#22a85f':delta<-0.3?'#c0392b':'#999';
-      const db = delta>0.3?'rgba(34,168,95,.12)':delta<-0.3?'rgba(192,57,43,.1)':'rgba(0,0,0,.05)';
-      const nm = (d.name||'').length > 16 ? d.name.slice(0,16)+'...' : (d.name||'');
-      return `<div class="mock-row" onclick="mv(this,${i})">
-        <div class="mock-sc">
-          <div class="mock-sc-val" style="color:${sc}" id="ms${i}">${(d.score||50).toFixed(1)}</div>
-          <div class="mock-sc-delta" style="color:${dc};background:${db}">${ds}</div>
-        </div>
-        <div class="mock-info">
-          <div class="mock-ticker">${d.ticker||''}</div>
-          <div class="mock-name">${nm}</div>
-          <div class="mock-meta">${d.genre||''} · <span id="mv${i}">${d.votes||0}</span>票</div>
-        </div>
-        <button class="mock-vote-btn" id="mb${i}">応援</button>
-      </div>`;
-    }).join('');
-  } catch(e) { console.log('ideas error:', e); }
-}
-
-// データ取得
-if(document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initData);
-} else {
-  initData();
-}
-
 function mv(row, i) {
   const btn = document.getElementById('mb'+i);
-  if(btn.classList.contains('on') || mockLeft <= 0) return;
+  if(!btn || btn.classList.contains('on') || mockLeft <= 0) return;
   btn.classList.add('on'); btn.textContent = '済み';
   mockLeft--;
   document.getElementById('mvl').textContent = mockLeft + '票';
   const mv = document.getElementById('mv'+i);
   const ms = document.getElementById('ms'+i);
-  mv.textContent = parseInt(mv.textContent)
+  if(mv) mv.textContent = parseInt(mv.textContent) + 1;
+  if(ms) { ms.textContent = (parseFloat(ms.textContent) + 3).toFixed(1); ms.style.color = '#22a85f'; }
+}
+
+// モックアップ静的データ
+const mockData = [
+  {ticker:'AINEWS', name:'AIが毎朝1分で読める朝刊', genre:'テクノロジー', score:72.0, delta:2.0, votes:8},
+  {ticker:'SPOT1', name:'週1回のスポット副業サービス', genre:'副業', score:68.0, delta:1.5, votes:6},
+  {ticker:'AKIYA', name:'空き家をシェアオフィスに変える', genre:'社会課題', score:65.0, delta:0.0, votes:5},
+];
+document.getElementById('mock-count').textContent='銘柄一覧 · 3件';
+document.getElementById('mock-list').innerHTML=mockData.map((d,i)=>{
+  const sc=d.delta>0?'#22a85f':d.delta<0?'#c0392b':'#1a1400';
+  const dc=d.delta>0?'#22a85f':d.delta<0?'#c0392b':'#999';
+  const db=d.delta>0?'rgba(34,168,95,.12)':d.delta<0?'rgba(192,57,43,.1)':'rgba(0,0,0,.05)';
+  const ds=(d.delta>=0?'+':'')+d.delta.toFixed(1);
+  const nm=d.name.length>16?d.name.slice(0,16)+'...':d.name;
+  return `<div class="mock-row" onclick="mv(this,${i})">
+    <div class="mock-sc">
+      <div class="mock-sc-val" style="color:${sc}" id="ms${i}">${d.score.toFixed(1)}</div>
+      <div class="mock-sc-delta" style="color:${dc};background:${db}">${ds}</div>
+    </div>
+    <div class="mock-info">
+      <div class="mock-ticker">${d.ticker}</div>
+      <div class="mock-name">${nm}</div>
+      <div class="mock-meta">${d.genre} · <span id="mv${i}">${d.votes}</span>票</div>
+    </div>
+    <button class="mock-vote-btn" id="mb${i}">応援</button>
+  </div>`;
+}).join('');
+</script>
+</body>
+</html>
