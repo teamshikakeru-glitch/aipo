@@ -10,7 +10,7 @@
 <meta property="og:image" content="https://aipo-tau.vercel.app/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
 /* リセット */
 *, *::before, *::after {
@@ -156,6 +156,7 @@ nav.scrolled {
   display: grid; grid-template-columns: 1fr 1fr;
   gap: 10px; margin-bottom: 40px;
   opacity: 0; animation: fu .5s .5s ease forwards;
+  animation-fill-mode: forwards;
 }
 .stat-box {
   background: var(--surface); border: .5px solid var(--border);
@@ -461,11 +462,11 @@ footer {
 
 /* アニメ */
 @keyframes fu { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
-.rev { opacity: 0; transform: translateY(20px); transition: opacity .6s ease, transform .6s ease; }
-.rev.vis { opacity: 1; transform: translateY(0); }
-.d1 { transition-delay: .1s; }
-.d2 { transition-delay: .2s; }
-.d3 { transition-delay: .3s; }
+.rev { opacity: 1; transform: none; }
+.rev.vis { opacity: 1; transform: none; }
+.d1 {}
+.d2 {}
+.d3 {}
 </style>
 </head>
 <body>
@@ -709,13 +710,10 @@ window.addEventListener('scroll', () => {
 });
 
 // リビール
-new IntersectionObserver(entries => {
-  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('vis'); });
-}, {threshold:.1}).observe && document.querySelectorAll('.rev').forEach(el =>
-  new IntersectionObserver(entries => {
-    entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('vis'); });
-  }, {threshold:.1}).observe(el)
-);
+const revObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('vis'); } });
+}, {threshold: 0.05, rootMargin: '0px 0px -20px 0px'});
+document.querySelectorAll('.rev').forEach(el => revObserver.observe(el));
 
 // FAQ
 document.querySelectorAll('.faq-item').forEach(el => {
@@ -725,7 +723,11 @@ document.querySelectorAll('.faq-item').forEach(el => {
 // Supabase
 const SB_URL = 'https://qjffvspnnxyykoyhnazm.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqZmZ2c3Bubnl5eWtveWhuYXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIwNDI5MDQsImV4cCI6MjA1NzYxODkwNH0.xwPBaKNmVJpJZuCFWLMvv9V7G1PioQTUXkOlgQfDi3o';
-const sb = supabase.createClient(SB_URL, SB_KEY);
+let sb = null;
+try {
+  if(typeof supabase !== 'undefined') sb = supabase.createClient(SB_URL, SB_KEY);
+  else if(typeof window.supabase !== 'undefined') sb = window.supabase.createClient(SB_URL, SB_KEY);
+} catch(e) { console.log('sb init error:', e); }
 
 const countUp = (el, val) => {
   if(!el || val == null) return;
@@ -737,8 +739,13 @@ const countUp = (el, val) => {
   }, 50);
 };
 
-window.addEventListener("load", async () => {
+// モックアップにDBのアイデアを表示
+let mockLeft = 3;
+
+async function initData() {
+  if(!sb) { console.log('Supabase not loaded'); return; }
   try {
+    // 統計取得
     const [u, i, v, f] = await Promise.all([
       sb.from('profiles').select('id', {count:'exact',head:true}),
       sb.from('ideas').select('id', {count:'exact',head:true}),
@@ -749,19 +756,15 @@ window.addEventListener("load", async () => {
     countUp(document.getElementById('si'), i.count);
     countUp(document.getElementById('sv'), v.count);
     if(f.count != null) countUp(document.getElementById('sf'), Math.max(0, 100 - f.count));
-  } catch(e) { console.log(e); }
-});
-
-// モックアップにDBのアイデアを表示
-let mockLeft = 3;
-window.addEventListener("load", async () => {
+  } catch(e) { console.log('stats error:', e); }
   try {
+    // モックアップのアイデア取得
     const { data } = await sb.from('ideas')
       .select('id,ticker,name,genre,score,base_score,votes')
       .not('ticker','eq','HBIT')
       .order('score', {ascending:false})
       .limit(3);
-    if(!data || !data.length) return;
+    if(!data || !data.length) { document.getElementById('mock-list').innerHTML = '<div style="padding:12px;text-align:center;font-size:11px;color:var(--text3)">アイデアを読み込めませんでした</div>'; return; }
     document.getElementById('mock-count').textContent = `銘柄一覧 · ${data.length}件`;
     document.getElementById('mock-list').innerHTML = data.map((d,i) => {
       const delta = d.score - d.base_score;
@@ -783,8 +786,15 @@ window.addEventListener("load", async () => {
         <button class="mock-vote-btn" id="mb${i}">応援</button>
       </div>`;
     }).join('');
-  } catch(e) { console.log(e); }
-});
+  } catch(e) { console.log('ideas error:', e); }
+}
+
+// Supabase SDKの読み込みを待つ
+if(document.readyState === 'complete') {
+  initData();
+} else {
+  window.addEventListener('load', initData);
+}
 
 function mv(row, i) {
   const btn = document.getElementById('mb'+i);
