@@ -464,49 +464,7 @@ input[type=file] { display: none; }
   </div>
   <div class="feed-body">
     <div class="next-update" id="next-lbl"></div>
-    <div class="sample-banner">
-      <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="var(--amber)" stroke-width="1.5"/><line x1="10" y1="9" x2="10" y2="14" stroke="var(--amber)" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="6.5" r="1" fill="var(--amber)"/></svg>
-      見本アイデアです。スコアへの反映はされません
-    </div>
-    <div class="sample-group">
-      <div style="border-bottom:none;cursor:pointer;position:relative" onclick="showSampleDetail()">
-        <div style="padding:12px 14px 8px;display:flex;align-items:flex-start;gap:10px">
-          <div style="display:flex;flex-direction:column;align-items:center;min-width:58px;flex-shrink:0;padding:4px 0">
-            <div style="font-family:var(--mono);font-size:24px;font-weight:700;color:#22a85f;line-height:1;letter-spacing:-.02em">92.4</div>
-            <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:#22a85f;background:rgba(34,168,95,.12);padding:2px 7px;border-radius:5px;margin-top:4px">+4.2</div>
-            <div style="font-size:9px;color:var(--text3);margin-top:3px">31票</div>
-          </div>
-          <div style="flex:1;min-width:0">
-            <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-bottom:3px">
-              <span style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text2);letter-spacing:.04em">HBIT</span>
-              <span style="font-size:9px;background:#f5f0e8;color:#a07840;border:1px solid #e8d5a0;border-radius:5px;padding:2px 6px;font-weight:700">見本</span>
-              <span class="hot-badge">注目</span>
-            </div>
-            <div style="font-size:14px;font-weight:700;color:var(--text);line-height:1.4;margin-bottom:5px">子どもの習い事を家族全員でリアルタイム共有するアプリ</div>
-            <div style="display:flex;gap:4px;flex-wrap:wrap">
-              <span class="stag stag-genre">副業・フリーランス</span>
-              <span class="stag stag-a">React Native</span>
-            </div>
-          </div>
-          <div style="width:60px;height:38px;flex-shrink:0;margin-top:4px;background:linear-gradient(135deg,rgba(34,168,95,.08),rgba(34,168,95,.02));border-radius:4px"></div>
-        </div>
-        <div onclick="event.stopPropagation()" style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:11px;font-size:13px;font-weight:700;color:var(--green);background:rgba(34,168,95,.06);border:none;border-top:0.5px solid var(--border)">
-          <svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z"/></svg>
-          応援する · 31票
-        </div>
-      </div>
-      <div style="padding:0 16px 14px">
-        <div style="display:flex;gap:3px;height:4px;border-radius:2px;overflow:hidden;margin-bottom:6px">
-          <div style="flex:3;background:var(--amber-mid);border-radius:2px"></div>
-          <div style="flex:2;background:var(--green-light);border-radius:2px"></div>
-          <div style="flex:1.5;background:#378ADD;border-radius:2px"></div>
-          <div style="flex:1;background:#a0a0a0;border-radius:2px;opacity:.3"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3)">
-          <span>応援票 +31</span><span>閲覧 +18</span><span>進捗中</span><span>タップで詳細</span>
-        </div>
-      </div>
-    </div>
+
     <div class="sec-label" id="sec-label"></div>
     <div class="stock-group" id="stock-list"></div>
     <div class="xbonus" id="xbonus-card" style="display:none">
@@ -1077,8 +1035,11 @@ setInterval(() => {
       idea.score = calcScore(idea);
       idea.history = [...idea.history.slice(-11), idea.score];
       idea.lastDelta = idea.score - prev;
-      if (idea.lastDelta > 0.5) idea.lastReason = 'スコアが上昇しました';
-      else if (idea.lastDelta < -0.5) idea.lastReason = '時間経過により微減しました';
+      if (idea.lastDelta > 0.5) {
+        idea.lastReason = 'スコアが上昇しました';
+        // 自分のアイデアのスコアが上昇したらシェアを促す
+        if (myIdeas.has(idea.id)) showScoreUpToast(idea);
+      } else if (idea.lastDelta < -0.5) idea.lastReason = '時間経過により微減しました';
     });
     nextSec = 1800;
     if (document.getElementById('screen-feed').classList.contains('active')) renderFeed();
@@ -1305,6 +1266,67 @@ function voteIdea(id) {
     showToast('応援しました！残り'+votesLeft+'票');
   }
   renderFeed();
+  // 投票後シェアモーダルを表示
+  if (idea) showVoteShareModal(idea);
+}
+
+
+function showScoreUpToast(idea) {
+  const existing = document.getElementById('score-up-toast');
+  if (existing) existing.remove();
+  const toast = document.createElement('div');
+  toast.id = 'score-up-toast';
+  toast.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--surface);border:1.5px solid var(--amber-border);border-radius:16px;padding:12px 16px;display:flex;align-items:center;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,.15);z-index:100;max-width:340px;width:calc(100% - 32px)';
+  toast.innerHTML = `
+    <div>
+      <div style="font-size:12px;font-weight:700;color:var(--amber)">📈 スコアが上昇しました！</div>
+      <div style="font-size:11px;color:var(--text2);margin-top:2px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;max-width:200px">\${idea.name}</div>
+    </div>
+    <button onclick="shareScoreUp('\${idea.id}');document.getElementById('score-up-toast').remove()" style="background:#000;color:#fff;border:none;border-radius:10px;padding:7px 12px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0">シェア</button>
+    <button onclick="document.getElementById('score-up-toast').remove()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:0;flex-shrink:0">×</button>
+  `;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 6000);
+}
+
+function shareScoreUp(id) {
+  const idea = ideas.find(i => i.id === id);
+  if (!idea) return;
+  const text = `📈「\${idea.name}」のスコアが\${idea.score.toFixed(1)}に上昇中！\n\nあいぽで応援してください👇\nhttps://aipo-tau.vercel.app\n#あいぽ`;
+  window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text), '_blank');
+}
+
+function showVoteShareModal(idea) {
+  const existing = document.getElementById('vote-share-modal');
+  if (existing) existing.remove();
+  const modal = document.createElement('div');
+  modal.id = 'vote-share-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:flex;align-items:flex-end;justify-content:center';
+  const text = `💡「${idea.name}」を応援しました！\n\nあいぽで気になるアイデアに投票しよう👇\nhttps://aipo-tau.vercel.app`;
+  modal.innerHTML = `
+    <div style="background:var(--surface);border-radius:24px 24px 0 0;padding:20px 20px 36px;width:100%;max-width:390px">
+      <div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px"></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div style="font-size:28px">🎉</div>
+        <div>
+          <div style="font-size:15px;font-weight:700;color:var(--text)">応援しました！</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:2px">シェアしてもっと広めませんか？</div>
+        </div>
+      </div>
+      <div style="background:var(--surface2);border-radius:var(--r-lg);padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--text2);line-height:1.7">
+        💡「\${idea.name}」を応援しました！<br>
+        <span style="color:var(--amber)">#あいぽ #アイデア</span>
+      </div>
+      <button onclick="window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent('${text}')+'&hashtags=あいぽ,アイデア','_blank');document.getElementById('vote-share-modal').remove()" style="width:100%;padding:13px;background:#000;border:none;border-radius:var(--r-lg);font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans);display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px">
+        <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M2 2l7.5 8.5L2 18h2l6.3-7.1L16 18h4L12 9.2 18.5 2h-2L10.6 8.6 5 2H2z"/></svg>
+        Xでシェアする
+      </button>
+      <button onclick="document.getElementById('vote-share-modal').remove()" style="width:100%;padding:11px;background:transparent;border:none;font-size:13px;color:var(--text3);cursor:pointer;font-family:var(--sans)">閉じる</button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', e => { if(e.target===modal) modal.remove(); });
+  setTimeout(() => modal.remove(), 8000);
 }
 
 function showDetail(id) {
