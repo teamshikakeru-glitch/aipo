@@ -72,10 +72,10 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); over
 .seg { display: flex; background: #e0ded8; border-radius: 11px; padding: 3px; margin-bottom: 12px; gap: 2px; }
 .seg-item { flex: 1; text-align: center; font-size: 12px; font-weight: 700; color: #888680; padding: 6px 0; border-radius: 9px; cursor: pointer; transition: all .15s; }
 .seg-item.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.13); }
-.feed-body { padding: 8px 0 0; }
-.sec-label { font-size: 11px; font-weight: 700; color: var(--text3); padding: 4px 16px 6px; letter-spacing: .06em; text-transform: uppercase; }
+.feed-body { padding: 10px 14px 0; }
+.sec-label { font-size: 11px; font-weight: 700; color: var(--text3); padding: 2px 0 6px; letter-spacing: .06em; text-transform: uppercase; }
 .next-update { text-align: center; font-size: 11px; color: var(--text3); padding: 4px 0 6px; font-family: var(--mono); }
-.stock-group { background: var(--surface); border-radius: var(--r-xl); overflow: hidden; margin-bottom: 0; box-shadow: 0 1px 8px rgba(0,0,0,.07); }
+.stock-group { background: var(--surface); border-radius: var(--r-xl); overflow: hidden; margin-bottom: 12px; box-shadow: 0 1px 6px rgba(0,0,0,.06); }
 .srow { display: flex; align-items: center; padding: 12px 16px; border-bottom: 0.5px solid var(--border); cursor: pointer; transition: background .1s; overflow: hidden; position: relative; }
 .srow:last-child { border-bottom: none; }
 .srow:active { background: var(--surface2); }
@@ -219,7 +219,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); over
 .primary-btn:disabled { background: var(--surface2); color: var(--text3); cursor: not-allowed; transform: none; }
 .hint { font-size: 11px; color: var(--text3); margin-top: 6px; line-height: 1.6; }
 .sample-banner { display:flex; align-items:center; gap:6px; background:var(--amber-bg); border:1px solid var(--amber-border); border-radius:var(--r-md); padding:8px 16px; margin:0 0 6px; font-size:11px; color:var(--amber); font-weight:700; }
-.sample-group { background:var(--surface); border-radius:var(--r-xl); overflow:hidden; margin-bottom:0; box-shadow:0 1px 8px rgba(0,0,0,.07); position:relative; }
+.sample-group { background:var(--surface); border-radius:var(--r-xl); overflow:hidden; margin-bottom:12px; box-shadow:0 1px 6px rgba(0,0,0,.06); position:relative; }
 .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(8px); background: var(--text); border-radius: 20px; padding: 11px 22px; font-size: 13px; color: #fff; opacity: 0; transition: all .25s; pointer-events: none; z-index: 100; max-width: 320px; width: 90%; text-align: center; font-weight: 700; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 input[type=file] { display: none; }
@@ -445,7 +445,7 @@ input[type=file] { display: none; }
       </div>
       <div class="hd-right">
         <div class="live-wrap"><div class="live-dot"></div><div class="live-lbl">LIVE</div></div>
-        <div id="plan-badge" onclick="toggleProMenu()" style="font-size:9px;font-weight:700;background:var(--surface2);color:var(--text3);border:1px solid var(--border2);border-radius:20px;padding:3px 8px;cursor:pointer;display:none">残3回</div>
+        <div id="plan-badge" onclick="toggleProMenu()" style="font-size:9px;font-weight:700;background:var(--surface2);color:var(--text3);border:1px solid var(--border2);border-radius:20px;padding:3px 8px;cursor:pointer">残3回</div>
         <div class="votes-chip">
           <span class="votes-n" id="votes-left">3</span>
           <span class="votes-l">票</span>
@@ -460,7 +460,7 @@ input[type=file] { display: none; }
   </div>
   <div class="feed-body">
     <div class="next-update" id="next-lbl"></div>
-    <div style="padding:0 14px"><div class="sample-banner" style="margin:0 0 6px">
+    <div class="sample-banner">
       <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="var(--amber)" stroke-width="1.5"/><line x1="10" y1="9" x2="10" y2="14" stroke="var(--amber)" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="6.5" r="1" fill="var(--amber)"/></svg>
       見本アイデアです。スコアへの反映はされません
     </div>
@@ -486,7 +486,7 @@ input[type=file] { display: none; }
           </div>
           <div style="width:60px;height:38px;flex-shrink:0;margin-top:4px;background:linear-gradient(135deg,rgba(34,168,95,.08),rgba(34,168,95,.02));border-radius:4px"></div>
         </div>
-        <div style="display:flex;align-items:center;justify-content:center;gap:6px;width:calc(100% + 28px);margin:0 -14px;padding:10px;font-size:13px;font-weight:700;color:var(--green);background:rgba(34,168,95,.06);border:none;border-top:0.5px solid var(--border)">
+        <div style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:11px;font-size:13px;font-weight:700;color:var(--green);background:rgba(34,168,95,.06);border:none;border-top:0.5px solid var(--border)">
           <svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z"/></svg>
           応援する · 31票
         </div>
@@ -502,9 +502,9 @@ input[type=file] { display: none; }
           <span>応援票 +31</span><span>閲覧 +18</span><span>進捗中</span><span>タップで詳細</span>
         </div>
       </div>
-    </div></div>
+    </div>
     <div class="sec-label" id="sec-label"></div>
-    <div style="padding:0 0 16px"><div class="stock-group" id="stock-list"></div></div>
+    <div class="stock-group" id="stock-list"></div>
     <div class="xbonus" id="xbonus-card" style="display:none">
       <div class="xb-hd">
         <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M2 2l7.5 8.5L2 18h2l6.3-7.1L16 18h4L12 9.2 18.5 2h-2L10.6 8.6 5 2H2z"/></svg>
@@ -1070,7 +1070,7 @@ function renderPortfolio() {
     </div>`;
   }).join('');
   // ★修正5: drawSpark サイズ 72, 44
-  list.forEach(idea => drawSpark('pspark-'+idea.id, idea.history, (idea.score-idea.baseScore)>=0, 72, 44));
+  list.forEach(idea => drawSpark('pspark-'+idea.id, idea.history, (idea.score-idea.baseScore)>=0, 60, 38));
 }
 
 function setTab(el, tab) {
@@ -1137,7 +1137,7 @@ function buildRow(idea) {
       <canvas style="width:60px;height:38px;flex-shrink:0;margin-top:4px" id="spark-${idea.id}"></canvas>
     </div>
     <!-- 下部: 投票ボタン横幅いっぱい -->
-    <button onclick="event.stopPropagation();voteIdea('${idea.id}')" style="display:flex;align-items:center;justify-content:center;gap:6px;width:calc(100% + 28px);margin:0 -14px;padding:10px;font-size:13px;font-weight:700;font-family:var(--sans);border:none;border-top:0.5px solid var(--border);cursor:pointer;transition:all .15s;${voted?'background:var(--surface2);color:var(--text3)':'background:rgba(34,168,95,.06);color:var(--green)'}">
+    <button onclick="event.stopPropagation();voteIdea('${idea.id}')" style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:11px;font-size:13px;font-weight:700;font-family:var(--sans);border:none;border-top:0.5px solid var(--border);cursor:pointer;transition:all .15s;${voted?'background:var(--surface2);color:var(--text3)':'background:rgba(34,168,95,.06);color:var(--green)'}">
       <svg width="13" height="13" viewBox="0 0 20 20" fill="${voted?'currentColor':'none'}" stroke="currentColor" stroke-width="2.2"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z"/></svg>
       ${voted?'応援済み':'応援する'} · ${idea.votes}票
     </button>
