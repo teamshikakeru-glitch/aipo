@@ -990,8 +990,8 @@ function updatePlanBadge() {
   const badge = document.getElementById('plan-badge');
   if (badge) {
     // ★ 修正: founderNumber !== undefined && !== null で 0 も正しく処理
-    if (currentUser?.isFounder && currentUser?.founderNumber !== undefined && currentUser?.founderNumber !== null) {
-      const num = currentUser.founderNumber === 0 ? '00' : String(currentUser.founderNumber).padStart(2, '0');
+    if (currentUser?.isFounder === true) {
+      const num = (currentUser.founderNumber === 0 || currentUser.founderNumber === '0') ? '00' : String(currentUser.founderNumber ?? 0).padStart(2, '0');
       badge.textContent = `創設メンバー #${num}`;
       badge.style.background = 'linear-gradient(135deg,#bf6d00,#e8850a)';
       badge.style.color = '#fff';
@@ -2087,7 +2087,7 @@ document.addEventListener('visibilitychange', async () => {
   if (document.visibilityState === 'visible' && currentUser) {
     await fetchIdeas();
     await loadVotedIds();
-    // 現在の画面を再描画
+    await checkProStatus();
     if (document.getElementById('screen-feed')?.classList.contains('active')) {
       renderFeed();
     }
