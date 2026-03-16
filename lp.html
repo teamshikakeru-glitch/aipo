@@ -30,6 +30,9 @@ body {
   word-break: keep-all;
   overflow-wrap: break-word;
   -webkit-text-size-adjust: 100%;
+  line-break: strict;
+  overflow-wrap: anywhere;
+  hanging-punctuation: allow-end;
 }
 img, svg { max-width: 100%; display: block; }
 
@@ -699,6 +702,8 @@ footer {
 </footer>
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+history.scrollRestoration = "manual";
+window.scrollTo(0, 0);
 // ナビ
 window.addEventListener('scroll', () => {
   document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 40);
