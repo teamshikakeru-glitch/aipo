@@ -2,6 +2,9 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>あいぽ — アイデアIPO市場</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -1455,8 +1458,13 @@ function confirmDeleteIdea(id) {
 
 // アイデア削除実行
 async function deleteIdea(id) {
-  const { error } = await sb.from('ideas').delete().eq('id', id).eq('user_id', currentUser.id);
-  if (error) { showToast('削除に失敗しました'); return; }
+  const { data, error } = await sb.from('ideas')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', currentUser.id)
+    .select();
+  if (error) { showToast('削除に失敗しました: ' + error.message); return; }
+  if (!data || data.length === 0) { showToast('削除できませんでした（権限エラー）'); return; }
   ideas = ideas.filter(i => i.id !== id);
   myIdeas.delete(id);
   favIdeas.delete(id);
@@ -1947,6 +1955,32 @@ function doLogin() {
 renderFeed();
 initEmojiPicker();
 startApp();
+</script>
+
+<script>
+// キャッシュを無効化してページを常に最新に保つ
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(registrations => {
+    registrations.forEach(reg => reg.unregister());
+  });
+}
+// ページが古いキャッシュを使っていたら強制リロード
+window.addEventListener('load', () => {
+  if (window.performance && window.performance.navigation.type === 0) {
+    // 通常のロード時にキャッシュをバイパスして最新を確認
+    fetch(window.location.href, { cache: 'no-store' })
+      .then(res => {
+        const serverEtag = res.headers.get('etag') || res.headers.get('last-modified');
+        const localEtag = sessionStorage.getItem('page-etag');
+        if (serverEtag && localEtag && serverEtag !== localEtag) {
+          sessionStorage.setItem('page-etag', serverEtag);
+          window.location.reload(true);
+        } else if (serverEtag) {
+          sessionStorage.setItem('page-etag', serverEtag);
+        }
+      }).catch(() => {});
+  }
+});
 </script>
 </body>
 </html>
