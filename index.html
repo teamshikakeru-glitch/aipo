@@ -1100,9 +1100,10 @@ function buildPortfolioRow(idea) {
   const deltaBg = delta>0.3?'rgba(34,168,95,.12)':delta<-0.3?'rgba(192,57,43,.1)':'rgba(0,0,0,.05)';
   const isHot = idea.votes >= HOT_THRESHOLD;
   const isFav = favIdeas.has(idea.id);
-  return `<div onclick="showDetail('${idea.id}')" style="padding:12px 14px 0;border-bottom:0.5px solid var(--border);cursor:pointer;position:relative;overflow:hidden">
-    ${isFav ? '<div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#e8850a,#bf6d00);border-radius:0 2px 2px 0"></div>' : ''}
-    <div style="display:flex;align-items:flex-start;gap:10px">
+  const isOwn = myIdeas.has(idea.id);
+  return `<div style="border-bottom:0.5px solid var(--border);position:relative">
+    ${isFav ? '<div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#e8850a,#bf6d00);border-radius:0 2px 2px 0;z-index:1"></div>' : ''}
+    <div onclick="showDetail('${idea.id}')" style="padding:12px 14px 8px;display:flex;align-items:flex-start;gap:10px;cursor:pointer">
       <div style="display:flex;flex-direction:column;align-items:center;min-width:58px;flex-shrink:0;padding:4px 0">
         <div style="font-family:var(--mono);font-size:22px;font-weight:700;color:${scoreColor};line-height:1">${idea.score.toFixed(1)}</div>
         <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:${deltaColor};background:${deltaBg};padding:2px 6px;border-radius:5px;margin-top:3px">${ds}</div>
@@ -1114,13 +1115,23 @@ function buildPortfolioRow(idea) {
           ${isHot?'<span class="hot-badge">注目</span>':''}
         </div>
         <div style="font-size:14px;font-weight:700;color:var(--text);line-height:1.4;margin-bottom:5px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${idea.name}</div>
-        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px">
+        <div style="display:flex;gap:4px;flex-wrap:wrap">
           <span class="stag stag-genre">${idea.genre}</span>
           ${idea.tech?`<span class="stag stag-a">${idea.tech}</span>`:''}
         </div>
       </div>
       <canvas style="width:60px;height:38px;flex-shrink:0;margin-top:4px" id="pspark-${idea.id}"></canvas>
     </div>
+    ${isOwn ? `<div style="display:flex;border-top:0.5px solid var(--border)">
+      <button onclick="event.stopPropagation();showEditIdea('${idea.id}')" style="flex:1;padding:10px;font-size:12px;font-weight:700;font-family:var(--sans);border:none;border-right:0.5px solid var(--border);background:var(--surface);color:var(--amber);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px">
+        <svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 3.3a1 1 0 011.4 1.4L6 14.8l-3.5.7.7-3.5L14.7 3.3z"/></svg>
+        編集
+      </button>
+      <button onclick="event.stopPropagation();confirmDeleteIdea('${idea.id}')" style="flex:1;padding:10px;font-size:12px;font-weight:700;font-family:var(--sans);border:none;background:var(--surface);color:var(--red);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px">
+        <svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h14M8 6V4h4v2M9 10v5M11 10v5M5 6l1 11h8l1-11"/></svg>
+        削除
+      </button>
+    </div>` : ''}
   </div>`;
 }
 
@@ -1384,6 +1395,106 @@ function showEditUsername() {
   document.body.appendChild(modal);
   modal.addEventListener('click', e => { if(e.target===modal) modal.remove(); });
   setTimeout(() => document.getElementById('username-input')?.focus(), 100);
+}
+
+
+// アイデア削除確認
+function confirmDeleteIdea(id) {
+  const existing = document.getElementById('delete-modal');
+  if (existing) existing.remove();
+  const modal = document.createElement('div');
+  modal.id = 'delete-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:flex;align-items:flex-end;justify-content:center';
+  modal.innerHTML = `
+    <div style="background:var(--surface);border-radius:24px 24px 0 0;padding:24px 20px 40px;width:100%;max-width:390px">
+      <div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 20px"></div>
+      <div style="font-size:16px;font-weight:700;text-align:center;margin-bottom:8px">このアイデアを削除しますか？</div>
+      <div style="font-size:13px;color:var(--text3);text-align:center;margin-bottom:20px">削除すると元に戻せません</div>
+      <button onclick="deleteIdea('${id}');document.getElementById('delete-modal').remove()" style="width:100%;padding:14px;background:var(--red);border:none;border-radius:var(--r-lg);font-size:15px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans);margin-bottom:8px">削除する</button>
+      <button onclick="document.getElementById('delete-modal').remove()" style="width:100%;padding:12px;background:transparent;border:none;font-size:14px;color:var(--text3);cursor:pointer;font-family:var(--sans)">キャンセル</button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', e => { if(e.target===modal) modal.remove(); });
+}
+
+// アイデア削除実行
+async function deleteIdea(id) {
+  const { error } = await sb.from('ideas').delete().eq('id', id).eq('user_id', currentUser.id);
+  if (error) { showToast('削除に失敗しました'); return; }
+  ideas = ideas.filter(i => i.id !== id);
+  myIdeas.delete(id);
+  favIdeas.delete(id);
+  showToast('削除しました');
+  renderPortfolio();
+  renderFeed();
+}
+
+// アイデア編集モーダル
+function showEditIdea(id) {
+  const idea = ideas.find(i => i.id === id);
+  if (!idea) return;
+  const existing = document.getElementById('edit-idea-modal');
+  if (existing) existing.remove();
+  const modal = document.createElement('div');
+  modal.id = 'edit-idea-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:flex;align-items:flex-end;justify-content:center;overflow-y:auto';
+  modal.innerHTML = `
+    <div style="background:var(--surface);border-radius:24px 24px 0 0;padding:24px 20px 48px;width:100%;max-width:390px">
+      <div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 20px"></div>
+      <div style="font-size:16px;font-weight:700;margin-bottom:18px">アイデアを編集</div>
+
+      <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:6px">アイデア名</div>
+      <input id="edit-name" class="inp" value="${idea.name.replace(/"/g,'&quot;')}" style="margin-bottom:14px">
+
+      <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:6px">ティッカー（英大文字5字以内）</div>
+      <input id="edit-ticker" class="inp inp-sm" value="${idea.ticker}" maxlength="5" style="text-transform:uppercase;margin-bottom:14px">
+
+      <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:6px">ジャンル</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px" id="edit-genre-grid">
+        ${['起業家・スタートアップ','副業・フリーランス','業務効率','社会課題','テクノロジー'].map(g =>
+          `<div onclick="this.parentElement.querySelectorAll('.eg-item').forEach(x=>x.classList.remove('selected'));this.classList.add('selected')" class="genre-item eg-item${idea.genre===g?' selected':''}" ${g==='起業家・スタートアップ'?'style="grid-column:1/-1"':''}>${g}</div>`
+        ).join('')}
+      </div>
+
+      <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:6px">説明文</div>
+      <textarea id="edit-desc" class="inp inp-sm" rows="3" style="margin-bottom:14px">${idea.desc||''}</textarea>
+
+      <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:6px">テクノロジー・技術</div>
+      <input id="edit-tech" class="inp inp-sm" value="${idea.tech||''}" style="margin-bottom:20px">
+
+      <button onclick="saveEditIdea('${id}')" style="width:100%;padding:14px;background:var(--amber-mid);border:none;border-radius:var(--r-lg);font-size:15px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans);margin-bottom:8px">保存する</button>
+      <button onclick="document.getElementById('edit-idea-modal').remove()" style="width:100%;padding:12px;background:transparent;border:none;font-size:14px;color:var(--text3);cursor:pointer;font-family:var(--sans)">キャンセル</button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', e => { if(e.target===modal) modal.remove(); });
+}
+
+// アイデア編集保存
+async function saveEditIdea(id) {
+  const idea = ideas.find(i => i.id === id);
+  if (!idea) return;
+  const name = document.getElementById('edit-name')?.value.trim();
+  const ticker = document.getElementById('edit-ticker')?.value.trim().toUpperCase();
+  const desc = document.getElementById('edit-desc')?.value.trim();
+  const tech = document.getElementById('edit-tech')?.value.trim();
+  const genreEl = document.querySelector('#edit-genre-grid .eg-item.selected');
+  const genre = genreEl ? genreEl.textContent : idea.genre;
+  if (!name) { showToast('アイデア名を入力してください'); return; }
+  const { error } = await sb.from('ideas').update({
+    name, ticker, description: desc, tech, genre, updated_at: new Date()
+  }).eq('id', id).eq('user_id', currentUser.id);
+  if (error) { showToast('保存に失敗しました'); return; }
+  idea.name = name;
+  idea.ticker = ticker || idea.ticker;
+  idea.desc = desc;
+  idea.tech = tech;
+  idea.genre = genre;
+  document.getElementById('edit-idea-modal')?.remove();
+  showToast('更新しました🥃');
+  renderPortfolio();
+  renderFeed();
 }
 
 function toggleFav(id) {
