@@ -716,9 +716,10 @@ const revObserver = new IntersectionObserver(entries => {
 }, {threshold: 0.05, rootMargin: '0px 0px -20px 0px'});
 document.querySelectorAll('.rev').forEach(el => revObserver.observe(el));
 
-// FAQ
-document.querySelectorAll('.faq-item').forEach(el => {
-  el.addEventListener('click', function() { this.classList.toggle('open'); });
+// FAQ（クリック委譲でより確実に）
+document.addEventListener('click', function(e) {
+  const item = e.target.closest('.faq-item');
+  if(item) item.classList.toggle('open');
 });
 
 // Supabase
@@ -733,12 +734,24 @@ async function sbGet(table, params = '') {
   if(!res.ok) return [];
   return res.json();
 }
-async function sbCount(table, params = '') {
-  const p = (params ? params + '&' : '') + 'select=id';
-  const res = await fetch(`${SB_URL}/rest/v1/${table}?${p}`, { headers: H });
-  if(!res.ok) return 0;
-  const data = await res.json();
-  return Array.isArray(data) ? data.length : 0;
+async function sbCount(table, filter = '') {
+  // まずcontent-rangeで取得を試みる
+  const url = `${SB_URL}/rest/v1/${table}?select=id${filter ? '&' + filter : ''}`;
+  try {
+    const res = await fetch(url, {
+      headers: { ...H, 'Prefer': 'count=exact', 'Range': '0-0' }
+    });
+    const cr = res.headers.get('content-range');
+    if(cr && cr.includes('/')) {
+      const n = parseInt(cr.split('/')[1]);
+      if(!isNaN(n)) return n;
+    }
+    // フォールバック：全件取得してカウント
+    const res2 = await fetch(url, { headers: H });
+    if(!res2.ok) return 0;
+    const data = await res2.json();
+    return Array.isArray(data) ? data.length : 0;
+  } catch(e) { return 0; }
 }
 
 const countUp = (el, val) => {
@@ -794,11 +807,11 @@ async function initData() {
   } catch(e) { console.log('ideas error:', e); }
 }
 
-// Supabase SDKの読み込みを待つ
-if(document.readyState === 'complete') {
-  initData();
+// データ取得
+if(document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initData);
 } else {
-  window.addEventListener('load', initData);
+  initData();
 }
 
 function mv(row, i) {
