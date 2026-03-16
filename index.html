@@ -192,7 +192,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); over
 .float-vote-btn button.can:active { background: #1a9050; transform: scale(.98); }
 .float-vote-btn button.voted { background: var(--surface2); color: var(--text3); border: 1.5px solid var(--border2); }
 
-.vote-hero-btn { display:none; width: 100%; padding: 15px; border-radius: var(--r-lg); font-size: 15px; font-weight: 700; font-family: var(--sans); cursor: pointer; border: none; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all .15s; }
+.vote-hero-btn { display:none !important; width: 100%; padding: 15px; border-radius: var(--r-lg); font-size: 15px; font-weight: 700; font-family: var(--sans); cursor: pointer; border: none; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all .15s; }
 .vote-hero-btn.can { background: var(--green-light); color: #fff; }
 .vote-hero-btn.can:active { background: #1a9050; }
 .vote-hero-btn.voted { background: var(--surface2); color: var(--text3); border: 1.5px solid var(--border2); }
@@ -1051,7 +1051,7 @@ function renderPortfolio() {
 
   // マイ銘柄セクション
   if (myList.length > 0) {
-    html_out += `<div style="font-size:11px;font-weight:700;color:var(--text3);padding:2px 0 6px;letter-spacing:.06em;text-transform:uppercase">📈 自分のアイデア</div>`;
+    html_out += `<div style="font-size:11px;font-weight:700;color:var(--text3);padding:2px 0 6px;letter-spacing:.06em;text-transform:uppercase">自分のアイデア</div>`;
     html_out += `<div class="stock-group">` + myList.map(idea => buildPortfolioRow(idea)).join('') + `</div>`;
   }
 
