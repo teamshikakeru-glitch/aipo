@@ -2030,6 +2030,103 @@ function showToast(msg) {
   setTimeout(()=>t.classList.remove('show'),2600);
 }
 
+
+// ═══════════════════════════════════════
+// Supabase Realtime
+// ═══════════════════════════════════════
+let realtimeChannel = null;
+
+function startRealtime() {
+  if (realtimeChannel) {
+    sb.removeChannel(realtimeChannel);
+  }
+
+  realtimeChannel = sb.channel('aipo-realtime')
+    // ideasテーブルの変更を監視（投票数・スコア）
+    .on('postgres_changes', {
+      event: 'UPDATE',
+      schema: 'public',
+      table: 'ideas'
+    }, (payload) => {
+      const updated = payload.new;
+      const idea = ideas.find(i => i.id === updated.id);
+      if (idea) {
+        // 自分の投票による更新は無視（UIはすでに更新済み）
+        if (votedIds.has(updated.id) && updated.votes === idea.votes) return;
+        idea.votes = updated.votes || idea.votes;
+        idea.score = calcScore(idea);
+        idea.history = [...idea.history.slice(-11), idea.score];
+        renderFeed();
+        // 詳細画面を開いていれば更新
+        if (document.getElementById('screen-detail')?.classList.contains('active')) {
+          const titleEl = document.getElementById('detail-sub-title');
+          if (titleEl?.textContent === idea.ticker) {
+            showDetail(idea.id);
+          }
+        }
+      }
+    })
+    // commentsテーブルの追加を監視
+    .on('postgres_changes', {
+      event: 'INSERT',
+      schema: 'public',
+      table: 'comments'
+    }, async (payload) => {
+      const newComment = payload.new;
+      const idea = ideas.find(i => i.id === newComment.idea_id);
+      if (!idea) return;
+      // コメントのユーザー名を取得
+      const { data: profile } = await sb.from('profiles')
+        .select('x_username')
+        .eq('id', newComment.user_id)
+        .single();
+      const comment = {
+        id: newComment.id,
+        name: '@' + (profile?.x_username || 'ユーザー'),
+        text: newComment.text,
+        time: '今',
+        userId: newComment.user_id
+      };
+      if (!idea.commentList) idea.commentList = [];
+      // 自分のコメントは重複しないようにチェック
+      if (!idea.commentList.find(c => c.id === comment.id)) {
+        idea.commentList.push(comment);
+        idea.score = calcScore(idea);
+      }
+      // 詳細画面を開いていれば更新
+      if (document.getElementById('screen-detail')?.classList.contains('active')) {
+        const titleEl = document.getElementById('detail-sub-title');
+        if (titleEl?.textContent === idea.ticker) {
+          const commentsEl = document.getElementById('comments-list');
+          if (commentsEl) {
+            commentsEl.innerHTML = idea.commentList.map(c => `
+              <div style="padding:10px 0;border-bottom:0.5px solid var(--border)">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+                  <span style="font-size:13px;font-weight:700;color:var(--text)">${c.name}</span>
+                  <span style="font-size:11px;color:var(--text3)">${c.time}</span>
+                </div>
+                <div style="font-size:13px;color:var(--text2);line-height:1.6">${c.text}</div>
+              </div>
+            `).join('');
+            // コメント件数も更新
+            const countEl = document.querySelector('.comment-count-label');
+            if (countEl) countEl.textContent = `コメント（${idea.commentList.length}件）`;
+          }
+        }
+      }
+    })
+    .subscribe((status) => {
+      console.log('Realtime:', status);
+    });
+}
+
+function stopRealtime() {
+  if (realtimeChannel) {
+    sb.removeChannel(realtimeChannel);
+    realtimeChannel = null;
+  }
+}
+
 function enterApp() {
   const loginScreen = document.getElementById('login-screen');
   loginScreen.style.opacity = '0';
@@ -2055,6 +2152,7 @@ sb.auth.onAuthStateChange(async (event, session) => {
       await loadVotedIds();
       checkUpgradeSuccess();
       showToast('ログインしました🥃');
+      startRealtime();
       setTimeout(showPWAGuide, 3000);
     }
   } else if (event === 'SIGNED_OUT') {
@@ -2102,6 +2200,7 @@ async function startApp() {
           await loadVotedIds();
           checkUpgradeSuccess();
           showToast('おかえりなさい🥃');
+          startRealtime();
           setTimeout(showPWAGuide, 3000);
         } else {
           const guideDone = localStorage.getItem('aipo_guide_done');
