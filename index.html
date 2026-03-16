@@ -446,6 +446,7 @@ input[type=file] { display: none; }
       </div>
       <div class="hd-right">
         <div class="live-wrap"><div class="live-dot"></div><div class="live-lbl">LIVE</div></div>
+        <div id="founder-remaining" onclick="showUpgradeModal('創設メンバーになる')" style="display:none;font-size:9px;font-weight:700;background:linear-gradient(135deg,#bf6d00,#e8850a);color:#fff;border-radius:20px;padding:3px 8px;cursor:pointer;align-items:center;gap:3px;white-space:nowrap"></div>
         <div id="plan-badge" onclick="toggleProMenu()" style="font-size:9px;font-weight:700;background:var(--surface2);color:var(--text3);border:1px solid var(--border2);border-radius:20px;padding:3px 8px;cursor:pointer">残3回</div>
         <div class="votes-chip">
           <span class="votes-n" id="votes-left">3</span>
@@ -505,6 +506,7 @@ input[type=file] { display: none; }
       </div>
     </div>
     <div class="sec-label" id="sec-label"></div>
+    <div id="rank-banner" style="display:none;background:var(--surface);border-radius:var(--r-xl);padding:14px 16px;margin-bottom:12px;box-shadow:0 1px 6px rgba(0,0,0,.06)"></div>
     <div class="stock-group" id="stock-list"></div>
     <div class="xbonus" id="xbonus-card" style="display:none">
       <div class="xb-hd">
@@ -916,7 +918,24 @@ async function checkProStatus() {
     currentUser.isFounder = true;
   }
   updatePlanBadge();
+  // 創設メンバー残り枚数を取得・表示
+  loadFounderCount();
 }
+
+async function loadFounderCount() {
+  const { count } = await sb.from('profiles')
+    .select('id', { count: 'exact', head: true })
+    .eq('is_founder', true);
+  if (count !== null) {
+    const remaining = Math.max(0, 100 - count);
+    const el = document.getElementById('founder-remaining');
+    if (el) {
+      el.textContent = `創設メンバー 残り${remaining}枠`;
+      el.style.display = remaining > 0 ? 'flex' : 'none';
+    }
+  }
+}
+
 
 function checkUpgradeSuccess() {
   const params = new URLSearchParams(window.location.search);
@@ -1157,6 +1176,28 @@ function renderFeed() {
     secEl.textContent = '銘柄一覧';
   }
   const el = document.getElementById('stock-list');
+  // TOP3バナー（allタブのみ）
+  const rankEl = document.getElementById('rank-banner');
+  if (rankEl) {
+    const top3 = [...ideas].sort((a,b) => b.score - a.score).slice(0,3);
+    if (currentTab === 'all' && top3.length > 0) {
+      rankEl.style.display = 'block';
+      rankEl.innerHTML = `<div style="font-size:11px;font-weight:700;color:var(--text3);padding:0 0 8px;letter-spacing:.06em">🏆 スコアランキング TOP3</div>` +
+        top3.map((idea,i) => {
+          const medal = ['🥇','🥈','🥉'][i];
+          return `<div onclick="showDetail('${idea.id}')" style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:${i<2?'0.5px solid var(--border)':'none'};cursor:pointer">
+            <span style="font-size:18px;width:24px;flex-shrink:0">${medal}</span>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13px;font-weight:700;color:var(--text);overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${idea.name}</div>
+              <div style="font-size:11px;color:var(--text3)">${idea.votes}票</div>
+            </div>
+            <div style="font-family:var(--mono);font-size:16px;font-weight:700;color:${idea.score-idea.baseScore>0?'var(--green-light)':'var(--text)'};">${idea.score.toFixed(1)}</div>
+          </div>`;
+        }).join('');
+    } else {
+      rankEl.style.display = 'none';
+    }
+  }
   el.innerHTML = list.length === 0
     ? '<div style="padding:24px;text-align:center;font-size:13px;color:var(--text3)">注目銘柄はまだありません。<br>20票集まると表示されます。</div>'
     : list.map(idea => buildRow(idea)).join('');
@@ -1288,6 +1329,16 @@ function showDetail(id) {
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="var(--text3)" stroke-width="1"/><line x1="6" y1="5" x2="6" y2="8" stroke="var(--text3)" stroke-width="1" stroke-linecap="round"/><circle cx="6" cy="3.5" r=".5" fill="var(--text3)"/></svg>
         <span class="reason-text">${idea.lastReason||'スコアを計算中です'}</span>
       </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <button onclick="shareToX('${idea.id}')" style="flex:1;padding:11px;border-radius:var(--r-lg);font-size:13px;font-weight:700;font-family:var(--sans);border:none;cursor:pointer;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;gap:6px">
+        <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path d="M2 2l7.5 8.5L2 18h2l6.3-7.1L16 18h4L12 9.2 18.5 2h-2L10.6 8.6 5 2H2z"/></svg>
+        Xでシェア
+      </button>
+      <button onclick="copyIdeaLink('${idea.id}')" style="flex:1;padding:11px;border-radius:var(--r-lg);font-size:13px;font-weight:700;font-family:var(--sans);border:1.5px solid var(--border2);cursor:pointer;background:var(--surface);color:var(--text2);display:flex;align-items:center;justify-content:center;gap:6px">
+        <svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13H7a4 4 0 010-8h3M10 7h3a4 4 0 010 8h-3M7 10h6"/></svg>
+        リンクをコピー
+      </button>
     </div>
     ${idea.desc?`<div class="desc-card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
@@ -1495,6 +1546,48 @@ async function saveEditIdea(id) {
   showToast('更新しました🥃');
   renderPortfolio();
   renderFeed();
+}
+
+
+
+function showShareAfterPost(idea) {
+  const modal = document.createElement('div');
+  modal.id = 'share-post-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:200;display:flex;align-items:center;justify-content:center;padding:24px';
+  modal.innerHTML = `
+    <div style="background:var(--surface);border-radius:24px;padding:28px 24px;width:100%;max-width:360px;text-align:center">
+      <div style="font-size:36px;margin-bottom:12px">🎉</div>
+      <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:6px">上場しました！</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:20px">Xでシェアして最初の応援票を集めましょう。<br>拡散されるほどスコアが上がります。</div>
+      <div style="background:var(--surface2);border-radius:var(--r-lg);padding:14px;margin-bottom:20px;text-align:left">
+        <div style="font-size:11px;color:var(--text3);margin-bottom:4px">投稿プレビュー</div>
+        <div style="font-size:13px;color:var(--text);line-height:1.7">💡「${idea.name}」をあいぽに上場しました！<br>応援よろしくお願いします👇<br><span style="color:var(--amber)">#あいぽ #アイデア</span></div>
+      </div>
+      <button onclick="shareToX('${idea.id}');document.getElementById('share-post-modal').remove();setTimeout(()=>goTo('feed'),300)" style="width:100%;padding:14px;background:#000;border:none;border-radius:var(--r-lg);font-size:15px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans);display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M2 2l7.5 8.5L2 18h2l6.3-7.1L16 18h4L12 9.2 18.5 2h-2L10.6 8.6 5 2H2z"/></svg>
+        Xでシェアする
+      </button>
+      <button onclick="document.getElementById('share-post-modal').remove();setTimeout(()=>goTo('feed'),100)" style="width:100%;padding:12px;background:transparent;border:none;font-size:14px;color:var(--text3);cursor:pointer;font-family:var(--sans)">あとでシェアする</button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+function shareToX(id) {
+  const idea = ideas.find(i => i.id === id);
+  if (!idea) return;
+  const text = `💡 「${idea.name}」\n\nスコア${idea.score.toFixed(1)}・${idea.votes}票獲得中\n\nあいぽで応援してください👇\n`;
+  const url = `https://aipo-tau.vercel.app/`;
+  const hashtags = 'あいぽ,アイデア';
+  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}&hashtags=${encodeURIComponent(hashtags)}`, '_blank');
+}
+
+function copyIdeaLink(id) {
+  navigator.clipboard.writeText('https://aipo-tau.vercel.app/').then(() => {
+    showToast('リンクをコピーしました🥃');
+  }).catch(() => {
+    showToast('コピーできませんでした');
+  });
 }
 
 function toggleFav(id) {
@@ -1756,8 +1849,7 @@ async function doPost() {
   myIdeas.add(newIdea.id);
   postCount++;
   if (btn) { btn.disabled = false; btn.textContent = 'マーケットに上場する →'; }
-  showToast('上場しました！フィードを確認してください');
-  setTimeout(()=>goTo('feed'), 700);
+  showShareAfterPost(newIdea);
 }
 
 function showToast(msg) {
