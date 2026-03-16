@@ -10,7 +10,7 @@
 <meta property="og:image" content="https://aipo-tau.vercel.app/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+
 <style>
 /* リセット */
 *, *::before, *::after {
@@ -642,7 +642,7 @@ footer {
 <div class="vision-sec">
   <div class="vision-max">
     <div class="label rev" style="color:var(--amber)">VISION 2026+</div>
-    <h2 class="title rev" style="color:#fff">アイデアが、<span style="color:var(--amber)">自動的に現実になる世界へ。</span></h2>
+    <h2 class="title rev" style="color:#fff">アイデアが、<br><span style="color:var(--amber)">自動的に現実になる世界へ。</span></h2>
     <p class="desc rev" style="color:rgba(255,255,255,.5)">あいぽが目指す未来は、アイデアを評価する場で終わらない。</p>
     <div class="rm rev">
       <div class="rm-row">
@@ -663,7 +663,8 @@ footer {
       </div>
     </div>
     <div class="inv-box rev">
-      <div class="inv-title">協力者・出資者を募集しています</div>
+      <div style="font-size:18px;font-weight:900;color:#fff;margin-bottom:8px">投資家・協力者 募集中</div>
+      <div style="font-size:11px;font-weight:700;color:var(--amber);letter-spacing:.08em;margin-bottom:12px">LOOKING FOR INVESTORS & PARTNERS</div>
       <div class="inv-desc">このビジョンに共感してくれる方、一緒に作りたい方を探しています。まだ構想段階ですが、本気でやります。</div>
       <div class="inv-tags">
         <span class="inv-tag-a">出資・投資</span>
@@ -723,11 +724,26 @@ document.querySelectorAll('.faq-item').forEach(el => {
 // Supabase
 const SB_URL = 'https://qjffvspnnxyykoyhnazm.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqZmZ2c3Bubnl5eWtveWhuYXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIwNDI5MDQsImV4cCI6MjA1NzYxODkwNH0.xwPBaKNmVJpJZuCFWLMvv9V7G1PioQTUXkOlgQfDi3o';
-let sb = null;
-try {
-  if(typeof supabase !== 'undefined') sb = supabase.createClient(SB_URL, SB_KEY);
-  else if(typeof window.supabase !== 'undefined') sb = window.supabase.createClient(SB_URL, SB_KEY);
-} catch(e) { console.log('sb init error:', e); }
+
+// Supabase REST APIを直接fetchで呼ぶ（ライブラリ不要）
+async function sbGet(table, params = '') {
+  const res = await fetch(`${SB_URL}/rest/v1/${table}?${params}`, {
+    headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+  });
+  return res.json();
+}
+async function sbCount(table, params = '') {
+  const res = await fetch(`${SB_URL}/rest/v1/${table}?${params}`, {
+    headers: {
+      'apikey': SB_KEY,
+      'Authorization': 'Bearer ' + SB_KEY,
+      'Prefer': 'count=exact',
+      'Range': '0-0'
+    }
+  });
+  const range = res.headers.get('content-range');
+  return range ? parseInt(range.split('/')[1]) : 0;
+}
 
 const countUp = (el, val) => {
   if(!el || val == null) return;
@@ -743,45 +759,38 @@ const countUp = (el, val) => {
 let mockLeft = 3;
 
 async function initData() {
-  if(!sb) { console.log('Supabase not loaded'); return; }
   try {
-    // 統計取得
-    const [u, i, v, f] = await Promise.all([
-      sb.from('profiles').select('id', {count:'exact',head:true}),
-      sb.from('ideas').select('id', {count:'exact',head:true}),
-      sb.from('votes').select('id', {count:'exact',head:true}),
-      sb.from('profiles').select('id', {count:'exact',head:true}).eq('is_founder', true),
+    const [users, ideas, votes, founders] = await Promise.all([
+      sbCount('profiles'),
+      sbCount('ideas'),
+      sbCount('votes'),
+      sbCount('profiles', 'is_founder=eq.true'),
     ]);
-    countUp(document.getElementById('su'), u.count);
-    countUp(document.getElementById('si'), i.count);
-    countUp(document.getElementById('sv'), v.count);
-    if(f.count != null) countUp(document.getElementById('sf'), Math.max(0, 100 - f.count));
+    countUp(document.getElementById('su'), users);
+    countUp(document.getElementById('si'), ideas);
+    countUp(document.getElementById('sv'), votes);
+    countUp(document.getElementById('sf'), Math.max(0, 100 - founders));
   } catch(e) { console.log('stats error:', e); }
   try {
-    // モックアップのアイデア取得
-    const { data } = await sb.from('ideas')
-      .select('id,ticker,name,genre,score,base_score,votes')
-      .not('ticker','eq','HBIT')
-      .order('score', {ascending:false})
-      .limit(3);
-    if(!data || !data.length) { document.getElementById('mock-list').innerHTML = '<div style="padding:12px;text-align:center;font-size:11px;color:var(--text3)">アイデアを読み込めませんでした</div>'; return; }
+    const data = await sbGet('ideas', 'ticker=neq.HBIT&order=score.desc&limit=3&select=id,ticker,name,genre,score,base_score,votes');
+    if(!data || !data.length) { document.getElementById('mock-list').innerHTML = '<div style="padding:12px;text-align:center;font-size:11px;color:var(--text3)">データなし</div>'; return; }
     document.getElementById('mock-count').textContent = `銘柄一覧 · ${data.length}件`;
     document.getElementById('mock-list').innerHTML = data.map((d,i) => {
-      const delta = d.score - d.base_score;
+      const delta = (d.score||50) - (d.base_score||50);
       const ds = (delta>=0?'+':'') + delta.toFixed(1);
       const sc = delta>0.3?'#22a85f':delta<-0.3?'#c0392b':'#1a1400';
       const dc = delta>0.3?'#22a85f':delta<-0.3?'#c0392b':'#999';
       const db = delta>0.3?'rgba(34,168,95,.12)':delta<-0.3?'rgba(192,57,43,.1)':'rgba(0,0,0,.05)';
-      const nm = d.name.length > 16 ? d.name.slice(0,16)+'...' : d.name;
+      const nm = (d.name||'').length > 16 ? d.name.slice(0,16)+'...' : (d.name||'');
       return `<div class="mock-row" onclick="mv(this,${i})">
         <div class="mock-sc">
-          <div class="mock-sc-val" style="color:${sc}" id="ms${i}">${d.score.toFixed(1)}</div>
+          <div class="mock-sc-val" style="color:${sc}" id="ms${i}">${(d.score||50).toFixed(1)}</div>
           <div class="mock-sc-delta" style="color:${dc};background:${db}">${ds}</div>
         </div>
         <div class="mock-info">
-          <div class="mock-ticker">${d.ticker}</div>
+          <div class="mock-ticker">${d.ticker||''}</div>
           <div class="mock-name">${nm}</div>
-          <div class="mock-meta">${d.genre} · <span id="mv${i}">${d.votes}</span>票</div>
+          <div class="mock-meta">${d.genre||''} · <span id="mv${i}">${d.votes||0}</span>票</div>
         </div>
         <button class="mock-vote-btn" id="mb${i}">応援</button>
       </div>`;
