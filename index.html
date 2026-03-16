@@ -852,7 +852,7 @@ function showUpgradeModal(reason) {
       <div style="font-size:17px;font-weight:700;text-align:center;margin-bottom:6px">${reason}</div>
       <div style="font-size:13px;color:var(--text2);text-align:center;line-height:1.7;margin-bottom:20px">プランを選んでください</div>
       <div style="background:linear-gradient(135deg,#fff8ed,#fde8b8);border:2px solid var(--amber-mid);border-radius:var(--r-lg);padding:16px;margin-bottom:12px;position:relative;overflow:hidden">
-        <div style="position:absolute;top:10px;right:10px;background:var(--amber-mid);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px">先着100名限定</div>
+        <div id="modal-founder-remaining" style="position:absolute;top:10px;right:10px;background:var(--amber-mid);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px">先着100名限定</div>
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
           <span style="font-size:20px">👑</span>
           <div>
@@ -888,6 +888,14 @@ function showUpgradeModal(reason) {
   `;
   document.body.appendChild(modal);
   modal.addEventListener('click', e => { if(e.target===modal) modal.remove(); });
+  // 残り枠をリアルタイムで取得して表示
+  sb.from('profiles').select('id', { count: 'exact', head: true }).eq('is_founder', true).then(({ count }) => {
+    if (count !== null) {
+      const remaining = Math.max(0, 100 - count);
+      const el = document.getElementById('modal-founder-remaining');
+      if (el) el.textContent = `残り${remaining}枠`;
+    }
+  });
 }
 
 async function upgradeFounder() {
