@@ -1582,6 +1582,104 @@ function copyIdeaLink(id) {
   });
 }
 
+
+function showPWAGuide() {
+  // すでに見た人・ホーム画面から起動済みの人には表示しない
+  if (localStorage.getItem('pwa-guide-seen')) return;
+  if (window.navigator.standalone) return; // iOS ホーム画面から起動中
+  if (window.matchMedia('(display-mode: standalone)').matches) return; // Android
+
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isAndroid = /android/i.test(navigator.userAgent);
+  if (!isIOS && !isAndroid) return; // PCは表示しない
+
+  const modal = document.createElement('div');
+  modal.id = 'pwa-guide-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:300;display:flex;align-items:flex-end;justify-content:center';
+
+  const iosSteps = `
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface2);border-radius:var(--r-lg)">
+        <div style="width:32px;height:32px;background:var(--amber-bg);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--text)">① 下の共有ボタンをタップ</div>
+          <div style="font-size:11px;color:var(--text3)">Safariの画面下中央にある□↑のアイコン</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface2);border-radius:var(--r-lg)">
+        <div style="width:32px;height:32px;background:var(--amber-bg);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3M17 14v3h3"/></svg>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--text)">②「ホーム画面に追加」を選択</div>
+          <div style="font-size:11px;color:var(--text3)">スクロールして「ホーム画面に追加」をタップ</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface2);border-radius:var(--r-lg)">
+        <div style="width:32px;height:32px;background:var(--amber-bg);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--text)">③「追加」をタップして完了</div>
+          <div style="font-size:11px;color:var(--text3)">ホーム画面にあいぽのアイコンが追加されます</div>
+        </div>
+      </div>
+    </div>`;
+
+  const androidSteps = `
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface2);border-radius:var(--r-lg)">
+        <div style="width:32px;height:32px;background:var(--amber-bg);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2"><circle cx="12" cy="5" r="1" fill="var(--amber)"/><circle cx="12" cy="12" r="1" fill="var(--amber)"/><circle cx="12" cy="19" r="1" fill="var(--amber)"/></svg>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--text)">① 右上の「⋮」メニューをタップ</div>
+          <div style="font-size:11px;color:var(--text3)">Chromeのアドレスバー右端のアイコン</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface2);border-radius:var(--r-lg)">
+        <div style="width:32px;height:32px;background:var(--amber-bg);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3M17 14v3h3"/></svg>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--text)">②「ホーム画面に追加」を選択</div>
+          <div style="font-size:11px;color:var(--text3)">メニューの中から「ホーム画面に追加」をタップ</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface2);border-radius:var(--r-lg)">
+        <div style="width:32px;height:32px;background:var(--amber-bg);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--text)">③「追加」をタップして完了</div>
+          <div style="font-size:11px;color:var(--text3)">ホーム画面にあいぽのアイコンが追加されます</div>
+        </div>
+      </div>
+    </div>`;
+
+  modal.innerHTML = `
+    <div style="background:var(--surface);border-radius:24px 24px 0 0;padding:24px 20px 40px;width:100%;max-width:390px;max-height:85vh;overflow-y:auto">
+      <div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 20px"></div>
+      <div style="text-align:center;margin-bottom:20px">
+        <div style="font-size:32px;margin-bottom:8px">📱</div>
+        <div style="font-size:17px;font-weight:700;color:var(--text);margin-bottom:6px">アプリとして使う</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.7">ホーム画面に追加すると<br>フルスクリーンで快適に使えます</div>
+      </div>
+      ${isIOS ? iosSteps : androidSteps}
+      <button onclick="localStorage.setItem('pwa-guide-seen','1');document.getElementById('pwa-guide-modal').remove()" style="width:100%;padding:14px;background:var(--amber-mid);border:none;border-radius:var(--r-lg);font-size:15px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans);margin-top:20px">
+        わかった！
+      </button>
+      <button onclick="document.getElementById('pwa-guide-modal').remove()" style="width:100%;padding:12px;background:transparent;border:none;font-size:14px;color:var(--text3);cursor:pointer;font-family:var(--sans);margin-top:4px">
+        あとで
+      </button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', e => { if(e.target===modal) modal.remove(); });
+}
+
 function toggleFav(id) {
   if (favIdeas.has(id)) {
     favIdeas.delete(id);
@@ -1875,6 +1973,7 @@ sb.auth.onAuthStateChange(async (event, session) => {
       await loadVotedIds();
       checkUpgradeSuccess();
       showToast('ログインしました🥃');
+      setTimeout(showPWAGuide, 3000);
     }
   } else if (event === 'SIGNED_OUT') {
     currentUser = null;
@@ -1921,6 +2020,7 @@ async function startApp() {
           await loadVotedIds();
           checkUpgradeSuccess();
           showToast('おかえりなさい🥃');
+          setTimeout(showPWAGuide, 3000);
         } else {
           const guideDone = localStorage.getItem('aipo_guide_done');
           if (!guideDone) {
