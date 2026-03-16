@@ -744,10 +744,36 @@ async function postIdeaToDB(ideaData) {
   return data;
 }
 
+
+async function loadVotedIds() {
+  if (!currentUser) return;
+  const { data, error } = await sb
+    .from('votes')
+    .select('idea_id')
+    .eq('user_id', currentUser.id);
+  if (error || !data) return;
+  data.forEach(row => votedIds.add(row.idea_id));
+  // 今日の投票数をvotesLeftに反映
+  const today = new Date().toISOString().slice(0, 10);
+  const { data: todayVotes } = await sb
+    .from('votes')
+    .select('idea_id')
+    .eq('user_id', currentUser.id)
+    .gte('created_at', today + 'T00:00:00')
+    .lte('created_at', today + 'T23:59:59');
+  if (todayVotes) {
+    const used = todayVotes.length;
+    const max = isPro ? 4 : 3;
+    votesLeft = Math.max(0, max - used);
+    document.getElementById('votes-left').textContent = votesLeft;
+  }
+}
+
 async function voteIdeaToDB(ideaId) {
   const { error } = await sb.from('votes').insert({
     user_id: currentUser?.id,
     idea_id: ideaId,
+    created_at: new Date().toISOString(),
   });
   if (error) { console.error('vote:', error); return false; }
   await sb.from('ideas').update({ votes: sb.rpc('increment', { row_id: ideaId }) }).eq('id', ideaId);
@@ -1651,6 +1677,7 @@ sb.auth.onAuthStateChange(async (event, session) => {
       enterApp();
       await fetchIdeas();
       await checkProStatus();
+      await loadVotedIds();
       checkUpgradeSuccess();
       showToast('ログインしました🥃');
     }
@@ -1696,6 +1723,7 @@ async function startApp() {
         if (loggedIn) {
           await fetchIdeas();
           await checkProStatus();
+          await loadVotedIds();
           checkUpgradeSuccess();
           showToast('おかえりなさい🥃');
         } else {
