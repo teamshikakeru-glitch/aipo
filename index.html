@@ -2081,6 +2081,31 @@ window.addEventListener('load', () => {
       }).catch(() => {});
   }
 });
+
+// アプリ復帰時（バックグラウンドから戻った時）にデータを再取得
+document.addEventListener('visibilitychange', async () => {
+  if (document.visibilityState === 'visible' && currentUser) {
+    await fetchIdeas();
+    await loadVotedIds();
+    // 現在の画面を再描画
+    if (document.getElementById('screen-feed')?.classList.contains('active')) {
+      renderFeed();
+    }
+    if (document.getElementById('screen-portfolio')?.classList.contains('active')) {
+      renderPortfolio();
+    }
+  }
+});
+
+// pageshow（iOSのbfcache復元）でも再取得
+window.addEventListener('pageshow', async (e) => {
+  if (e.persisted && currentUser) {
+    await fetchIdeas();
+    await loadVotedIds();
+    renderFeed();
+  }
+});
+
 </script>
 </body>
 </html>
