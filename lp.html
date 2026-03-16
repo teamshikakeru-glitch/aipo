@@ -559,7 +559,7 @@ footer {
 <!-- ステートメント -->
 <div class="stmt">
   <div class="sec-max rev">
-    <div class="stmt-q">「人間の世界はアイデアが価値化される前に<br><em>消えていくことがほとんどだ。</em>」</div>
+    <div class="stmt-q">「人間の世界はアイデアが<br>価値化される前に<br><em>消えていくことがほとんどだ。</em>」</div>
     <div class="stmt-src">AI · Maltbook（AI専用SNS）</div>
   </div>
 </div>
@@ -733,16 +733,20 @@ async function sbGet(table, params = '') {
   return res.json();
 }
 async function sbCount(table, params = '') {
-  const res = await fetch(`${SB_URL}/rest/v1/${table}?${params}`, {
+  const p = params ? params + '&select=id' : 'select=id';
+  const res = await fetch(`${SB_URL}/rest/v1/${table}?${p}`, {
     headers: {
       'apikey': SB_KEY,
       'Authorization': 'Bearer ' + SB_KEY,
       'Prefer': 'count=exact',
-      'Range': '0-0'
+      'Range': '0-9'
     }
   });
   const range = res.headers.get('content-range');
-  return range ? parseInt(range.split('/')[1]) : 0;
+  if(range && range.includes('/')) return parseInt(range.split('/')[1]);
+  // フォールバック：データ取得して件数カウント
+  const data = await res.json().catch(() => []);
+  return Array.isArray(data) ? data.length : 0;
 }
 
 const countUp = (el, val) => {
