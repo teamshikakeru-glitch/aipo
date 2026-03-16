@@ -8,6 +8,5 @@
         { "key": "Expires", "value": "0" }
       ]
     }
-  ],
-  "emailObfuscation": false
+  ]
 }
