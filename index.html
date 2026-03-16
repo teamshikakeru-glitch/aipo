@@ -1249,9 +1249,12 @@ function drawSpark(id, data, isUp, w, h) {
   ctx.fillStyle=isUp?'rgba(34,168,95,.12)':'rgba(192,57,43,.1)'; ctx.fill();
 }
 
-function voteIdea(id) {
+async function voteIdea(id) {
   if (votedIds.has(id)) { showToast('すでに応援済みです'); return; }
   if (votesLeft<=0) { showToast('今日の票を使い切りました。Xで追加票をもらえます。'); return; }
+  if (!currentUser) { showToast('ログインが必要です'); return; }
+
+  // UIを先に更新（快適な操作感のため）
   votedIds.add(id); votesLeft--;
   const idea = ideas.find(i=>i.id===id);
   idea.votes++; idea.lastReason='あなたが応援しました';
@@ -1266,8 +1269,19 @@ function voteIdea(id) {
     showToast('応援しました！残り'+votesLeft+'票');
   }
   renderFeed();
-  // 投票後シェアモーダルを表示
   if (idea) showVoteShareModal(idea);
+
+  // DBに保存
+  const ok = await voteIdeaToDB(id);
+  if (!ok) {
+    // DB保存失敗時はロールバック
+    votedIds.delete(id); votesLeft++;
+    idea.votes--;
+    idea.score = calcScore(idea);
+    document.getElementById('votes-left').textContent = votesLeft;
+    showToast('投票に失敗しました。もう一度お試しください');
+    renderFeed();
+  }
 }
 
 
@@ -1296,13 +1310,14 @@ function shareScoreUp(id) {
   window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text), '_blank');
 }
 
+let _voteShareText = '';
 function showVoteShareModal(idea) {
   const existing = document.getElementById('vote-share-modal');
   if (existing) existing.remove();
+  _voteShareText = '💡「' + idea.name + '」を応援しました！\n\nあいぽで気になるアイデアに投票しよう👇\nhttps://aipo-tau.vercel.app';
   const modal = document.createElement('div');
   modal.id = 'vote-share-modal';
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:flex;align-items:flex-end;justify-content:center';
-  const text = `💡「${idea.name}」を応援しました！\n\nあいぽで気になるアイデアに投票しよう👇\nhttps://aipo-tau.vercel.app`;
   modal.innerHTML = `
     <div style="background:var(--surface);border-radius:24px 24px 0 0;padding:20px 20px 36px;width:100%;max-width:390px">
       <div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px"></div>
@@ -1314,10 +1329,10 @@ function showVoteShareModal(idea) {
         </div>
       </div>
       <div style="background:var(--surface2);border-radius:var(--r-lg);padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--text2);line-height:1.7">
-        💡「\${idea.name}」を応援しました！<br>
+        💡「${idea.name}」を応援しました！<br>
         <span style="color:var(--amber)">#あいぽ #アイデア</span>
       </div>
-      <button onclick="window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent('${text}')+'&hashtags=あいぽ,アイデア','_blank');document.getElementById('vote-share-modal').remove()" style="width:100%;padding:13px;background:#000;border:none;border-radius:var(--r-lg);font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans);display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px">
+      <button id="vote-share-btn" style="width:100%;padding:13px;background:#000;border:none;border-radius:var(--r-lg);font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans);display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px">
         <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M2 2l7.5 8.5L2 18h2l6.3-7.1L16 18h4L12 9.2 18.5 2h-2L10.6 8.6 5 2H2z"/></svg>
         Xでシェアする
       </button>
@@ -1325,6 +1340,10 @@ function showVoteShareModal(idea) {
     </div>
   `;
   document.body.appendChild(modal);
+  document.getElementById('vote-share-btn').addEventListener('click', () => {
+    window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(_voteShareText) + '&hashtags=' + encodeURIComponent('あいぽ,アイデア'), '_blank');
+    document.getElementById('vote-share-modal')?.remove();
+  });
   modal.addEventListener('click', e => { if(e.target===modal) modal.remove(); });
   setTimeout(() => modal.remove(), 8000);
 }
