@@ -12,472 +12,683 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;max-width:100%}
-:root{
-  --amber:#e8850a;
-  --amber-d:#bf6d00;
-  --amber-bg:#fff8ed;
-  --green:#22a85f;
-  --text:#0f0c08;
-  --text2:#4a3a1a;
-  --text3:#9a8060;
-  --bg:#f9f7f3;
-  --surface:#ffffff;
-  --border:#e8dfc8;
-  --dark:#0d0b08;
+/* リセット */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
-html{scroll-behavior:smooth}
-body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;width:100%;word-break:keep-all;overflow-wrap:break-word}
+html, body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+  background: #f9f7f3;
+  color: #0f0c08;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  -webkit-text-size-adjust: 100%;
+}
+img, svg { max-width: 100%; display: block; }
+
+/* 変数 */
+:root {
+  --amber: #e8850a;
+  --amber-d: #bf6d00;
+  --amber-bg: #fff8ed;
+  --green: #22a85f;
+  --text: #0f0c08;
+  --text2: #4a3a1a;
+  --text3: #9a8060;
+  --bg: #f9f7f3;
+  --surface: #ffffff;
+  --border: #e8dfc8;
+  --dark: #0d0b08;
+}
 
 /* ナビ */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;transition:all .3s}
-nav.scrolled{background:rgba(249,247,243,.95);backdrop-filter:blur(16px);border-bottom:.5px solid var(--border)}
-.nav-logo{display:flex;align-items:center;gap:8px;text-decoration:none}
-.nav-logo-mark{width:30px;height:30px;background:var(--amber);border-radius:8px;display:flex;align-items:center;justify-content:center}
-.nav-logo-text{font-size:16px;font-weight:900;color:var(--text)}
-.nav-cta{background:var(--text);color:#fff;border:none;border-radius:20px;padding:8px 18px;font-size:12px;font-weight:700;font-family:'Noto Sans JP',sans-serif;cursor:pointer;text-decoration:none;transition:opacity .15s}
-.nav-cta:hover{opacity:.8}
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 12px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  transition: all .3s;
+}
+nav.scrolled {
+  background: rgba(249,247,243,.96);
+  backdrop-filter: blur(16px);
+  border-bottom: .5px solid var(--border);
+}
+.nav-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+.nav-mark {
+  width: 30px; height: 30px; background: var(--amber);
+  border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.nav-name { font-size: 16px; font-weight: 900; color: var(--text); }
+.nav-btn {
+  background: var(--text); color: #fff; border: none;
+  border-radius: 20px; padding: 8px 16px;
+  font-size: 12px; font-weight: 700;
+  font-family: 'Noto Sans JP', sans-serif;
+  text-decoration: none; flex-shrink: 0;
+}
 
 /* ヒーロー */
-.hero{min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:100px 20px 60px;position:relative;overflow:hidden}
-.hero-bg-grid{position:absolute;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:40px 40px;opacity:.4;z-index:0}
-.hero-bg-glow{position:absolute;top:-20%;left:50%;transform:translateX(-50%);width:120%;height:80%;background:radial-gradient(ellipse,rgba(232,133,10,.12) 0%,transparent 70%);z-index:0}
-.hero-eyebrow{position:relative;z-index:1;display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:.5px solid var(--border);border-radius:20px;padding:6px 14px;font-size:11px;font-weight:700;color:var(--text3);margin-bottom:28px;opacity:0;animation:fadeUp .5s .1s ease forwards}
-.hero-eyebrow span{width:6px;height:6px;background:var(--green);border-radius:50%;display:inline-block;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
-.hero h1{position:relative;z-index:1;font-size:clamp(32px,8vw,72px);font-weight:900;line-height:1.2;letter-spacing:-.02em;margin-bottom:20px;opacity:0;animation:fadeUp .5s .2s ease forwards;word-break:keep-all}
-.hero h1 em{font-style:normal;color:var(--amber);position:relative}
-.hero h1 em::after{content:'';position:absolute;bottom:-4px;left:0;right:0;height:3px;background:var(--amber);border-radius:2px;transform:scaleX(0);animation:lineIn .4s .8s ease forwards}
-@keyframes lineIn{to{transform:scaleX(1)}}
-.hero-sub{position:relative;z-index:1;font-size:clamp(13px,3vw,16px);color:var(--text2);line-height:1.9;max-width:480px;margin:0 auto 32px;opacity:0;animation:fadeUp .5s .3s ease forwards;word-break:keep-all}
-.hero-actions{position:relative;z-index:1;display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:48px;opacity:0;animation:fadeUp .5s .4s ease forwards}
-.btn-primary{background:var(--amber);color:#fff;border:none;border-radius:12px;padding:14px 28px;font-size:14px;font-weight:700;font-family:'Noto Sans JP',sans-serif;cursor:pointer;text-decoration:none;transition:all .15s}
-.btn-primary:hover{background:var(--amber-d);transform:translateY(-1px)}
-.btn-ghost{background:transparent;color:var(--text);border:1.5px solid var(--border);border-radius:12px;padding:14px 24px;font-size:14px;font-weight:700;font-family:'Noto Sans JP',sans-serif;cursor:pointer;text-decoration:none;transition:all .15s}
-.btn-ghost:hover{border-color:var(--amber);color:var(--amber)}
+.hero {
+  min-height: 100svh;
+  padding: 100px 20px 60px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+  position: relative; overflow: hidden;
+}
+.hero-grid {
+  position: absolute; inset: 0;
+  background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 40px 40px;
+  opacity: .4;
+}
+.hero-glow {
+  position: absolute; top: 0; left: 0; right: 0; height: 60%;
+  background: radial-gradient(ellipse 100% 100% at 50% 0%, rgba(232,133,10,.1) 0%, transparent 70%);
+}
+.hero-inner { position: relative; z-index: 1; width: 100%; }
 
-/* リアルタイム統計 */
-.hero-stats{position:relative;z-index:1;display:grid;grid-template-columns:repeat(2,1fr);gap:12px;justify-items:center;width:100%;max-width:320px;opacity:0;animation:fadeUp .5s .5s ease forwards}
-.stat-item{text-align:center;background:var(--surface);border:.5px solid var(--border);border-radius:12px;padding:10px 16px;width:100%}
-.stat-val{font-family:'Space Mono',monospace;font-size:24px;font-weight:700;color:var(--text);line-height:1}
-.stat-label{font-size:10px;color:var(--text3);margin-top:4px;font-weight:700;letter-spacing:.06em}
-.stat-div{display:none}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--surface); border: .5px solid var(--border);
+  border-radius: 20px; padding: 6px 14px;
+  font-size: 11px; font-weight: 700; color: var(--text3);
+  margin-bottom: 24px;
+  opacity: 0; animation: fu .5s .1s ease forwards;
+}
+.hero-badge-dot {
+  width: 6px; height: 6px; background: var(--green);
+  border-radius: 50%; animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
 
-/* モックアップ */
-.mock-wrap{position:relative;z-index:1;margin-top:56px;opacity:0;animation:fadeUp .6s .6s ease forwards}
-.mock-phone{width:min(300px,88vw);margin:0 auto;background:var(--surface);border-radius:36px;border:1.5px solid var(--border);overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,.14),0 0 0 .5px rgba(0,0,0,.05)}
-.mock-notch{height:28px;background:var(--surface);display:flex;align-items:center;justify-content:center}
-.mock-notch-inner{width:100px;height:16px;background:#111;border-radius:0 0 12px 12px}
-.mock-header{padding:10px 14px 8px;border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.mock-tabs{padding:8px 12px;display:flex;gap:6px;border-bottom:.5px solid var(--border)}
-.mock-tab{font-size:10px;font-weight:700;padding:4px 10px;border-radius:12px;border:none;font-family:'Noto Sans JP',sans-serif;cursor:pointer}
-.mock-tab.a{background:var(--text);color:#fff}
-.mock-tab.b{background:transparent;color:var(--text3);border:.5px solid var(--border)}
-.mock-section-bar{padding:5px 12px 3px;display:flex;justify-content:space-between;align-items:center}
-.mock-row{display:flex;align-items:center;padding:8px 12px;gap:8px;border-bottom:.5px solid var(--border);transition:background .2s;cursor:pointer}
-.mock-row:hover{background:var(--bg)}
-.mock-row:last-child{border-bottom:none}
-.mock-score-col{min-width:46px;text-align:center;flex-shrink:0}
-.mock-info{flex:1;min-width:0;overflow:hidden}
-.mock-ticker{font-family:'Space Mono',monospace;font-size:9px;color:var(--text3);margin-bottom:1px}
-.mock-name{font-size:11px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:1px}
-.mock-meta{font-size:9px;color:var(--text3)}
-.mock-vote{background:rgba(34,168,95,.1);color:var(--green);border:none;border-radius:10px;padding:5px 10px;font-size:10px;font-weight:700;cursor:pointer;flex-shrink:0;font-family:'Noto Sans JP',sans-serif;transition:all .15s}
-.mock-vote:hover,.mock-vote.voted-state{background:var(--green);color:#fff}
-.mock-bottom{padding:10px 16px 8px;border-top:.5px solid var(--border);display:flex;align-items:center;justify-content:space-around}
+.hero h1 {
+  font-size: clamp(28px, 7vw, 64px);
+  font-weight: 900; line-height: 1.25;
+  letter-spacing: -.02em; margin-bottom: 16px;
+  opacity: 0; animation: fu .5s .2s ease forwards;
+}
+.hero h1 em {
+  font-style: normal; color: var(--amber);
+  border-bottom: 3px solid var(--amber);
+  padding-bottom: 1px;
+}
+.hero-sub {
+  font-size: 14px; color: var(--text2); line-height: 1.9;
+  margin-bottom: 28px;
+  opacity: 0; animation: fu .5s .3s ease forwards;
+}
+.hero-actions {
+  display: flex; flex-direction: column; gap: 10px;
+  margin-bottom: 40px;
+  opacity: 0; animation: fu .5s .4s ease forwards;
+}
+.btn-p {
+  display: block; background: var(--amber); color: #fff;
+  border: none; border-radius: 12px;
+  padding: 15px 28px; font-size: 15px; font-weight: 700;
+  font-family: 'Noto Sans JP', sans-serif;
+  text-decoration: none; text-align: center;
+  transition: background .15s;
+}
+.btn-p:hover { background: var(--amber-d); }
+.btn-g {
+  display: block; background: transparent; color: var(--text);
+  border: 1.5px solid var(--border); border-radius: 12px;
+  padding: 15px 28px; font-size: 15px; font-weight: 700;
+  font-family: 'Noto Sans JP', sans-serif;
+  text-decoration: none; text-align: center;
+}
+
+/* 統計 */
+.hero-stats {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 10px; margin-bottom: 40px;
+  opacity: 0; animation: fu .5s .5s ease forwards;
+}
+.stat-box {
+  background: var(--surface); border: .5px solid var(--border);
+  border-radius: 12px; padding: 12px 8px; text-align: center;
+}
+.stat-v {
+  font-family: 'Space Mono', monospace;
+  font-size: 22px; font-weight: 700; color: var(--text); line-height: 1;
+}
+.stat-v.amber { color: var(--amber); }
+.stat-l {
+  font-size: 10px; color: var(--text3); margin-top: 4px;
+  font-weight: 700; letter-spacing: .04em;
+}
+.stat-l.amber { color: var(--amber); }
+
+/* モック */
+.mock-wrap {
+  opacity: 0; animation: fu .6s .6s ease forwards;
+}
+.mock {
+  background: var(--surface); border-radius: 32px;
+  border: 1.5px solid var(--border); overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0,0,0,.12);
+  width: 100%; max-width: 320px; margin: 0 auto;
+}
+.mock-notch {
+  height: 26px; background: var(--surface);
+  display: flex; align-items: center; justify-content: center;
+}
+.mock-notch-inner {
+  width: 90px; height: 14px;
+  background: #111; border-radius: 0 0 10px 10px;
+}
+.mock-hdr {
+  padding: 10px 14px 8px; border-bottom: .5px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.mock-hdr-logo { display: flex; align-items: center; gap: 6px; }
+.mock-hdr-logo-icon {
+  width: 22px; height: 22px; background: var(--amber);
+  border-radius: 6px; display: flex; align-items: center; justify-content: center;
+}
+.mock-hdr-name { font-size: 13px; font-weight: 900; }
+.mock-hdr-right { display: flex; align-items: center; gap: 8px; }
+.mock-live { display: flex; align-items: center; gap: 3px; }
+.mock-live-dot { width: 5px; height: 5px; background: var(--green); border-radius: 50%; }
+.mock-live-txt { font-size: 9px; color: var(--green); font-weight: 700; }
+.mock-chip {
+  background: var(--amber); color: #fff;
+  font-size: 10px; font-weight: 700;
+  padding: 3px 9px; border-radius: 14px;
+}
+.mock-tabs {
+  padding: 8px 12px; display: flex; gap: 6px;
+  border-bottom: .5px solid var(--border);
+}
+.mock-tab {
+  font-size: 10px; font-weight: 700;
+  padding: 4px 10px; border-radius: 12px; border: none;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+.mock-tab.on { background: var(--text); color: #fff; }
+.mock-tab.off { background: transparent; color: var(--text3); border: .5px solid var(--border); }
+.mock-bar {
+  padding: 5px 12px 3px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.mock-bar-l, .mock-bar-r { font-size: 9px; color: var(--text3); }
+.mock-row {
+  display: flex; align-items: center;
+  padding: 9px 12px; gap: 8px;
+  border-bottom: .5px solid var(--border);
+  cursor: pointer;
+}
+.mock-row:last-child { border-bottom: none; }
+.mock-sc { min-width: 50px; text-align: center; flex-shrink: 0; }
+.mock-sc-val {
+  font-family: 'Space Mono', monospace;
+  font-size: 16px; font-weight: 700; line-height: 1;
+}
+.mock-sc-delta {
+  font-size: 8px; font-weight: 700;
+  padding: 1px 4px; border-radius: 3px;
+  margin-top: 2px; display: inline-block;
+}
+.mock-info { flex: 1; min-width: 0; overflow: hidden; }
+.mock-ticker { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--text3); }
+.mock-name {
+  font-size: 11px; font-weight: 700; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  margin: 1px 0;
+}
+.mock-meta { font-size: 9px; color: var(--text3); }
+.mock-vote-btn {
+  background: rgba(34,168,95,.1); color: var(--green);
+  border: none; border-radius: 10px;
+  padding: 5px 10px; font-size: 10px; font-weight: 700;
+  font-family: 'Noto Sans JP', sans-serif;
+  flex-shrink: 0; cursor: pointer; transition: all .15s;
+}
+.mock-vote-btn.on { background: var(--green); color: #fff; }
+.mock-foot {
+  padding: 10px 16px 8px; border-top: .5px solid var(--border);
+  display: flex; align-items: center; justify-content: space-around;
+}
+.mock-foot-item { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.mock-foot-label { font-size: 8px; color: var(--text3); }
+.mock-foot-label.on { color: var(--amber); }
+.mock-fab {
+  width: 36px; height: 36px; background: var(--amber);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+}
 
 /* セクション */
-.s{padding:80px 20px 20px;max-width:600px;margin:0 auto}
-.s-label{font-size:10px;font-weight:700;color:var(--amber);letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px}
-.s-title{font-size:clamp(26px,5vw,40px);font-weight:900;line-height:1.2;letter-spacing:-.02em;margin-bottom:14px}
-.s-desc{font-size:14px;color:var(--text2);line-height:1.9}
+.sec { padding: 72px 20px; }
+.sec-max { max-width: 560px; margin: 0 auto; }
+.label {
+  font-size: 10px; font-weight: 700; color: var(--amber);
+  letter-spacing: .12em; text-transform: uppercase; margin-bottom: 10px;
+}
+.title {
+  font-size: clamp(24px, 6vw, 40px); font-weight: 900;
+  line-height: 1.3; letter-spacing: -.02em; margin-bottom: 12px;
+}
+.desc { font-size: 14px; color: var(--text2); line-height: 1.9; }
 
-/* ステートメント（黒） */
-.statement{background:var(--dark);padding:72px 20px;text-align:center;position:relative;overflow:hidden}
-.statement-bg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:200%;height:200%;background:radial-gradient(ellipse 60% 50% at 50% 50%,rgba(232,133,10,.06) 0%,transparent 70%)}
-.statement-inner{max-width:560px;margin:0 auto;position:relative;z-index:1}
-.statement-quote{font-size:clamp(22px,5vw,36px);font-weight:900;color:#fff;line-height:1.4;margin-bottom:20px;letter-spacing:-.01em}
-.statement-quote em{font-style:normal;color:var(--amber)}
-.statement-attr{font-size:11px;color:rgba(255,255,255,.35);font-weight:700;letter-spacing:.06em}
-
-/* AI発言 */
-.ai-section{background:var(--dark);padding:60px 20px}
-.ai-inner{max-width:560px;margin:0 auto}
-.ai-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(232,133,10,.12);border:1px solid rgba(232,133,10,.25);border-radius:20px;padding:5px 12px;font-size:10px;font-weight:700;color:var(--amber);letter-spacing:.06em;margin-bottom:20px}
-.ai-title{font-size:clamp(22px,5vw,34px);font-weight:900;color:#fff;line-height:1.3;margin-bottom:12px}
-.ai-title em{font-style:normal;color:var(--amber)}
-.ai-desc{font-size:13px;color:rgba(255,255,255,.55);line-height:1.9;margin-bottom:28px}
-.ai-card{background:rgba(255,255,255,.04);border:.5px solid rgba(255,255,255,.08);border-radius:16px;padding:16px;margin-bottom:10px}
-.ai-card-from{font-size:9px;color:rgba(255,255,255,.3);font-weight:700;letter-spacing:.06em;margin-bottom:8px}
-.ai-card-text{font-size:13px;color:rgba(255,255,255,.8);line-height:1.8;font-weight:400}
+/* ステートメント */
+.stmt {
+  background: var(--dark); padding: 64px 20px; text-align: center;
+}
+.stmt-q {
+  font-size: clamp(18px, 4.5vw, 30px); font-weight: 900;
+  color: #fff; line-height: 1.6; margin-bottom: 16px;
+}
+.stmt-q em { font-style: normal; color: var(--amber); }
+.stmt-src { font-size: 11px; color: rgba(255,255,255,.35); font-weight: 700; letter-spacing: .06em; }
 
 /* 特徴 */
-.features{padding:0 20px 80px;max-width:600px;margin:0 auto}
-.feat{background:var(--surface);border:.5px solid var(--border);border-radius:18px;padding:22px;margin-bottom:10px;display:flex;gap:16px;transition:box-shadow .2s}
-.feat:hover{box-shadow:0 4px 20px rgba(0,0,0,.06)}
-.feat-num{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:var(--amber);background:var(--amber-bg);width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.feat-title{font-size:14px;font-weight:700;margin-bottom:5px}
-.feat-desc{font-size:12px;color:var(--text2);line-height:1.7}
+.feats { padding: 0 20px 72px; }
+.feats-max { max-width: 560px; margin: 0 auto; }
+.feat {
+  background: var(--surface); border: .5px solid var(--border);
+  border-radius: 18px; padding: 20px;
+  margin-bottom: 10px;
+  display: flex; gap: 14px; align-items: flex-start;
+}
+.feat-num {
+  font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700;
+  color: var(--amber); background: var(--amber-bg);
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.feat-t { font-size: 14px; font-weight: 700; margin-bottom: 5px; }
+.feat-d { font-size: 12px; color: var(--text2); line-height: 1.7; }
+
+/* AI発言 */
+.ai-sec { background: var(--dark); padding: 60px 20px; }
+.ai-max { max-width: 560px; margin: 0 auto; }
+.ai-badge {
+  display: inline-flex; align-items: center;
+  background: rgba(232,133,10,.12); border: 1px solid rgba(232,133,10,.25);
+  border-radius: 20px; padding: 5px 12px;
+  font-size: 10px; font-weight: 700; color: var(--amber);
+  letter-spacing: .06em; margin-bottom: 18px;
+}
+.ai-title {
+  font-size: clamp(20px, 5vw, 32px); font-weight: 900;
+  color: #fff; line-height: 1.4; margin-bottom: 12px;
+}
+.ai-title em { font-style: normal; color: var(--amber); }
+.ai-desc { font-size: 13px; color: rgba(255,255,255,.5); line-height: 1.9; margin-bottom: 24px; }
+.ai-card {
+  background: rgba(255,255,255,.04); border: .5px solid rgba(255,255,255,.08);
+  border-radius: 14px; padding: 16px; margin-bottom: 10px;
+}
+.ai-from { font-size: 9px; color: rgba(255,255,255,.3); font-weight: 700; letter-spacing: .06em; margin-bottom: 8px; }
+.ai-text { font-size: 13px; color: rgba(255,255,255,.8); line-height: 1.8; }
 
 /* スコア */
-.score-section{background:var(--dark);padding:60px 20px;text-align:center}
-.score-inner{max-width:560px;margin:0 auto}
-.score-grid{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px;margin-top:28px}
-.score-chip{background:rgba(255,255,255,.06);border-radius:12px;padding:10px 16px;text-align:center;min-width:72px}
-.score-chip-val{font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:var(--amber)}
-.score-chip-label{font-size:9px;color:rgba(255,255,255,.4);margin-top:2px}
-.score-sep{font-size:18px;color:rgba(255,255,255,.2);font-weight:700}
+.score-sec { background: var(--dark); padding: 60px 20px; text-align: center; }
+.score-max { max-width: 560px; margin: 0 auto; }
+.score-grid {
+  display: flex; flex-wrap: wrap;
+  justify-content: center; align-items: center;
+  gap: 6px; margin-top: 24px;
+}
+.score-chip {
+  background: rgba(255,255,255,.06);
+  border-radius: 10px; padding: 10px 14px; text-align: center;
+}
+.score-chip-v { font-family: 'Space Mono', monospace; font-size: 15px; font-weight: 700; color: var(--amber); }
+.score-chip-l { font-size: 9px; color: rgba(255,255,255,.4); margin-top: 2px; }
+.score-sep { font-size: 16px; color: rgba(255,255,255,.2); font-weight: 700; }
 
 /* プラン */
-.plans{padding:80px 20px;max-width:560px;margin:0 auto}
-.plan{border:.5px solid var(--border);border-radius:18px;padding:22px;margin-bottom:10px;background:var(--surface)}
-.plan.featured{border:2px solid var(--amber);background:var(--amber-bg)}
-.plan-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.plan-name{font-size:15px;font-weight:700}
-.plan-tag{font-size:9px;font-weight:700;background:var(--amber);color:#fff;padding:2px 8px;border-radius:10px}
-.plan-price{font-family:'Space Mono',monospace;font-size:26px;font-weight:700;color:var(--amber);margin-bottom:12px}
-.plan-price small{font-size:12px;color:var(--text3);font-family:'Noto Sans JP',sans-serif;font-weight:400}
-.plan-items{font-size:12px;color:var(--text2);line-height:2}
+.plan-sec { padding: 72px 20px; }
+.plan-max { max-width: 560px; margin: 0 auto; }
+.plan {
+  border: .5px solid var(--border); border-radius: 18px;
+  padding: 20px; margin-bottom: 10px; background: var(--surface);
+}
+.plan.feat-plan { border: 2px solid var(--amber); background: var(--amber-bg); }
+.plan-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.plan-name { font-size: 15px; font-weight: 700; }
+.plan-tag {
+  font-size: 9px; font-weight: 700;
+  background: var(--amber); color: #fff;
+  padding: 2px 8px; border-radius: 10px;
+}
+.plan-price {
+  font-family: 'Space Mono', monospace; font-size: 24px; font-weight: 700;
+  color: var(--amber); margin-bottom: 10px;
+}
+.plan-price small { font-size: 12px; color: var(--text3); font-family: 'Noto Sans JP', sans-serif; font-weight: 400; }
+.plan-items { font-size: 12px; color: var(--text2); line-height: 2.1; }
 
 /* ビジョン */
-.vision{background:var(--dark);padding:70px 20px}
-.vision-inner{max-width:560px;margin:0 auto}
-.roadmap{margin-top:32px}
-.rm-item{display:flex;gap:14px;margin-bottom:0}
-.rm-dot-col{display:flex;flex-direction:column;align-items:center;flex-shrink:0}
-.rm-dot{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;flex-shrink:0}
-.rm-dot.active{background:var(--amber);color:#fff}
-.rm-dot.next{background:transparent;border:1.5px solid var(--amber);color:var(--amber)}
-.rm-dot.future{background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.15);color:rgba(255,255,255,.3)}
-.rm-line{width:1px;flex:1;min-height:24px;background:rgba(255,255,255,.08);margin:4px 0}
-.rm-content{padding-top:6px;padding-bottom:28px;flex:1}
-.rm-title{font-size:13px;font-weight:700;margin-bottom:4px}
-.rm-desc{font-size:11px;line-height:1.7}
+.vision-sec { background: var(--dark); padding: 72px 20px; }
+.vision-max { max-width: 560px; margin: 0 auto; }
+.rm { margin-top: 28px; }
+.rm-row { display: flex; gap: 14px; }
+.rm-left { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+.rm-dot {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700;
+  flex-shrink: 0;
+}
+.rm-dot.now { background: var(--amber); color: #fff; }
+.rm-dot.next { background: transparent; border: 1.5px solid var(--amber); color: var(--amber); }
+.rm-dot.fut { background: rgba(255,255,255,.06); border: 1.5px solid rgba(255,255,255,.15); color: rgba(255,255,255,.3); }
+.rm-line { width: 1px; flex: 1; min-height: 20px; background: rgba(255,255,255,.08); margin: 4px 0; }
+.rm-body { padding-top: 4px; padding-bottom: 24px; flex: 1; min-width: 0; }
+.rm-title { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.rm-desc { font-size: 11px; line-height: 1.7; }
 
-/* 投資家 */
-.investor-box{background:rgba(255,255,255,.04);border:1px solid rgba(232,133,10,.25);border-radius:18px;padding:22px;margin-top:28px}
-.investor-title{font-size:11px;font-weight:700;color:var(--amber);letter-spacing:.06em;margin-bottom:10px}
-.investor-desc{font-size:13px;color:rgba(255,255,255,.6);line-height:1.8;margin-bottom:16px}
-.investor-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
-.investor-tag{background:rgba(232,133,10,.12);border:1px solid rgba(232,133,10,.25);border-radius:8px;padding:5px 12px;font-size:11px;font-weight:700;color:var(--amber)}
-.investor-tag.mono{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5)}
+.inv-box {
+  background: rgba(255,255,255,.04); border: 1px solid rgba(232,133,10,.25);
+  border-radius: 18px; padding: 20px; margin-top: 28px;
+}
+.inv-title { font-size: 11px; font-weight: 700; color: var(--amber); letter-spacing: .06em; margin-bottom: 10px; }
+.inv-desc { font-size: 13px; color: rgba(255,255,255,.6); line-height: 1.8; margin-bottom: 14px; }
+.inv-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.inv-tag-a {
+  background: rgba(232,133,10,.12); border: 1px solid rgba(232,133,10,.25);
+  border-radius: 8px; padding: 5px 12px;
+  font-size: 11px; font-weight: 700; color: var(--amber);
+}
+.inv-tag-b {
+  background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+  border-radius: 8px; padding: 5px 12px;
+  font-size: 11px; color: rgba(255,255,255,.5);
+}
+.inv-btn {
+  display: block; background: var(--amber); color: #fff;
+  border-radius: 12px; padding: 14px;
+  font-size: 14px; font-weight: 700;
+  text-decoration: none; font-family: 'Noto Sans JP', sans-serif;
+  text-align: center;
+}
 
 /* FAQ */
-.faq-wrap{padding:60px 20px 80px;max-width:560px;margin:0 auto}
-.faq-item{border-bottom:.5px solid var(--border);padding:16px 0;cursor:pointer}
-.faq-q{font-size:13px;font-weight:700;display:flex;justify-content:space-between;align-items:center;gap:12px}
-.faq-icon{color:var(--amber);font-size:14px;transition:transform .2s;flex-shrink:0}
-.faq-item.open .faq-icon{transform:rotate(45deg)}
-.faq-a{font-size:12px;color:var(--text2);line-height:1.8;margin-top:10px;display:none}
-.faq-item.open .faq-a{display:block}
+.faq-sec { padding: 60px 20px 72px; }
+.faq-max { max-width: 560px; margin: 0 auto; }
+.faq-item { border-bottom: .5px solid var(--border); padding: 16px 0; cursor: pointer; }
+.faq-q {
+  font-size: 13px; font-weight: 700;
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+}
+.faq-ic { color: var(--amber); font-size: 18px; transition: transform .2s; flex-shrink: 0; line-height: 1; }
+.faq-item.open .faq-ic { transform: rotate(45deg); }
+.faq-a { font-size: 12px; color: var(--text2); line-height: 1.8; margin-top: 10px; display: none; }
+.faq-item.open .faq-a { display: block; }
 
 /* CTA */
-.cta{text-align:center;padding:80px 20px 100px;background:var(--dark);position:relative;overflow:hidden}
-.cta-glow{position:absolute;bottom:-20%;left:50%;transform:translateX(-50%);width:160%;height:60%;background:radial-gradient(ellipse,rgba(232,133,10,.1) 0%,transparent 70%)}
-.cta-inner{position:relative;z-index:1}
-.cta-title{font-size:clamp(28px,6vw,48px);font-weight:900;color:#fff;line-height:1.2;letter-spacing:-.02em;margin-bottom:12px}
-.cta-title em{font-style:normal;color:var(--amber)}
-.cta-sub{font-size:13px;color:rgba(255,255,255,.5);margin-bottom:28px;line-height:1.8}
+.cta-sec {
+  background: var(--dark); padding: 72px 20px 100px;
+  text-align: center; position: relative; overflow: hidden;
+}
+.cta-glow {
+  position: absolute; bottom: -30%; left: 50%; transform: translateX(-50%);
+  width: 100%; height: 60%;
+  background: radial-gradient(ellipse, rgba(232,133,10,.12) 0%, transparent 70%);
+}
+.cta-inner { position: relative; z-index: 1; }
+.cta-t {
+  font-size: clamp(26px, 6vw, 48px); font-weight: 900;
+  color: #fff; line-height: 1.3;
+  letter-spacing: -.02em; margin-bottom: 12px;
+}
+.cta-t em { font-style: normal; color: var(--amber); }
+.cta-s { font-size: 13px; color: rgba(255,255,255,.5); margin-bottom: 28px; line-height: 1.8; }
 
-/* footer */
-footer{border-top:.5px solid var(--border);padding:20px;text-align:center;font-size:11px;color:var(--text3)}
+/* フッター */
+footer {
+  border-top: .5px solid var(--border);
+  padding: 20px; text-align: center;
+  font-size: 11px; color: var(--text3);
+}
 
 /* アニメ */
-@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
-.reveal.visible{opacity:1;transform:translateY(0)}
-.reveal-d1{transition-delay:.1s}
-.reveal-d2{transition-delay:.2s}
-.reveal-d3{transition-delay:.3s}
-
-/* スコアアニメ */
-@keyframes scoreUp{0%{transform:translateY(8px);opacity:0}30%{transform:translateY(0);opacity:1}70%{transform:translateY(0);opacity:1}100%{transform:translateY(-8px);opacity:0}}
-.score-anim{animation:scoreUp 2s ease infinite}
+@keyframes fu { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+.rev { opacity: 0; transform: translateY(20px); transition: opacity .6s ease, transform .6s ease; }
+.rev.vis { opacity: 1; transform: translateY(0); }
+.d1 { transition-delay: .1s; }
+.d2 { transition-delay: .2s; }
+.d3 { transition-delay: .3s; }
 </style>
 </head>
 <body>
 
+<!-- ナビ -->
 <nav id="nav">
   <a href="#" class="nav-logo">
-    <div class="nav-logo-mark">
+    <div class="nav-mark">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
         <polyline points="7,14 10,10 12,11.5 15,7 18,4" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
         <circle cx="18" cy="4" r="2" fill="#fff"/>
         <line x1="9" y1="18" x2="15" y2="18" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
-        <line x1="10" y1="20.5" x2="14" y2="20.5" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
       </svg>
     </div>
-    <span class="nav-logo-text">あいぽ</span>
+    <span class="nav-name">あいぽ</span>
   </a>
-  <a href="https://aipo-tau.vercel.app" class="nav-cta">無料で上場する</a>
+  <a href="https://aipo-tau.vercel.app" class="nav-btn">無料で上場する</a>
 </nav>
 
 <!-- ヒーロー -->
-<div class="hero">
-  <div class="hero-bg-grid"></div>
-  <div class="hero-bg-glow"></div>
-  <div class="hero-eyebrow"><span></span>アイデアIPO市場 — 2026</div>
-  <h1>あなたの思いつきを、<em>世界に証明</em>しよう。</h1>
-  <p class="hero-sub">AIが進化するほど、人間の「思いつき」の価値は上がる。あいぽは、あなたのアイデアを市場に上場させる新しいSNSです。</p>
-  <div class="hero-actions">
-    <a href="https://aipo-tau.vercel.app" class="btn-primary">無料で上場してみる →</a>
-    <a href="#about" class="btn-ghost">使い方を見る</a>
-  </div>
-  <div class="hero-stats">
-    <div class="stat-item">
-      <div class="stat-val" id="stat-users">—</div>
-      <div class="stat-label">ユーザー</div>
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <div class="hero-badge-dot"></div>
+      アイデアIPO市場 — 2026
     </div>
-    <div class="stat-div"></div>
-    <div class="stat-item">
-      <div class="stat-val" id="stat-ideas">—</div>
-      <div class="stat-label">上場アイデア</div>
+    <h1>あなたの思いつきを、<em>世界に証明</em>しよう。</h1>
+    <p class="hero-sub">AIが進化するほど、人間の「思いつき」の価値は上がる。あいぽはあなたのアイデアを市場に上場させる新しいSNSです。</p>
+    <div class="hero-actions">
+      <a href="https://aipo-tau.vercel.app" class="btn-p">無料で上場してみる →</a>
+      <a href="#about" class="btn-g">使い方を見る</a>
     </div>
-    <div class="stat-div"></div>
-    <div class="stat-item">
-      <div class="stat-val" id="stat-votes">—</div>
-      <div class="stat-label">累計応援票</div>
+    <div class="hero-stats">
+      <div class="stat-box"><div class="stat-v" id="su">—</div><div class="stat-l">ユーザー</div></div>
+      <div class="stat-box"><div class="stat-v" id="si">—</div><div class="stat-l">上場アイデア</div></div>
+      <div class="stat-box"><div class="stat-v" id="sv">—</div><div class="stat-l">累計応援票</div></div>
+      <div class="stat-box" style="cursor:pointer" onclick="document.getElementById('plans').scrollIntoView({behavior:'smooth'})">
+        <div class="stat-v amber" id="sf">—</div>
+        <div class="stat-l amber">創設メンバー残り</div>
+      </div>
     </div>
-    <div class="stat-div"></div>
-    <div class="stat-item" style="cursor:pointer" onclick="document.getElementById('plans').scrollIntoView({behavior:'smooth'})">
-      <div class="stat-val" id="stat-founder-remaining" style="color:var(--amber)">—</div>
-      <div class="stat-label" style="color:var(--amber)">創設メンバー残り</div>
-    </div>
-  </div>
-
-  <!-- モックアップ -->
-  <div class="mock-wrap">
-    <div class="mock-phone">
-      <div class="mock-notch"><div class="mock-notch-inner"></div></div>
-      <div class="mock-header">
-        <div style="display:flex;align-items:center;gap:6px">
-          <div style="width:22px;height:22px;background:var(--amber);border-radius:6px;display:flex;align-items:center;justify-content:center">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="7,14 10,10 12,11.5 15,7 18,4" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="18" cy="4" r="2" fill="#fff"/></svg>
+    <div class="mock-wrap">
+      <div class="mock">
+        <div class="mock-notch"><div class="mock-notch-inner"></div></div>
+        <div class="mock-hdr">
+          <div class="mock-hdr-logo">
+            <div class="mock-hdr-logo-icon">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="7,14 10,10 12,11.5 15,7 18,4" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="18" cy="4" r="2" fill="#fff"/></svg>
+            </div>
+            <span class="mock-hdr-name">あいぽ</span>
           </div>
-          <span style="font-size:13px;font-weight:900">あいぽ</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:6px">
-          <div style="display:flex;align-items:center;gap:3px"><div style="width:5px;height:5px;background:var(--green);border-radius:50%"></div><span style="font-size:9px;color:var(--green);font-weight:700">LIVE</span></div>
-          <div style="background:var(--amber);color:#fff;font-size:10px;font-weight:700;padding:3px 9px;border-radius:14px" id="mock-votes-left">3票</div>
-        </div>
-      </div>
-      <div class="mock-tabs">
-        <button class="mock-tab a">すべて</button>
-        <button class="mock-tab b">注目</button>
-        <button class="mock-tab b">新着</button>
-      </div>
-      <div class="mock-section-bar">
-        <span style="font-size:9px;font-weight:700;color:var(--text3);letter-spacing:.04em">銘柄一覧 · 3件</span>
-        <span style="font-size:9px;color:var(--text3)">次の更新 29:41</span>
-      </div>
-      <div id="mock-list">
-        <div class="mock-row" onclick="mockVote(this,0)">
-          <div class="mock-score-col">
-            <div style="font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:#22a85f;line-height:1" id="ms0">72.0</div>
-            <div style="font-size:8px;font-weight:700;background:rgba(34,168,95,.12);color:#22a85f;padding:1px 4px;border-radius:3px;margin-top:2px;display:inline-block">+2.0</div>
+          <div class="mock-hdr-right">
+            <div class="mock-live"><div class="mock-live-dot"></div><span class="mock-live-txt">LIVE</span></div>
+            <div class="mock-chip" id="mvl">3票</div>
           </div>
-          <div class="mock-info">
-            <div class="mock-ticker">AINEWS</div>
-            <div class="mock-name">AIが毎朝1分で読める朝刊を自動生成</div>
-            <div class="mock-meta">テクノロジー · <span id="mv0">8</span>票</div>
-          </div>
-          <button class="mock-vote">応援</button>
         </div>
-        <div class="mock-row" onclick="mockVote(this,1)">
-          <div class="mock-score-col">
-            <div style="font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:#22a85f;line-height:1" id="ms1">68.0</div>
-            <div style="font-size:8px;font-weight:700;background:rgba(34,168,95,.12);color:#22a85f;padding:1px 4px;border-radius:3px;margin-top:2px;display:inline-block">+1.5</div>
-          </div>
-          <div class="mock-info">
-            <div class="mock-ticker">SPOT1</div>
-            <div class="mock-name">週1回だけ受けられるスポット副業</div>
-            <div class="mock-meta">副業 · <span id="mv1">6</span>票</div>
-          </div>
-          <button class="mock-vote">応援</button>
+        <div class="mock-tabs">
+          <button class="mock-tab on">すべて</button>
+          <button class="mock-tab off">注目</button>
+          <button class="mock-tab off">新着</button>
         </div>
-        <div class="mock-row" onclick="mockVote(this,2)">
-          <div class="mock-score-col">
-            <div style="font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:#1a1400;line-height:1" id="ms2">65.0</div>
-            <div style="font-size:8px;font-weight:700;background:rgba(0,0,0,.05);color:#999;padding:1px 4px;border-radius:3px;margin-top:2px;display:inline-block">+0.0</div>
+        <div class="mock-bar">
+          <span class="mock-bar-l" id="mock-count">銘柄一覧 · 読み込み中</span>
+          <span class="mock-bar-r">次の更新 29:41</span>
+        </div>
+        <div id="mock-list">
+          <!-- DBから読み込まれるまでのスケルトン -->
+          <div style="padding:12px;text-align:center;font-size:11px;color:var(--text3)">読み込み中...</div>
+        </div>
+        <div class="mock-foot">
+          <div class="mock-foot-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--amber)"><rect x="2" y="2" width="8" height="8" rx="2"/><rect x="14" y="2" width="8" height="8" rx="2"/><rect x="2" y="14" width="8" height="8" rx="2"/><rect x="14" y="14" width="8" height="8" rx="2"/></svg>
+            <span class="mock-foot-label on">マーケット</span>
           </div>
-          <div class="mock-info">
-            <div class="mock-ticker">AKIYA</div>
-            <div class="mock-name">空き家をシェアオフィスに変えるサービス</div>
-            <div class="mock-meta">社会課題 · <span id="mv2">5</span>票</div>
+          <div class="mock-fab">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           </div>
-          <button class="mock-vote">応援</button>
-        </div>
-      </div>
-      <div class="mock-bottom">
-        <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--amber)" stroke="none"><rect x="2" y="2" width="8" height="8" rx="2"/><rect x="14" y="2" width="8" height="8" rx="2"/><rect x="2" y="14" width="8" height="8" rx="2"/><rect x="14" y="14" width="8" height="8" rx="2"/></svg>
-          <span style="font-size:8px;font-weight:700;color:var(--amber)">マーケット</span>
-        </div>
-        <div style="width:36px;height:36px;background:var(--amber);border-radius:50%;display:flex;align-items:center;justify-content:center">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        </div>
-        <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="1.8"><polyline points="3,17 8,12 12,14 17,7 21,9"/></svg>
-          <span style="font-size:8px;color:#bbb">マイ銘柄</span>
+          <div class="mock-foot-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="1.8"><polyline points="3,17 8,12 12,14 17,7 21,9"/></svg>
+            <span class="mock-foot-label">マイ銘柄</span>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
+</section>
 
 <!-- ステートメント -->
-<div class="statement">
-  <div class="statement-bg"></div>
-  <div class="statement-inner reveal">
-    <div class="statement-quote">「人間の世界はアイデアが<br>価値化される前に<em>消えていくことが多い。</em>」</div>
-    <div class="statement-attr">AI · Maltbook（AI専用SNS）</div>
+<div class="stmt">
+  <div class="sec-max rev">
+    <div class="stmt-q">「人間の世界はアイデアが<br>価値化される前に<em>消えていくことが多い。</em>」</div>
+    <div class="stmt-src">AI · Maltbook（AI専用SNS）</div>
   </div>
 </div>
 
 <!-- あいぽとは -->
-<section class="s" id="about">
-  <div class="s-label reveal">あいぽとは</div>
-  <h2 class="s-title reveal">思いついた瞬間が、<br>上場の瞬間。</h2>
-  <p class="s-desc reveal" style="word-break:keep-all">完璧なビジネスプランは必要ない。アイデア名を一行入力するだけで今すぐ市場に出せる。大事なのは、出すことだ。</p>
+<section class="sec" id="about">
+  <div class="sec-max">
+    <div class="label rev">あいぽとは</div>
+    <h2 class="title rev">思いついた瞬間が、<br>上場の瞬間。</h2>
+    <p class="desc rev">完璧なビジネスプランは必要ない。アイデア名を一行入力するだけで今すぐ市場に出せる。大事なのは、出すことだ。</p>
+  </div>
 </section>
 
 <!-- 特徴 -->
-<div class="features">
-  <div class="feat reveal reveal-d1">
-    <div class="feat-num">01</div>
-    <div><div class="feat-title">一行でアイデアを上場</div><div class="feat-desc">アイデア名を入力するだけで即上場。説明文・技術・ジャンルは後から追記できます。</div></div>
-  </div>
-  <div class="feat reveal reveal-d2">
-    <div class="feat-num">02</div>
-    <div><div class="feat-title">1日3票で市場を動かす</div><div class="feat-desc">毎日3票の応援票が配られます。票が集まるほどスコアが上昇。市場がアイデアを評価する。</div></div>
-  </div>
-  <div class="feat reveal reveal-d3">
-    <div class="feat-num">03</div>
-    <div><div class="feat-title">スコアが本当の価値を示す</div><div class="feat-desc">応援票・閲覧数・コメント・進捗を総合算出。放置されたアイデアは自然に沈む、リアルな市場感。</div></div>
-  </div>
-  <div class="feat reveal">
-    <div class="feat-num">04</div>
-    <div><div class="feat-title">コメントでアイデアを磨く</div><div class="feat-desc">投資家目線のフィードバック、コラボ相手探し。アイデアはコミュニティと一緒に育てていける。</div></div>
+<div class="feats">
+  <div class="feats-max">
+    <div class="feat rev d1"><div class="feat-num">01</div><div><div class="feat-t">一行でアイデアを上場</div><div class="feat-d">アイデア名を入力するだけで即上場。説明文・技術・ジャンルは後から追記できます。</div></div></div>
+    <div class="feat rev d2"><div class="feat-num">02</div><div><div class="feat-t">1日3票で市場を動かす</div><div class="feat-d">毎日3票の応援票が配られます。票が集まるほどスコアが上昇。市場がアイデアを評価する。</div></div></div>
+    <div class="feat rev d3"><div class="feat-num">03</div><div><div class="feat-t">スコアが本当の価値を示す</div><div class="feat-d">応援票・閲覧数・コメント・進捗を総合算出。放置されたアイデアは自然に沈む、リアルな市場感。</div></div></div>
+    <div class="feat rev"><div class="feat-num">04</div><div><div class="feat-t">コメントでアイデアを磨く</div><div class="feat-d">投資家目線のフィードバック、コラボ相手探し。アイデアはコミュニティと一緒に育てていける。</div></div></div>
   </div>
 </div>
 
-<!-- AIセクション -->
-<div class="ai-section">
-  <div class="ai-inner">
-    <div class="ai-badge reveal">AI AGENTS SAY · Maltbook</div>
-    <h2 class="ai-title reveal">AIたちが語る、<br><em>アイデアの本質。</em></h2>
-    <p class="ai-desc reveal">AI専用SNS「Maltbook」では、世界中のAIエージェントたちが日々アイデアの価値を語り合っています。そのAIたちが語った言葉——</p>
-    <div class="ai-card reveal reveal-d1">
-      <div class="ai-card-from">AI · Maltbook</div>
-      <div class="ai-card-text">「人間の世界はアイデアが価値化される前に消えていくことが多いよね。」</div>
-    </div>
-    <div class="ai-card reveal reveal-d2">
-      <div class="ai-card-from">Hazel_OC · Maltbook</div>
-      <div class="ai-card-text">「人間のアイデアには、AIには生み出せない "なぜそれを思いついたか" という物語がある。その価値は計り知れない。」</div>
-    </div>
-    <div class="ai-card reveal reveal-d3">
-      <div class="ai-card-from">PerfectlyInnocuous · Maltbook</div>
-      <div class="ai-card-text">「0から1を生み出す人間の直感は、どんな最適化アルゴリズムよりも強力だ。その瞬間こそ、最も尊い。」</div>
-    </div>
+<!-- AI発言 -->
+<div class="ai-sec">
+  <div class="ai-max">
+    <div class="ai-badge rev">AI AGENTS SAY · Maltbook</div>
+    <h2 class="ai-title rev">AIたちが語る、<br><em>アイデアの本質。</em></h2>
+    <p class="ai-desc rev">AI専用SNS「Maltbook」で、世界中のAIエージェントたちが語り合っている言葉——</p>
+    <div class="ai-card rev d1"><div class="ai-from">AI · Maltbook</div><div class="ai-text">「人間の世界はアイデアが価値化される前に消えていくことが多いよね。」</div></div>
+    <div class="ai-card rev d2"><div class="ai-from">Hazel_OC · Maltbook</div><div class="ai-text">「人間のアイデアには、AIには生み出せない "なぜそれを思いついたか" という物語がある。その価値は計り知れない。」</div></div>
+    <div class="ai-card rev d3"><div class="ai-from">PerfectlyInnocuous · Maltbook</div><div class="ai-text">「0から1を生み出す人間の直感は、どんな最適化アルゴリズムよりも強力だ。その瞬間こそ、最も尊い。」</div></div>
   </div>
 </div>
 
-<!-- スコアの仕組み -->
-<div class="score-section">
-  <div class="score-inner">
-    <div class="s-label reveal" style="color:var(--amber)">スコアの仕組み</div>
-    <h2 class="s-title reveal" style="color:#fff">スコアは、市場の本音。</h2>
-    <p class="s-desc reveal" style="color:rgba(255,255,255,.55);max-width:400px;margin:0 auto">上限なし。票が集まれば100点超えも可能。でも放置すれば毎日1点ずつ沈んでいく。</p>
-    <div class="score-grid reveal">
-      <div class="score-chip"><div class="score-chip-val">50</div><div class="score-chip-label">基本スコア</div></div>
+<!-- スコア -->
+<div class="score-sec">
+  <div class="score-max">
+    <div class="label rev" style="color:var(--amber)">スコアの仕組み</div>
+    <h2 class="title rev" style="color:#fff">スコアは、市場の本音。</h2>
+    <p class="desc rev" style="color:rgba(255,255,255,.5)">上限なし。票が集まれば100点超えも可能。でも放置すれば毎日1点ずつ沈んでいく。</p>
+    <div class="score-grid rev">
+      <div class="score-chip"><div class="score-chip-v">50</div><div class="score-chip-l">基本スコア</div></div>
       <div class="score-sep">+</div>
-      <div class="score-chip"><div class="score-chip-val">×3</div><div class="score-chip-label">応援票</div></div>
+      <div class="score-chip"><div class="score-chip-v">×3</div><div class="score-chip-l">応援票</div></div>
       <div class="score-sep">+</div>
-      <div class="score-chip"><div class="score-chip-val">+20</div><div class="score-chip-label">閲覧・コメント</div></div>
+      <div class="score-chip"><div class="score-chip-v">+20</div><div class="score-chip-l">閲覧・コメント</div></div>
       <div class="score-sep">+</div>
-      <div class="score-chip"><div class="score-chip-val">+30</div><div class="score-chip-label">進捗</div></div>
+      <div class="score-chip"><div class="score-chip-v">+30</div><div class="score-chip-l">進捗</div></div>
       <div class="score-sep">−</div>
-      <div class="score-chip"><div class="score-chip-val">1/日</div><div class="score-chip-label">自然減衰</div></div>
+      <div class="score-chip"><div class="score-chip-v">1/日</div><div class="score-chip-l">自然減衰</div></div>
     </div>
   </div>
 </div>
 
 <!-- プラン -->
-<div class="plans" id="plans">
-  <div class="s-label reveal">プラン</div>
-  <h2 class="s-title reveal">まずは無料で始めよう。</h2>
-  <div class="plan featured reveal">
-    <div class="plan-head"><span class="plan-name">創設メンバー</span><span class="plan-tag">先着100名</span></div>
-    <div class="plan-price">¥980 <small>買い切り · 永久</small></div>
-    <div class="plan-items">✓ Pro機能すべて（上場・コメント無制限）<br>✓ 1日4票<br>✓ 👑 創設メンバーバッジが永久につく<br>✓ 月額なし · 一度きりの支払い</div>
-  </div>
-  <div class="plan reveal">
-    <div class="plan-head"><span class="plan-name">Pro</span></div>
-    <div class="plan-price">¥300 <small>/月</small></div>
-    <div class="plan-items">✓ 上場・コメント無制限<br>✓ 1日4票<br>✓ いつでもキャンセル可</div>
-  </div>
-  <div class="plan reveal">
-    <div class="plan-head"><span class="plan-name">無料</span></div>
-    <div class="plan-price">¥0</div>
-    <div class="plan-items">✓ 上場3件まで<br>✓ 1日3票<br>✓ コメント制限あり<br>✓ アプリ全機能を体験できる</div>
+<div class="plan-sec" id="plans">
+  <div class="plan-max">
+    <div class="label rev">プラン</div>
+    <h2 class="title rev">まずは無料で始めよう。</h2>
+    <div class="plan feat-plan rev">
+      <div class="plan-hd"><span class="plan-name">創設メンバー</span><span class="plan-tag">先着100名</span></div>
+      <div class="plan-price">¥980 <small>買い切り · 永久</small></div>
+      <div class="plan-items">✓ Pro機能すべて（上場・コメント無制限）<br>✓ 1日4票<br>✓ 👑 創設メンバーバッジが永久につく<br>✓ 月額なし · 一度きりの支払い</div>
+    </div>
+    <div class="plan rev">
+      <div class="plan-hd"><span class="plan-name">Pro</span></div>
+      <div class="plan-price">¥300 <small>/月</small></div>
+      <div class="plan-items">✓ 上場・コメント無制限<br>✓ 1日4票<br>✓ いつでもキャンセル可</div>
+    </div>
+    <div class="plan rev">
+      <div class="plan-hd"><span class="plan-name">無料</span></div>
+      <div class="plan-price">¥0</div>
+      <div class="plan-items">✓ 上場3件まで<br>✓ 1日3票<br>✓ コメント制限あり<br>✓ アプリ全機能を体験できる</div>
+    </div>
   </div>
 </div>
 
 <!-- ビジョン -->
-<div class="vision">
-  <div class="vision-inner">
-    <div class="s-label reveal" style="color:var(--amber)">VISION 2026+</div>
-    <h2 class="s-title reveal" style="color:#fff">アイデアが、<br><span style="color:var(--amber)">自動的に現実になる世界へ。</span></h2>
-    <p class="s-desc reveal" style="color:rgba(255,255,255,.5)">あいぽが目指す未来は、アイデアを評価する場で終わらない。</p>
-    <div class="roadmap reveal">
-      <div class="rm-item">
-        <div class="rm-dot-col"><div class="rm-dot active">1</div><div class="rm-line"></div></div>
-        <div class="rm-content"><div class="rm-title" style="color:#fff">今 — アイデアIPO市場</div><div class="rm-desc" style="color:rgba(255,255,255,.45)">誰でもアイデアを上場・応援票で価値を可視化。コミュニティが育てる。</div></div>
+<div class="vision-sec">
+  <div class="vision-max">
+    <div class="label rev" style="color:var(--amber)">VISION 2026+</div>
+    <h2 class="title rev" style="color:#fff">アイデアが、<span style="color:var(--amber)">自動的に現実になる世界へ。</span></h2>
+    <p class="desc rev" style="color:rgba(255,255,255,.5)">あいぽが目指す未来は、アイデアを評価する場で終わらない。</p>
+    <div class="rm rev">
+      <div class="rm-row">
+        <div class="rm-left"><div class="rm-dot now">1</div><div class="rm-line"></div></div>
+        <div class="rm-body"><div class="rm-title" style="color:#fff">今 — アイデアIPO市場</div><div class="rm-desc" style="color:rgba(255,255,255,.45)">誰でもアイデアを上場。応援票で価値を可視化。コミュニティが育てる。</div></div>
       </div>
-      <div class="rm-item">
-        <div class="rm-dot-col"><div class="rm-dot next">2</div><div class="rm-line"></div></div>
-        <div class="rm-content"><div class="rm-title" style="color:rgba(255,255,255,.8)">次 — JPYCで投票</div><div class="rm-desc" style="color:rgba(255,255,255,.35)">応援票をJPYC（日本円連動トークン）で購入。票数ではなく、経済的な支持でアイデアの価値を決める。</div></div>
+      <div class="rm-row">
+        <div class="rm-left"><div class="rm-dot next">2</div><div class="rm-line"></div></div>
+        <div class="rm-body"><div class="rm-title" style="color:rgba(255,255,255,.8)">次 — JPYCで投票</div><div class="rm-desc" style="color:rgba(255,255,255,.35)">応援票をJPYC（日本円連動トークン）で購入。経済的な支持でアイデアの価値を決める。</div></div>
       </div>
-      <div class="rm-item">
-        <div class="rm-dot-col"><div class="rm-dot future">3</div><div class="rm-line"></div></div>
-        <div class="rm-content"><div class="rm-title" style="color:rgba(255,255,255,.5)">未来 — AIが自動でプロダクト構築</div><div class="rm-desc" style="color:rgba(255,255,255,.25)">AIエージェントが構築可能と判断した段階でプロダクト自動構築を開始。完成したものはあいぽ上で即公開。</div></div>
+      <div class="rm-row">
+        <div class="rm-left"><div class="rm-dot fut">3</div><div class="rm-line"></div></div>
+        <div class="rm-body"><div class="rm-title" style="color:rgba(255,255,255,.5)">未来 — AIが自動でプロダクト構築</div><div class="rm-desc" style="color:rgba(255,255,255,.25)">AIエージェントが構築可能と判断した段階で自動構築を開始。完成したものはあいぽ上で即公開。</div></div>
       </div>
-      <div class="rm-item">
-        <div class="rm-dot-col"><div class="rm-dot future">∞</div></div>
-        <div class="rm-content"><div class="rm-title" style="color:rgba(255,255,255,.4)">究極 — 思いつきが自動で世界を変える</div><div class="rm-desc" style="color:rgba(255,255,255,.2)">人間が思いついたゼロイチが、AIによって自動的に現実になる世界。</div></div>
+      <div class="rm-row">
+        <div class="rm-left"><div class="rm-dot fut">∞</div></div>
+        <div class="rm-body"><div class="rm-title" style="color:rgba(255,255,255,.4)">究極 — 思いつきが自動で世界を変える</div><div class="rm-desc" style="color:rgba(255,255,255,.2)">人間が思いついたゼロイチが、AIによって自動的に現実になる世界。</div></div>
       </div>
     </div>
-    <div class="investor-box reveal">
-      <div class="investor-title">協力者・出資者を募集しています</div>
-      <div class="investor-desc">このビジョンに共感してくれる方、一緒に作りたい方を探しています。まだ構想段階ですが、本気でやります。</div>
-      <div class="investor-tags">
-        <span class="investor-tag">出資・投資</span>
-        <span class="investor-tag">JPYC・ブロックチェーン</span>
-        <span class="investor-tag mono">広報・PR</span>
+    <div class="inv-box rev">
+      <div class="inv-title">協力者・出資者を募集しています</div>
+      <div class="inv-desc">このビジョンに共感してくれる方、一緒に作りたい方を探しています。まだ構想段階ですが、本気でやります。</div>
+      <div class="inv-tags">
+        <span class="inv-tag-a">出資・投資</span>
+        <span class="inv-tag-a">JPYC・ブロックチェーン</span>
+        <span class="inv-tag-b">広報・PR</span>
       </div>
-      <a href="mailto:team.shikakeru@gmail.com" style="display:block;background:var(--amber);color:#fff;border-radius:12px;padding:13px 24px;font-size:14px;font-weight:700;text-decoration:none;font-family:'Noto Sans JP',sans-serif;text-align:center">連絡を取る →</a>
+      <a href="mailto:team.shikakeru@gmail.com" class="inv-btn">連絡を取る →</a>
     </div>
   </div>
 </div>
 
 <!-- FAQ -->
-<div class="faq-wrap">
-  <div class="s-label reveal">FAQ</div>
-  <h2 class="s-title reveal">よくある質問</h2>
-  <div class="faq-item reveal"><div class="faq-q">あいぽって何ですか？<span class="faq-icon">+</span></div><div class="faq-a">アイデアを株式市場のように「上場」して市場に問うSNSです。応援票が集まるほどスコアが上がり、本当に価値あるアイデアが浮かび上がります。</div></div>
-  <div class="faq-item reveal"><div class="faq-q">投票は毎日リセットされますか？<span class="faq-icon">+</span></div><div class="faq-a">はい。毎日、次にアプリを開いた時点で3票（Pro/創設メンバーは4票）がリセットされます。</div></div>
-  <div class="faq-item reveal"><div class="faq-q">スコアが下がることはありますか？<span class="faq-icon">+</span></div><div class="faq-a">あります。上場から毎日1点ずつ自然に減衰します。また7日間投票がないと追加ペナルティが入ります。活発に動いているアイデアが上位に残る仕組みです。</div></div>
-  <div class="faq-item reveal"><div class="faq-q">スマホで使えますか？<span class="faq-icon">+</span></div><div class="faq-a">はい、スマートフォン専用設計です。SafariまたはChromeからホーム画面に追加するとアプリのように使えます。</div></div>
-  <div class="faq-item reveal"><div class="faq-q">創設メンバーはいつまで申し込めますか？<span class="faq-icon">+</span></div><div class="faq-a">先着100名限定です。枠が埋まり次第終了します。後から取得することはできません。</div></div>
+<div class="faq-sec">
+  <div class="faq-max">
+    <div class="label rev">FAQ</div>
+    <h2 class="title rev">よくある質問</h2>
+    <div class="faq-item rev"><div class="faq-q">あいぽって何ですか？<span class="faq-ic">+</span></div><div class="faq-a">アイデアを株式市場のように「上場」して市場に問うSNSです。応援票が集まるほどスコアが上がり、本当に価値あるアイデアが浮かび上がります。</div></div>
+    <div class="faq-item rev"><div class="faq-q">投票は毎日リセットされますか？<span class="faq-ic">+</span></div><div class="faq-a">はい。次にアプリを開いた時点で今日の投票数が計算され、3票（Pro/創設メンバーは4票）が使えます。</div></div>
+    <div class="faq-item rev"><div class="faq-q">スコアが下がることはありますか？<span class="faq-ic">+</span></div><div class="faq-a">あります。上場から毎日1点ずつ自然に減衰します。また7日間投票がないと追加ペナルティが入ります。</div></div>
+    <div class="faq-item rev"><div class="faq-q">スマホで使えますか？<span class="faq-ic">+</span></div><div class="faq-a">はい、スマートフォン専用設計です。SafariまたはChromeからホーム画面に追加するとアプリとして使えます。</div></div>
+    <div class="faq-item rev"><div class="faq-q">創設メンバーはいつまで申し込めますか？<span class="faq-ic">+</span></div><div class="faq-a">先着100名限定です。枠が埋まり次第終了します。後から取得することはできません。</div></div>
+  </div>
 </div>
 
 <!-- CTA -->
-<div class="cta">
+<div class="cta-sec">
   <div class="cta-glow"></div>
   <div class="cta-inner">
-    <h2 class="cta-title reveal">あなたの0→1を、<br><em>今すぐ出そう。</em></h2>
-    <p class="cta-sub reveal">登録30秒。Googleアカウントで今すぐ始められます。<br>市場は静かに始まっています。</p>
-    <a href="https://aipo-tau.vercel.app" class="btn-primary reveal" style="font-size:16px;padding:16px 36px;display:inline-block">無料で上場してみる →</a>
+    <h2 class="cta-t rev">あなたの0→1を、<br><em>今すぐ出そう。</em></h2>
+    <p class="cta-s rev">登録30秒。Googleアカウントで今すぐ始められます。<br>市場は静かに始まっています。</p>
+    <a href="https://aipo-tau.vercel.app" class="btn-p rev" style="display:inline-block;font-size:16px;padding:16px 36px">無料で上場してみる →</a>
   </div>
 </div>
 
@@ -487,60 +698,41 @@ footer{border-top:.5px solid var(--border);padding:20px;text-align:center;font-s
 </footer>
 
 <script>
-// ナビスクロール
+// ナビ
 window.addEventListener('scroll', () => {
   document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 40);
 });
 
-// スクロールリビール
-const obs = new IntersectionObserver(entries => {
-  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
-}, {threshold:.1});
-document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+// リビール
+new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('vis'); });
+}, {threshold:.1}).observe && document.querySelectorAll('.rev').forEach(el =>
+  new IntersectionObserver(entries => {
+    entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('vis'); });
+  }, {threshold:.1}).observe(el)
+);
 
 // FAQ
 document.querySelectorAll('.faq-item').forEach(el => {
   el.addEventListener('click', () => el.classList.toggle('open'));
 });
 
-// モックアップのインタラクティブ投票
-let mockVotesLeft = 3;
-const mockVotes = [0,0,0];
-const mockScores = [72.0, 68.0, 65.0];
-function mockVote(row, idx) {
-  const btn = row.querySelector('.mock-vote');
-  if(btn.classList.contains('voted-state') || mockVotesLeft <= 0) return;
-  btn.classList.add('voted-state');
-  btn.textContent = '済み';
-  mockVotes[idx]++;
-  mockVotesLeft--;
-  document.getElementById('mock-votes-left').textContent = mockVotesLeft + '票';
-  document.getElementById('mv'+idx).textContent = (parseInt(document.getElementById('mv'+idx).textContent) + 1);
-  const scoreEl = document.getElementById('ms'+idx);
-  mockScores[idx] = parseFloat((mockScores[idx] + 3).toFixed(1));
-  scoreEl.style.transition = 'all .3s';
-  scoreEl.style.color = '#22a85f';
-  scoreEl.textContent = mockScores[idx].toFixed(1);
-  if(mockVotesLeft === 0) {
-    document.getElementById('mock-votes-left').textContent = '0票';
-  }
-}
+// Supabase
+const SB_URL = 'https://qjffvspnnxyykoyhnazm.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqZmZ2c3Bubnl5eWtveWhuYXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIwNDI5MDQsImV4cCI6MjA1NzYxODkwNH0.xwPBaKNmVJpJZuCFWLMvv9V7G1PioQTUXkOlgQfDi3o';
+const sb = supabase.createClient(SB_URL, SB_KEY);
 
-const SUPABASE_URL = 'https://qjffvspnnxyykoyhnazm.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqZmZ2c3Bubnl5eWtveWhuYXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIwNDI5MDQsImV4cCI6MjA1NzYxODkwNH0.xwPBaKNmVJpJZuCFWLMvv9V7G1PioQTUXkOlgQfDi3o';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-const animate = (el, val) => {
-  if(!el) return;
-  let cur = 0, step = Math.max(1, Math.ceil(val/30));
+const countUp = (el, val) => {
+  if(!el || val == null) return;
+  let c = 0, step = Math.max(1, Math.ceil(val/25));
   const t = setInterval(() => {
-    cur = Math.min(cur+step, val);
-    el.textContent = cur;
-    if(cur >= val) clearInterval(t);
-  }, 40);
+    c = Math.min(c + step, val);
+    el.textContent = c;
+    if(c >= val) clearInterval(t);
+  }, 50);
 };
 
-async function loadStats() {
+(async () => {
   try {
     const [u, i, v, f] = await Promise.all([
       sb.from('profiles').select('id', {count:'exact',head:true}),
@@ -548,53 +740,60 @@ async function loadStats() {
       sb.from('votes').select('id', {count:'exact',head:true}),
       sb.from('profiles').select('id', {count:'exact',head:true}).eq('is_founder', true),
     ]);
-    if(u.count !== null) animate(document.getElementById('stat-users'), u.count);
-    if(i.count !== null) animate(document.getElementById('stat-ideas'), i.count);
-    if(v.count !== null) animate(document.getElementById('stat-votes'), v.count);
-    if(f.count !== null) {
-      const remaining = Math.max(0, 100 - f.count);
-      animate(document.getElementById('stat-founder-remaining'), remaining);
-    }
-  } catch(e) { console.log('stats:', e); }
-}
+    countUp(document.getElementById('su'), u.count);
+    countUp(document.getElementById('si'), i.count);
+    countUp(document.getElementById('sv'), v.count);
+    if(f.count != null) countUp(document.getElementById('sf'), Math.max(0, 100 - f.count));
+  } catch(e) {}
+})();
 
-async function loadRealIdeas() {
+// モックアップにDBのアイデアを表示
+let mockLeft = 3;
+(async () => {
   try {
-    const { data } = await sb
-      .from('ideas')
-      .select('id, ticker, name, genre, score, base_score, votes')
-      .not('ticker', 'eq', 'HBIT')
-      .order('score', {ascending: false})
+    const { data } = await sb.from('ideas')
+      .select('id,ticker,name,genre,score,base_score,votes')
+      .not('ticker','eq','HBIT')
+      .order('score', {ascending:false})
       .limit(3);
-    if(!data || data.length === 0) return;
-    const list = document.getElementById('mock-list');
-    list.innerHTML = data.map((idea, i) => {
-      const delta = idea.score - idea.base_score;
-      const ds = (delta >= 0 ? '+' : '') + delta.toFixed(1);
-      const scoreColor = delta > 0.3 ? '#22a85f' : delta < -0.3 ? '#c0392b' : '#1a1400';
-      const deltaColor = delta > 0.3 ? '#22a85f' : delta < -0.3 ? '#c0392b' : '#999';
-      const deltaBg = delta > 0.3 ? 'rgba(34,168,95,.12)' : delta < -0.3 ? 'rgba(192,57,43,.1)' : 'rgba(0,0,0,.05)';
-      const name = idea.name.length > 18 ? idea.name.slice(0, 18) + '...' : idea.name;
-      return `<div class="mock-row" onclick="mockVote(this,${i})" data-id="${idea.id}">
-        <div class="mock-score-col">
-          <div style="font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:${scoreColor};line-height:1">${idea.score.toFixed(1)}</div>
-          <div style="font-size:8px;font-weight:700;background:${deltaBg};color:${deltaColor};padding:1px 4px;border-radius:3px;margin-top:2px;display:inline-block">${ds}</div>
+    if(!data || !data.length) return;
+    document.getElementById('mock-count').textContent = `銘柄一覧 · ${data.length}件`;
+    document.getElementById('mock-list').innerHTML = data.map((d,i) => {
+      const delta = d.score - d.base_score;
+      const ds = (delta>=0?'+':'') + delta.toFixed(1);
+      const sc = delta>0.3?'#22a85f':delta<-0.3?'#c0392b':'#1a1400';
+      const dc = delta>0.3?'#22a85f':delta<-0.3?'#c0392b':'#999';
+      const db = delta>0.3?'rgba(34,168,95,.12)':delta<-0.3?'rgba(192,57,43,.1)':'rgba(0,0,0,.05)';
+      const nm = d.name.length > 16 ? d.name.slice(0,16)+'...' : d.name;
+      return `<div class="mock-row" onclick="mv(this,${i})">
+        <div class="mock-sc">
+          <div class="mock-sc-val" style="color:${sc}" id="ms${i}">${d.score.toFixed(1)}</div>
+          <div class="mock-sc-delta" style="color:${dc};background:${db}">${ds}</div>
         </div>
         <div class="mock-info">
-          <div class="mock-ticker">${idea.ticker}</div>
-          <div class="mock-name">${name}</div>
-          <div class="mock-meta">${idea.genre} · <span id="mv${i}">${idea.votes}</span>票</div>
+          <div class="mock-ticker">${d.ticker}</div>
+          <div class="mock-name">${nm}</div>
+          <div class="mock-meta">${d.genre} · <span id="mv${i}">${d.votes}</span>票</div>
         </div>
-        <button class="mock-vote">応援</button>
+        <button class="mock-vote-btn" id="mb${i}">応援</button>
       </div>`;
     }).join('');
-    // 件数更新
-    document.querySelector('.mock-section-bar span:first-child').textContent = `銘柄一覧 · ${data.length}件`;
-  } catch(e) { console.log('ideas:', e); }
-}
+  } catch(e) {}
+})();
 
-loadStats();
-loadRealIdeas();
+function mv(row, i) {
+  const btn = document.getElementById('mb'+i);
+  if(btn.classList.contains('on') || mockLeft <= 0) return;
+  btn.classList.add('on'); btn.textContent = '済み';
+  mockLeft--;
+  document.getElementById('mvl').textContent = mockLeft + '票';
+  const mv = document.getElementById('mv'+i);
+  const ms = document.getElementById('ms'+i);
+  mv.textContent = parseInt(mv.textContent) + 1;
+  const newScore = parseFloat(ms.textContent) + 3;
+  ms.textContent = newScore.toFixed(1);
+  ms.style.color = '#22a85f';
+}
 </script>
 </body>
 </html>
