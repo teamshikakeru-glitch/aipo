@@ -732,16 +732,18 @@ async function loadVotedIds() {
 }
 
 async function voteIdeaToDB(ideaId) {
+  // votes挿入
   const { error } = await sb.from('votes').insert({
     user_id: currentUser?.id,
     idea_id: ideaId,
     created_at: new Date().toISOString(),
   });
   if (error) { console.error('vote:', error); return false; }
-  const idea = ideas.find(i => i.id === ideaId);
-  const newVotes = (idea?.votes || 0) + 1;
+  // DBから現在のvotes数を取得して+1で更新（UIはすでに+1済みなので、DBの元の値+1）
+  const { data: current } = await sb.from('ideas').select('votes').eq('id', ideaId).single();
+  const dbVotes = (current?.votes || 0) + 1;
   await sb.from('ideas').update({
-    votes: newVotes,
+    votes: dbVotes,
     last_voted_at: new Date().toISOString()
   }).eq('id', ideaId);
   return true;
