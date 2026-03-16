@@ -1,19 +1,29 @@
 <!DOCTYPE html>
 <html><body>
-<div id="result">テスト中...</div>
+<div id="r1">テスト中...</div>
+<div id="r2"></div>
+<div id="r3"></div>
 <script>
-const SB_URL = 'https://qjffvspnnxyykoyhnazm.supabase.co';
-const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqZmZ2c3Bubnl5eWtveWhuYXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIwNDI5MDQsImV4cCI6MjA1NzYxODkwNH0.xwPBaKNmVJpJZuCFWLMvv9V7G1PioQTUXkOlgQfDi3o';
+const U = 'https://qjffvspnnxyykoyhnazm.supabase.co';
+const K = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqZmZ2c3Bubnl5eWtveWhuYXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIwNDI5MDQsImV4cCI6MjA1NzYxODkwNH0.xwPBaKNmVJpJZuCFWLMvv9V7G1PioQTUXkOlgQfDi3o';
+const H = {'apikey':K,'Authorization':'Bearer '+K};
 
-fetch(`${SB_URL}/rest/v1/profiles?select=*`, {
-  headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
-})
-.then(r => r.json())
-.then(data => {
-  document.getElementById('result').textContent = 'profiles取得成功: ' + data.length + '件';
-})
-.catch(e => {
-  document.getElementById('result').textContent = 'エラー: ' + e.message;
+// profiles created_at
+fetch(U+'/rest/v1/profiles?select=created_at',{headers:H})
+.then(r=>r.json()).then(d=>{
+  document.getElementById('r1').textContent='profiles: '+(Array.isArray(d)?d.length+'件':'エラー: '+JSON.stringify(d).slice(0,100));
+});
+
+// ideas
+fetch(U+'/rest/v1/ideas?select=created_at',{headers:H})
+.then(r=>r.json()).then(d=>{
+  document.getElementById('r2').textContent='ideas: '+(Array.isArray(d)?d.length+'件':'エラー: '+JSON.stringify(d).slice(0,100));
+});
+
+// votes
+fetch(U+'/rest/v1/votes?select=created_at',{headers:H})
+.then(r=>r.json()).then(d=>{
+  document.getElementById('r3').textContent='votes: '+(Array.isArray(d)?d.length+'件':'エラー: '+JSON.stringify(d).slice(0,100));
 });
 </script>
 </body></html>
