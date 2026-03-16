@@ -671,7 +671,7 @@ footer {
         <span class="inv-tag-a">JPYC・ブロックチェーン</span>
         <span class="inv-tag-b">広報・PR</span>
       </div>
-      <a href="/cdn-cgi/l/email-protection#e19584808ccf9289888a808a849394a1868c80888dcf828e8c" class="inv-btn">連絡を取る →</a>
+      <a href="mailto:team.shikakeru@gmail.com" class="inv-btn">連絡を取る →</a>
     </div>
   </div>
 </div>
@@ -681,11 +681,11 @@ footer {
   <div class="faq-max">
     <div class="label rev">FAQ</div>
     <h2 class="title rev">よくある質問</h2>
-    <div class="faq-item rev"><div class="faq-q">あいぽって何ですか？<span class="faq-ic">+</span></div><div class="faq-a">アイデアを株式市場のように「上場」して市場に問うSNSです。応援票が集まるほどスコアが上がり、本当に価値あるアイデアが浮かび上がります。</div></div>
-    <div class="faq-item rev"><div class="faq-q">投票は毎日リセットされますか？<span class="faq-ic">+</span></div><div class="faq-a">はい。次にアプリを開いた時点で今日の投票数が計算され、3票（Pro/創設メンバーは4票）が使えます。</div></div>
-    <div class="faq-item rev"><div class="faq-q">スコアが下がることはありますか？<span class="faq-ic">+</span></div><div class="faq-a">あります。上場から毎日1点ずつ自然に減衰します。また7日間投票がないと追加ペナルティが入ります。</div></div>
-    <div class="faq-item rev"><div class="faq-q">スマホで使えますか？<span class="faq-ic">+</span></div><div class="faq-a">はい、スマートフォン専用設計です。SafariまたはChromeからホーム画面に追加するとアプリとして使えます。</div></div>
-    <div class="faq-item rev"><div class="faq-q">創設メンバーはいつまで申し込めますか？<span class="faq-ic">+</span></div><div class="faq-a">先着100名限定です。枠が埋まり次第終了します。後から取得することはできません。</div></div>
+    <div class="faq-item"><div class="faq-q">あいぽって何ですか？<span class="faq-ic">+</span></div><div class="faq-a">アイデアを株式市場のように「上場」して市場に問うSNSです。応援票が集まるほどスコアが上がり、本当に価値あるアイデアが浮かび上がります。</div></div>
+    <div class="faq-item"><div class="faq-q">投票は毎日リセットされますか？<span class="faq-ic">+</span></div><div class="faq-a">はい。次にアプリを開いた時点で今日の投票数が計算され、3票（Pro/創設メンバーは4票）が使えます。</div></div>
+    <div class="faq-item"><div class="faq-q">スコアが下がることはありますか？<span class="faq-ic">+</span></div><div class="faq-a">あります。上場から毎日1点ずつ自然に減衰します。また7日間投票がないと追加ペナルティが入ります。</div></div>
+    <div class="faq-item"><div class="faq-q">スマホで使えますか？<span class="faq-ic">+</span></div><div class="faq-a">はい、スマートフォン専用設計です。SafariまたはChromeからホーム画面に追加するとアプリとして使えます。</div></div>
+    <div class="faq-item"><div class="faq-q">創設メンバーはいつまで申し込めますか？<span class="faq-ic">+</span></div><div class="faq-a">先着100名限定です。枠が埋まり次第終了します。後から取得することはできません。</div></div>
   </div>
 </div>
 
@@ -718,7 +718,7 @@ document.querySelectorAll('.rev').forEach(el => revObserver.observe(el));
 
 // FAQ
 document.querySelectorAll('.faq-item').forEach(el => {
-  el.addEventListener('click', () => el.classList.toggle('open'));
+  el.addEventListener('click', function() { this.classList.toggle('open'); });
 });
 
 // Supabase
@@ -726,26 +726,18 @@ const SB_URL = 'https://qjffvspnnxyykoyhnazm.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqZmZ2c3Bubnl5eWtveWhuYXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIwNDI5MDQsImV4cCI6MjA1NzYxODkwNH0.xwPBaKNmVJpJZuCFWLMvv9V7G1PioQTUXkOlgQfDi3o';
 
 // Supabase REST APIを直接fetchで呼ぶ（ライブラリ不要）
+const H = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY };
+
 async function sbGet(table, params = '') {
-  const res = await fetch(`${SB_URL}/rest/v1/${table}?${params}`, {
-    headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
-  });
+  const res = await fetch(`${SB_URL}/rest/v1/${table}?${params}`, { headers: H });
+  if(!res.ok) return [];
   return res.json();
 }
 async function sbCount(table, params = '') {
-  const p = params ? params + '&select=id' : 'select=id';
-  const res = await fetch(`${SB_URL}/rest/v1/${table}?${p}`, {
-    headers: {
-      'apikey': SB_KEY,
-      'Authorization': 'Bearer ' + SB_KEY,
-      'Prefer': 'count=exact',
-      'Range': '0-9'
-    }
-  });
-  const range = res.headers.get('content-range');
-  if(range && range.includes('/')) return parseInt(range.split('/')[1]);
-  // フォールバック：データ取得して件数カウント
-  const data = await res.json().catch(() => []);
+  const p = (params ? params + '&' : '') + 'select=id';
+  const res = await fetch(`${SB_URL}/rest/v1/${table}?${p}`, { headers: H });
+  if(!res.ok) return 0;
+  const data = await res.json();
   return Array.isArray(data) ? data.length : 0;
 }
 
