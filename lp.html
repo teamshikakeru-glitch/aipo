@@ -735,21 +735,11 @@ async function sbGet(table, params = '') {
   return res.json();
 }
 async function sbCount(table, filter = '') {
-  // まずcontent-rangeで取得を試みる
-  const url = `${SB_URL}/rest/v1/${table}?select=id${filter ? '&' + filter : ''}`;
   try {
-    const res = await fetch(url, {
-      headers: { ...H, 'Prefer': 'count=exact', 'Range': '0-0' }
-    });
-    const cr = res.headers.get('content-range');
-    if(cr && cr.includes('/')) {
-      const n = parseInt(cr.split('/')[1]);
-      if(!isNaN(n)) return n;
-    }
-    // フォールバック：全件取得してカウント
-    const res2 = await fetch(url, { headers: H });
-    if(!res2.ok) return 0;
-    const data = await res2.json();
+    const url = `${SB_URL}/rest/v1/${table}?select=*${filter ? '&' + filter : ''}`;
+    const res = await fetch(url, { headers: H });
+    if(!res.ok) return 0;
+    const data = await res.json();
     return Array.isArray(data) ? data.length : 0;
   } catch(e) { return 0; }
 }
