@@ -922,11 +922,11 @@ function updatePlanBadge() {
     // ★ 修正: founderNumber !== undefined && !== null で 0 も正しく処理
     if (currentUser?.isFounder && currentUser?.founderNumber !== undefined && currentUser?.founderNumber !== null) {
       const num = currentUser.founderNumber === 0 ? '00' : String(currentUser.founderNumber).padStart(2, '0');
-      badge.textContent = `#${num}`;
+      badge.textContent = `創設メンバー #${num}`;
       badge.style.background = 'linear-gradient(135deg,#bf6d00,#e8850a)';
       badge.style.color = '#fff';
       badge.style.border = 'none';
-      badge.style.fontSize = '10px';
+      badge.style.fontSize = '9px';
     } else if (isPro) {
       badge.textContent = 'PRO';
       badge.style.background = 'var(--amber-mid)';
