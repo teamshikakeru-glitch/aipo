@@ -24,7 +24,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
-  --bg: #f2f1ed;
+  --bg: #eceae4;
   --surface: #ffffff;
   --surface2: #f7f6f3;
   --border: rgba(0,0,0,0.07);
@@ -66,16 +66,16 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); over
 .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green-light); animation: blink 1.8s infinite; }
 @keyframes blink { 0%,100%{opacity:1}50%{opacity:.25} }
 .live-lbl { font-size: 10px; font-weight: 700; color: var(--green); }
-.votes-chip { background: var(--amber-bg); border: 1.5px solid var(--amber-border); border-radius: 20px; padding: 5px 12px; display: flex; align-items: center; gap: 4px; }
-.votes-n { font-family: var(--mono); font-size: 15px; font-weight: 700; color: var(--amber); }
-.votes-l { font-size: 10px; color: var(--amber-mid); font-weight: 700; }
+.votes-chip { background: var(--amber-mid); border-radius: 20px; padding: 6px 14px; display: flex; align-items: center; gap: 4px; }
+.votes-n { font-family: var(--mono); font-size: 15px; font-weight: 700; color: #fff; }
+.votes-l { font-size: 10px; color: rgba(255,255,255,.8); font-weight: 700; }
 .seg { display: flex; background: #e0ded8; border-radius: 11px; padding: 3px; margin-bottom: 12px; gap: 2px; }
 .seg-item { flex: 1; text-align: center; font-size: 12px; font-weight: 700; color: #888680; padding: 6px 0; border-radius: 9px; cursor: pointer; transition: all .15s; }
 .seg-item.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.13); }
-.feed-body { padding: 10px 14px 0; }
-.sec-label { font-size: 12px; font-weight: 700; color: var(--text3); padding: 2px 4px 6px; letter-spacing: .03em; }
+.feed-body { padding: 8px 0 0; }
+.sec-label { font-size: 11px; font-weight: 700; color: var(--text3); padding: 4px 16px 6px; letter-spacing: .06em; text-transform: uppercase; }
 .next-update { text-align: center; font-size: 11px; color: var(--text3); padding: 4px 0 6px; font-family: var(--mono); }
-.stock-group { background: var(--surface); border-radius: var(--r-xl); overflow: hidden; margin-bottom: 12px; }
+.stock-group { background: var(--surface); border-radius: var(--r-xl); overflow: hidden; margin-bottom: 0; box-shadow: 0 1px 8px rgba(0,0,0,.07); }
 .srow { display: flex; align-items: center; padding: 12px 16px; border-bottom: 0.5px solid var(--border); cursor: pointer; transition: background .1s; overflow: hidden; position: relative; }
 .srow:last-child { border-bottom: none; }
 .srow:active { background: var(--surface2); }
@@ -158,7 +158,41 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); over
 .action-row:last-child { border-bottom: none; }
 .action-num { font-family: var(--mono); font-size: 12px; color: var(--amber-mid); min-width: 22px; padding-top: 2px; font-weight: 700; }
 .action-text { font-size: 13px; color: var(--text); line-height: 1.55; }
-.vote-hero-btn { width: 100%; padding: 15px; border-radius: var(--r-lg); font-size: 15px; font-weight: 700; font-family: var(--sans); cursor: pointer; border: none; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all .15s; }
+
+.float-vote-btn {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 390px;
+  z-index: 25;
+  padding: 12px 16px 28px;
+  background: linear-gradient(to top, var(--surface) 70%, transparent);
+  pointer-events: none;
+}
+.float-vote-btn button {
+  width: 100%;
+  padding: 16px;
+  border-radius: var(--r-lg);
+  font-size: 16px;
+  font-weight: 700;
+  font-family: var(--sans);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  pointer-events: auto;
+  box-shadow: 0 4px 20px rgba(0,0,0,.15);
+  transition: all .15s;
+}
+.float-vote-btn button.can { background: var(--green-light); color: #fff; }
+.float-vote-btn button.can:active { background: #1a9050; transform: scale(.98); }
+.float-vote-btn button.voted { background: var(--surface2); color: var(--text3); border: 1.5px solid var(--border2); }
+
+.vote-hero-btn { display:none; width: 100%; padding: 15px; border-radius: var(--r-lg); font-size: 15px; font-weight: 700; font-family: var(--sans); cursor: pointer; border: none; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all .15s; }
 .vote-hero-btn.can { background: var(--green-light); color: #fff; }
 .vote-hero-btn.can:active { background: #1a9050; }
 .vote-hero-btn.voted { background: var(--surface2); color: var(--text3); border: 1.5px solid var(--border2); }
@@ -184,8 +218,8 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); over
 .primary-btn:active { background: #c06d08; transform: scale(.98); }
 .primary-btn:disabled { background: var(--surface2); color: var(--text3); cursor: not-allowed; transform: none; }
 .hint { font-size: 11px; color: var(--text3); margin-top: 6px; line-height: 1.6; }
-.sample-banner { display:flex; align-items:center; gap:6px; background:var(--amber-bg); border:1px solid var(--amber-border); border-radius:var(--r-md); padding:8px 14px; margin-bottom:8px; font-size:11px; color:var(--amber); font-weight:700; }
-.sample-group { background:var(--surface); border-radius:var(--r-xl); overflow:hidden; margin-bottom:12px; position:relative; }
+.sample-banner { display:flex; align-items:center; gap:6px; background:var(--amber-bg); border:1px solid var(--amber-border); border-radius:var(--r-md); padding:8px 16px; margin:0 0 6px; font-size:11px; color:var(--amber); font-weight:700; }
+.sample-group { background:var(--surface); border-radius:var(--r-xl); overflow:hidden; margin-bottom:0; box-shadow:0 1px 8px rgba(0,0,0,.07); position:relative; }
 .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(8px); background: var(--text); border-radius: 20px; padding: 11px 22px; font-size: 13px; color: #fff; opacity: 0; transition: all .25s; pointer-events: none; z-index: 100; max-width: 320px; width: 90%; text-align: center; font-weight: 700; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 input[type=file] { display: none; }
@@ -411,7 +445,7 @@ input[type=file] { display: none; }
       </div>
       <div class="hd-right">
         <div class="live-wrap"><div class="live-dot"></div><div class="live-lbl">LIVE</div></div>
-        <div id="plan-badge" onclick="toggleProMenu()" style="font-size:10px;font-weight:700;background:var(--surface2);color:var(--text3);border:1px solid var(--border2);border-radius:20px;padding:4px 10px;cursor:pointer">残3回</div>
+        <div id="plan-badge" onclick="toggleProMenu()" style="font-size:9px;font-weight:700;background:var(--surface2);color:var(--text3);border:1px solid var(--border2);border-radius:20px;padding:3px 8px;cursor:pointer;display:none">残3回</div>
         <div class="votes-chip">
           <span class="votes-n" id="votes-left">3</span>
           <span class="votes-l">票</span>
@@ -426,12 +460,12 @@ input[type=file] { display: none; }
   </div>
   <div class="feed-body">
     <div class="next-update" id="next-lbl"></div>
-    <div class="sample-banner">
+    <div style="padding:0 14px"><div class="sample-banner" style="margin:0 0 6px">
       <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="var(--amber)" stroke-width="1.5"/><line x1="10" y1="9" x2="10" y2="14" stroke="var(--amber)" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="6.5" r="1" fill="var(--amber)"/></svg>
       見本アイデアです。スコアへの反映はされません
     </div>
-    <div class="sample-group" onclick="showSampleDetail()">
-      <div style="padding:12px 14px 0">
+    <div class="sample-group">
+      <div style="padding:12px 14px 0;cursor:pointer" onclick="showSampleDetail()">
         <div style="display:flex;align-items:flex-start;gap:10px">
           <div style="display:flex;flex-direction:column;align-items:center;min-width:58px;flex-shrink:0;padding:4px 0">
             <div style="font-family:var(--mono);font-size:24px;font-weight:700;color:#22a85f;line-height:1;letter-spacing:-.02em">92.4</div>
@@ -452,7 +486,7 @@ input[type=file] { display: none; }
           </div>
           <div style="width:60px;height:38px;flex-shrink:0;margin-top:4px;background:linear-gradient(135deg,rgba(34,168,95,.08),rgba(34,168,95,.02));border-radius:4px"></div>
         </div>
-        <div style="width:100%;padding:9px;border-top:0.5px solid var(--border);font-size:13px;font-weight:700;color:var(--green);background:rgba(34,168,95,.06);display:flex;align-items:center;justify-content:center;gap:6px">
+        <div style="display:flex;align-items:center;justify-content:center;gap:6px;width:calc(100% + 28px);margin:0 -14px;padding:10px;font-size:13px;font-weight:700;color:var(--green);background:rgba(34,168,95,.06);border:none;border-top:0.5px solid var(--border)">
           <svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z"/></svg>
           応援する · 31票
         </div>
@@ -468,9 +502,9 @@ input[type=file] { display: none; }
           <span>応援票 +31</span><span>閲覧 +18</span><span>進捗中</span><span>タップで詳細</span>
         </div>
       </div>
-    </div>
+    </div></div>
     <div class="sec-label" id="sec-label"></div>
-    <div class="stock-group" id="stock-list"></div>
+    <div style="padding:0 0 16px"><div class="stock-group" id="stock-list"></div></div>
     <div class="xbonus" id="xbonus-card" style="display:none">
       <div class="xb-hd">
         <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M2 2l7.5 8.5L2 18h2l6.3-7.1L16 18h4L12 9.2 18.5 2h-2L10.6 8.6 5 2H2z"/></svg>
@@ -503,7 +537,8 @@ input[type=file] { display: none; }
 </div>
 
 <!-- ═══ DETAIL ═══ -->
-<div class="screen" id="screen-detail">
+<div class="screen" id="screen-detail" style="padding-bottom:90px">
+  <div class="float-vote-btn" id="float-vote-wrap" style="display:none"><button id="float-vote-btn" class="can">応援する</button></div>
   <div class="sub-header">
     <div class="back-btn" onclick="goTo('feed')">
       <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 5l-5 5 5 5"/></svg>
@@ -973,6 +1008,9 @@ setInterval(() => {
 let myIdeas = new Set();
 
 function goTo(s) {
+  // フローティングボタンを非表示（詳細以外）
+  const fwrap = document.getElementById('float-vote-wrap');
+  if (fwrap && s !== 'detail') fwrap.style.display = 'none';
   document.querySelectorAll('.screen').forEach(x => x.classList.remove('active'));
   document.getElementById('screen-' + s).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
@@ -1099,7 +1137,7 @@ function buildRow(idea) {
       <canvas style="width:60px;height:38px;flex-shrink:0;margin-top:4px" id="spark-${idea.id}"></canvas>
     </div>
     <!-- 下部: 投票ボタン横幅いっぱい -->
-    <button onclick="event.stopPropagation();voteIdea('${idea.id}')" style="width:100%;margin-top:0;padding:9px;border-radius:0 0 0 0;font-size:13px;font-weight:700;font-family:var(--sans);border:none;border-top:0.5px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s;${voted?'background:var(--surface2);color:var(--text3)':'background:rgba(34,168,95,.06);color:var(--green)'}">
+    <button onclick="event.stopPropagation();voteIdea('${idea.id}')" style="display:flex;align-items:center;justify-content:center;gap:6px;width:calc(100% + 28px);margin:0 -14px;padding:10px;font-size:13px;font-weight:700;font-family:var(--sans);border:none;border-top:0.5px solid var(--border);cursor:pointer;transition:all .15s;${voted?'background:var(--surface2);color:var(--text3)':'background:rgba(34,168,95,.06);color:var(--green)'}">
       <svg width="13" height="13" viewBox="0 0 20 20" fill="${voted?'currentColor':'none'}" stroke="currentColor" stroke-width="2.2"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z"/></svg>
       ${voted?'応援済み':'応援する'} · ${idea.votes}票
     </button>
@@ -1248,6 +1286,17 @@ function showDetail(id) {
       ${votedIds.has(idea.id)?'応援済み（'+idea.votes+'票）':'このアイデアを応援する（残り'+votesLeft+'票）'}
     </button>
   `;
+  // フローティングボタンを設定
+  const fwrap = document.getElementById('float-vote-wrap');
+  const fbtn = document.getElementById('float-vote-btn');
+  if (fwrap && fbtn) {
+    fwrap.style.display = 'block';
+    const vid = idea.id;
+    const isVoted = votedIds.has(vid);
+    fbtn.className = isVoted ? 'voted' : 'can';
+    fbtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 20 20" fill="${isVoted?'currentColor':'none'}" stroke="currentColor" stroke-width="1.8"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z"/></svg>${isVoted?'応援済み（'+idea.votes+'票）':'このアイデアを応援する（残り'+votesLeft+'票）'}`;
+    fbtn.onclick = (e) => { e.stopPropagation(); voteFromDetail(vid); };
+  }
   goTo('detail');
   setTimeout(()=>{
     const c=document.getElementById('big-spark');
@@ -1270,6 +1319,12 @@ function voteFromDetail(id) {
     btn.className = 'vote-hero-btn ' + (voted?'voted':'can');
     btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 20 20" fill="${voted?'currentColor':'none'}" stroke="currentColor" stroke-width="1.8"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z"/></svg>${voted?'応援済み（'+idea.votes+'票）':'このアイデアを応援する（残り'+votesLeft+'票）'}`;
   });
+  // フローティングボタンも更新
+  const fbtn = document.getElementById('float-vote-btn');
+  if (fbtn) {
+    fbtn.className = voted ? 'voted' : 'can';
+    fbtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 20 20" fill="${voted?'currentColor':'none'}" stroke="currentColor" stroke-width="1.8"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z"/></svg>${voted?'応援済み（'+idea.votes+'票）':'このアイデアを応援する（残り'+votesLeft+'票）'}`;
+  }
 }
 
 async function updateProgress(id, step) {
