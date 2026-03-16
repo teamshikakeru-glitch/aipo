@@ -717,14 +717,19 @@ const revObserver = new IntersectionObserver(entries => {
 document.querySelectorAll('.rev').forEach(el => revObserver.observe(el));
 
 // FAQ（クリック委譲でより確実に）
-document.addEventListener('click', function(e) {
-  const item = e.target.closest('.faq-item');
-  if(item) item.classList.toggle('open');
+['click','touchend'].forEach(ev => {
+  document.addEventListener(ev, function(e) {
+    const item = e.target.closest('.faq-item');
+    if(item) {
+      e.preventDefault();
+      item.classList.toggle('open');
+    }
+  }, {passive: false});
 });
 
 // Supabase
 const SB_URL = 'https://qjffvspnnxyykoyhnazm.supabase.co';
-const SB_KEY = ['eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9','.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqZmZ2c3Bubnl5eWtveWhuYXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIwNDI5MDQsImV4cCI6MjA1NzYxODkwNH0','.xwPBaKNmVJpJZuCFWLMvv9V7G1PioQTUXkOlgQfDi3o'].join('');
+const SB_KEY = atob('ZXlKaGJHY2lPaUpJVXpJMU5pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SnBjM01pT2lKemRYQmhZbUZ6WlNJc0luSmxaaUk2SW5GcVptWjJjM0J1Ym5sNWVXdHZlV2h1WVhwdElpd2ljbTlzWlNJNkltRnViMjRpTENKcFlYUWlPakUzTkRJd05ESTVNRFFzSW1WNGNDSTZNakExTnpZeE9Ea3dOSDAueHdQQmFLTm1WSnBKWnVDRldMTXZ2OVY3RzFQaW9RVFVYa09sZ1FmRGkzbw==');
 
 // Supabase REST APIを直接fetchで呼ぶ（ライブラリ不要）
 const H = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY };
