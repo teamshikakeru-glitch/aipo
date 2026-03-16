@@ -609,11 +609,12 @@ input[type=file] { display: none; }
 <div class="screen" id="screen-portfolio">
   <div class="header">
     <div class="hd-row">
-      <div class="logo-wrap">
+      <div class="logo-wrap" style="justify-content:space-between;width:100%">
         <div>
           <div class="logo-name">マイ銘柄</div>
-          <div class="logo-sub">自分が上場したアイデア</div>
+          <div class="logo-sub" id="portfolio-username-sub">自分が上場したアイデア</div>
         </div>
+        <button onclick="showEditUsername()" style="font-size:11px;font-weight:700;color:var(--amber);background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:20px;padding:5px 12px;cursor:pointer;font-family:var(--sans);flex-shrink:0">名前を編集</button>
       </div>
     </div>
   </div>
@@ -876,7 +877,8 @@ async function upgradePro() {
 // ★修正2: checkProStatus - founder_number===0 のバグ修正
 async function checkProStatus() {
   if (!currentUser) return;
-  const { data } = await sb.from('profiles').select('is_pro, is_founder, founder_number').eq('id', currentUser.id).single();
+  const { data } = await sb.from('profiles').select('is_pro, is_founder, founder_number, x_username').eq('id', currentUser.id).single();
+  if (data?.x_username) currentUser.x_username = data.x_username;
   if (data?.is_pro || data?.is_founder) {
     isPro = true;
     votesLeft = 4;
@@ -1010,9 +1012,6 @@ let myIdeas = new Set();
 let favIdeas = new Set();
 
 function goTo(s) {
-  // フローティングボタンを非表示（詳細以外）
-  const fwrap = document.getElementById('float-vote-wrap');
-  if (fwrap && s !== 'detail') fwrap.style.display = 'none';
   document.querySelectorAll('.screen').forEach(x => x.classList.remove('active'));
   document.getElementById('screen-' + s).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
@@ -1046,14 +1045,12 @@ function renderPortfolio() {
 
   // お気に入りセクション
   if (favList.length > 0) {
-    html_out += `<div style="font-size:11px;font-weight:700;color:var(--text3);padding:2px 0 6px;letter-spacing:.06em;text-transform:uppercase">⭐ お気に入り</div>`;
-    html_out += `<div class="stock-group" style="margin-bottom:12px">` + favList.map(idea => buildPortfolioRow(idea)).join('') + `</div>`;
+    html_out += `<div class="stock-group" style="margin-bottom:12px"><div style="font-size:10px;font-weight:700;color:var(--amber);padding:8px 14px 4px;letter-spacing:.06em;text-transform:uppercase;border-bottom:0.5px solid var(--border)">★ お気に入り</div>` + favList.map(idea => buildPortfolioRow(idea)).join('') + `</div>`;
   }
 
   // マイ銘柄セクション
   if (myList.length > 0) {
-    html_out += `<div style="font-size:11px;font-weight:700;color:var(--text3);padding:2px 0 6px;letter-spacing:.06em;text-transform:uppercase">自分のアイデア</div>`;
-    html_out += `<div class="stock-group" style="margin-bottom:0">` + myList.map(idea => buildPortfolioRow(idea)).join('') + `</div>`;
+    html_out += `<div class="stock-group" style="margin-bottom:0"><div style="font-size:10px;font-weight:700;color:var(--text3);padding:8px 14px 4px;letter-spacing:.06em;text-transform:uppercase;border-bottom:0.5px solid var(--border)">自分のアイデア</div>` + myList.map(idea => buildPortfolioRow(idea)).join('') + `</div>`;
   }
 
   if (myList.length === 0 && favList.length === 0) {
@@ -1317,17 +1314,6 @@ function showDetail(id) {
       ${votedIds.has(idea.id)?'応援済み（'+idea.votes+'票）':'このアイデアを応援する（残り'+votesLeft+'票）'}
     </button>
   `;
-  // フローティングボタンを設定
-  const fwrap = document.getElementById('float-vote-wrap');
-  const fbtn = document.getElementById('float-vote-btn');
-  if (fwrap && fbtn) {
-    fwrap.style.display = 'block';
-    const vid = idea.id;
-    const isVoted = votedIds.has(vid);
-    fbtn.className = isVoted ? 'voted' : 'can';
-    fbtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 20 20" fill="${isVoted?'currentColor':'none'}" stroke="currentColor" stroke-width="1.8"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z"/></svg>${isVoted?'応援済み（'+idea.votes+'票）':'このアイデアを応援する（残り'+votesLeft+'票）'}`;
-    fbtn.onclick = (e) => { e.stopPropagation(); voteFromDetail(vid); };
-  }
   goTo('detail');
   setTimeout(()=>{
     const c=document.getElementById('big-spark');
@@ -1340,6 +1326,39 @@ function showDetail(id) {
   },60);
 }
 
+
+
+async function updateUsername(newName) {
+  if (!currentUser || !newName.trim()) return;
+  const { error } = await sb.from('profiles')
+    .update({ x_username: newName.trim() })
+    .eq('id', currentUser.id);
+  if (error) { showToast('更新に失敗しました'); return; }
+  currentUser.x_username = newName.trim();
+  showToast('ユーザー名を更新しました🥃');
+  renderPortfolio();
+}
+
+function showEditUsername() {
+  const current = currentUser?.x_username || '';
+  const existing = document.getElementById('username-edit-modal');
+  if (existing) existing.remove();
+  const modal = document.createElement('div');
+  modal.id = 'username-edit-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:flex;align-items:flex-end;justify-content:center';
+  modal.innerHTML = `
+    <div style="background:var(--surface);border-radius:24px 24px 0 0;padding:24px 20px 40px;width:100%;max-width:390px">
+      <div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 20px"></div>
+      <div style="font-size:16px;font-weight:700;margin-bottom:14px">ユーザー名を変更</div>
+      <input id="username-input" class="inp" type="text" placeholder="@ユーザー名" maxlength="30" value="${current}" style="margin-bottom:12px">
+      <button onclick="updateUsername(document.getElementById('username-input').value);document.getElementById('username-edit-modal').remove()" style="width:100%;padding:14px;background:var(--amber-mid);border:none;border-radius:var(--r-lg);font-size:15px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">保存する</button>
+      <button onclick="document.getElementById('username-edit-modal').remove()" style="width:100%;padding:12px;background:transparent;border:none;font-size:14px;color:var(--text3);cursor:pointer;font-family:var(--sans);margin-top:4px">キャンセル</button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', e => { if(e.target===modal) modal.remove(); });
+  setTimeout(() => document.getElementById('username-input')?.focus(), 100);
+}
 
 function toggleFav(id) {
   if (favIdeas.has(id)) {
@@ -1364,12 +1383,7 @@ function voteFromDetail(id) {
     btn.className = 'vote-hero-btn ' + (voted?'voted':'can');
     btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 20 20" fill="${voted?'currentColor':'none'}" stroke="currentColor" stroke-width="1.8"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z"/></svg>${voted?'応援済み（'+idea.votes+'票）':'このアイデアを応援する（残り'+votesLeft+'票）'}`;
   });
-  // フローティングボタンも更新
-  const fbtn = document.getElementById('float-vote-btn');
-  if (fbtn) {
-    fbtn.className = voted ? 'voted' : 'can';
-    fbtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 20 20" fill="${voted?'currentColor':'none'}" stroke="currentColor" stroke-width="1.8"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z"/></svg>${voted?'応援済み（'+idea.votes+'票）':'このアイデアを応援する（残り'+votesLeft+'票）'}`;
-  }
+
 }
 
 async function updateProgress(id, step) {
