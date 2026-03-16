@@ -80,6 +80,10 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); over
 .pill-tab.genre-active { background:var(--amber-bg);color:var(--amber);border-color:var(--amber-border); }
 #tab-scroll::-webkit-scrollbar { display:none; }
 .feed-body { padding: 10px 14px 0; }
+
+.skeleton { background: linear-gradient(90deg, var(--surface2) 25%, var(--border) 50%, var(--surface2) 75%); background-size: 200% 100%; animation: shimmer 1.2s infinite; border-radius: 6px; }
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
 .sec-label { font-size: 11px; font-weight: 700; color: var(--text3); padding: 2px 0 6px; letter-spacing: .06em; text-transform: uppercase; }
 .next-update { text-align: center; font-size: 11px; color: var(--text3); padding: 4px 0 6px; font-family: var(--mono); }
 .stock-group { background: var(--surface); border-radius: var(--r-xl); overflow: hidden; margin-bottom: 12px; box-shadow: 0 1px 6px rgba(0,0,0,.06); }
@@ -479,7 +483,23 @@ input[type=file] { display: none; }
       <span style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.04em" id="sec-label"></span>
       <span style="font-size:10px;color:var(--text3)" id="next-lbl-inline"></span>
     </div>
-    <div class="stock-group" id="stock-list"></div>
+    <div class="stock-group" id="stock-list">
+      <div style="display:grid;grid-template-columns:64px 1fr auto;align-items:center;padding:10px 12px;gap:10px;border-bottom:0.5px solid var(--border)">
+        <div><div class="skeleton" style="height:22px;margin-bottom:5px"></div><div class="skeleton" style="height:10px;width:30px;margin:0 auto"></div></div>
+        <div><div class="skeleton" style="height:11px;width:60px;margin-bottom:5px"></div><div class="skeleton" style="height:14px;margin-bottom:4px"></div><div class="skeleton" style="height:10px;width:80px"></div></div>
+        <div class="skeleton" style="width:46px;height:28px;border-radius:14px"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:64px 1fr auto;align-items:center;padding:10px 12px;gap:10px;border-bottom:0.5px solid var(--border)">
+        <div><div class="skeleton" style="height:22px;margin-bottom:5px"></div><div class="skeleton" style="height:10px;width:30px;margin:0 auto"></div></div>
+        <div><div class="skeleton" style="height:11px;width:50px;margin-bottom:5px"></div><div class="skeleton" style="height:14px;margin-bottom:4px"></div><div class="skeleton" style="height:10px;width:70px"></div></div>
+        <div class="skeleton" style="width:46px;height:28px;border-radius:14px"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:64px 1fr auto;align-items:center;padding:10px 12px;gap:10px">
+        <div><div class="skeleton" style="height:22px;margin-bottom:5px"></div><div class="skeleton" style="height:10px;width:30px;margin:0 auto"></div></div>
+        <div><div class="skeleton" style="height:11px;width:55px;margin-bottom:5px"></div><div class="skeleton" style="height:14px;margin-bottom:4px"></div><div class="skeleton" style="height:10px;width:75px"></div></div>
+        <div class="skeleton" style="width:46px;height:28px;border-radius:14px"></div>
+      </div>
+    </div>
     <div class="xbonus" id="xbonus-card" style="display:none">
       <div class="xb-hd">
         <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M2 2l7.5 8.5L2 18h2l6.3-7.1L16 18h4L12 9.2 18.5 2h-2L10.6 8.6 5 2H2z"/></svg>
