@@ -75,6 +75,10 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); over
 .seg { display: flex; background: #e0ded8; border-radius: 11px; padding: 3px; margin-bottom: 12px; gap: 2px; }
 .seg-item { flex: 1; text-align: center; font-size: 12px; font-weight: 700; color: #888680; padding: 6px 0; border-radius: 9px; cursor: pointer; transition: all .15s; }
 .seg-item.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.13); }
+.pill-tab { background:transparent;border:0.5px solid var(--border2);border-radius:20px;padding:5px 14px;font-size:11px;font-weight:700;color:var(--text3);cursor:pointer;white-space:nowrap;font-family:var(--sans);transition:all .15s;flex-shrink:0; }
+.pill-tab.active { background:var(--text);color:#fff;border-color:var(--text); }
+.pill-tab.genre-active { background:var(--amber-bg);color:var(--amber);border-color:var(--amber-border); }
+#tab-scroll::-webkit-scrollbar { display:none; }
 .feed-body { padding: 10px 14px 0; }
 .sec-label { font-size: 11px; font-weight: 700; color: var(--text3); padding: 2px 0 6px; letter-spacing: .06em; text-transform: uppercase; }
 .next-update { text-align: center; font-size: 11px; color: var(--text3); padding: 4px 0 6px; font-family: var(--mono); }
@@ -456,16 +460,25 @@ input[type=file] { display: none; }
         </div>
       </div>
     </div>
-    <div class="seg">
-      <div class="seg-item active" onclick="setTab(this,'all')">すべて</div>
-      <div class="seg-item" onclick="setTab(this,'hot')">注目銘柄</div>
-      <div class="seg-item" onclick="setTab(this,'new')">新着</div>
+    <div style="display:flex;gap:6px;overflow-x:auto;padding:8px 14px;background:var(--surface);border-bottom:0.5px solid var(--border);scrollbar-width:none" id="tab-scroll">
+      <button class="pill-tab active" onclick="setTab(this,'all')" data-tab="all">すべて</button>
+      <button class="pill-tab" onclick="setTab(this,'hot')" data-tab="hot">注目</button>
+      <button class="pill-tab" onclick="setTab(this,'new')" data-tab="new">新着</button>
+      <div style="width:0.5px;background:var(--border);flex-shrink:0;margin:2px 2px"></div>
+      <button class="pill-tab genre-tab" onclick="setGenre(this,'テクノロジー')">テクノロジー</button>
+      <button class="pill-tab genre-tab" onclick="setGenre(this,'社会課題')">社会課題</button>
+      <button class="pill-tab genre-tab" onclick="setGenre(this,'副業・フリーランス')">副業</button>
+      <button class="pill-tab genre-tab" onclick="setGenre(this,'起業家・スタートアップ')">起業家</button>
+      <button class="pill-tab genre-tab" onclick="setGenre(this,'業務効率')">業務効率</button>
     </div>
   </div>
   <div class="feed-body">
-    <div class="next-update" id="next-lbl"></div>
+    <div class="next-update" id="next-lbl" style="display:none"></div>
 
-    <div class="sec-label" id="sec-label"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 14px 4px">
+      <span style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.04em" id="sec-label"></span>
+      <span style="font-size:10px;color:var(--text3)" id="next-lbl-inline"></span>
+    </div>
     <div class="stock-group" id="stock-list"></div>
     <div class="xbonus" id="xbonus-card" style="display:none">
       <div class="xb-hd">
@@ -1030,6 +1043,11 @@ function calcScore(idea) {
 
 setInterval(() => {
   nextSec--;
+  const inlineLblTimer = document.getElementById('next-lbl-inline');
+  if (inlineLblTimer) {
+    const m = Math.floor(nextSec/60), s = nextSec%60;
+    inlineLblTimer.textContent = `次の更新 ${m}:${String(s).padStart(2,'0')}`;
+  }
   if (nextSec <= 0) {
     ideas.forEach(idea => {
       idea.postedDaysAgo += 1800/86400;
@@ -1153,6 +1171,21 @@ function buildPortfolioRow(idea) {
 }
 
 
+
+let currentGenre = '';
+function setGenre(el, genre) {
+  // 同じジャンルをもう一度クリックしたら解除
+  if (currentGenre === genre) {
+    currentGenre = '';
+    document.querySelectorAll('.genre-tab').forEach(x => x.classList.remove('genre-active'));
+  } else {
+    currentGenre = genre;
+    document.querySelectorAll('.genre-tab').forEach(x => x.classList.remove('genre-active'));
+    el.classList.add('genre-active');
+  }
+  renderFeed();
+}
+
 function setTab(el, tab) {
   document.querySelectorAll('.seg-item').forEach(x => x.classList.remove('active'));
   el.classList.add('active');
@@ -1165,15 +1198,19 @@ function renderFeed() {
   const secEl = document.getElementById('sec-label');
   if (currentTab === 'hot') {
     list = list.filter(i => i.votes >= HOT_THRESHOLD).sort((a,b) => b.score - a.score).slice(0, HOT_DISPLAY);
-    secEl.textContent = `注目銘柄（${HOT_THRESHOLD}票以上・上位${HOT_DISPLAY}件）`;
+    secEl.textContent = `注目銘柄 · ${list.length}件`;
   } else if (currentTab === 'new') {
     list = [...list].reverse();
-    secEl.textContent = '新着順';
+    secEl.textContent = `新着 · ${list.length}件`;
   } else {
     list = list.sort((a,b) => b.score - a.score);
-    secEl.textContent = '銘柄一覧';
+    secEl.textContent = `銘柄一覧 · ${list.length}件`;
   }
+  // ジャンルフィルター
+  if (currentGenre) list = list.filter(i => i.genre === currentGenre);
   const el = document.getElementById('stock-list');
+  const inlineLbl = document.getElementById('next-lbl-inline');
+  if (inlineLbl) inlineLbl.textContent = '';
   el.innerHTML = list.length === 0
     ? '<div style="padding:24px;text-align:center;font-size:13px;color:var(--text3)">注目銘柄はまだありません。<br>20票集まると表示されます。</div>'
     : list.map(idea => buildRow(idea)).join('');
@@ -1193,37 +1230,26 @@ function buildRow(idea) {
   const voted = votedIds.has(idea.id);
   const fb = founderBadgeHTML(idea.userId);
   const isFav = favIdeas.has(idea.id);
-  const voteBtnStyle = voted
-    ? 'background:var(--surface2);color:var(--text3)'
-    : 'background:rgba(34,168,95,.06);color:var(--green)';
-  return `<div id="row-${idea.id}" onclick="showDetail('${idea.id}')" style="border-bottom:0.5px solid var(--border);cursor:pointer;position:relative">
-    ${isFav ? '<div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#e8850a,#bf6d00);z-index:1"></div>' : ''}
-    <div style="padding:12px 14px 8px;display:flex;align-items:flex-start;gap:10px">
-      <div style="display:flex;flex-direction:column;align-items:center;min-width:58px;flex-shrink:0;padding:4px 0">
-        <div style="font-family:var(--mono);font-size:24px;font-weight:700;color:${scoreColor};line-height:1;letter-spacing:-.02em">${idea.score.toFixed(1)}</div>
-        <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:${deltaColor};background:${deltaBg};padding:2px 7px;border-radius:5px;margin-top:4px">${ds}</div>
-        <div style="font-size:9px;color:var(--text3);margin-top:3px">${idea.votes}票</div>
-      </div>
-      <div style="flex:1;min-width:0">
-        <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-bottom:3px">
-          <span style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text2);letter-spacing:.04em">${idea.ticker}</span>
-          <button onclick="event.stopPropagation();toggleFav('${idea.id}')" style="background:none;border:none;cursor:pointer;padding:0;line-height:1;display:flex;align-items:center">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="${isFav?'#e8850a':'none'}" stroke="${isFav?'#e8850a':'#ccc'}" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          </button>
-          ${isHot?'<span class="hot-badge">注目</span>':''}
-          ${fb ? fb : ''}
-        </div>
-        <div style="font-size:14px;font-weight:700;color:var(--text);line-height:1.4;margin-bottom:5px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${idea.name}</div>
-        <div style="display:flex;gap:4px;flex-wrap:wrap">
-          <span class="stag stag-genre">${idea.genre}</span>
-          ${idea.tech?`<span class="stag stag-a">${idea.tech}</span>`:''}
-        </div>
-      </div>
-      <canvas style="width:60px;height:38px;flex-shrink:0;margin-top:4px" id="spark-${idea.id}"></canvas>
+  return `<div id="row-${idea.id}" onclick="showDetail('${idea.id}')" style="border-bottom:0.5px solid var(--border);cursor:pointer;position:relative;display:grid;grid-template-columns:64px 1fr auto;align-items:center;padding:10px 12px;gap:10px">
+    ${isFav ? '<div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#e8850a,#bf6d00);border-radius:0 2px 2px 0"></div>' : ''}
+    <div style="text-align:center;flex-shrink:0">
+      <div style="font-family:var(--mono);font-size:20px;font-weight:700;color:${scoreColor};line-height:1;letter-spacing:-.02em">${idea.score.toFixed(1)}</div>
+      <div style="font-family:var(--mono);font-size:9px;font-weight:700;color:${deltaColor};background:${deltaBg};padding:1px 5px;border-radius:4px;margin-top:3px;display:inline-block">${ds}</div>
     </div>
-    <button onclick="event.stopPropagation();voteIdea('${idea.id}')" style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:11px;font-size:13px;font-weight:700;font-family:var(--sans);border:none;border-top:0.5px solid var(--border);cursor:pointer;transition:all .15s;${voteBtnStyle}">
-      <svg width="13" height="13" viewBox="0 0 20 20" fill="${voted?'currentColor':'none'}" stroke="currentColor" stroke-width="2.2"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z"/></svg>
-      ${voted?'応援済み':'応援する'} · ${idea.votes}票
+    <div style="min-width:0">
+      <div style="display:flex;align-items:center;gap:4px;margin-bottom:1px">
+        <span style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.04em">${idea.ticker}</span>
+        <button onclick="event.stopPropagation();toggleFav('${idea.id}')" style="background:none;border:none;cursor:pointer;padding:0;line-height:1;display:flex;align-items:center">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="${isFav?'#e8850a':'none'}" stroke="${isFav?'#e8850a':'#ccc'}" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </button>
+        ${isHot?'<span class="hot-badge">注目</span>':''}
+        ${fb ? fb : ''}
+      </div>
+      <div style="font-size:13px;font-weight:700;color:var(--text);line-height:1.35;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin-bottom:2px">${idea.name}</div>
+      <div style="font-size:10px;color:var(--text3)">${idea.genre} · ${idea.votes}票</div>
+    </div>
+    <button onclick="event.stopPropagation();voteIdea('${idea.id}')" style="background:${voted?'var(--surface2)':'rgba(34,168,95,.1)'};color:${voted?'var(--text3)':'var(--green)'};border:none;border-radius:14px;padding:7px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans);white-space:nowrap;flex-shrink:0">
+      ${voted?'済み':'応援'}
     </button>
   </div>`;
 }
