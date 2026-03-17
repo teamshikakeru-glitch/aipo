@@ -742,26 +742,20 @@ async function postIdeaToDB(ideaData) {
 
 async function loadVotedIds() {
   if (!currentUser) return;
-  const { data, error } = await sb
-    .from('votes')
-    .select('idea_id')
-    .eq('user_id', currentUser.id);
-  if (error || !data) return;
-  data.forEach(row => votedIds.add(row.idea_id));
-  // 今日の投票数をvotesLeftに反映
+  // 今日の投票のみ取得（1日経てば再投票可能）
   const today = new Date().toISOString().slice(0, 10);
-  const { data: todayVotes } = await sb
+  const { data, error } = await sb
     .from('votes')
     .select('idea_id')
     .eq('user_id', currentUser.id)
     .gte('created_at', today + 'T00:00:00')
     .lte('created_at', today + 'T23:59:59');
-  if (todayVotes) {
-    const used = todayVotes.length;
-    const max = isPro ? 4 : 3;
-    votesLeft = Math.max(0, max - used);
-    document.getElementById('votes-left').textContent = votesLeft;
-  }
+  if (error || !data) return;
+  data.forEach(row => votedIds.add(row.idea_id));
+  const used = data.length;
+  const max = isPro ? 4 : 3;
+  votesLeft = Math.max(0, max - used);
+  document.getElementById('votes-left').textContent = votesLeft;
 }
 
 async function voteIdeaToDB(ideaId) {
