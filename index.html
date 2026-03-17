@@ -396,6 +396,8 @@ let currentUser = null;
 let founderMap = {};
 let insightScore = 0;
 let myEarlyVotes = {};
+let dividendBonus = { votes: 0, postRights: 0, commentRights: 0 };
+let pendingDividends = [];
 
 function founderBadgeHTML(userId) {
   const f = founderMap[userId];
@@ -456,6 +458,8 @@ async function voteIdeaToDB(ideaId, votesAtTime) {
   const { data: current } = await sb.from('ideas').select('votes').eq('id', ideaId).single();
   const dbVotes = (current?.votes || 0) + 1;
   await sb.from('ideas').update({ votes: dbVotes, last_voted_at: new Date().toISOString() }).eq('id', ideaId);
+  // Check milestone after vote
+  if (dbVotes >= 20) checkMilestone(ideaId);
   return true;
 }
 
@@ -509,8 +513,8 @@ let postCount = 0;
 const FREE_COMMENT_LIMIT = 3;
 const FREE_POST_LIMIT = 1;
 
-function canComment() { return isPro || commentCount < FREE_COMMENT_LIMIT; }
-function canPost() { return isPro || postCount < FREE_POST_LIMIT; }
+function canComment() { return isPro || commentCount < FREE_COMMENT_LIMIT + dividendBonus.commentRights; }
+function canPost() { return isPro || postCount < FREE_POST_LIMIT + dividendBonus.postRights; }
 
 async function checkProStatus() {
   if (!currentUser) return;
@@ -569,6 +573,107 @@ function getInsightRank(score) {
   if (score >= 25) return { label: '⭐ 中級目利き', color: '#185FA5', bg: '#f0f7ff', border: '#b5d4f4' };
   if (score >= 10) return { label: '🌱 見習い目利き', color: '#1a7a4a', bg: '#edf7f2', border: '#9de0cc' };
   return { label: '📊 目利きスコア', color: '#6b6860', bg: 'var(--surface2)', border: 'var(--border2)' };
+}
+
+async function loadDividends() {
+  if (!currentUser) return;
+  const { data } = await sb.from('dividends')
+    .select('*')
+    .eq('user_id', currentUser.id)
+    .eq('is_claimed', false);
+  if (!data || data.length === 0) return;
+  for (const d of data) {
+    if (d.dividend_type === 'vote') {
+      dividendBonus.votes += d.amount;
+      votesLeft += d.amount;
+      document.getElementById('votes-left').textContent = votesLeft;
+    } else if (d.dividend_type === 'post_right') {
+      dividendBonus.postRights += d.amount;
+    } else if (d.dividend_type === 'comment_right') {
+      dividendBonus.commentRights += d.amount;
+    }
+    pendingDividends.push(d);
+  }
+  // Mark all as claimed
+  const ids = data.map(d => d.id);
+  await sb.from('dividends').update({ is_claimed: true }).in('id', ids);
+  if (data.length > 0) showDividendToast(data);
+  updatePlanBadge();
+}
+
+function showDividendToast(dividends) {
+  const existing = document.getElementById('dividend-modal');
+  if (existing) existing.remove();
+  const lines = dividends.map(d => {
+    const idea = ideas.find(i => i.id === d.idea_id);
+    const name = idea ? idea.name : 'アイデア';
+    if (d.dividend_type === 'vote') return `+${d.amount}票　「${name.slice(0,15)}」が注目銘柄に認定されました`;
+    if (d.dividend_type === 'post_right') return `上場権×${d.amount}　「${name.slice(0,15)}」が注目銘柄に認定されました`;
+    if (d.dividend_type === 'comment_right') return `コメント権×${d.amount}　「${name.slice(0,15)}」が注目銘柄に認定されました`;
+    return '';
+  }).filter(Boolean);
+  const modal = document.createElement('div');
+  modal.id = 'dividend-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:300;display:flex;align-items:flex-end;justify-content:center';
+  modal.innerHTML = `<div style="background:var(--surface);border-radius:24px 24px 0 0;padding:28px 24px 40px;width:100%;max-width:390px">
+    <div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 20px"></div>
+    <div style="font-size:17px;font-weight:700;text-align:center;margin-bottom:6px;letter-spacing:-.02em">配当が届きました</div>
+    <div style="font-size:12px;color:var(--text3);text-align:center;margin-bottom:20px">早期応援したアイデアが注目銘柄になりました</div>
+    <div style="background:var(--surface2);border-radius:var(--r-lg);padding:16px;margin-bottom:20px">
+      ${lines.map(l => `<div style="font-size:13px;color:var(--text);padding:8px 0;border-bottom:0.5px solid var(--border);line-height:1.6">${l}</div>`).join('')}
+    </div>
+    <button onclick="document.getElementById('dividend-modal').remove()" style="width:100%;padding:14px;background:var(--amber-mid);border:none;border-radius:var(--r-lg);font-size:15px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">受け取る</button>
+  </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', e => { if(e.target===modal) modal.remove(); });
+}
+
+async function checkMilestone(ideaId) {
+  const idea = ideas.find(i => i.id === ideaId);
+  if (!idea) return;
+  if (idea.votes < 20) return;
+  // Check if milestone already processed
+  const { data: ideaData } = await sb.from('ideas').select('milestone_20_done').eq('id', ideaId).single();
+  if (!ideaData || ideaData.milestone_20_done) return;
+  // Mark milestone done
+  await sb.from('ideas').update({ milestone_20_done: true }).eq('id', ideaId);
+  // Get all early voters (voted when idea had <= 10 votes)
+  const { data: earlyVoters } = await sb.from('votes')
+    .select('user_id, idea_votes_at_time')
+    .eq('idea_id', ideaId)
+    .not('user_id', 'is', null);
+  if (!earlyVoters) return;
+  const dividendRows = earlyVoters.map(v => {
+    const vat = v.idea_votes_at_time ?? 999;
+    if (vat <= 5) {
+      return [
+        { user_id: v.user_id, idea_id: ideaId, dividend_type: 'vote', amount: 1, milestone: 20 },
+        { user_id: v.user_id, idea_id: ideaId, dividend_type: 'post_right', amount: 1, milestone: 20 }
+      ];
+    } else if (vat <= 10) {
+      return [
+        { user_id: v.user_id, idea_id: ideaId, dividend_type: 'vote', amount: 1, milestone: 20 },
+        { user_id: v.user_id, idea_id: ideaId, dividend_type: 'comment_right', amount: 3, milestone: 20 }
+      ];
+    } else {
+      return [
+        { user_id: v.user_id, idea_id: ideaId, dividend_type: 'comment_right', amount: 1, milestone: 20 }
+      ];
+    }
+  }).flat();
+  if (dividendRows.length > 0) {
+    await sb.from('dividends').insert(dividendRows);
+  }
+  // Load own dividends immediately
+  await loadDividends();
+}
+
+function getDividendPreview(idea) {
+  if (votedIds.has(idea.id)) return null;
+  const v = idea.votes;
+  if (v <= 5) return { text: '+1票 ＋ 上場権×1', color: 'var(--amber)', bg: 'var(--amber-bg)', border: 'var(--amber-border)', badge: '早期ボーナス' };
+  if (v <= 10) return { text: '+1票 ＋ コメント権×3', color: '#185FA5', bg: '#f0f7ff', border: '#b5d4f4', badge: '応援ボーナス' };
+  return { text: 'コメント権×1', color: 'var(--text3)', bg: 'var(--surface2)', border: 'var(--border2)', badge: null };
 }
 
 function showUpgradeModal(reason) {
@@ -713,6 +818,10 @@ function renderPortfolio() {
       <div style="margin-top:10px;background:rgba(0,0,0,.06);border-radius:6px;height:5px;overflow:hidden">
         <div style="background:${rank.color};height:100%;width:${Math.min(100,insightScore)}%;border-radius:6px;transition:width 1s cubic-bezier(.4,0,.2,1)"></div>
       </div>
+      ${dividendBonus.postRights > 0 || dividendBonus.commentRights > 0 ? `<div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">
+        ${dividendBonus.postRights > 0 ? `<span style="font-size:10px;background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border);border-radius:4px;padding:2px 8px;font-weight:700">上場権 ×${dividendBonus.postRights}</span>` : ''}
+        ${dividendBonus.commentRights > 0 ? `<span style="font-size:10px;background:#f0f7ff;color:#185FA5;border:1px solid #b5d4f4;border-radius:4px;padding:2px 8px;font-weight:700">コメント権 ×${dividendBonus.commentRights}</span>` : ''}
+      </div>` : ''}
     </div>`;
   } else if (insightEl) {
     insightEl.innerHTML = '';
@@ -800,7 +909,10 @@ function buildRow(idea) {
   const voted = votedIds.has(idea.id);
   const fb = founderBadgeHTML(idea.userId);
   const isFav = favIdeas.has(idea.id);
-  return `<div id="row-${idea.id}" onclick="showDetail('${idea.id}')" style="border-bottom:0.5px solid var(--border);cursor:pointer;position:relative;display:grid;grid-template-columns:64px 1fr auto;align-items:center;padding:10px 12px;gap:10px">${isFav ? '<div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#e8850a,#bf6d00);border-radius:0 2px 2px 0"></div>' : ''}<div style="text-align:center;flex-shrink:0"><div style="font-family:var(--mono);font-size:20px;font-weight:700;color:${scoreColor};line-height:1;letter-spacing:-.02em">${idea.score.toFixed(1)}</div><div style="font-family:var(--mono);font-size:9px;font-weight:700;color:${deltaColor};background:${deltaBg};padding:1px 5px;border-radius:4px;margin-top:3px;display:inline-block">${ds}</div></div><div style="min-width:0"><div style="display:flex;align-items:center;gap:4px;margin-bottom:1px"><span style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.04em">${idea.ticker}</span><button onclick="event.stopPropagation();toggleFav('${idea.id}')" style="background:none;border:none;cursor:pointer;padding:0;line-height:1;display:flex;align-items:center"><svg width="12" height="12" viewBox="0 0 24 24" fill="${isFav?'#e8850a':'none'}" stroke="${isFav?'#e8850a':'#ccc'}" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></button>${isHot?'<span class="hot-badge">注目</span>':''}${fb ? fb : ''}</div><div style="font-size:13px;font-weight:700;color:var(--text);line-height:1.35;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin-bottom:2px">${idea.name}</div><div style="font-size:10px;color:var(--text3)">${idea.genre} · ${idea.votes}票</div></div><button onclick="event.stopPropagation();voteIdea('${idea.id}')" style="background:${voted?'var(--surface2)':'rgba(34,168,95,.1)'};color:${voted?'var(--text3)':'var(--green)'};border:none;border-radius:14px;padding:7px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans);white-space:nowrap;flex-shrink:0">${voted?'済み':'応援'}</button></div>`;
+  return `<div id="row-${idea.id}" onclick="showDetail('${idea.id}')" style="border-bottom:0.5px solid var(--border);cursor:pointer;position:relative;display:grid;grid-template-columns:64px 1fr auto;align-items:center;padding:10px 12px;gap:10px">${isFav ? '<div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#e8850a,#bf6d00);border-radius:0 2px 2px 0"></div>' : ''}<div style="text-align:center;flex-shrink:0"><div style="font-family:var(--mono);font-size:20px;font-weight:700;color:${scoreColor};line-height:1;letter-spacing:-.02em">${idea.score.toFixed(1)}</div><div style="font-family:var(--mono);font-size:9px;font-weight:700;color:${deltaColor};background:${deltaBg};padding:1px 5px;border-radius:4px;margin-top:3px;display:inline-block">${ds}</div></div><div style="min-width:0"><div style="display:flex;align-items:center;gap:4px;margin-bottom:1px"><span style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.04em">${idea.ticker}</span><button onclick="event.stopPropagation();toggleFav('${idea.id}')" style="background:none;border:none;cursor:pointer;padding:0;line-height:1;display:flex;align-items:center"><svg width="12" height="12" viewBox="0 0 24 24" fill="${isFav?'#e8850a':'none'}" stroke="${isFav?'#e8850a':'#ccc'}" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></button>${isHot?'<span class="hot-badge">注目</span>':''}${fb ? fb : ''}</div><div style="font-size:13px;font-weight:700;color:var(--text);line-height:1.35;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin-bottom:2px">${idea.name}</div><div style="font-size:10px;color:var(--text3)">${idea.genre} · ${idea.votes}票</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">
+    ${(()=>{ const dp=getDividendPreview(idea); return dp&&!voted?`<div style="font-size:9px;font-weight:700;color:${dp.color};background:${dp.bg};border:1px solid ${dp.border};border-radius:4px;padding:2px 6px;white-space:nowrap">${dp.text}</div>`:''; })()}
+    <button onclick="event.stopPropagation();voteIdea('${idea.id}')" style="background:${voted?'var(--surface2)':'rgba(34,168,95,.1)'};color:${voted?'var(--text3)':'var(--green)'};border:none;border-radius:14px;padding:7px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans);white-space:nowrap">${voted?'済み':'応援'}</button>
+  </div></div>`;
 }
 
 function drawSpark(id, data, isUp, w, h) {
@@ -954,6 +1066,7 @@ function showDetail(id) {
   const voted = votedIds.has(idea.id);
   document.getElementById('detail-sub-title').textContent = idea.ticker;
   document.getElementById('detail-content').innerHTML = `
+    ${(()=>{ const dp=getDividendPreview(idea); return !voted&&dp?`<div style="background:${dp.bg};border:1.5px solid ${dp.border};border-radius:var(--r-md);padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between"><div><div style="font-size:10px;font-weight:700;color:${dp.color};letter-spacing:.04em;margin-bottom:2px">${dp.badge||'配当予告'}</div><div style="font-size:12px;color:${dp.color}">注目銘柄になったとき → <strong>${dp.text}</strong></div></div><div style="font-size:10px;font-weight:700;color:var(--text3);background:var(--surface2);border:1px solid var(--border2);border-radius:4px;padding:3px 8px;white-space:nowrap">配当あり</div></div>`:''; })()}
     <button onclick="voteFromDetail('${idea.id}')" style="width:100%;padding:15px;border-radius:var(--r-lg);font-size:15px;font-weight:700;font-family:var(--sans);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px;${voted?'background:var(--surface2);color:var(--text3);border:1.5px solid var(--border2)':'background:var(--green-light);color:#fff'}">
       <svg width="16" height="16" viewBox="0 0 20 20" fill="${voted?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z"/></svg>
       ${voted?'応援済み（'+idea.votes+'票）':'このアイデアを応援する（残り'+votesLeft+'票）'}
@@ -1126,7 +1239,7 @@ function doPost() {
   updatePlanBadge();
   postIdeaToDB(newIdea).then(data => { if (data) { newIdea.id = data.id; myIdeas.delete('local-'+Date.now()); myIdeas.add(data.id); } });
   goTo('feed');
-  showToast('上場しました！マーケットに掲載されました 🚀');
+  showToast('上場しました。マーケットに掲載されました');
 }
 
 function updateXBonus() {
@@ -1147,7 +1260,7 @@ document.getElementById('file-input').addEventListener('change', function(e) {
   if (btnEl) { btnEl.textContent = '認証済み！'; btnEl.className = 'upload-btn done'; }
   votesLeft++;
   document.getElementById('votes-left').textContent = votesLeft;
-  showToast(label + 'を確認しました！+1票もらいました 🎉');
+  showToast(label + 'を確認しました。+1票もらいました');
   this.value = '';
 });
 
@@ -1157,7 +1270,7 @@ function showScoreUpToast(idea) {
   const el = document.createElement('div');
   el.className = 'toast score-up-toast show';
   el.style.bottom = '110px';
-  el.textContent = `📈 ${idea.ticker} のスコアが上昇しました！（${idea.score.toFixed(1)}）`;
+  el.textContent = `${idea.ticker} のスコアが上昇しました（${idea.score.toFixed(1)}）`;
   document.body.appendChild(el);
   setTimeout(()=>el.remove(), 3200);
 }
@@ -1366,6 +1479,7 @@ async function init() {
     await checkProStatus();
     await loadVotedIds();
     await loadInsightScore();
+    await loadDividends();
   }
   initEmojiPicker();
   checkUpgradeSuccess();
