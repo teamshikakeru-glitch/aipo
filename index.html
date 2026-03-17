@@ -363,6 +363,7 @@ input[type=file] { display: none; }
   </div>
   <div class="feed-body" style="padding:10px 14px 0">
     <div id="portfolio-founder-badge" style="padding:4px 0 8px;padding-left:0"></div>
+    <div id="portfolio-insight"></div>
     <div class="stock-group" id="portfolio-list"></div>
   </div>
 </div>
@@ -393,6 +394,8 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let currentUser = null;
 let founderMap = {};
+let insightScore = 0;
+let myEarlyVotes = {};
 
 function founderBadgeHTML(userId) {
   const f = founderMap[userId];
@@ -447,8 +450,8 @@ async function loadVotedIds() {
   document.getElementById('votes-left').textContent = votesLeft;
 }
 
-async function voteIdeaToDB(ideaId) {
-  const { error } = await sb.from('votes').insert({ user_id: currentUser?.id, idea_id: ideaId, created_at: new Date().toISOString() });
+async function voteIdeaToDB(ideaId, votesAtTime) {
+  const { error } = await sb.from('votes').insert({ user_id: currentUser?.id, idea_id: ideaId, created_at: new Date().toISOString(), idea_votes_at_time: votesAtTime });
   if (error) { console.error('vote:', error); return false; }
   const { data: current } = await sb.from('ideas').select('votes').eq('id', ideaId).single();
   const dbVotes = (current?.votes || 0) + 1;
@@ -539,6 +542,33 @@ async function loadOwnerStats() {
   if (u) u.textContent = usersRes.count ?? '-';
   if (f) f.textContent = foundersRes.count ?? '-';
   if (i) i.textContent = ideasRes.count ?? '-';
+}
+
+async function loadInsightScore() {
+  if (!currentUser) return;
+  const { data } = await sb.from('votes').select('idea_id, idea_votes_at_time').eq('user_id', currentUser.id);
+  if (!data) return;
+  insightScore = data.reduce((sum, row) => {
+    const v = row.idea_votes_at_time ?? 999;
+    if (v <= 1) return sum + 10;
+    if (v <= 3) return sum + 8;
+    if (v <= 5) return sum + 6;
+    if (v <= 10) return sum + 4;
+    return sum + 1;
+  }, 0);
+  data.forEach(row => {
+    if (row.idea_votes_at_time !== null && row.idea_votes_at_time !== undefined) {
+      myEarlyVotes[row.idea_id] = row.idea_votes_at_time;
+    }
+  });
+}
+
+function getInsightRank(score) {
+  if (score >= 80) return { label: '👑 レジェンド目利き', color: '#bf6d00', bg: '#fff8ed', border: '#f5d68a' };
+  if (score >= 50) return { label: '🔥 上級目利き', color: '#c0392b', bg: '#fff0f0', border: '#f5b8b8' };
+  if (score >= 25) return { label: '⭐ 中級目利き', color: '#185FA5', bg: '#f0f7ff', border: '#b5d4f4' };
+  if (score >= 10) return { label: '🌱 見習い目利き', color: '#1a7a4a', bg: '#edf7f2', border: '#9de0cc' };
+  return { label: '📊 目利きスコア', color: '#6b6860', bg: 'var(--surface2)', border: 'var(--border2)' };
 }
 
 function showUpgradeModal(reason) {
@@ -640,6 +670,7 @@ function goTo(s) {
   if (s === 'post') resetPost();
   window.scrollTo(0,0);
 }
+
 function renderPortfolio() {
   const greetEl = document.getElementById('portfolio-greeting');
   if (greetEl && currentUser?.x_username) {
@@ -660,6 +691,31 @@ function renderPortfolio() {
     }
     badgeEl.innerHTML = badgeHTML;
     if (currentUser?.id === '7f3162ec-c281-435f-8e8e-3b6d65b8b1c9') loadOwnerStats();
+  }
+
+  // 目利きスコアカード
+  const insightEl = document.getElementById('portfolio-insight');
+  if (insightEl && currentUser) {
+    const rank = getInsightRank(insightScore);
+    const earlyCount = Object.values(myEarlyVotes).filter(v => v <= 3).length;
+    insightEl.innerHTML = `<div style="background:${rank.bg};border:1.5px solid ${rank.border};border-radius:var(--r-lg);padding:14px 16px;margin-bottom:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-size:10px;font-weight:700;color:${rank.color};letter-spacing:.06em">目利きスコア</div>
+        <div style="font-size:9px;color:var(--text3)">早期応援で高得点</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="font-family:var(--mono);font-size:36px;font-weight:700;color:${rank.color};line-height:1">${insightScore}</div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:${rank.color}">${rank.label}</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px">早期発見 ${earlyCount}件（3票以下で応援）</div>
+        </div>
+      </div>
+      <div style="margin-top:10px;background:rgba(0,0,0,.06);border-radius:6px;height:5px;overflow:hidden">
+        <div style="background:${rank.color};height:100%;width:${Math.min(100,insightScore)}%;border-radius:6px;transition:width 1s cubic-bezier(.4,0,.2,1)"></div>
+      </div>
+    </div>`;
+  } else if (insightEl) {
+    insightEl.innerHTML = '';
   }
 
   const el = document.getElementById('portfolio-list');
@@ -787,6 +843,7 @@ function initEmojiPicker() {
 
 function selEmoji(el) { document.querySelectorAll('.ep').forEach(x=>x.classList.remove('sel')); el.classList.add('sel'); selectedEmoji = el.dataset.e; }
 function selGenre(el) { document.querySelectorAll('.genre-item').forEach(x=>x.classList.remove('selected')); el.classList.add('selected'); selectedGenre = el.textContent; }
+
 function buildAvatars(ideaId) {
   const idea = ideas.find(i => i.id === ideaId);
   if (!idea || idea.votes === 0) return '<div style="font-size:11px;color:var(--text3)">まだ応援者がいません</div>';
@@ -855,6 +912,35 @@ function showIPOBanner(idea) {
   setTimeout(() => { if (banner.parentNode) banner.remove(); }, 5000);
 }
 
+function buildEarlyInfo(ideaId) {
+  const idea = ideas.find(i => i.id === ideaId);
+  if (!idea) return '';
+  const votesWhen = myEarlyVotes[ideaId];
+  const isEarly = votesWhen !== undefined && votesWhen <= 5;
+  const pts = votesWhen === undefined ? 0
+    : votesWhen <= 1 ? 10 : votesWhen <= 3 ? 8
+    : votesWhen <= 5 ? 6 : votesWhen <= 10 ? 4 : 1;
+
+  if (!votedIds.has(ideaId)) {
+    return `<div style="font-size:12px;color:var(--text3)">応援すると目利きポイントが貯まります。早いほど高得点！</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
+      <span style="font-size:10px;background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border);border-radius:4px;padding:2px 7px;font-weight:700">1票目: +10pt</span>
+      <span style="font-size:10px;background:var(--surface2);color:var(--text2);border:1px solid var(--border2);border-radius:4px;padding:2px 7px;font-weight:700">2-3票: +8pt</span>
+      <span style="font-size:10px;background:var(--surface2);color:var(--text2);border:1px solid var(--border2);border-radius:4px;padding:2px 7px;font-weight:700">4-5票: +6pt</span>
+    </div>`;
+  }
+  if (isEarly) {
+    return `<div style="display:flex;align-items:center;gap:8px">
+      <div style="width:32px;height:32px;border-radius:50%;background:var(--amber-bg);border:2px solid var(--amber-border);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">👁</div>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--amber)">あなたは早期発見者です！</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:1px">${votesWhen}票のときに応援 → <strong style="color:var(--amber)">+${pts}pt</strong> 獲得済み</div>
+      </div>
+    </div>`;
+  }
+  return `<div style="font-size:12px;color:var(--text3)">応援済み（${idea.votes}票時点・+${pts}pt）</div>`;
+}
+
 function showDetail(id) {
   const idea = ideas.find(i=>i.id===id);
   idea.views++;
@@ -883,6 +969,10 @@ function showDetail(id) {
         ${supportedIdeas.has(idea.id) ? '賛同済み！' : '一緒に作りたい！'}
         <span style="font-size:11px;font-weight:700;background:${supportedIdeas.has(idea.id)?'#e6f1fb':'var(--surface2)'};color:${supportedIdeas.has(idea.id)?'#185FA5':'var(--text2)'};padding:3px 10px;border-radius:20px">${(idea.supporters||0)}人</span>
       </button>
+    </div>
+    <div style="background:var(--surface);border-radius:var(--r-lg);padding:12px 14px;margin-bottom:14px">
+      <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.06em;margin-bottom:8px">目利きポイント</div>
+      ${buildEarlyInfo(idea.id)}
     </div>
     <div class="hero-card">
       <div class="hero-top">
@@ -946,18 +1036,6 @@ function showDetail(id) {
     },100);
   },60);
 }
-function showSampleDetail() {
-  const sample = {
-    id:'sample-1', ticker:'HABIT', emoji:'💡', name:'習い事スケジュール管理アプリ', genre:'テクノロジー', tech:'React Native',
-    baseScore:50, score:67.5, votes:4, views:23, progress:1, progressStep:1, postedDaysAgo:1, daysSinceLastVote:0.5, history:[50,52,55,58,60,63,67.5], lastReason:'応援票により上昇',
-    commentList:[{ name:'@ゆかり', text:'子供の習い事が多くて本当に困ってました！ぜひ使ってみたいです', time:'2時間前', tag:'欲しい！'},{ name:'@taro_dev', text:'LINE通知と連携できると便利そう', time:'5時間前', tag:'改善提案'}],
-    actions:['スケジュール画面のプロトタイプ作成','教室・曜日・時間の入力フォーム実装','月ビュー・週ビューの切り替え機能'],
-    desc:'複数の習い事（ピアノ・スイミング・塾など）を一括管理できるアプリ。送り迎えのスケジュールも見える化して、家族で共有できるようにしたい。',
-    supporters: 3, userId: null
-  };
-  ideas.push(sample);
-  showDetail('sample-1');
-}
 
 function voteIdea(id) {
   const idea = ideas.find(i=>i.id===id);
@@ -965,9 +1043,12 @@ function voteIdea(id) {
   if (!currentUser) { showToast('ログインして応援しよう！'); return; }
   if (votedIds.has(id)) { showToast('このアイデアにはすでに応援済みです'); return; }
   if (votesLeft <= 0) { updateXBonus(); showUpgradeModal('今日の票を使い切りました'); return; }
+  const votesAtTime = idea.votes;
   votedIds.add(id);
   votesLeft--;
   idea.votes++;
+  myEarlyVotes[id] = votesAtTime;
+  insightScore += votesAtTime <= 1 ? 10 : votesAtTime <= 3 ? 8 : votesAtTime <= 5 ? 6 : votesAtTime <= 10 ? 4 : 1;
   idea.lastDelta = 2.5;
   idea.score = calcScore(idea);
   idea.history = [...idea.history.slice(-11), idea.score];
@@ -975,7 +1056,7 @@ function voteIdea(id) {
   document.getElementById('votes-left').textContent = votesLeft;
   const row = document.getElementById('row-'+id);
   if (row) { row.classList.remove('flash-up','flash-dn'); void row.offsetWidth; row.classList.add('flash-up'); }
-  voteIdeaToDB(id);
+  voteIdeaToDB(id, votesAtTime);
   renderFeed();
   if (votesLeft <= 0) updateXBonus();
   updatePlanBadge();
@@ -1226,20 +1307,12 @@ function guideFinish() {
 
 function startRealtime() {
   sb.channel('public-updates')
-    .on('postgres_changes', {
-      event: 'INSERT',
-      schema: 'public',
-      table: 'ideas'
-    }, (payload) => {
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'ideas' }, (payload) => {
       const newIdea = payload.new;
       if (newIdea.user_id === currentUser?.id) return;
       showIPOBanner(newIdea);
     })
-    .on('postgres_changes', {
-      event: 'INSERT',
-      schema: 'public',
-      table: 'comments'
-    }, async (payload) => {
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'comments' }, async (payload) => {
       const c = payload.new;
       const idea = ideas.find(i=>i.id===c.idea_id);
       if (!idea) return;
@@ -1254,11 +1327,7 @@ function startRealtime() {
         }
       }
     })
-    .on('postgres_changes', {
-      event: 'UPDATE',
-      schema: 'public',
-      table: 'ideas'
-    }, (payload) => {
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'ideas' }, (payload) => {
       const updated = payload.new;
       const idea = ideas.find(i=>i.id===updated.id);
       if (!idea) return;
@@ -1274,10 +1343,6 @@ function startRealtime() {
     })
     .subscribe();
 }
-
-let proMenuTimeout;
-
-document.getElementById('founder-remaining') && null;
 
 async function init() {
   const splash = document.getElementById('splash');
@@ -1300,6 +1365,7 @@ async function init() {
   if (hasSession) {
     await checkProStatus();
     await loadVotedIds();
+    await loadInsightScore();
   }
   initEmojiPicker();
   checkUpgradeSuccess();
