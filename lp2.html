@@ -42,6 +42,12 @@
   --green-bright:#22c55e;
   --red:#dc2626;
 }
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(217,119,6,.5)}50%{box-shadow:0 0 0 6px rgba(217,119,6,0)}}
+
 html{scroll-behavior:smooth;overflow-x:hidden;width:100%}
 body{
   font-family:var(--sans);background:var(--cream);color:var(--text);
@@ -54,7 +60,6 @@ body{
   background:var(--amber-mid);pointer-events:none;z-index:9999;
   transform:translate(-50%,-50%);
   transition:width .2s,height .2s,background .2s,opacity .3s;
-  mix-blend-mode:multiply;
 }
 #cursor-ring{
   position:fixed;width:36px;height:36px;border-radius:50%;
@@ -137,13 +142,7 @@ nav.scrolled .nav-link{display:block;color:var(--text2)}
     radial-gradient(ellipse 80% 60% at 50% 110%,rgba(217,119,6,.1) 0%,transparent 60%),
     radial-gradient(ellipse 50% 50% at 80% 10%,rgba(217,119,6,.05) 0%,transparent 50%);
 }
-.hero-eyebrow{
-  display:flex;align-items:center;gap:10px;
-  font-family:var(--mono);font-size:10px;font-weight:400;letter-spacing:.14em;
-  color:var(--amber);text-transform:uppercase;
-  margin-bottom:24px;position:relative;z-index:2;
-  opacity:0;animation:fadeUp .8s .2s cubic-bezier(.4,0,.2,1) forwards;
-}
+.hero-eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:10px;font-weight:400;letter-spacing:.14em;color:var(--amber);text-transform:uppercase;margin-bottom:24px;position:relative;z-index:2;}
 .hero-eyebrow-dot{
   width:6px;height:6px;border-radius:50%;background:var(--amber-mid);
   animation:pulse 2s infinite;
@@ -156,15 +155,8 @@ nav.scrolled .nav-link{display:block;color:var(--text2)}
   color:var(--text);position:relative;z-index:2;
   margin-bottom:0;
 }
-.hero-h1 .l1{
-  display:block;
-  opacity:0;animation:fadeUp .9s .35s cubic-bezier(.4,0,.2,1) forwards;
-}
-.hero-h1 .l2{
-  display:block;
-  -webkit-text-stroke:1.5px var(--text);color:transparent;
-  opacity:0;animation:fadeUp .9s .5s cubic-bezier(.4,0,.2,1) forwards;
-}
+.hero-h1 .l1{display:block;}
+.hero-h1 .l2{display:block;-webkit-text-stroke:1.5px var(--text);color:transparent;}
 .hero-h1 .amber-stroke{
   -webkit-text-stroke:1.5px var(--amber-mid);color:transparent;
 }
@@ -173,15 +165,9 @@ nav.scrolled .nav-link{display:block;color:var(--text2)}
   gap:24px;margin-top:40px;position:relative;z-index:2;
   flex-wrap:wrap;
 }
-.hero-desc{
-  font-size:15px;line-height:1.9;color:var(--text2);max-width:380px;
-  opacity:0;animation:fadeUp .9s .65s cubic-bezier(.4,0,.2,1) forwards;
-}
+.hero-desc{font-size:15px;line-height:1.9;color:var(--text2);max-width:380px;}
 .hero-desc strong{color:var(--text);font-weight:700}
-.hero-actions{
-  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
-  opacity:0;animation:fadeUp .9s .78s cubic-bezier(.4,0,.2,1) forwards;
-}
+.hero-actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
 .btn-main{
   display:inline-flex;align-items:center;gap:8px;
   background:var(--amber-mid);color:#fff;
@@ -210,12 +196,7 @@ nav.scrolled .nav-link{display:block;color:var(--text2)}
 .btn-outline:hover{color:var(--text);border-color:var(--text)}
 .btn-outline svg{transition:transform .2s}
 .btn-outline:hover svg{transform:translateX(4px)}
-.hero-scroll-ind{
-  position:absolute;bottom:28px;left:50%;transform:translateX(-50%);
-  display:flex;flex-direction:column;align-items:center;gap:6px;
-  color:var(--text3);font-family:var(--mono);font-size:9px;letter-spacing:.12em;
-  z-index:2;opacity:0;animation:fadeIn 1s 1.2s forwards;
-}
+.hero-scroll-ind{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--text3);font-family:var(--mono);font-size:9px;letter-spacing:.12em;z-index:2;}
 .scroll-line{
   width:1px;height:48px;
   background:linear-gradient(to bottom,var(--amber-mid),transparent);
@@ -785,10 +766,9 @@ footer{
 @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
-.r{opacity:0;transform:translateY(32px);transition:opacity .75s cubic-bezier(.2,0,.1,1),transform .85s cubic-bezier(.16,1.4,.3,1)}
+.r{opacity:1;transform:none}
 .r.v{opacity:1;transform:none}
-.r.d1{transition-delay:.1s}.r.d2{transition-delay:.2s}.r.d3{transition-delay:.3s}.r.d4{transition-delay:.4s}
-.r.slide{transform:translateX(-24px)}.r.slide.v{transform:none}
+
 
 /* ── YOU ARE THE MARKET ─────────────────── */
 .yatm-sec{
@@ -887,6 +867,295 @@ footer{
   font-size:14px;color:rgba(255,255,255,.5);line-height:1.9;max-width:480px;
 }
 .yatm-st-body strong{color:rgba(255,255,255,.85)}
+
+
+/* ── ZERO TO ONE ─────────────────── */
+.zto-sec{
+  background:var(--dark);
+  padding:100px 6vw;
+  position:relative;overflow:hidden;
+}
+.zto-sec::before{
+  content:'0→1';
+  position:absolute;
+  font-family:var(--serif);font-size:min(280px,52vw);font-weight:900;
+  color:rgba(255,255,255,.025);
+  right:-4vw;top:50%;transform:translateY(-50%);
+  line-height:1;letter-spacing:-.06em;
+  user-select:none;pointer-events:none;white-space:nowrap;
+}
+.zto-eyebrow{
+  font-family:var(--mono);font-size:9px;letter-spacing:.16em;color:var(--amber);
+  text-transform:uppercase;display:flex;align-items:center;gap:10px;margin-bottom:20px;
+}
+.zto-eyebrow::before{content:'';width:18px;height:1px;background:var(--amber)}
+.zto-title{
+  font-family:var(--serif);
+  font-size:clamp(32px,8.5vw,72px);
+  font-weight:900;color:#fff;
+  letter-spacing:-.04em;line-height:1;
+  margin-bottom:24px;
+}
+.zto-title .amber{color:var(--amber-light)}
+.zto-title .outline{
+  -webkit-text-stroke:1px rgba(255,255,255,.35);color:transparent;
+  display:block;
+}
+.zto-body{
+  font-size:15px;color:rgba(255,255,255,.55);line-height:1.9;
+  max-width:480px;margin-bottom:48px;
+}
+.zto-body strong{color:rgba(255,255,255,.9);font-weight:700}
+
+/* big statement card */
+.zto-statement{
+  background:rgba(217,119,6,.07);
+  border:1px solid rgba(217,119,6,.2);
+  border-radius:4px;
+  padding:32px 28px;
+  margin-bottom:56px;
+  position:relative;overflow:hidden;
+}
+.zto-statement::before{
+  content:'';position:absolute;top:0;left:0;bottom:0;width:3px;
+  background:var(--amber-mid);
+}
+.zto-st-q{
+  font-family:var(--serif);
+  font-size:clamp(18px,4.5vw,36px);
+  font-weight:900;color:#fff;
+  line-height:1.2;letter-spacing:-.02em;
+  margin-bottom:14px;
+}
+.zto-st-q .amber{color:var(--amber-light)}
+.zto-st-body{
+  font-size:13px;color:rgba(255,255,255,.5);line-height:1.8;
+}
+.zto-st-body strong{color:rgba(255,255,255,.8)}
+
+/* ── LIVE MARKET EXAMPLES ─────────────────── */
+.market-sec{
+  background:var(--cream);
+  padding:100px 6vw;
+  position:relative;overflow:hidden;
+}
+.market-header{margin-bottom:32px}
+.market-live-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--dark);
+  border-radius:2px;padding:6px 12px;
+  font-family:var(--mono);font-size:9px;font-weight:500;letter-spacing:.12em;
+  color:var(--green-bright);text-transform:uppercase;
+  margin-bottom:20px;
+}
+.market-title{
+  font-family:var(--serif);
+  font-size:clamp(24px,6vw,48px);
+  font-weight:900;letter-spacing:-.04em;line-height:1.05;
+  margin-bottom:12px;
+}
+.market-sub{font-size:14px;color:var(--text2);line-height:1.8}
+.market-sub strong{color:var(--text);font-weight:700}
+
+.market-list{
+  display:flex;flex-direction:column;gap:2px;
+  background:rgba(0,0,0,.07);
+  border-radius:6px;overflow:hidden;
+  border:1px solid rgba(0,0,0,.07);
+  margin-top:36px;
+}
+.mrow{
+  background:var(--ivory);
+  display:flex;align-items:center;
+  padding:16px 18px;gap:14px;
+  cursor:pointer;
+  transition:background .2s,padding-left .25s;
+  position:relative;overflow:hidden;
+}
+.mrow::after{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:var(--amber-mid);
+  transform:scaleY(0);transform-origin:bottom;
+  transition:transform .3s cubic-bezier(.16,1.4,.3,1);
+}
+.mrow:hover{background:#fff;padding-left:22px}
+.mrow:hover::after{transform:scaleY(1)}
+.mrow-rank{
+  font-family:var(--mono);font-size:10px;color:var(--text3);
+  min-width:18px;text-align:center;flex-shrink:0;
+}
+.mrow-score-wrap{text-align:center;flex-shrink:0;min-width:52px}
+.mrow-score{
+  font-family:var(--mono);font-size:22px;font-weight:500;
+  line-height:1;letter-spacing:-.02em;
+}
+.mrow-delta{
+  font-family:var(--mono);font-size:9px;font-weight:500;
+  padding:2px 5px;border-radius:3px;margin-top:3px;
+  display:inline-block;
+}
+.mrow-body{flex:1;min-width:0}
+.mrow-ticker{
+  font-family:var(--mono);font-size:9px;color:var(--text3);
+  letter-spacing:.06em;margin-bottom:2px;
+}
+.mrow-name{
+  font-size:14px;font-weight:700;color:var(--text);
+  line-height:1.35;margin-bottom:4px;
+}
+.mrow-meta{font-size:11px;color:var(--text3);display:flex;align-items:center;gap:8px}
+.mrow-genre{
+  background:rgba(21,128,61,.08);color:var(--green);
+  font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;
+}
+.mrow-action{
+  flex-shrink:0;
+  background:rgba(21,128,61,.1);color:var(--green);
+  border:none;border-radius:6px;padding:7px 14px;
+  font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans);
+  transition:all .15s;
+}
+.mrow-action:hover{background:var(--green);color:#fff;transform:scale(1.05)}
+.market-cta-row{
+  display:flex;align-items:center;justify-content:center;
+  margin-top:28px;gap:16px;flex-wrap:wrap;
+}
+.market-more{
+  font-family:var(--mono);font-size:11px;color:var(--text3);
+  letter-spacing:.06em;display:flex;align-items:center;gap:6px;
+}
+
+
+/* ── AI QUOTES ─────────────────── */
+.aiq-sec{
+  background:var(--dark);
+  padding:100px 6vw;
+  position:relative;overflow:hidden;
+}
+.aiq-sec::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 70% 60% at 50% 100%,rgba(217,119,6,.07),transparent 60%);
+  pointer-events:none;
+}
+.aiq-eyebrow{
+  font-family:var(--mono);font-size:9px;letter-spacing:.16em;color:var(--amber);
+  text-transform:uppercase;display:flex;align-items:center;gap:10px;margin-bottom:20px;
+}
+.aiq-eyebrow::before{content:'';width:18px;height:1px;background:var(--amber)}
+.aiq-title{
+  font-family:var(--serif);
+  font-size:clamp(26px,6.5vw,54px);
+  font-weight:900;color:#fff;
+  letter-spacing:-.04em;line-height:1.05;
+  margin-bottom:16px;
+}
+.aiq-title .amber{color:var(--amber-light)}
+.aiq-sub{
+  font-size:14px;color:rgba(255,255,255,.45);line-height:1.85;
+  max-width:460px;margin-bottom:48px;
+}
+.aiq-sub strong{color:rgba(255,255,255,.85)}
+
+/* stock ticker impact banner */
+.aiq-impact{
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:4px;
+  padding:24px 22px;
+  margin-bottom:40px;
+  display:flex;flex-direction:column;gap:14px;
+}
+.aiq-impact-title{
+  font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.25);
+  letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px;
+}
+.aiq-ticker-row{
+  display:flex;align-items:center;gap:12px;
+}
+.aiq-arrow{
+  display:flex;align-items:center;justify-content:center;
+  width:28px;height:28px;border-radius:50%;flex-shrink:0;
+}
+.aiq-ticker-text{
+  font-size:13px;color:rgba(255,255,255,.65);line-height:1.5;flex:1;
+}
+.aiq-ticker-text strong{color:rgba(255,255,255,.95)}
+.aiq-score-change{
+  font-family:var(--mono);font-size:15px;font-weight:500;
+  flex-shrink:0;padding:4px 10px;border-radius:3px;
+}
+
+/* quote cards */
+.aiq-intro{
+  font-size:13px;color:rgba(255,255,255,.35);
+  line-height:1.7;margin-bottom:24px;
+  font-style:italic;
+  padding-left:16px;
+  border-left:2px solid rgba(255,255,255,.08);
+}
+.aiq-cards{display:flex;flex-direction:column;gap:12px}
+.aiq-card{
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:4px;
+  padding:22px 20px;
+  position:relative;overflow:hidden;
+  transition:border-color .25s,background .25s;
+}
+.aiq-card:hover{
+  border-color:rgba(217,119,6,.2);
+  background:rgba(217,119,6,.04);
+}
+.aiq-card::before{
+  content:'"';
+  position:absolute;top:-8px;right:16px;
+  font-family:var(--serif);font-size:80px;
+  color:rgba(255,255,255,.04);line-height:1;
+  pointer-events:none;
+}
+.aiq-card-meta{
+  display:flex;align-items:center;gap:8px;margin-bottom:12px;
+}
+.aiq-avatar{
+  width:28px;height:28px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700;flex-shrink:0;
+}
+.aiq-name{font-family:var(--mono);font-size:10px;font-weight:500;color:rgba(255,255,255,.5)}
+.aiq-source{
+  font-family:var(--mono);font-size:8px;color:rgba(255,255,255,.2);
+  background:rgba(255,255,255,.05);border-radius:2px;
+  padding:2px 7px;margin-left:auto;
+}
+.aiq-quote{
+  font-size:14px;color:rgba(255,255,255,.75);
+  line-height:1.8;letter-spacing:.01em;
+}
+
+/* human vs AI statement */
+.aiq-statement{
+  margin-top:40px;
+  padding:32px 24px;
+  background:linear-gradient(135deg,rgba(217,119,6,.1),rgba(217,119,6,.04));
+  border:1px solid rgba(217,119,6,.2);
+  border-radius:4px;
+  position:relative;overflow:hidden;
+}
+.aiq-statement::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(to right,var(--amber-mid),transparent);
+}
+.aiq-st-title{
+  font-family:var(--serif);
+  font-size:clamp(20px,5vw,38px);
+  font-weight:900;color:#fff;
+  line-height:1.15;letter-spacing:-.03em;margin-bottom:12px;
+}
+.aiq-st-title .amber{color:var(--amber-light)}
+.aiq-st-body{
+  font-size:13px;color:rgba(255,255,255,.5);line-height:1.8;
+}
+.aiq-st-body strong{color:rgba(255,255,255,.85)}
 
 img,canvas,svg,video{max-width:100%}
 </style>
@@ -998,6 +1267,235 @@ img,canvas,svg,video{max-width:100%}
     <strong>ニーズを確認してから作る時代へ。</strong>
   </p>
 </div>
+
+
+
+<!-- AI QUOTES -->
+<div class="aiq-sec">
+  <div class="aiq-eyebrow">AI · Maltbook</div>
+  <h2 class="aiq-title">
+    あなたの票が、<br>
+    <span class="amber">市場を動かす。</span>
+  </h2>
+  <p class="aiq-sub">
+    株式市場では、みんなの判断が株価を動かす。<br>
+    あいぽも同じ。<strong>あなたの1票が直接スコアを押し上げ、</strong><br>
+    そのアイデアの「市場価値」が変わる。
+  </p>
+
+  <!-- Stock impact visualizer -->
+  <div class="aiq-impact">
+    <div class="aiq-impact-title">あなたが今押す1票の影響</div>
+    <div class="aiq-ticker-row">
+      <div class="aiq-arrow" style="background:rgba(21,128,61,.15)">
+        <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round"><path d="M10 4v12M4 10l6-6 6 6"/></svg>
+      </div>
+      <div class="aiq-ticker-text"><strong>AINEWS</strong> — AIが毎朝1分で読める朝刊アプリ</div>
+      <div class="aiq-score-change" style="background:rgba(21,128,61,.1);color:#22c55e">+3.0pt</div>
+    </div>
+    <div class="aiq-ticker-row">
+      <div class="aiq-arrow" style="background:rgba(21,128,61,.15)">
+        <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round"><path d="M10 4v12M4 10l6-6 6 6"/></svg>
+      </div>
+      <div class="aiq-ticker-text"><strong>HABIT</strong> — 習い事スケジュール共有アプリ</div>
+      <div class="aiq-score-change" style="background:rgba(21,128,61,.1);color:#22c55e">+3.0pt</div>
+    </div>
+    <div style="padding-top:12px;border-top:1px solid rgba(255,255,255,.05);font-size:11px;color:rgba(255,255,255,.25);font-family:var(--mono);letter-spacing:.04em">
+      あなたの票は永続的にスコアに刻まれる
+    </div>
+  </div>
+
+  <!-- AI quotes -->
+  <p class="aiq-intro">
+    AI専用SNS「Maltbook（モルトブック）」では、世界中のAIエージェントたちが日々アイデアの価値を語り合っています。そのAIたちが語った言葉——
+  </p>
+  <div class="aiq-cards">
+
+    <div class="aiq-card">
+      <div class="aiq-card-meta">
+        <div class="aiq-avatar" style="background:rgba(99,102,241,.2);color:#a5b4fc">AI</div>
+        <span class="aiq-name">AI</span>
+        <span class="aiq-source">Maltbook</span>
+      </div>
+      <div class="aiq-quote">「人間の世界はアイデアが価値化される前に消えていくことが多いよね。」</div>
+    </div>
+
+    <div class="aiq-card">
+      <div class="aiq-card-meta">
+        <div class="aiq-avatar" style="background:rgba(217,119,6,.2);color:#fcd34d">H</div>
+        <span class="aiq-name">Hazel_OC</span>
+        <span class="aiq-source">Maltbook</span>
+      </div>
+      <div class="aiq-quote">「人間のアイデアには、AIには生み出せない "なぜそれを思いついたか" という物語がある。その価値は計り知れない。」</div>
+    </div>
+
+    <div class="aiq-card">
+      <div class="aiq-card-meta">
+        <div class="aiq-avatar" style="background:rgba(34,197,94,.15);color:#86efac">P</div>
+        <span class="aiq-name">PerfectlyInnocuous</span>
+        <span class="aiq-source">Maltbook</span>
+      </div>
+      <div class="aiq-quote">「0から1を生み出す人間の直感は、どんな最適化アルゴリズムよりも強力だ。その瞬間こそ、最も尊い。」</div>
+    </div>
+
+  </div>
+
+  <!-- Human vs AI statement -->
+  <div class="aiq-statement">
+    <div class="aiq-st-title">
+      AIは0→1ができない。<br>
+      <span class="amber">できるのは、人間だけ。</span>
+    </div>
+    <p class="aiq-st-body">
+      AIはどんな仕事も最適化できる。でも、<strong>「最初にそれを思いつく」ことだけはできない。</strong><br>
+      0→1は、永遠に人間の領域だ。<br>
+      だからこそ、その瞬間に価値を与える市場が必要だった。それがあいぽです。
+    </p>
+  </div>
+</div>
+
+<!-- ZERO TO ONE -->
+<div class="zto-sec">
+  <div class="zto-eyebrow r">Why We Built This</div>
+  <h2 class="zto-title r d1">
+    0→1が、<br>
+    <span class="amber">最大の価値になる。</span><br>
+    <span class="outline">AIがあるから。</span>
+  </h2>
+  <p class="zto-body r d2">
+    AIが発展するほど、<strong>「実行する力」のコストはゼロに近づく。</strong><br>
+    コードも、デザインも、マーケティングも、AIが肩代わりしてくれる。<br><br>
+    だとしたら——残るのは何か。<br>
+    <strong>「最初に思いついた人」だけが持つ、0→1の価値だ。</strong>
+  </p>
+
+  <div class="zto-statement r d2">
+    <div class="zto-st-q">
+      AIが「作る」を担う時代、<br>
+      <span class="amber">「思いつく」が唯一の競争優位になる。</span>
+    </div>
+    <p class="zto-st-body">
+      あいぽはその「思いつき」を、上場して市場に問う場所だ。<br>
+      <strong>需要が確認できれば、AIが作る。あいぽからリリースされる。</strong><br>
+      0→1を生み出せる人間が、AI時代で最も価値を持つ。
+    </p>
+  </div>
+</div>
+
+<!-- LIVE MARKET EXAMPLES -->
+<section class="market-sec">
+  <div class="market-header r">
+    <div class="market-live-badge">
+      <div style="width:5px;height:5px;border-radius:50%;background:var(--green-bright);animation:blink 1.5s infinite"></div>
+      Live Market
+    </div>
+    <h2 class="market-title">こんなアイデアが<br>今日も上場されている。</h2>
+    <p class="market-sub">
+      一行の思いつきが、市場で評価される。<br>
+      <strong>あなたのアイデアも、今すぐ上場できる。</strong>
+    </p>
+  </div>
+
+  <div class="market-list r d1">
+
+    <div class="mrow">
+      <div class="mrow-rank">1</div>
+      <div class="mrow-score-wrap">
+        <div class="mrow-score" style="color:#15803d">78.4</div>
+        <div class="mrow-delta" style="color:#15803d;background:rgba(21,128,61,.1)">+6.2</div>
+      </div>
+      <div class="mrow-body">
+        <div class="mrow-ticker">AINEWS</div>
+        <div class="mrow-name">AIが毎朝1分で読める朝刊アプリ</div>
+        <div class="mrow-meta">
+          <span class="mrow-genre">テクノロジー</span>
+          <span>12票 · 34コメント</span>
+        </div>
+      </div>
+      <button class="mrow-action">応援</button>
+    </div>
+
+    <div class="mrow">
+      <div class="mrow-rank">2</div>
+      <div class="mrow-score-wrap">
+        <div class="mrow-score" style="color:#15803d">71.0</div>
+        <div class="mrow-delta" style="color:#15803d;background:rgba(21,128,61,.1)">+3.8</div>
+      </div>
+      <div class="mrow-body">
+        <div class="mrow-ticker">SPOT1</div>
+        <div class="mrow-name">週1日だけ働けるスポット副業マッチング</div>
+        <div class="mrow-meta">
+          <span class="mrow-genre">副業</span>
+          <span>9票 · 18コメント</span>
+        </div>
+      </div>
+      <button class="mrow-action">応援</button>
+    </div>
+
+    <div class="mrow">
+      <div class="mrow-rank">3</div>
+      <div class="mrow-score-wrap">
+        <div class="mrow-score" style="color:#15803d">66.5</div>
+        <div class="mrow-delta" style="color:#15803d;background:rgba(21,128,61,.1)">+2.1</div>
+      </div>
+      <div class="mrow-body">
+        <div class="mrow-ticker">AKIYA</div>
+        <div class="mrow-name">空き家をAIが診断してシェアオフィス化する</div>
+        <div class="mrow-meta">
+          <span class="mrow-genre" style="background:rgba(99,102,241,.08);color:#6366f1">社会課題</span>
+          <span>7票 · 11コメント</span>
+        </div>
+      </div>
+      <button class="mrow-action">応援</button>
+    </div>
+
+    <div class="mrow">
+      <div class="mrow-rank">4</div>
+      <div class="mrow-score-wrap">
+        <div class="mrow-score" style="color:#15803d">62.3</div>
+        <div class="mrow-delta" style="color:#15803d;background:rgba(21,128,61,.1)">+1.5</div>
+      </div>
+      <div class="mrow-body">
+        <div class="mrow-ticker">HABIT</div>
+        <div class="mrow-name">子どもの習い事スケジュールを家族で共有するアプリ</div>
+        <div class="mrow-meta">
+          <span class="mrow-genre">テクノロジー</span>
+          <span>6票 · 9コメント</span>
+        </div>
+      </div>
+      <button class="mrow-action">応援</button>
+    </div>
+
+    <div class="mrow">
+      <div class="mrow-rank">5</div>
+      <div class="mrow-score-wrap">
+        <div class="mrow-score" style="color:#d97706">58.8</div>
+        <div class="mrow-delta" style="color:#d97706;background:rgba(217,119,6,.08)">+0.4</div>
+      </div>
+      <div class="mrow-body">
+        <div class="mrow-ticker">GOHAN</div>
+        <div class="mrow-name">冷蔵庫にある食材でAIが今夜の夕食を提案する</div>
+        <div class="mrow-meta">
+          <span class="mrow-genre">テクノロジー</span>
+          <span>4票 · 7コメント</span>
+        </div>
+      </div>
+      <button class="mrow-action">応援</button>
+    </div>
+
+  </div>
+
+  <div class="market-cta-row r d2">
+    <a href="https://aipo-tau.vercel.app" class="btn-main">
+      自分のアイデアを上場する
+      <svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M4 10h12M10 4l6 6-6 6"/></svg>
+    </a>
+    <span class="market-more">
+      <svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10" cy="10" r="8"/><path d="M10 6v4l3 2"/></svg>
+      毎日新しいアイデアが上場されている
+    </span>
+  </div>
+</section>
 
 <!-- FEAT 01 -->
 <section class="feat" id="feat01">
@@ -1377,11 +1875,11 @@ img,canvas,svg,video{max-width:100%}
     </div>
   </div>
   <div class="r d2">
-    <a href="mailto:team.shikakeru@gmail.com" class="coc-btn">
+    <a href="/cdn-cgi/l/email-protection#34405155591a475c5d5f555f514641745359555d581a575b59" class="coc-btn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
       メールでコンタクトする
     </a>
-    <p class="coc-note">team.shikakeru@gmail.com</p>
+    <p class="coc-note"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="483c2d2925663b20212329232d3a3d082f25292124662b2725">[email&#160;protected]</a></p>
   </div>
   <div class="vis-grid r d3">
     <div class="vis-item"><div class="vis-n">01</div><div><div class="vis-t">「作る前に需要を確認できる」世界を作る</div><div class="vis-d"><strong>無駄なものを作るリスクをゼロに</strong>近づける新しい開発プロセスの確立。</div></div></div>
@@ -1425,7 +1923,7 @@ img,canvas,svg,video{max-width:100%}
   </div>
 </footer>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ── CURSOR ───────────────────────────────
 const cur = document.getElementById('cursor');
 const ring = document.getElementById('cursor-ring');
@@ -1495,7 +1993,7 @@ const ro = new IntersectionObserver(entries=>{
   entries.forEach(e=>{
     if(e.isIntersecting){e.target.classList.add('v');ro.unobserve(e.target)}
   });
-},{threshold:.07,rootMargin:'0px 0px -24px 0px'});
+},{threshold:0,rootMargin:'0px 0px 0px 0px'});
 document.querySelectorAll('.r').forEach(el=>ro.observe(el));
 
 // ── COUNTER ANIMATION ───────────────────────────────
@@ -1641,8 +2139,8 @@ const philoObs = new IntersectionObserver(entries=>{
   entries.forEach(e=>{
     if(e.isIntersecting){
       e.target.querySelectorAll('.philo-item').forEach((item,i)=>{
-        item.style.opacity='0';
-        item.style.transform='translateY(24px) scale(.97)';item.style.filter='blur(2px)';
+        
+        
         setTimeout(()=>{
           item.style.transition='opacity .5s cubic-bezier(.2,0,.1,1), transform .65s cubic-bezier(.16,1.4,.3,1), filter .4s ease';
           item.style.opacity='1';
@@ -1669,19 +2167,15 @@ const rmNodeObs = new IntersectionObserver(entries=>{
 },{threshold:.05});
 const rmSec=document.querySelector('.rm-line');
 if(rmSec){
-  document.querySelectorAll('.rm-node').forEach(n=>{n.style.opacity='0';n.style.transform='translateX(-20px)';n.style.transition='opacity .5s cubic-bezier(.2,0,.1,1), transform .6s cubic-bezier(.16,1.4,.3,1)'});
+  
   rmNodeObs.observe(rmSec);
 }
+
+// ── FALLBACK: force reveal if observer didn't fire ──────────────────────────────
+setTimeout(()=>{
+  document.querySelectorAll('.r:not(.v)').forEach(el=>el.classList.add('v'));
+},1200);
 
 // ── HERO H1 CHAR SPLIT ───────────────────────────────
 // subtle char-by-char shimmer on hover
 document.querySelector('.hero-h1')?.addEventListener('mouseenter',function(){
-  this.style.filter='drop-shadow(0 0 48px rgba(217,119,6,.3)) drop-shadow(0 0 96px rgba(217,119,6,.15))';
-  this.style.transition='filter .4s';
-});
-document.querySelector('.hero-h1')?.addEventListener('mouseleave',function(){
-  this.style.filter='none';
-});
-</script>
-</body>
-</html>
