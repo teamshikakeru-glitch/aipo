@@ -430,7 +430,23 @@ img,canvas,svg,video{max-width:100%}
 <section class="hero">
   <canvas id="hero-canvas" class="hero-canvas"></canvas>
   <div class="hero-ambient"></div>
-  <div class="hero-eyebrow"><div class="hero-eyebrow-dot"></div>アイデアIPO市場</div>
+  <div style="display:inline-flex;align-items:center;gap:12px;background:rgba(10,8,6,.55);border:1px solid rgba(232,133,10,.2);border-radius:3px;padding:10px 18px;margin-bottom:28px;position:relative;z-index:2;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)">
+  <div style="display:flex;align-items:center;gap:5px">
+    <div style="width:6px;height:6px;border-radius:50%;background:#22c55e;animation:blink 1.5s infinite"></div>
+    <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.5);letter-spacing:.12em;text-transform:uppercase">リアルタイム表示中</span>
+  </div>
+  <div style="width:1px;height:16px;background:rgba(255,255,255,.1)"></div>
+  <div style="display:flex;align-items:baseline;gap:4px">
+    <span style="font-family:var(--serif);font-size:24px;font-weight:900;color:var(--amber-light);line-height:1" id="hero-user-count">—</span>
+    <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.4);letter-spacing:.06em">ユーザー</span>
+  </div>
+  <div style="width:1px;height:16px;background:rgba(255,255,255,.1)"></div>
+  <div style="display:flex;align-items:baseline;gap:4px">
+    <span style="font-family:var(--serif);font-size:24px;font-weight:900;color:var(--amber-light);line-height:1" id="hero-idea-count">—</span>
+    <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.4);letter-spacing:.06em">件上場中</span>
+  </div>
+</div>
+<div class="hero-eyebrow"><div class="hero-eyebrow-dot"></div>アイデアIPO市場</div>
   <h1 class="hero-h1">
     <span class="l1">アイデアに、</span>
     <span class="l2 amber-stroke">市場が答える。</span>
@@ -935,6 +951,32 @@ async function loadLiveStats() {
 
 loadLiveStats();
 setInterval(loadLiveStats, 60000);
+
+// Hero realtime counts
+async function loadHeroCounts() {
+  try {
+    const [{ count: uc }, { count: ic }] = await Promise.all([
+      sbLP.from('profiles').select('id', { count: 'exact', head: true }),
+      sbLP.from('ideas').select('id', { count: 'exact', head: true })
+    ]);
+    function animHeroNum(el, target) {
+      if (!el || target === null) return;
+      let start = null;
+      function step(ts) {
+        if (!start) start = ts;
+        const p = Math.min((ts - start) / 1200, 1);
+        const eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = Math.round(eased * target);
+        if (p < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+    animHeroNum(document.getElementById('hero-user-count'), uc || 0);
+    animHeroNum(document.getElementById('hero-idea-count'), ic || 0);
+  } catch(e) {}
+}
+loadHeroCounts();
+setInterval(loadHeroCounts, 30000);
 </script>
 </body>
 </html>
