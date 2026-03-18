@@ -314,9 +314,14 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
 .btn-bar-fill.top{background:linear-gradient(90deg,var(--amber),var(--amber-bright))}
 .btn-count{font-family:var(--mono);font-size:18px;font-weight:500;color:var(--ink)}
 .btn-pct{font-family:var(--mono);font-size:9px;color:var(--ink3);text-align:right}
-.insight-card{background:var(--amber-light);border:1px solid var(--amber-border);border-radius:var(--r);padding:14px;margin-bottom:14px}
-.insight-title{font-family:var(--mono);font-size:9px;color:var(--amber);letter-spacing:.1em;font-weight:500;margin-bottom:10px;text-transform:uppercase}
-.insight-line{font-size:12px;color:var(--ink);line-height:1.7;padding:4px 0 4px 12px;border-left:2px solid var(--amber-border);margin-bottom:4px;font-weight:500}
+.insight-card{background:var(--amber-light);border:1px solid var(--amber-border);border-radius:var(--rs);padding:0;margin-bottom:10px;overflow:hidden}
+.insight-card-toggle{display:flex;align-items:center;gap:8px;padding:9px 12px;cursor:pointer;user-select:none}
+.insight-title{font-family:var(--mono);font-size:9px;color:var(--amber);letter-spacing:.1em;font-weight:500;text-transform:uppercase;flex:1}
+.insight-toggle-icon{font-family:var(--mono);font-size:10px;color:var(--amber);transition:transform .2s}
+.insight-toggle-icon.open{transform:rotate(180deg)}
+.insight-body{display:none;padding:0 12px 10px}
+.insight-body.open{display:block}
+.insight-line{font-size:11px;color:var(--ink2);line-height:1.6;padding:3px 0 3px 10px;border-left:2px solid var(--amber-border);margin-bottom:3px;font-weight:500}
 .insight-line:last-child{margin-bottom:0}
 
 /* ===== EMPTY / SKEL ===== */
@@ -720,9 +725,15 @@ async function loadLPAnalytics() {
   }
 
   document.getElementById('lp-insight-wrap').innerHTML = insights.length > 0
-    ? `<div class="insight-card" style="margin-bottom:20px">
-        <div class="insight-title">💡 インサイト</div>
-        ${insights.map(i=>`<div class="insight-line">${i}</div>`).join('')}
+    ? `<div class="insight-card">
+        <div class="insight-card-toggle" onclick="this.nextElementSibling.classList.toggle('open');this.querySelector('.insight-toggle-icon').classList.toggle('open')">
+          <span style="font-size:13px">💡</span>
+          <span class="insight-title">${insights.length}件のインサイト</span>
+          <span class="insight-toggle-icon">▼</span>
+        </div>
+        <div class="insight-body">
+          ${insights.map(i=>`<div class="insight-line">${i}</div>`).join('')}
+        </div>
       </div>`
     : '';
 
@@ -770,19 +781,35 @@ async function loadLPAnalytics() {
   const { data: ideas } = await sb.from('ideas').select('id,name,ticker');
   const im = {}; if(ideas) ideas.forEach(i=>im[i.id]=i);
 
-  document.getElementById('lp-timeline-body').innerHTML = all.slice(0,20).map(e => {
+  document.getElementById('lp-timeline-body').innerHTML = all.slice(0,40).map((e, idx) => {
     const isLp = e.utm_source === 'lp';
+    const isPageview = e.utm_source === 'lp_pageview';
     const btnInfo = isLp && e.utm_campaign ? (LP_BUTTONS[e.utm_campaign]||{name:e.utm_campaign,icon:'🔗'}) : null;
     const {label, icon} = normalize(e.referrer);
-    return `<div class="tl-row">
-      <div class="tl-dot" style="${isLp?'':'border-color:var(--border2);background:var(--bg)'}"></div>
-      <div class="tl-time" style="min-width:80px">
-        <div>${fmtDate(e.created_at)}</div>
-        <div style="color:var(--ink4);font-size:8px;margin-top:1px">${fmtAgo(e.created_at)}</div>
+    const detailId = 'tl-detail-' + idx;
+    const summary = isLp && btnInfo
+      ? `${btnInfo.icon} LP「${btnInfo.name}」から`
+      : isPageview
+      ? `📄 LP を開いた`
+      : `${icon} ${label}から`;
+    const detail = isLp
+      ? `utm_source=lp · campaign=${e.utm_campaign||'—'} · medium=${e.utm_medium||'—'}`
+      : isPageview
+      ? `LP開封 · referrer: ${e.referrer||'direct'}`
+      : `referrer: ${e.referrer||'direct'}`;
+    const dotColor = isLp ? 'border-color:var(--amber-bright);background:var(--amber-light)' : 'border-color:var(--border2);background:var(--bg)';
+    return `<div style="border-bottom:1px solid var(--border);cursor:pointer" onclick="document.getElementById('${detailId}').classList.toggle('open')">
+      <div style="display:flex;gap:10px;align-items:center;padding:8px 0">
+        <div style="width:7px;height:7px;border-radius:50%;border:1.5px solid;flex-shrink:0;margin-top:1px;${dotColor}"></div>
+        <div style="flex-shrink:0;min-width:90px">
+          <div style="font-family:var(--mono);font-size:10px;color:var(--ink2);font-weight:500">${fmtDate(e.created_at)}</div>
+          <div style="font-family:var(--mono);font-size:8px;color:var(--ink3);margin-top:1px">${fmtAgo(e.created_at)}</div>
+        </div>
+        <div style="flex:1;font-size:12px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${summary}</div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--ink3);flex-shrink:0">▼</div>
       </div>
-      <div>
-        <div class="tl-text">${isLp && btnInfo ? btnInfo.icon+' LP「'+btnInfo.name+'」から' : icon+' '+label+'から'}</div>
-        <div class="tl-sub">${isLp ? 'utm_source=lp' : (e.referrer||'direct')}</div>
+      <div id="${detailId}" class="ua-detail" style="margin-bottom:4px">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--ink3);line-height:1.7">${detail}</div>
       </div>
     </div>`;
   }).join('');
