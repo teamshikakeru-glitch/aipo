@@ -2007,39 +2007,11 @@ function renderCertCollection() {
   const rightSlots = slots.slice(16, 32);
 
   el.innerHTML = `
-    <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.07em;margin-bottom:8px">株券図鑑</div>
-
-    <!-- LATEST CERT CARD -->
-    ${certs.length > 0 ? `<div onclick="openZukanCert('${certs[0].id}')" style="cursor:pointer;position:relative;background:${certs[0].isEarly?'#fffdf5':'#faf8f4'};border:1px solid ${certs[0].isEarly?'#f0d080':'#e0d8cc'};border-radius:18px;overflow:hidden;display:flex;margin-bottom:12px;transition:transform .12s;box-shadow:0 2px 10px rgba(0,0,0,.07)" onmousedown="this.style.transform='scale(.98)'" onmouseup="this.style.transform='scale(1)'">
-      ${certs[0].isEarly?'<div style="position:absolute;top:0;left:0;right:0;height:4px;border-radius:18px 18px 0 0" class="gold-shimmer-line"></div>':''}
-      <div style="flex:1;padding:${certs[0].isEarly?'16px':'12px'} 12px 12px 14px">
-        ${certs[0].isEarly?'<div style=\'display:inline-flex;align-items:center;gap:3px;background:#fef9f0;border:1px solid #fde68a;border-radius:20px;padding:2px 8px;margin-bottom:7px\'><div style=\'width:3px;height:3px;border-radius:50%;background:#d97706\'></div><span style=\'font-family:var(--mono);font-size:7px;color:#854f0b;font-weight:700;letter-spacing:.05em\'>EARLY INVESTOR</span></div>':''}
-        <div style="font-family:var(--mono);font-size:7px;color:#a09080;letter-spacing:.1em;margin-bottom:4px">INVESTMENT CERTIFICATE</div>
-        <div style="font-size:14px;font-weight:700;color:#1a1400;line-height:1.35;margin-bottom:8px">${certs[0].name.length>20?certs[0].name.slice(0,20)+'…':certs[0].name}</div>
-        <div style="display:flex;gap:14px">
-          <div><div style="font-family:var(--mono);font-size:7px;color:#a09080;margin-bottom:1px">TICKER</div><div style="font-family:var(--mono);font-size:12px;font-weight:700;color:#1a1400">${certs[0].ticker}</div></div>
-          <div><div style="font-family:var(--mono);font-size:7px;color:#a09080;margin-bottom:1px">VOTES AT TIME</div><div style="font-family:var(--mono);font-size:12px;font-weight:700;color:#1a1400">${certs[0].votesAtTime}票目</div></div>
-        </div>
-        <div style="font-family:var(--mono);font-size:8px;color:#a09080;margin-top:6px">${certs[0].date}</div>
-      </div>
-      <div style="width:64px;flex-shrink:0;border-left:2px dashed #d4c9b8;background:#ede9e0;border-radius:0 18px 18px 0;display:flex;flex-direction:column;align-items:center;justify-content:space-around;padding:12px 0">
-        <div style="font-family:var(--mono);font-size:7px;color:#a09080;text-align:center">SERIAL<br>${certs[0].serial}</div>
-        <div style="width:38px;height:38px;border-radius:50%;border:2px solid #c0392b;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px">
-          <svg width="11" height="11" viewBox="0 0 20 20" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#c0392b" stroke-width="2" stroke-linecap="round"/></svg>
-          <span style="font-family:var(--mono);font-size:6px;color:#c0392b">DONE</span>
-        </div>
-        <div style="font-family:var(--mono);font-size:7px;color:#a09080">あいぽ</div>
-      </div>
-      <div style="position:absolute;bottom:10px;right:74px;display:flex;align-items:center;gap:2px">
-        <div style="font-family:var(--mono);font-size:9px;color:#a09080;font-weight:700">${certs.length}枚</div>
-        <svg width="9" height="9" viewBox="0 0 20 20" fill="none" stroke="#a09080" stroke-width="2.5"><path d="M7 5l5 5-5 5"/></svg>
-      </div>
-    </div>` : `<div onclick="openZukan()" style="border:1.5px dashed #d4c9b8;border-radius:18px;padding:22px;text-align:center;margin-bottom:12px;cursor:pointer">
-      <div style="font-size:11px;color:var(--text3);margin-bottom:3px">まだ株券がありません</div>
-      <div style="font-size:10px;color:var(--text3)">マーケットでアイデアを応援すると発行されます</div>
-    </div>`}
-
     <!-- BOOK -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.07em">株券図鑑</div>
+      ${certs.length === 0 ? '<div style="font-size:10px;color:var(--text3)">応援すると解禁されます</div>' : ''}
+    </div>
     <div style="background:var(--surface);border-radius:14px;overflow:hidden;border:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:12px">
       <div style="padding:8px 12px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between">
         <div style="font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:.06em">COLLECTION BOOK</div>
