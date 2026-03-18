@@ -1059,7 +1059,14 @@ function setGenre(el, genre) {
 }
 
 function setTab(el, tab) {
-  document.querySelectorAll('.seg-item').forEach(x => x.classList.remove('active'));
+  if (tab !== 'all' && currentTab === tab) {
+    currentTab = 'all';
+    document.querySelectorAll('[data-tab]').forEach(x => x.classList.remove('active'));
+    document.querySelector('[data-tab="all"]')?.classList.add('active');
+    renderFeed();
+    return;
+  }
+  document.querySelectorAll('[data-tab]').forEach(x => x.classList.remove('active'));
   el.classList.add('active'); currentTab = tab; renderFeed();
 }
 
