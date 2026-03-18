@@ -9,30 +9,18 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  --bg:#f5f0e8;
-  --surface:#fff;
-  --surface2:#faf7f2;
-  --ink:#1c1409;
-  --ink2:#4a3c28;
-  --ink3:#8c7a5e;
-  --ink4:#c4b49a;
-  --amber:#e8850a;
-  --amber-bg:#fff8ed;
-  --amber-border:#f5d68a;
-  --green:#1a7a4a;
-  --green-bg:#edf7f2;
-  --green-border:#9de0cc;
-  --red:#c0392b;
-  --border:rgba(28,20,9,0.09);
-  --border2:rgba(28,20,9,0.16);
-  --mono:'IBM Plex Mono',monospace;
-  --sans:'Noto Sans JP',sans-serif;
-  --r:14px;
-  --rs:8px;
+  --bg:#f5f0e8;--surface:#fff;--surface2:#faf7f2;
+  --ink:#1c1409;--ink2:#4a3c28;--ink3:#8c7a5e;--ink4:#c4b49a;
+  --amber:#e8850a;--amber-bg:#fff8ed;--amber-border:#f5d68a;
+  --green:#1a7a4a;--green-bg:#edf7f2;--green-border:#9de0cc;
+  --red:#c0392b;--red-bg:#fff0f0;
+  --border:rgba(28,20,9,0.09);--border2:rgba(28,20,9,0.16);
+  --mono:'IBM Plex Mono',monospace;--sans:'Noto Sans JP',sans-serif;
+  --r:14px;--rs:8px;
 }
 html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-height:100vh}
 
-/* ===== LOGIN ===== */
+/* LOGIN */
 #login-gate{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;padding:32px}
 .lg-logo{width:56px;height:56px;background:var(--ink);border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:24px;box-shadow:0 4px 20px rgba(28,20,9,.2)}
 .lg-logo svg{width:26px;height:26px}
@@ -42,7 +30,7 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
 .lg-btn{width:100%;max-width:300px;padding:15px;background:var(--ink);border:none;border-radius:var(--rs);color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--sans);display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 4px 16px rgba(28,20,9,.2)}
 .lg-err{display:none;margin-top:16px;font-family:var(--mono);font-size:11px;color:var(--red);text-align:center}
 
-/* ===== TOPBAR ===== */
+/* TOPBAR */
 .topbar{background:var(--ink);height:50px;display:flex;align-items:center;padding:0 16px;gap:12px;position:sticky;top:0;z-index:50}
 .tb-logo{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--amber);letter-spacing:.06em}
 .tb-sep{width:1px;height:16px;background:rgba(255,255,255,.15)}
@@ -52,57 +40,64 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
 .tb-dot{width:5px;height:5px;border-radius:50%;background:#4ade80;animation:blink 1.8s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 .tb-live-txt{font-family:var(--mono);font-size:9px;color:#4ade80;letter-spacing:.06em;font-weight:700}
-.tb-refresh{background:transparent;border:none;color:rgba(255,255,255,.5);cursor:pointer;font-size:16px;padding:4px;line-height:1;display:flex;align-items:center}
-.tb-refresh.spinning{animation:spin .6s linear infinite}
+.tb-refresh{background:transparent;border:none;color:rgba(255,255,255,.5);cursor:pointer;font-size:16px;padding:4px;line-height:1}
+.spinning{animation:spin .6s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* ===== MAIN ===== */
+/* TABS */
+.tab-wrap{background:var(--surface);border-bottom:1px solid var(--border);display:flex;overflow-x:auto;scrollbar-width:none;padding:0 14px;gap:4px}
+.tab-btn{background:transparent;border:none;padding:11px 14px;font-size:11px;font-weight:700;color:var(--ink3);cursor:pointer;font-family:var(--sans);white-space:nowrap;border-bottom:2px solid transparent;transition:all .15s}
+.tab-btn.active{color:var(--amber);border-bottom-color:var(--amber)}
+
+/* MAIN */
 .main{padding:16px 14px 80px}
 .section-title{font-family:var(--mono);font-size:9px;color:var(--ink3);letter-spacing:.12em;text-transform:uppercase;margin:0 2px 10px;display:flex;align-items:center;gap:8px}
 .section-title::after{content:'';flex:1;height:1px;background:var(--border)}
 
-/* ===== KPI GRID ===== */
+/* KPI */
 .kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
 .kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;position:relative;overflow:hidden;box-shadow:0 1px 6px rgba(28,20,9,.06)}
 .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2.5px;background:var(--amber);border-radius:var(--r) var(--r) 0 0}
 .kpi-card.green::before{background:var(--green)}
+.kpi-card.red::before{background:var(--red)}
 .kpi-lbl{font-family:var(--mono);font-size:8px;color:var(--ink3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
 .kpi-val{font-family:var(--mono);font-size:32px;font-weight:700;color:var(--amber);line-height:1;margin-bottom:5px}
 .kpi-val.green{color:var(--green)}
+.kpi-val.ink{color:var(--ink)}
 .kpi-sub{font-size:10px;color:var(--ink3)}
 
-/* ===== PANEL ===== */
+/* PANEL */
 .panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:14px;box-shadow:0 1px 6px rgba(28,20,9,.06);overflow:hidden}
 .panel-head{padding:14px 16px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
 .panel-title{font-family:var(--mono);font-size:9px;color:var(--amber);letter-spacing:.1em;font-weight:700}
 .panel-meta{font-family:var(--mono);font-size:8px;color:var(--ink4)}
 .panel-body{padding:12px 16px}
 
-/* ===== SOURCE ROWS ===== */
+/* LP BUTTON ROWS - メイン機能 */
+.btn-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border)}
+.btn-row:last-child{border-bottom:none}
+.btn-label{flex:1;min-width:0}
+.btn-name{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:2px}
+.btn-campaign{font-family:var(--mono);font-size:9px;color:var(--ink3)}
+.btn-bar-wrap{flex:1;min-width:0}
+.btn-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:4px}
+.btn-bar-fill{height:100%;background:var(--amber);border-radius:3px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.btn-bar-fill.top{background:linear-gradient(90deg,var(--amber),#bf6d00)}
+.btn-count{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--ink);text-align:right;flex-shrink:0;min-width:36px}
+.btn-pct{font-family:var(--mono);font-size:9px;color:var(--ink3);text-align:right}
+
+/* SOURCE ROWS */
 .src-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
 .src-row:last-child{border-bottom:none}
 .src-icon{width:32px;height:32px;border-radius:var(--rs);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;background:var(--surface2);border:1px solid var(--border)}
 .src-info{flex:1;min-width:0}
-.src-name{font-size:12px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:2px}
-.src-url{font-family:var(--mono);font-size:9px;color:var(--ink3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.src-right{text-align:right;flex-shrink:0}
-.src-count{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--ink);line-height:1}
-.src-pct{font-family:var(--mono);font-size:9px;color:var(--ink3)}
-.src-bar{height:3px;background:var(--border);border-radius:2px;margin-top:6px;overflow:hidden}
-.src-bar-fill{height:100%;background:var(--amber);border-radius:2px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.src-name{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:3px}
+.src-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.src-bar-fill{height:100%;background:var(--amber);border-radius:2px;transition:width .8s}
+.src-count{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--ink);flex-shrink:0;text-align:right;min-width:36px}
+.src-pct{font-family:var(--mono);font-size:9px;color:var(--ink3);text-align:right}
 
-/* ===== PAGE ROWS ===== */
-.page-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
-.page-row:last-child{border-bottom:none}
-.page-rank{font-family:var(--mono);font-size:10px;color:var(--ink4);min-width:22px;font-weight:700}
-.page-info{flex:1;min-width:0}
-.page-name{font-size:12px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:2px}
-.page-path{font-family:var(--mono);font-size:9px;color:var(--ink3)}
-.page-count{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--amber);flex-shrink:0}
-.page-bar{height:3px;background:var(--border);border-radius:2px;margin-top:6px;overflow:hidden}
-.page-bar-fill{height:100%;background:linear-gradient(90deg,var(--amber),#bf6d00);border-radius:2px}
-
-/* ===== TIMELINE ===== */
+/* TIMELINE */
 .tl-row{display:flex;gap:12px;padding:9px 0;border-bottom:1px solid var(--border);align-items:flex-start}
 .tl-row:last-child{border-bottom:none}
 .tl-dot{width:7px;height:7px;border-radius:50%;background:var(--amber-bg);border:1.5px solid var(--amber);flex-shrink:0;margin-top:4px}
@@ -110,16 +105,30 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
 .tl-text{font-size:12px;color:var(--ink);line-height:1.45}
 .tl-sub{font-family:var(--mono);font-size:9px;color:var(--ink3);margin-top:2px}
 
-/* ===== IDEA TABLE ===== */
-.idea-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer}
+/* INSIGHT CARD */
+.insight-card{background:linear-gradient(135deg,var(--amber-bg),#fff8e0);border:1.5px solid var(--amber-border);border-radius:var(--r);padding:16px;margin-bottom:14px}
+.insight-title{font-family:var(--mono);font-size:9px;color:var(--amber);letter-spacing:.1em;font-weight:700;margin-bottom:10px}
+.insight-line{font-size:13px;color:var(--ink);line-height:1.7;margin-bottom:6px;display:flex;align-items:flex-start;gap:8px}
+.insight-line::before{content:'→';font-family:var(--mono);color:var(--amber);flex-shrink:0;margin-top:1px}
+
+/* HOURLY */
+.hour-chart{display:flex;align-items:flex-end;gap:3px;height:64px;padding-top:4px;margin-bottom:4px}
+.hour-bar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px}
+.hour-bar-fill{width:100%;border-radius:2px 2px 0 0;background:var(--amber);min-height:2px;transition:height .6s}
+.hour-bar-fill.now{background:var(--green)}
+.hour-labels{display:flex;gap:3px}
+.hour-lbl{flex:1;text-align:center;font-family:var(--mono);font-size:7px;color:var(--ink4)}
+
+/* IDEA TABLE */
+.idea-row{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--border)}
 .idea-row:last-child{border-bottom:none}
 .idea-rank{font-family:var(--mono);font-size:9px;color:var(--ink4);min-width:18px}
-.idea-ticker{font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:3px;padding:1px 5px;flex-shrink:0;white-space:nowrap}
+.idea-ticker{font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:3px;padding:1px 5px;flex-shrink:0}
 .idea-name{flex:1;font-size:12px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 .idea-score{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--green);flex-shrink:0}
-.idea-votes{font-family:var(--mono);font-size:10px;color:var(--ink3);flex-shrink:0;min-width:28px;text-align:right}
+.idea-views{font-family:var(--mono);font-size:10px;color:var(--ink3);flex-shrink:0;min-width:28px;text-align:right}
 
-/* ===== USERS ===== */
+/* USERS */
 .user-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
 .user-row:last-child{border-bottom:none}
 .user-av{width:34px;height:34px;border-radius:50%;background:var(--amber-bg);border:1.5px solid var(--amber-border);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--amber);flex-shrink:0}
@@ -131,28 +140,12 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
 .badge.pro{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
 .badge.free{background:var(--surface2);color:var(--ink3);border:1px solid var(--border)}
 
-/* ===== HOURLY ===== */
-.hour-chart{display:flex;align-items:flex-end;gap:3px;height:64px;padding-top:4px;margin-bottom:4px}
-.hour-bar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px}
-.hour-bar-fill{width:100%;border-radius:2px 2px 0 0;background:var(--amber);min-height:2px;transition:height .6s}
-.hour-bar-fill.now{background:var(--green)}
-.hour-labels{display:flex;gap:3px}
-.hour-lbl{flex:1;text-align:center;font-family:var(--mono);font-size:7px;color:var(--ink4)}
-
-/* ===== EMPTY ===== */
+/* EMPTY / SKELETON */
 .empty{padding:28px 16px;text-align:center}
 .empty-ico{font-size:24px;margin-bottom:8px;opacity:.4}
 .empty-txt{font-family:var(--mono);font-size:10px;color:var(--ink3);letter-spacing:.06em}
-
-/* ===== SKELETON ===== */
 .skel{background:linear-gradient(90deg,var(--surface2) 25%,var(--border) 50%,var(--surface2) 75%);background-size:200% 100%;animation:sh 1.3s infinite;border-radius:4px;height:12px;margin-bottom:8px}
 @keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
-
-/* ===== BOTTOM NAV ===== */
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);display:flex;z-index:40;padding-bottom:env(safe-area-inset-bottom)}
-.bn-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:10px 0;cursor:pointer;font-size:9px;font-weight:700;color:var(--ink3);font-family:var(--mono);letter-spacing:.04em;transition:color .15s}
-.bn-item.active{color:var(--amber)}
-.bn-item svg{width:20px;height:20px}
 </style>
 </head>
 <body>
@@ -167,7 +160,7 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
   </div>
   <div class="lg-tag">AIPO · COMMAND CENTER</div>
   <div class="lg-title">管理ダッシュボード</div>
-  <div class="lg-sub">中川さん専用<br>他のアカウントはアクセス不可</div>
+  <div class="lg-sub">中川さん専用</div>
   <button class="lg-btn" onclick="doAdminLogin()">
     <svg width="16" height="16" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
     Googleでログイン
@@ -176,7 +169,7 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
 </div>
 
 <!-- DASHBOARD -->
-<div id="dashboard">
+<div id="dashboard" style="display:none">
   <div class="topbar">
     <div class="tb-logo">AIPO</div>
     <div class="tb-sep"></div>
@@ -184,24 +177,73 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
     <div class="tb-spacer"></div>
     <div class="tb-live"><div class="tb-dot"></div><span class="tb-live-txt">LIVE</span></div>
     <button class="tb-refresh" id="refresh-btn" onclick="loadAll()">
-      <span class="spin" id="spin-icon">↺</span>
+      <span id="spin-icon">↺</span>
     </button>
   </div>
 
-  <!-- PAGE TABS -->
-  <div style="background:var(--surface);border-bottom:1px solid var(--border);display:flex;overflow-x:auto;scrollbar-width:none;padding:0 14px;gap:4px">
-    <button class="tab-btn active" onclick="showTab('overview')" id="tab-overview">概要</button>
-    <button class="tab-btn" onclick="showTab('sources')" id="tab-sources">流入元</button>
+  <div class="tab-wrap">
+    <button class="tab-btn active" onclick="showTab('lp')" id="tab-lp">LPの成果</button>
+    <button class="tab-btn" onclick="showTab('overview')" id="tab-overview">概要</button>
     <button class="tab-btn" onclick="showTab('ideas')" id="tab-ideas">アイデア</button>
     <button class="tab-btn" onclick="showTab('users')" id="tab-users">ユーザー</button>
   </div>
-  <style>
-    .tab-btn{background:transparent;border:none;padding:11px 14px;font-size:11px;font-weight:700;color:var(--ink3);cursor:pointer;font-family:var(--sans);white-space:nowrap;border-bottom:2px solid transparent;transition:all .15s}
-    .tab-btn.active{color:var(--amber);border-bottom-color:var(--amber)}
-  </style>
+
+  <!-- LP TAB（メイン） -->
+  <div id="tab-content-lp" class="main">
+
+    <div class="section-title">LPからあいぽに来た人数</div>
+    <div class="kpi-grid" style="margin-bottom:20px">
+      <div class="kpi-card">
+        <div class="kpi-lbl">LP経由 累計</div>
+        <div class="kpi-val ink" id="lp-total">—</div>
+        <div class="kpi-sub">user_events</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-lbl">LP経由 今日</div>
+        <div class="kpi-val green" id="lp-today">—</div>
+        <div class="kpi-sub">本日のLP流入</div>
+      </div>
+    </div>
+
+    <div id="lp-insight-wrap"></div>
+
+    <div class="section-title">LPのどのボタンから来たか</div>
+    <div class="panel" style="margin-bottom:20px">
+      <div class="panel-head">
+        <div class="panel-title">BUTTON PERFORMANCE</div>
+        <div class="panel-meta" id="lp-btn-total-meta">累計</div>
+      </div>
+      <div class="panel-body" id="lp-buttons-body">
+        <div class="skel"></div><div class="skel" style="width:70%"></div>
+      </div>
+    </div>
+
+    <div class="section-title">LP以外からの流入</div>
+    <div class="panel" style="margin-bottom:20px">
+      <div class="panel-head">
+        <div class="panel-title">OTHER SOURCES</div>
+        <div class="panel-meta" id="other-total-meta"></div>
+      </div>
+      <div class="panel-body" id="other-sources-body">
+        <div class="skel"></div>
+      </div>
+    </div>
+
+    <div class="section-title">直近の流入タイムライン</div>
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">RECENT EVENTS</div>
+        <div class="panel-meta">直近20件</div>
+      </div>
+      <div class="panel-body" id="lp-timeline-body">
+        <div class="skel"></div>
+      </div>
+    </div>
+  </div>
 
   <!-- OVERVIEW TAB -->
-  <div id="tab-content-overview" class="main">
+  <div id="tab-content-overview" class="main" style="display:none">
+    <div class="section-title">サマリー</div>
     <div class="kpi-grid">
       <div class="kpi-card"><div class="kpi-lbl">USERS</div><div class="kpi-val" id="kpi-users">—</div><div class="kpi-sub">登録者数</div></div>
       <div class="kpi-card"><div class="kpi-lbl">IDEAS</div><div class="kpi-val" id="kpi-ideas">—</div><div class="kpi-sub">上場中</div></div>
@@ -225,33 +267,6 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
     </div>
   </div>
 
-  <!-- SOURCES TAB -->
-  <div id="tab-content-sources" class="main" style="display:none">
-    <div class="section-title">どこから来たか（流入元）</div>
-    <div class="panel" style="margin-bottom:14px">
-      <div class="panel-head"><div class="panel-title">REFERRER SOURCE</div><div class="panel-meta" id="src-total-meta">—件</div></div>
-      <div class="panel-body" id="sources-body">
-        <div class="skel"></div><div class="skel" style="width:60%"></div>
-      </div>
-    </div>
-
-    <div class="section-title">UTM パラメータ</div>
-    <div class="panel" style="margin-bottom:14px">
-      <div class="panel-head"><div class="panel-title">UTM SOURCE</div></div>
-      <div class="panel-body" id="utm-source-body"><div class="skel"></div></div>
-    </div>
-    <div class="panel" style="margin-bottom:14px">
-      <div class="panel-head"><div class="panel-title">UTM CAMPAIGN</div></div>
-      <div class="panel-body" id="utm-campaign-body"><div class="skel"></div></div>
-    </div>
-
-    <div class="section-title">どのアイデアから来たか</div>
-    <div class="panel">
-      <div class="panel-head"><div class="panel-title">IDEA REFERRAL</div><div class="panel-meta">シェアURL経由</div></div>
-      <div class="panel-body" id="idea-ref-body"><div class="skel"></div></div>
-    </div>
-  </div>
-
   <!-- IDEAS TAB -->
   <div id="tab-content-ideas" class="main" style="display:none">
     <div class="section-title">閲覧数ランキング</div>
@@ -259,7 +274,6 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
       <div class="panel-head"><div class="panel-title">MOST VIEWED</div><div class="panel-meta">idea_views</div></div>
       <div class="panel-body" id="most-viewed-body"><div class="skel"></div></div>
     </div>
-
     <div class="section-title">スコア順</div>
     <div class="panel">
       <div class="panel-head"><div class="panel-title">ALL IDEAS</div></div>
@@ -275,7 +289,6 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
       <div class="panel-body" id="users-body"><div class="skel"></div></div>
     </div>
   </div>
-
 </div>
 
 <script>
@@ -283,6 +296,16 @@ const SUPABASE_URL = 'https://qjffvspnnxyykoyhnazm.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqZmZ2c3Bubnh5eWtveWhuYXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzMTIxMzMsImV4cCI6MjA4Njg4ODEzM30.OqeeMZs73RjKY5POW-naf0dB8sFWfZDUKaKvE99EiBo';
 const ADMIN_ID = '7f3162ec-c281-435f-8e8e-3b6d65b8b1c9';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// LPボタンの定義（campaign → 表示名）
+const LP_BUTTONS = {
+  'start_free':  { name: 'ヒーロー「無料ではじめる」', icon: '🚀', medium: 'hero' },
+  'list_idea':   { name: 'マーケット「アイデアを上場する」', icon: '📈', medium: 'market' },
+  'free_plan':   { name: '料金プラン「無料ではじめる」', icon: '💰', medium: 'pricing' },
+  'open_app':    { name: 'ナビ/フッター「アプリを開く」', icon: '🔗', medium: 'nav/footer' },
+  'vote':        { name: 'マーケットカード「応援」', icon: '🗳', medium: 'market_card' },
+  'see_all':     { name: '「すべてのアイデアを見る」', icon: '👁', medium: 'market_all' },
+};
 
 function timeAgo(dateStr) {
   const str = dateStr.endsWith('Z') ? dateStr : dateStr + 'Z';
@@ -295,23 +318,8 @@ function timeAgo(dateStr) {
   return Math.floor(h/24)+'日前';
 }
 
-function normalizeRef(ref) {
-  if (!ref || ref === 'direct' || ref === '') return {label:'direct', icon:'🔗'};
-  try {
-    const url = new URL(ref.startsWith('http') ? ref : 'https://'+ref);
-    const h = url.hostname.replace(/^www\./,'');
-    if (h.includes('t.co') || h.includes('twitter') || h.includes('x.com')) return {label:'X (Twitter)', icon:'🐦', url:h};
-    if (h.includes('google')) return {label:'Google', icon:'🔍', url:h};
-    if (h.includes('vercel.app') || h.includes('aipo')) return {label:'あいぽ内部', icon:'💡', url:h};
-    if (h.includes('localhost')) return {label:'localhost', icon:'💻', url:h};
-    if (h.includes('instagram')) return {label:'Instagram', icon:'📸', url:h};
-    if (h.includes('line')) return {label:'LINE', icon:'💚', url:h};
-    return {label:h, icon:'🌐', url:h};
-  } catch(e) { return {label:ref.slice(0,30), icon:'🌐'}; }
-}
-
 function showTab(name) {
-  ['overview','sources','ideas','users'].forEach(t => {
+  ['lp','overview','ideas','users'].forEach(t => {
     document.getElementById('tab-content-'+t).style.display = t===name ? '' : 'none';
     document.getElementById('tab-'+t).classList.toggle('active', t===name);
   });
@@ -325,8 +333,151 @@ async function doAdminLogin() {
   if (error) alert('ログイン失敗: '+error.message);
 }
 
-// ===== DATA LOADERS =====
+// ===== LP ANALYTICS（メイン機能）=====
+async function loadLPAnalytics() {
+  const today = new Date().toISOString().slice(0,10);
+  const { data: all } = await sb.from('user_events').select('utm_source, utm_medium, utm_campaign, referrer, created_at').order('created_at', { ascending: false });
 
+  if (!all || all.length === 0) {
+    document.getElementById('lp-total').textContent = '0';
+    document.getElementById('lp-today').textContent = '0';
+    document.getElementById('lp-buttons-body').innerHTML = '<div class="empty"><div class="empty-ico">📊</div><div class="empty-txt">まだLP経由のデータがありません<br>lp.htmlをGitHubにアップすると計測開始</div></div>';
+    document.getElementById('other-sources-body').innerHTML = '<div class="empty"><div class="empty-icon">—</div><div class="empty-txt">データなし</div></div>';
+    document.getElementById('lp-timeline-body').innerHTML = '<div class="empty"><div class="empty-ico">—</div><div class="empty-txt">データなし</div></div>';
+    return;
+  }
+
+  // LP経由（utm_source=lp）とそれ以外を分離
+  const lpEvents = all.filter(e => e.utm_source === 'lp');
+  const otherEvents = all.filter(e => e.utm_source !== 'lp');
+  const todayLp = lpEvents.filter(e => e.created_at.slice(0,10) === today);
+
+  document.getElementById('lp-total').textContent = lpEvents.length;
+  document.getElementById('lp-today').textContent = todayLp.length;
+  document.getElementById('lp-btn-total-meta').textContent = `LP経由 累計${lpEvents.length}件`;
+
+  // ===== LP ボタン別集計 =====
+  const btnCounts = {};
+  lpEvents.forEach(e => {
+    const key = e.utm_campaign || 'unknown';
+    btnCounts[key] = (btnCounts[key]||0) + 1;
+  });
+
+  const btnSorted = Object.entries(btnCounts).sort((a,b)=>b[1]-a[1]);
+  const maxBtn = btnSorted[0]?.[1] || 1;
+
+  if (btnSorted.length === 0) {
+    document.getElementById('lp-buttons-body').innerHTML = '<div class="empty"><div class="empty-ico">📊</div><div class="empty-txt">LP経由のデータがありません</div></div>';
+  } else {
+    document.getElementById('lp-buttons-body').innerHTML = btnSorted.map(([campaign, cnt], idx) => {
+      const info = LP_BUTTONS[campaign] || { name: campaign, icon: '🔗', medium: '—' };
+      const pct = Math.round(cnt / lpEvents.length * 100);
+      const isTop = idx === 0;
+      return `<div class="btn-row">
+        <div style="font-size:18px;flex-shrink:0">${info.icon}</div>
+        <div class="btn-label">
+          <div class="btn-name">${info.name}</div>
+          <div class="btn-campaign">${campaign}</div>
+        </div>
+        <div class="btn-bar-wrap">
+          <div class="btn-bar">
+            <div class="btn-bar-fill ${isTop?'top':''}" style="width:${Math.round(cnt/maxBtn*100)}%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="btn-count">${cnt}</div>
+          <div class="btn-pct">${pct}%</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // ===== インサイト自動生成 =====
+  const insights = [];
+  if (btnSorted.length > 0) {
+    const topBtn = LP_BUTTONS[btnSorted[0][0]] || { name: btnSorted[0][0] };
+    insights.push(`一番効いているボタンは「${topBtn.name}」（${btnSorted[0][1]}件）`);
+  }
+  if (lpEvents.length > 0 && all.length > 0) {
+    const lpPct = Math.round(lpEvents.length / all.length * 100);
+    insights.push(`全流入の${lpPct}%がLPからです`);
+  }
+  if (todayLp.length > 0) {
+    insights.push(`今日は${todayLp.length}人がLPから来ました`);
+  }
+  if (btnSorted.length >= 2) {
+    const last = btnSorted[btnSorted.length-1];
+    const lastInfo = LP_BUTTONS[last[0]] || { name: last[0] };
+    insights.push(`「${lastInfo.name}」は${last[1]}件と少ない — ボタンの改善余地あり`);
+  }
+
+  document.getElementById('lp-insight-wrap').innerHTML = insights.length > 0
+    ? `<div class="insight-card" style="margin-bottom:20px">
+        <div class="insight-title">💡 インサイト</div>
+        ${insights.map(i=>`<div class="insight-line">${i}</div>`).join('')}
+      </div>`
+    : '';
+
+  // ===== その他流入元 =====
+  const normalize = (ref) => {
+    if (!ref || ref === 'direct') return { label:'direct', icon:'🔗' };
+    try {
+      const url = new URL(ref.startsWith('http') ? ref : 'https://'+ref);
+      const h = url.hostname.replace(/^www\./,'');
+      if (h.includes('t.co')||h.includes('twitter')||h.includes('x.com')) return {label:'X (Twitter)', icon:'🐦'};
+      if (h.includes('google')) return {label:'Google', icon:'🔍'};
+      if (h.includes('vercel.app')) return {label:'あいぽ内部', icon:'💡'};
+      if (h.includes('localhost')) return {label:'localhost', icon:'💻'};
+      return {label:h, icon:'🌐'};
+    } catch(e) { return {label:ref.slice(0,30), icon:'🌐'}; }
+  };
+
+  const otherCounts = {};
+  otherEvents.forEach(e => {
+    const {label} = normalize(e.referrer);
+    otherCounts[label] = (otherCounts[label]||0)+1;
+  });
+  const otherSorted = Object.entries(otherCounts).sort((a,b)=>b[1]-a[1]);
+  const maxOther = otherSorted[0]?.[1]||1;
+
+  document.getElementById('other-total-meta').textContent = `${otherEvents.length}件`;
+  document.getElementById('other-sources-body').innerHTML = otherSorted.length === 0
+    ? '<div class="empty"><div class="empty-ico">—</div><div class="empty-txt">LP以外からの流入なし</div></div>'
+    : otherSorted.map(([label, cnt]) => {
+        const {icon} = normalize(label==='direct'?'direct':'https://'+label);
+        return `<div class="src-row">
+          <div class="src-icon">${icon}</div>
+          <div class="src-info">
+            <div class="src-name">${label}</div>
+            <div class="src-bar"><div class="src-bar-fill" style="width:${Math.round(cnt/maxOther*100)}%"></div></div>
+          </div>
+          <div>
+            <div class="src-count">${cnt}</div>
+            <div class="src-pct">${Math.round(cnt/otherEvents.length*100)}%</div>
+          </div>
+        </div>`;
+      }).join('');
+
+  // ===== タイムライン =====
+  const { data: ideas } = await sb.from('ideas').select('id,name,ticker');
+  const im = {}; if(ideas) ideas.forEach(i=>im[i.id]=i);
+
+  document.getElementById('lp-timeline-body').innerHTML = all.slice(0,20).map(e => {
+    const isLp = e.utm_source === 'lp';
+    const btnInfo = isLp && e.utm_campaign ? (LP_BUTTONS[e.utm_campaign]||{name:e.utm_campaign,icon:'🔗'}) : null;
+    const {label, icon} = normalize(e.referrer);
+    return `<div class="tl-row">
+      <div class="tl-dot" style="${isLp?'':'border-color:var(--ink3);background:var(--surface2)'}"></div>
+      <div class="tl-time">${timeAgo(e.created_at)}</div>
+      <div>
+        <div class="tl-text">${isLp && btnInfo ? btnInfo.icon+' LP「'+btnInfo.name+'」から' : icon+' '+label+'から'}</div>
+        <div class="tl-sub">${isLp ? 'utm_source=lp' : (e.referrer||'direct')}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ===== OVERVIEW =====
 async function loadKPI() {
   const [uR, fR, iR, vR] = await Promise.all([
     sb.from('profiles').select('id',{count:'exact',head:true}),
@@ -344,170 +495,51 @@ async function loadKPI() {
 
 async function loadHourly() {
   const today = new Date().toISOString().slice(0,10);
-  const {data} = await sb.from('idea_views').select('viewed_at')
-    .gte('viewed_at', today+'T00:00:00Z').lt('viewed_at', today+'T23:59:59Z');
+  const {data} = await sb.from('idea_views').select('viewed_at').gte('viewed_at', today+'T00:00:00Z').lt('viewed_at', today+'T23:59:59Z');
   const hours = Array(24).fill(0);
   if (data) data.forEach(v => { const h = new Date(v.viewed_at.endsWith('Z')?v.viewed_at:v.viewed_at+'Z').getHours(); hours[h]++; });
   const max = Math.max(...hours, 1);
   const now = new Date().getHours();
-  const chart = document.getElementById('hourly-chart');
-  const labels = document.getElementById('hourly-labels');
-  chart.innerHTML = hours.map((v,h) => {
-    const pct = Math.round(v/max*100);
-    const isNow = h===now;
-    return `<div class="hour-bar">
-      ${v>0?`<span style="font-family:var(--mono);font-size:7px;color:var(--ink3)">${v}</span>`:''}
-      <div class="hour-bar-fill ${isNow?'now':''}" style="height:${Math.max(pct*0.56,2)}px"></div>
-    </div>`;
-  }).join('');
-  labels.innerHTML = hours.map((_,h) => `<div class="hour-lbl">${h%6===0?h+'h':''}</div>`).join('');
+  document.getElementById('hourly-chart').innerHTML = hours.map((v,h) => `<div class="hour-bar"><div class="hour-bar-fill ${h===now?'now':''}" style="height:${Math.max(v/max*56,2)}px"></div></div>`).join('');
+  document.getElementById('hourly-labels').innerHTML = hours.map((_,h) => `<div class="hour-lbl">${h%6===0?h+'h':''}</div>`).join('');
 }
 
 async function loadRecent() {
   const {data:views} = await sb.from('idea_views').select('idea_id,viewed_at').order('viewed_at',{ascending:false}).limit(15);
-  if (!views || views.length===0) { document.getElementById('recent-body').innerHTML='<div class="empty"><div class="empty-ico">👁</div><div class="empty-txt">まだ閲覧データがありません</div></div>'; return; }
+  if (!views||views.length===0) { document.getElementById('recent-body').innerHTML='<div class="empty"><div class="empty-ico">👁</div><div class="empty-txt">まだ閲覧データがありません</div></div>'; return; }
   const {data:ideas} = await sb.from('ideas').select('id,name,ticker');
-  const im = {}; if(ideas) ideas.forEach(i=>im[i.id]=i);
+  const im={}; if(ideas) ideas.forEach(i=>im[i.id]=i);
   document.getElementById('recent-body').innerHTML = views.map(v => {
     const idea = im[v.idea_id];
-    return `<div class="tl-row">
-      <div class="tl-dot"></div>
-      <div class="tl-time">${timeAgo(v.viewed_at)}</div>
-      <div>
-        <div class="tl-text">${idea?idea.name:'不明なアイデア'}</div>
-        <div class="tl-sub">${idea?idea.ticker:'—'}</div>
-      </div>
-    </div>`;
+    return `<div class="tl-row"><div class="tl-dot"></div><div class="tl-time">${timeAgo(v.viewed_at)}</div><div><div class="tl-text">${idea?idea.name:'不明'}</div><div class="tl-sub">${idea?idea.ticker:'—'}</div></div></div>`;
   }).join('');
 }
 
-async function loadSources() {
-  const {data} = await sb.from('user_events').select('referrer,utm_source,utm_campaign,idea_id,created_at').order('created_at',{ascending:false});
-  if (!data || data.length===0) {
-    ['sources-body','utm-source-body','utm-campaign-body','idea-ref-body'].forEach(id => {
-      document.getElementById(id).innerHTML = '<div class="empty"><div class="empty-ico">📡</div><div class="empty-txt">まだデータがありません</div></div>';
-    });
-    return;
-  }
-
-  document.getElementById('src-total-meta').textContent = data.length+'件';
-
-  // Referrers
-  const refCounts = {};
-  data.forEach(r => {
-    const {label} = normalizeRef(r.referrer);
-    refCounts[label] = (refCounts[label]||0)+1;
-  });
-  const total = data.length;
-  const refSorted = Object.entries(refCounts).sort((a,b)=>b[1]-a[1]);
-  const maxRef = refSorted[0]?.[1]||1;
-  document.getElementById('sources-body').innerHTML = refSorted.map(([label,cnt]) => {
-    const {icon, url} = normalizeRef(label==='direct'?'direct':'https://'+label);
-    const pct = Math.round(cnt/total*100);
-    return `<div class="src-row">
-      <div class="src-icon">${icon}</div>
-      <div class="src-info">
-        <div class="src-name">${label}</div>
-        <div class="src-url">${url||'直接アクセス'}</div>
-        <div class="src-bar"><div class="src-bar-fill" style="width:${Math.round(cnt/maxRef*100)}%"></div></div>
-      </div>
-      <div class="src-right">
-        <div class="src-count">${cnt}</div>
-        <div class="src-pct">${pct}%</div>
-      </div>
-    </div>`;
-  }).join('');
-
-  // UTM source
-  const utmSrc = {}; data.forEach(r=>{if(r.utm_source)utmSrc[r.utm_source]=(utmSrc[r.utm_source]||0)+1;});
-  const utmSrcS = Object.entries(utmSrc).sort((a,b)=>b[1]-a[1]);
-  document.getElementById('utm-source-body').innerHTML = utmSrcS.length===0
-    ? '<div class="empty"><div class="empty-ico">—</div><div class="empty-txt">UTMデータなし</div></div>'
-    : utmSrcS.map(([k,v])=>`<div class="page-row"><div class="page-info"><div class="page-name">${k}</div></div><div class="page-count">${v}</div></div>`).join('');
-
-  // UTM campaign
-  const utmCamp = {}; data.forEach(r=>{if(r.utm_campaign)utmCamp[r.utm_campaign]=(utmCamp[r.utm_campaign]||0)+1;});
-  const utmCampS = Object.entries(utmCamp).sort((a,b)=>b[1]-a[1]);
-  document.getElementById('utm-campaign-body').innerHTML = utmCampS.length===0
-    ? '<div class="empty"><div class="empty-ico">—</div><div class="empty-txt">キャンペーンデータなし</div></div>'
-    : utmCampS.map(([k,v])=>`<div class="page-row"><div class="page-info"><div class="page-name">${k}</div></div><div class="page-count">${v}</div></div>`).join('');
-
-  // Idea referrals
-  const ideaRef = {}; data.forEach(r=>{if(r.idea_id)ideaRef[r.idea_id]=(ideaRef[r.idea_id]||0)+1;});
-  if (Object.keys(ideaRef).length===0) {
-    document.getElementById('idea-ref-body').innerHTML='<div class="empty"><div class="empty-ico">💡</div><div class="empty-txt">シェアURL経由の流入なし</div></div>';
-  } else {
-    const {data:ideas} = await sb.from('ideas').select('id,name,ticker');
-    const im={}; if(ideas) ideas.forEach(i=>im[i.id]=i);
-    const sorted = Object.entries(ideaRef).sort((a,b)=>b[1]-a[1]);
-    const maxI = sorted[0]?.[1]||1;
-    document.getElementById('idea-ref-body').innerHTML = sorted.map(([id,cnt],idx) => {
-      const idea = im[id];
-      return `<div class="page-row">
-        <div class="page-rank">${String(idx+1).padStart(2,'0')}</div>
-        <div class="page-info">
-          <div class="page-name">${idea?idea.name:id.slice(0,12)}</div>
-          <div class="page-path">${idea?idea.ticker:'—'}</div>
-          <div class="page-bar"><div class="page-bar-fill" style="width:${Math.round(cnt/maxI*100)}%"></div></div>
-        </div>
-        <div class="page-count">${cnt}</div>
-      </div>`;
-    }).join('');
-  }
-}
-
+// ===== IDEAS =====
 async function loadIdeas() {
   const {data:views} = await sb.from('idea_views').select('idea_id');
   const vm={}; if(views) views.forEach(v=>{vm[v.idea_id]=(vm[v.idea_id]||0)+1;});
-
-  const {data:ideas} = await sb.from('ideas').select('id,ticker,name,genre,votes,score,progress_step').order('score',{ascending:false});
+  const {data:ideas} = await sb.from('ideas').select('id,ticker,name,genre,votes,score').order('score',{ascending:false});
   if (!ideas||ideas.length===0) { document.getElementById('most-viewed-body').innerHTML='<div class="empty"><div class="empty-ico">💡</div><div class="empty-txt">アイデアなし</div></div>'; return; }
-
-  // Most viewed
   const byViews = [...ideas].sort((a,b)=>(vm[b.id]||0)-(vm[a.id]||0));
   const maxV = Math.max(...byViews.map(i=>vm[i.id]||0),1);
-  document.getElementById('most-viewed-body').innerHTML = byViews.slice(0,10).map((idea,idx) => {
+  document.getElementById('most-viewed-body').innerHTML = byViews.slice(0,8).map((idea,idx) => {
     const cnt = vm[idea.id]||0;
-    return `<div class="page-row">
-      <div class="page-rank">${String(idx+1).padStart(2,'0')}</div>
-      <div class="page-info">
-        <div class="page-name">${idea.name}</div>
-        <div class="page-path">${idea.ticker} · ${idea.genre||'—'}</div>
-        <div class="page-bar"><div class="page-bar-fill" style="width:${Math.round(cnt/maxV*100)}%"></div></div>
-      </div>
-      <div class="page-count">${cnt}</div>
-    </div>`;
+    return `<div class="idea-row"><div class="idea-rank">${String(idx+1).padStart(2,'0')}</div><div class="idea-ticker">${idea.ticker||'—'}</div><div class="idea-name">${idea.name}</div><div class="idea-views">${cnt}閲</div></div>`;
   }).join('');
-
-  // All ideas by score
-  const prog = ['アイデア','開発中','テスト','リリース'];
   document.getElementById('all-ideas-body').innerHTML = ideas.map((idea,idx) => `
-    <div class="idea-row">
-      <div class="idea-rank">${String(idx+1).padStart(2,'0')}</div>
-      <div class="idea-ticker">${idea.ticker||'—'}</div>
-      <div class="idea-name">${idea.name}</div>
-      <div class="idea-votes">${idea.votes}票</div>
-      <div class="idea-score">${parseFloat(idea.score||0).toFixed(1)}</div>
-    </div>`).join('');
+    <div class="idea-row"><div class="idea-rank">${String(idx+1).padStart(2,'0')}</div><div class="idea-ticker">${idea.ticker||'—'}</div><div class="idea-name">${idea.name}</div><div class="idea-views">${idea.votes}票</div><div class="idea-score">${parseFloat(idea.score||0).toFixed(1)}</div></div>`).join('');
 }
 
+// ===== USERS =====
 async function loadUsers() {
   const {data:profiles} = await sb.from('profiles').select('id,x_username,is_pro,is_founder,founder_number').order('is_founder',{ascending:false});
   if (!profiles||profiles.length===0) { document.getElementById('users-body').innerHTML='<div class="empty"><div class="empty-ico">👤</div><div class="empty-txt">データなし</div></div>'; return; }
   document.getElementById('users-meta').textContent = profiles.length+'人';
   document.getElementById('users-body').innerHTML = profiles.map(p => {
     const initials = (p.x_username||'U').slice(0,2).toUpperCase();
-    const badge = p.is_founder
-      ? `<span class="badge founder">👑 #${p.founder_number===0?'00':String(p.founder_number||0).padStart(2,'0')}</span>`
-      : p.is_pro ? `<span class="badge pro">PRO</span>` : `<span class="badge free">FREE</span>`;
-    return `<div class="user-row">
-      <div class="user-av">${initials}</div>
-      <div class="user-info">
-        <div class="user-name">${p.x_username||'（名前未設定）'}</div>
-        <div class="user-id">${p.id.slice(0,12)}...</div>
-      </div>
-      ${badge}
-    </div>`;
+    const badge = p.is_founder ? `<span class="badge founder">👑 #${p.founder_number===0?'00':String(p.founder_number||0).padStart(2,'0')}</span>` : p.is_pro ? `<span class="badge pro">PRO</span>` : `<span class="badge free">FREE</span>`;
+    return `<div class="user-row"><div class="user-av">${initials}</div><div class="user-info"><div class="user-name">${p.x_username||'（名前未設定）'}</div><div class="user-id">${p.id.slice(0,12)}...</div></div>${badge}</div>`;
   }).join('');
 }
 
@@ -515,8 +547,9 @@ async function loadAll() {
   const icon = document.getElementById('spin-icon');
   icon.classList.add('spinning');
   await Promise.all([
+    loadLPAnalytics(),
     loadKPI(), loadHourly(), loadRecent(),
-    loadSources(), loadIdeas(), loadUsers()
+    loadIdeas(), loadUsers()
   ]);
   icon.classList.remove('spinning');
 }
