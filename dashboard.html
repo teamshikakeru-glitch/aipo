@@ -362,29 +362,40 @@ const LP_BUTTONS = {
   'see_all':     { name: '「すべてのアイデアを見る」', icon: '👁', medium: 'market_all' },
 };
 
-function timeAgo(dateStr) {
-  if (!dateStr) return '—';
-  // Supabaseのタイムスタンプ（+00:00形式やZ形式）を正しくパース
-  const str = dateStr.replace(' ', 'T').replace(/\+00$/, 'Z');
-  const normalized = str.endsWith('Z') ? str : str + 'Z';
-  const d = new Date(normalized);
-  if (isNaN(d.getTime())) return '—';
-  // 日本時間で表示
+function parseDate(dateStr) {
+  if (!dateStr) return null;
+  // Supabase形式: "2026-03-18 11:23:00+00" or "2026-03-18T11:23:00Z" など
+  let s = String(dateStr).trim();
+  s = s.replace(' ', 'T');          // スペース→T
+  s = s.replace(/\+00(:00)?$/, 'Z'); // +00 or +00:00 → Z
+  if (!s.endsWith('Z')) s += 'Z';
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+function fmtDate(dateStr) {
+  const d = parseDate(dateStr);
+  if (!d) return '—';
+  // JST = UTC+9
   const jst = new Date(d.getTime() + 9*60*60*1000);
-  const mm = String(jst.getUTCMonth()+1).padStart(2,'0');
+  const mo = String(jst.getUTCMonth()+1).padStart(2,'0');
   const dd = String(jst.getUTCDate()).padStart(2,'0');
   const hh = String(jst.getUTCHours()).padStart(2,'0');
   const mi = String(jst.getUTCMinutes()).padStart(2,'0');
-  // 経過時間も添える
-  const diff = Date.now() - d.getTime();
-  const mins = Math.floor(diff/60000);
-  let ago = '';
-  if (mins < 1) ago = 'たった今';
-  else if (mins < 60) ago = mins+'分前';
-  else if (mins < 24*60) ago = Math.floor(mins/60)+'時間前';
-  else ago = Math.floor(mins/1440)+'日前';
-  return { date: mm+'/'+dd+' '+hh+':'+mi, ago };
+  return mo+'/'+dd+' '+hh+':'+mi;
 }
+
+function fmtAgo(dateStr) {
+  const d = parseDate(dateStr);
+  if (!d) return '';
+  const mins = Math.floor((Date.now() - d.getTime()) / 60000);
+  if (mins < 1) return 'たった今';
+  if (mins < 60) return mins+'分前';
+  if (mins < 1440) return Math.floor(mins/60)+'時間前';
+  return Math.floor(mins/1440)+'日前';
+}
+
+function timeAgo(dateStr) { return fmtAgo(dateStr); }
 
 function showTab(name) {
   ['lp','overview','ideas','users'].forEach(t => {
@@ -545,8 +556,8 @@ async function loadLPAnalytics() {
     return `<div class="tl-row">
       <div class="tl-dot" style="${isLp?'':'border-color:var(--ink3);background:var(--surface2)'}"></div>
       <div class="tl-time" style="min-width:80px">
-        <div>${typeof timeAgo(e.created_at)==='object'?timeAgo(e.created_at).date:'—'}</div>
-        <div style="color:var(--ink4);font-size:8px;margin-top:1px">${typeof timeAgo(e.created_at)==='object'?timeAgo(e.created_at).ago:''}</div>
+        <div>${fmtDate(e.created_at)}</div>
+        <div style="color:var(--ink4);font-size:8px;margin-top:1px">${fmtAgo(e.created_at)}</div>
       </div>
       <div>
         <div class="tl-text">${isLp && btnInfo ? btnInfo.icon+' LP「'+btnInfo.name+'」から' : icon+' '+label+'から'}</div>
@@ -590,7 +601,7 @@ async function loadRecent() {
   const im={}; if(ideas) ideas.forEach(i=>im[i.id]=i);
   document.getElementById('recent-body').innerHTML = views.map(v => {
     const idea = im[v.idea_id];
-    return `<div class="tl-row"><div class="tl-dot"></div><div class="tl-time" style="min-width:80px"><div>${typeof timeAgo(v.viewed_at)==='object'?timeAgo(v.viewed_at).date:'—'}</div><div style="color:var(--ink4);font-size:8px;margin-top:1px">${typeof timeAgo(v.viewed_at)==='object'?timeAgo(v.viewed_at).ago:''}</div></div><div><div class="tl-text">${idea?idea.name:'不明'}</div><div class="tl-sub">${idea?idea.ticker:'—'}</div></div></div>`;
+    return `<div class="tl-row"><div class="tl-dot"></div><div class="tl-time" style="min-width:80px"><div>${fmtDate(v.viewed_at)}</div><div style="color:var(--ink4);font-size:8px;margin-top:1px">${fmtAgo(v.viewed_at)}</div></div><div><div class="tl-text">${idea?idea.name:'不明'}</div><div class="tl-sub">${idea?idea.ticker:'—'}</div></div></div>`;
   }).join('');
 }
 
