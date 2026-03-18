@@ -1435,20 +1435,151 @@ function showEditIdea(id) {
   const modal = document.createElement('div');
   modal.id = 'edit-modal';
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:flex-end;justify-content:center';
-  modal.innerHTML = `<div style="background:var(--surface);border-radius:24px 24px 0 0;padding:24px 20px 40px;width:100%;max-width:390px"><div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 20px"></div><div style="font-size:16px;font-weight:700;margin-bottom:16px">アイデアを編集</div><div class="field-wrap"><div class="field-lbl">アイデア名</div><input class="inp" id="edit-title-${id}" value="${idea.name}" maxlength="40"></div><div class="field-wrap"><div class="field-lbl">説明</div><textarea class="inp inp-sm" id="edit-desc-${id}" rows="3">${idea.desc||''}</textarea></div><button onclick="saveEditIdea('${id}')" style="width:100%;padding:14px;background:var(--amber-mid);border:none;border-radius:var(--r-lg);font-size:15px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">保存する</button><button onclick="document.getElementById('edit-modal').remove()" style="width:100%;padding:12px;background:transparent;border:none;font-size:14px;color:var(--text3);cursor:pointer;font-family:var(--sans);margin-top:6px">キャンセル</button></div>`;
+
+  const genreList = ['起業家・スタートアップ','副業・フリーランス','業務効率','社会課題','テクノロジー'];
+  const emojiList = ['💡','🚀','🛠','📱','🤖','💰','🌱','❤️'];
+  const emojiRow = emojiList.map(e => `<div onclick="editSelEmoji(this,'${id}')" data-e="${e}" style="width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:2px solid ${idea.emoji===e?'var(--amber-mid)':'transparent'};background:${idea.emoji===e?'var(--amber-bg)':'var(--surface2)'};font-size:22px;transition:all .1s">${e}</div>`).join('');
+  const genreGrid = genreList.map(g => `<div onclick="editSelGenre(this,'${id}')" style="border:1.5px solid ${idea.genre===g?'var(--amber-mid)':'var(--border2)'};border-radius:var(--r-md);padding:10px 12px;font-size:12px;font-weight:700;color:${idea.genre===g?'var(--amber)':'var(--text2)'};cursor:pointer;text-align:center;background:${idea.genre===g?'var(--amber-bg)':'var(--surface)'};transition:all .15s${g==='起業家・スタートアップ'?';grid-column:1/-1':''}">${g}</div>`).join('');
+  const progressItems = [['0','アイデア段階','基本'],['1','開発中','+10pt'],['2','テスト中','+20pt'],['3','リリース済み','+30pt']];
+  const progressGrid = progressItems.map(([val,label,sub]) => `<div onclick="editSelProgress(this,'${id}','${val}')" style="border:1.5px solid ${idea.progressStep==val?'var(--amber-mid)':'var(--border2)'};background:${idea.progressStep==val?'var(--amber-bg)':'var(--surface)'};border-radius:var(--r-md);padding:10px 12px;cursor:pointer;transition:all .15s"><div style="font-size:12px;font-weight:700;color:${idea.progressStep==val?'var(--amber)':'var(--text2)'}">${label}</div><div style="font-size:10px;color:${idea.progressStep==val?'var(--amber-mid)':'var(--text3)'};margin-top:2px">${sub}</div></div>`).join('');
+
+  modal.innerHTML = `<div style="background:var(--surface);border-radius:24px 24px 0 0;padding:24px 20px 40px;width:100%;max-width:390px;max-height:90vh;overflow-y:auto">
+    <div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 20px"></div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--amber-mid);letter-spacing:.1em;font-weight:700;margin-bottom:16px">EDIT LISTING</div>
+
+    <div class="field-wrap">
+      <div class="field-lbl">アイコン</div>
+      <div style="display:flex;gap:7px;flex-wrap:wrap" id="edit-emoji-row-${id}">${emojiRow}</div>
+    </div>
+
+    <div class="field-wrap">
+      <div class="field-lbl">アイデア名 <span class="field-req">必須</span></div>
+      <input class="inp" id="edit-title-${id}" value="${idea.name}" maxlength="40">
+    </div>
+
+    <div class="field-wrap">
+      <div class="field-lbl">ジャンル <span class="field-req">必須</span></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="edit-genre-grid-${id}">${genreGrid}</div>
+    </div>
+
+    <div class="field-wrap">
+      <div class="field-lbl">ティッカー <span style="font-size:10px;color:var(--text3);font-weight:400">英大文字5字以内</span></div>
+      <input class="inp inp-sm" id="edit-ticker-${id}" value="${idea.ticker||''}" maxlength="5" style="text-transform:uppercase">
+    </div>
+
+    <div class="field-wrap">
+      <div class="field-lbl">説明 <span style="font-size:10px;color:var(--text3);font-weight:400">後から追加可</span></div>
+      <textarea class="inp inp-sm" id="edit-desc-${id}" rows="3">${idea.desc||''}</textarea>
+    </div>
+
+    <div class="field-wrap">
+      <div class="field-lbl">作る技術 <span style="font-size:10px;color:var(--text3);font-weight:400">任意</span></div>
+      <input class="inp inp-sm" id="edit-tech-${id}" value="${idea.tech||''}" placeholder="例：React Native、Python">
+    </div>
+
+    <div class="field-wrap">
+      <div class="field-lbl">進捗ステータス</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="edit-progress-grid-${id}">${progressGrid}</div>
+    </div>
+
+    <button onclick="saveEditIdea('${id}')" style="width:100%;padding:15px;background:var(--amber-mid);border:none;border-radius:var(--r-lg);font-size:15px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans);margin-top:4px">保存する</button>
+    <button onclick="document.getElementById('edit-modal').remove()" style="width:100%;padding:12px;background:transparent;border:none;font-size:14px;color:var(--text3);cursor:pointer;font-family:var(--sans);margin-top:4px">キャンセル</button>
+  </div>`;
   document.body.appendChild(modal);
   modal.addEventListener('click', e => { if(e.target===modal) modal.remove(); });
 }
 
-function saveEditIdea(id) {
+function editSelEmoji(el, id) {
+  const row = document.getElementById('edit-emoji-row-'+id);
+  if (!row) return;
+  row.querySelectorAll('[data-e]').forEach(x => {
+    x.style.border = '2px solid transparent';
+    x.style.background = 'var(--surface2)';
+  });
+  el.style.border = '2px solid var(--amber-mid)';
+  el.style.background = 'var(--amber-bg)';
+}
+
+function editSelGenre(el, id) {
+  const grid = document.getElementById('edit-genre-grid-'+id);
+  if (!grid) return;
+  grid.querySelectorAll('div').forEach(x => {
+    x.style.borderColor = 'var(--border2)';
+    x.style.color = 'var(--text2)';
+    x.style.background = 'var(--surface)';
+  });
+  el.style.borderColor = 'var(--amber-mid)';
+  el.style.color = 'var(--amber)';
+  el.style.background = 'var(--amber-bg)';
+}
+
+function editSelProgress(el, id, val) {
+  const grid = document.getElementById('edit-progress-grid-'+id);
+  if (!grid) return;
+  grid.querySelectorAll('div').forEach(x => {
+    x.style.borderColor = 'var(--border2)';
+    x.style.background = 'var(--surface)';
+    x.querySelector('div').style.color = 'var(--text2)';
+    x.querySelectorAll('div')[1].style.color = 'var(--text3)';
+  });
+  el.style.borderColor = 'var(--amber-mid)';
+  el.style.background = 'var(--amber-bg)';
+  el.querySelector('div').style.color = 'var(--amber)';
+  el.querySelectorAll('div')[1].style.color = 'var(--amber-mid)';
+}
+
+async function saveEditIdea(id) {
   const idea = ideas.find(i=>i.id===id);
   if (!idea) return;
-  idea.name = document.getElementById('edit-title-'+id)?.value?.trim() || idea.name;
-  idea.desc = document.getElementById('edit-desc-'+id)?.value?.trim() || '';
-  updateDescToDB(id, idea.desc);
+
+  const emojiRow = document.getElementById('edit-emoji-row-'+id);
+  const selectedEmoji = emojiRow?.querySelector('[style*="var(--amber-mid)"]')?.dataset?.e || idea.emoji;
+
+  const genreGrid = document.getElementById('edit-genre-grid-'+id);
+  const selectedGenre = genreGrid?.querySelector('[style*="var(--amber-mid)"]')?.textContent?.trim() || idea.genre;
+
+  const progressGrid = document.getElementById('edit-progress-grid-'+id);
+  const progressDivs = progressGrid?.querySelectorAll('div');
+  let selectedProgress = idea.progressStep;
+  if (progressDivs) {
+    progressDivs.forEach((div, i) => {
+      if (div.style.borderColor === 'var(--amber-mid)' || div.style.background === 'var(--amber-bg)') {
+        selectedProgress = i;
+      }
+    });
+  }
+
+  const newName = document.getElementById('edit-title-'+id)?.value?.trim() || idea.name;
+  const newDesc = document.getElementById('edit-desc-'+id)?.value?.trim() || '';
+  const newTech = document.getElementById('edit-tech-'+id)?.value?.trim() || '';
+  const rawTicker = document.getElementById('edit-ticker-'+id)?.value?.trim().toUpperCase();
+  const newTicker = rawTicker || idea.ticker;
+
+  idea.name = newName;
+  idea.desc = newDesc;
+  idea.tech = newTech;
+  idea.ticker = newTicker;
+  idea.emoji = selectedEmoji;
+  idea.genre = selectedGenre;
+  idea.progressStep = selectedProgress;
+  idea.progress = selectedProgress;
+  idea.score = calcScore(idea);
+
+  await sb.from('ideas').update({
+    name: newName,
+    description: newDesc,
+    tech: newTech,
+    ticker: newTicker,
+    emoji: selectedEmoji,
+    genre: selectedGenre,
+    progress_step: selectedProgress,
+    updated_at: new Date()
+  }).eq('id', id);
+
   document.getElementById('edit-modal')?.remove();
   showToast('更新しました');
   renderPortfolio();
+  renderFeed();
 }
 
 function confirmDeleteIdea(id) {
