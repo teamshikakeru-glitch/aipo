@@ -14,6 +14,7 @@
 <meta name="apple-mobile-web-app-title" content="あいぽ">
 <meta name="theme-color" content="#fff8ed">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <style>
 :root {
   --bg: #eceae4;
@@ -186,6 +187,35 @@ input[type=file] { display: none; }
 .guide-next-btn { width:100%; padding:16px; background:var(--amber-mid); border:none; border-radius:var(--r-lg); font-size:16px; font-weight:700; color:#fff; cursor:pointer; font-family:var(--sans); transition:all .15s; }
 .guide-next-btn:active { transform:scale(.98); }
 .guide-skip { display:block; text-align:center; font-size:13px; color:var(--text3); margin-top:12px; cursor:pointer; padding:4px; }
+
+.cert-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:400;display:flex;align-items:flex-end;justify-content:center}
+.cert-modal-box{background:var(--surface);border-radius:24px 24px 0 0;padding:24px 20px 44px;width:100%;max-width:390px;animation:slideUp .35s cubic-bezier(.16,1,.3,1)}
+@keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+.cert-wrap{background:#f5f1ea;border-radius:12px;overflow:hidden;border:1px solid #e0d8cc;display:flex;margin-bottom:16px}
+.cert-left{flex:1;padding:20px;min-width:0}
+.cert-right{width:100px;flex-shrink:0;border-left:2px dashed #d4c9b8;background:#ede9e0;padding:14px 12px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;position:relative}
+.cert-right::before,.cert-right::after{content:'';position:absolute;left:-11px;width:20px;height:20px;background:#e8e2d8;border-radius:50%;border:1px solid #d4c9b8}
+.cert-right::before{top:-10px}
+.cert-right::after{bottom:-10px}
+.cert-brand{display:flex;align-items:center;gap:6px;margin-bottom:14px}
+.cert-brand-ico{width:22px;height:22px;background:#1a1400;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cert-brand-name{font-size:11px;font-weight:700;color:#1a1400;letter-spacing:-.01em}
+.cert-divider{display:flex;align-items:center;gap:6px;margin-bottom:14px}
+.cert-divider::before,.cert-divider::after{content:'';flex:1;height:.5px;background:#c8bfae}
+.cert-divider span{font-family:var(--mono);font-size:7px;color:#a09080;letter-spacing:.12em}
+.cert-field-lbl{font-family:var(--mono);font-size:7px;color:#a09080;letter-spacing:.1em;margin-bottom:2px}
+.cert-field-val{font-size:12px;font-weight:700;color:#1a1400;line-height:1.3;font-family:var(--sans)}
+.cert-mono{font-family:var(--mono);font-size:12px;font-weight:500;color:#1a1400;letter-spacing:.04em}
+.cert-stamp{width:56px;height:56px;border-radius:50%;border:2px solid #c0392b;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+.cert-stamp-txt{font-family:var(--mono);font-size:7px;color:#c0392b;letter-spacing:.06em;font-weight:500}
+.cert-early{display:inline-flex;align-items:center;gap:4px;background:#fef9f0;border:1px solid #fde68a;border-radius:3px;padding:3px 8px;margin-top:8px}
+.cert-early-dot{width:4px;height:4px;border-radius:50%;background:#d97706}
+.cert-early-txt{font-family:var(--mono);font-size:7px;color:#854f0b;letter-spacing:.06em}
+.cert-share-btn{width:100%;padding:14px;background:#000;border:none;border-radius:var(--r-lg);font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans);display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;transition:opacity .15s}
+.cert-share-btn:active{opacity:.85}
+.cert-close-btn{width:100%;padding:12px;background:transparent;border:none;font-size:13px;color:var(--text3);cursor:pointer;font-family:var(--sans)}
+.cert-bars{display:flex;gap:1.5px;align-items:flex-end}
+
 .splash { position: fixed; inset: 0; background: var(--amber-bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999; transition: opacity .5s; }
 .splash.hide { opacity: 0; pointer-events: none; }
 .splash-logo { margin-bottom: 20px; animation: splashPop .6s cubic-bezier(.34,1.56,.64,1) forwards; }
@@ -1271,6 +1301,7 @@ function voteIdea(id) {
   renderFeed();
   if (votesLeft <= 0) updateXBonus();
   updatePlanBadge();
+  setTimeout(() => showCertificate(idea, votesAtTime), 400);
 }
 
 function voteFromDetail(id) {
@@ -1684,6 +1715,148 @@ function startRealtime() {
       if (document.getElementById('screen-feed').classList.contains('active')) requestAnimationFrame(renderFeed);
     })
     .subscribe();
+}
+
+
+function buildCertHTML(idea, votesAtTime) {
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+  const timeStr = today.toLocaleTimeString('ja-JP', { hour:'2-digit', minute:'2-digit' });
+  const serial = 'AI-' + String(today.getMonth()+1).padStart(2,'0') + String(today.getDate()).padStart(2,'0');
+  const userName = currentUser?.x_username ? '@' + currentUser.x_username : '@ユーザー';
+  const voteLabel = (votesAtTime + 1) + '票目';
+  const ideaName = idea.name.length > 16 ? idea.name.slice(0, 16) + '…' : idea.name;
+  return `
+    <div class="cert-left">
+      <div class="cert-brand">
+        <div class="cert-brand-ico">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+            <polyline points="7,14 10,10 12,11.5 15,7 18,4" stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="18" cy="4" r="2" fill="#f59e0b"/>
+          </svg>
+        </div>
+        <span class="cert-brand-name">あいぽ</span>
+      </div>
+      <div class="cert-divider"><span>INVESTMENT CERTIFICATE</span></div>
+      <div style="display:grid;grid-template-columns:auto 1fr;gap:12px;margin-bottom:12px">
+        <div>
+          <div class="cert-field-lbl">DATE</div>
+          <div class="cert-field-val" style="font-size:11px">${dateStr}</div>
+          <div style="font-family:var(--mono);font-size:9px;color:#a09080">${timeStr}</div>
+        </div>
+        <div>
+          <div class="cert-field-lbl">IDEA</div>
+          <div class="cert-field-val">${ideaName}</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <div>
+          <div class="cert-field-lbl">TICKER</div>
+          <div class="cert-mono">${idea.ticker}</div>
+        </div>
+        <div style="width:.5px;height:28px;background:#d4c9b8"></div>
+        <div>
+          <div class="cert-field-lbl">HOLDER</div>
+          <div class="cert-mono" style="font-size:11px">${userName}</div>
+        </div>
+        <div style="width:.5px;height:28px;background:#d4c9b8"></div>
+        <div>
+          <div class="cert-field-lbl">VOTES AT TIME</div>
+          <div class="cert-mono" style="font-size:11px">${voteLabel}</div>
+        </div>
+      </div>
+      <div class="cert-early"><div class="cert-early-dot"></div><span class="cert-early-txt">EARLY INVESTOR</span></div>
+    </div>
+    <div class="cert-right">
+      <div>
+        <div style="font-family:var(--mono);font-size:7px;color:#a09080;letter-spacing:.08em;text-align:center;margin-bottom:4px">SERIAL</div>
+        <div style="font-family:var(--mono);font-size:9px;color:#1a1400;background:#ede5d8;border-radius:3px;padding:2px 5px;letter-spacing:.03em;text-align:center">${serial}</div>
+      </div>
+      <div class="cert-stamp">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#c0392b" stroke-width="2" stroke-linecap="round"/></svg>
+        <span class="cert-stamp-txt">INVESTED</span>
+      </div>
+      <div>
+        <div class="cert-bars" style="margin-bottom:3px">
+          <div style="width:2px;height:28px;background:#1a1400;border-radius:.5px"></div>
+          <div style="width:1px;height:24px;background:#1a1400;border-radius:.5px"></div>
+          <div style="width:3px;height:28px;background:#1a1400;border-radius:.5px"></div>
+          <div style="width:1px;height:18px;background:#1a1400;border-radius:.5px"></div>
+          <div style="width:2px;height:28px;background:#1a1400;border-radius:.5px"></div>
+          <div style="width:1px;height:22px;background:#1a1400;border-radius:.5px"></div>
+          <div style="width:3px;height:28px;background:#1a1400;border-radius:.5px"></div>
+          <div style="width:1px;height:18px;background:#1a1400;border-radius:.5px"></div>
+          <div style="width:2px;height:26px;background:#1a1400;border-radius:.5px"></div>
+          <div style="width:1px;height:28px;background:#1a1400;border-radius:.5px"></div>
+        </div>
+        <div style="font-family:var(--mono);font-size:7px;color:#a09080;letter-spacing:.08em;text-align:center">あいぽ</div>
+      </div>
+    </div>
+  `;
+}
+
+function showCertificate(idea, votesAtTime) {
+  const existing = document.getElementById('cert-modal');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'cert-modal';
+  overlay.className = 'cert-modal-overlay';
+  overlay.innerHTML = `
+    <div class="cert-modal-box">
+      <div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px"></div>
+      <div style="font-size:14px;font-weight:700;text-align:center;margin-bottom:4px;color:var(--text)">株券が発行されました</div>
+      <div style="font-size:11px;color:var(--text3);text-align:center;margin-bottom:14px">応援の証として保存・シェアできます</div>
+      <div class="cert-wrap" id="cert-inner">
+        ${buildCertHTML(idea, votesAtTime)}
+      </div>
+      <button class="cert-share-btn" id="cert-share-btn" onclick="shareCertificate('${idea.id}','${encodeURIComponent(idea.name)}','${idea.ticker}')">
+        <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M2 2l7.5 8.5L2 18h2l6.3-7.1L16 18h4L12 9.2 18.5 2h-2L10.6 8.6 5 2H2z"/></svg>
+        Xでシェアする
+      </button>
+      <button class="cert-close-btn" onclick="document.getElementById('cert-modal').remove()">閉じる</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+}
+
+async function shareCertificate(ideaId, encodedName, ticker) {
+  const btn = document.getElementById('cert-share-btn');
+  if (btn) { btn.textContent = '生成中...'; btn.disabled = true; }
+
+  try {
+    const el = document.getElementById('cert-inner');
+    const canvas = await html2canvas(el, {
+      scale: 2,
+      backgroundColor: '#f5f1ea',
+      useCORS: true,
+      logging: false
+    });
+
+    const link = document.createElement('a');
+    link.download = 'aipo-certificate-' + ticker + '.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+
+    const ideaName = decodeURIComponent(encodedName);
+    const text = encodeURIComponent(
+      `「${ideaName}」に早期投資しました
+
+あいぽで株券をもらいました👇
+https://aipo-tau.vercel.app
+
+#あいぽ #アイデアIPO`
+    );
+    setTimeout(() => {
+      window.open('https://twitter.com/intent/tweet?text=' + text, '_blank');
+    }, 500);
+
+  } catch(e) {
+    showToast('画像の生成に失敗しました');
+  } finally {
+    if (btn) { btn.textContent = 'Xでシェアする'; btn.disabled = false; }
+  }
 }
 
 async function init() {
