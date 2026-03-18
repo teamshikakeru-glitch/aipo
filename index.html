@@ -528,36 +528,7 @@ input[type=file] { display: none; }
 <input type="file" id="file-input" accept="image/*">
 <div class="toast" id="toast"></div>
 
-<div id="charge-modal-overlay" class="charge-modal-overlay" style="display:none" onclick="if(event.target===this)closeChargeModal()">
-  <div class="charge-modal-box">
-    <div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 20px"></div>
-    <div style="font-size:17px;font-weight:700;text-align:center;margin-bottom:4px">残高をチャージ</div>
-    <div style="font-size:12px;color:var(--text3);text-align:center;margin-bottom:20px">チャージした残高で票や上場枠を購入できます</div>
-    <div class="charge-option" id="charge-opt-500" onclick="selectCharge(500)">
-      <div class="charge-option-left">
-        <span class="charge-option-amount">¥500</span>
-        <span style="font-size:11px;color:var(--text3)">ボーナスなし</span>
-      </div>
-      <span style="font-family:var(--mono);font-size:13px;color:var(--text3)">500円分</span>
-    </div>
-    <div class="charge-option" id="charge-opt-1000" onclick="selectCharge(1000)">
-      <div class="charge-option-left">
-        <span class="charge-option-amount">¥1,000</span>
-        <span class="charge-option-bonus">+50円ボーナス</span>
-      </div>
-      <span class="charge-option-total">1,050円分</span>
-    </div>
-    <div class="charge-option" id="charge-opt-3000" onclick="selectCharge(3000)">
-      <div class="charge-option-left">
-        <span class="charge-option-amount">¥3,000</span>
-        <span class="charge-option-bonus">+300円ボーナス 🎉</span>
-      </div>
-      <span class="charge-option-total">3,300円分</span>
-    </div>
-    <button id="charge-start-btn" class="primary-btn" style="margin-top:12px;opacity:.5" onclick="selectedChargeAmount?startCharge():showToast('金額を選択してください ↑')">金額を選択してください ↑</button>
-    <button onclick="closeChargeModal()" style="width:100%;padding:12px;background:transparent;border:none;font-size:14px;color:var(--text3);cursor:pointer;font-family:var(--sans);margin-top:4px">キャンセル</button>
-  </div>
-</div>
+
 <script>
 const SUPABASE_URL = 'https://qjffvspnnxyykoyhnazm.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqZmZ2c3Bubnh5eWtveWhuYXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzMTIxMzMsImV4cCI6MjA4Njg4ODEzM30.OqeeMZs73RjKY5POW-naf0dB8sFWfZDUKaKvE99EiBo';
@@ -2075,49 +2046,91 @@ async function loadBalance() {
 function openChargeModal() {
   if (!currentUser) { showToast('ログインしてください'); return; }
   selectedChargeAmount = 0;
-  document.querySelectorAll('.charge-option').forEach(o => o.classList.remove('selected'));
-  const btn = document.getElementById('charge-start-btn');
-  if (btn) { btn.disabled = true; btn.textContent = '金額を選んでください'; }
-  document.getElementById('charge-modal-overlay').style.display = 'flex';
+  document.getElementById('charge-modal-dyn')?.remove();
+  const overlay = document.createElement('div');
+  overlay.id = 'charge-modal-dyn';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;display:flex;align-items:flex-end;justify-content:center';
+  const optStyle = (sel) => sel
+    ? 'border:2px solid #e8850a;border-radius:16px;padding:14px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;background:#fff8ed'
+    : 'border:1.5px solid rgba(0,0,0,.12);border-radius:16px;padding:14px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;background:#fff';
+  overlay.innerHTML = `<div style="background:#fff;border-radius:24px 24px 0 0;padding:24px 20px 44px;width:100%;max-width:390px">
+    <div style="width:40px;height:4px;background:rgba(0,0,0,.12);border-radius:2px;margin:0 auto 20px"></div>
+    <div style="font-size:17px;font-weight:700;text-align:center;margin-bottom:4px">残高をチャージ</div>
+    <div style="font-size:12px;color:#b0aea6;text-align:center;margin-bottom:20px">チャージした残高で票や上場枠を購入できます</div>
+    <div id="copt-500" style="${optStyle(false)}">
+      <div><div style="font-family:monospace;font-size:18px;font-weight:700">¥500</div><div style="font-size:11px;color:#b0aea6">ボーナスなし</div></div>
+      <span style="font-family:monospace;font-size:13px;color:#b0aea6">500円分</span>
+    </div>
+    <div id="copt-1000" style="${optStyle(false)}">
+      <div><div style="font-family:monospace;font-size:18px;font-weight:700">¥1,000</div><div style="font-size:11px;color:#1a7a4a;font-weight:700">+50円ボーナス</div></div>
+      <span style="font-size:12px;color:#bf6d00;font-weight:700">1,050円分</span>
+    </div>
+    <div id="copt-3000" style="${optStyle(false)}">
+      <div><div style="font-family:monospace;font-size:18px;font-weight:700">¥3,000</div><div style="font-size:11px;color:#1a7a4a;font-weight:700">+300円ボーナス 🎉</div></div>
+      <span style="font-size:12px;color:#bf6d00;font-weight:700">3,300円分</span>
+    </div>
+    <button id="charge-start-btn" style="margin-top:12px;width:100%;padding:15px;background:#ccc;border:none;border-radius:16px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;font-family:sans-serif">金額を選択してください ↑</button>
+    <button id="charge-cancel-btn" style="width:100%;padding:12px;background:transparent;border:none;font-size:14px;color:#b0aea6;cursor:pointer;font-family:sans-serif;margin-top:4px">キャンセル</button>
+  </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeChargeModal(); });
+  document.getElementById('copt-500').addEventListener('click', () => selectCharge(500));
+  document.getElementById('copt-1000').addEventListener('click', () => selectCharge(1000));
+  document.getElementById('copt-3000').addEventListener('click', () => selectCharge(3000));
+  document.getElementById('charge-start-btn').addEventListener('click', startCharge);
+  document.getElementById('charge-cancel-btn').addEventListener('click', closeChargeModal);
 }
 
 function closeChargeModal() {
-  document.getElementById('charge-modal-overlay').style.display = 'none';
+  document.getElementById('charge-modal-dyn')?.remove();
 }
 
 function selectCharge(amount) {
   selectedChargeAmount = amount;
-  document.querySelectorAll('.charge-option').forEach(o => o.classList.remove('selected'));
-  document.getElementById('charge-opt-' + amount)?.classList.add('selected');
+  ['500','1000','3000'].forEach(a => {
+    const el = document.getElementById('copt-' + a);
+    if (!el) return;
+    if (a === String(amount)) {
+      el.style.border = '2px solid #e8850a';
+      el.style.background = '#fff8ed';
+    } else {
+      el.style.border = '1.5px solid rgba(0,0,0,.12)';
+      el.style.background = '#fff';
+    }
+  });
   const labels = { 500: '¥500 でチャージする →', 1000: '¥1,000 でチャージする（1,050円分）→', 3000: '¥3,000 でチャージする（3,300円分）→' };
   const btn = document.getElementById('charge-start-btn');
-  if (btn) { btn.style.opacity = '1'; btn.textContent = labels[amount] || 'チャージする →'; }
+  if (btn) { btn.style.background = '#e8850a'; btn.textContent = labels[amount]; }
 }
 
 async function startCharge() {
-  if (!selectedChargeAmount) return;
+  console.log('startCharge called, amount:', selectedChargeAmount, 'user:', currentUser?.id);
+  if (!selectedChargeAmount) { alert('金額を選択してください'); return; }
+  if (!currentUser) { alert('ログインが必要です'); return; }
   const btn = document.getElementById('charge-start-btn');
-  if (btn) { btn.disabled = true; btn.textContent = '処理中...'; }
+  if (btn) { btn.textContent = '処理中...'; btn.style.background = '#aaa'; }
   try {
     const { data: { session } } = await sb.auth.getSession();
     const token = session?.access_token;
     const res = await fetch('/api/create-charge-session', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (token || '') },
       body: JSON.stringify({ amount: selectedChargeAmount, userId: currentUser.id })
     });
-    const json = await res.json();
-    console.log('charge session response:', json);
-    if (json.url) { window.location.href = json.url; }
-    else {
-      const msg = json.error || 'エラーが発生しました';
-      showToast('エラー: ' + msg);
-      if (btn) { btn.style.opacity = '1'; btn.textContent = '再試行する →'; }
+    const text = await res.text();
+    console.log('response status:', res.status, 'body:', text);
+    let json;
+    try { json = JSON.parse(text); } catch(pe) { throw new Error('API応答エラー(' + res.status + '): ' + text.slice(0,120)); }
+    if (json.url) {
+      window.location.href = json.url;
+    } else {
+      alert('エラー: ' + (json.error || '不明なエラー'));
+      if (btn) { btn.style.background = '#e8850a'; btn.textContent = '再試行する →'; }
     }
   } catch(e) {
     console.error('startCharge error:', e);
-    showToast('通信エラー: ' + (e.message || 'APIに接続できません'));
-    if (btn) { btn.style.opacity = '1'; btn.textContent = '再試行する →'; }
+    alert('エラー詳細: ' + e.message);
+    if (btn) { btn.style.background = '#e8850a'; btn.textContent = '再試行する →'; }
   }
 }
 
