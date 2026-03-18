@@ -192,16 +192,45 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
   <div id="tab-content-lp" class="main">
 
     <div class="section-title">LPからあいぽに来た人数</div>
+    <!-- 売上カード -->
+    <div class="panel" style="margin-bottom:20px;background:linear-gradient(135deg,#fff8ed,#fffdf5);border:1.5px solid var(--amber-border)">
+      <div class="panel-head" style="background:transparent;border-bottom-color:var(--amber-border)">
+        <div class="panel-title">💰 売上合計（Supabase集計）</div>
+        <div class="panel-meta">創設メンバー×¥980 + Pro×¥300/月</div>
+      </div>
+      <div class="panel-body">
+        <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:12px">
+          <div style="font-family:var(--mono);font-size:36px;font-weight:700;color:var(--amber)" id="revenue-total">—</div>
+          <div style="font-size:11px;color:var(--ink3)">円</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div style="background:#fff;border:1px solid var(--border);border-radius:var(--rs);padding:12px">
+            <div style="font-family:var(--mono);font-size:8px;color:var(--ink3);letter-spacing:.08em;margin-bottom:6px">👑 創設メンバー（買い切り）</div>
+            <div style="font-family:var(--mono);font-size:20px;font-weight:700;color:var(--ink)" id="revenue-founder">—</div>
+            <div style="font-size:10px;color:var(--ink3);margin-top:3px"><span id="founder-count-rev">—</span>人 × ¥980</div>
+          </div>
+          <div style="background:#fff;border:1px solid var(--border);border-radius:var(--rs);padding:12px">
+            <div style="font-family:var(--mono);font-size:8px;color:var(--ink3);letter-spacing:.08em;margin-bottom:6px">🥃 Pro（月額）</div>
+            <div style="font-family:var(--mono);font-size:20px;font-weight:700;color:var(--green)" id="revenue-pro">—</div>
+            <div style="font-size:10px;color:var(--ink3);margin-top:3px"><span id="pro-count-rev">—</span>人 × ¥300/月</div>
+          </div>
+        </div>
+        <div style="margin-top:10px;font-size:10px;color:var(--ink3);line-height:1.6">
+          ※ Stripeと同期していないため概算です。Proは現在の月次収益として表示。
+        </div>
+      </div>
+    </div>
+
     <div class="kpi-grid" style="margin-bottom:20px">
       <div class="kpi-card">
-        <div class="kpi-lbl">LP経由 累計</div>
+        <div class="kpi-lbl">LP経由 累計人数</div>
         <div class="kpi-val ink" id="lp-total">—</div>
-        <div class="kpi-sub">user_events</div>
+        <div class="kpi-sub">LPのボタンを押してあいぽを開いた人の合計</div>
       </div>
       <div class="kpi-card green">
         <div class="kpi-lbl">LP経由 今日</div>
         <div class="kpi-val green" id="lp-today">—</div>
-        <div class="kpi-sub">本日のLP流入</div>
+        <div class="kpi-sub">今日LPから来た人数</div>
       </div>
     </div>
 
@@ -245,10 +274,26 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
   <div id="tab-content-overview" class="main" style="display:none">
     <div class="section-title">サマリー</div>
     <div class="kpi-grid">
-      <div class="kpi-card"><div class="kpi-lbl">USERS</div><div class="kpi-val" id="kpi-users">—</div><div class="kpi-sub">登録者数</div></div>
-      <div class="kpi-card"><div class="kpi-lbl">IDEAS</div><div class="kpi-val" id="kpi-ideas">—</div><div class="kpi-sub">上場中</div></div>
-      <div class="kpi-card green"><div class="kpi-lbl">FOUNDERS</div><div class="kpi-val green" id="kpi-founders">—</div><div class="kpi-sub" id="kpi-founders-sub">創設メンバー</div></div>
-      <div class="kpi-card"><div class="kpi-lbl">TODAY VIEWS</div><div class="kpi-val" id="kpi-views">—</div><div class="kpi-sub">本日閲覧</div></div>
+      <div class="kpi-card">
+        <div class="kpi-lbl">登録ユーザー数</div>
+        <div class="kpi-val" id="kpi-users">—</div>
+        <div class="kpi-sub">あいぽにログインしたことがある人</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-lbl">上場中のアイデア数</div>
+        <div class="kpi-val" id="kpi-ideas">—</div>
+        <div class="kpi-sub">現在マーケットにあるアイデアの数</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-lbl">創設メンバー数</div>
+        <div class="kpi-val green" id="kpi-founders">—</div>
+        <div class="kpi-sub" id="kpi-founders-sub">¥980を払ってくれた人</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-lbl">今日の閲覧数</div>
+        <div class="kpi-val" id="kpi-views">—</div>
+        <div class="kpi-sub">今日アイデアの詳細を開いた回数</div>
+      </div>
     </div>
 
     <div class="section-title">本日の時間別閲覧</div>
@@ -543,11 +588,27 @@ async function loadUsers() {
   }).join('');
 }
 
+async function loadRevenue() {
+  const { data: profiles } = await sb.from('profiles').select('is_founder, is_pro');
+  if (!profiles) return;
+  const founderCount = profiles.filter(p => p.is_founder).length;
+  const proCount = profiles.filter(p => p.is_pro && !p.is_founder).length;
+  const founderRevenue = founderCount * 980;
+  const proRevenue = proCount * 300;
+  const total = founderRevenue + proRevenue;
+  document.getElementById('revenue-total').textContent = total.toLocaleString();
+  document.getElementById('revenue-founder').textContent = '¥' + founderRevenue.toLocaleString();
+  document.getElementById('revenue-pro').textContent = '¥' + proRevenue.toLocaleString();
+  document.getElementById('founder-count-rev').textContent = founderCount;
+  document.getElementById('pro-count-rev').textContent = proCount;
+}
+
 async function loadAll() {
   const icon = document.getElementById('spin-icon');
   icon.classList.add('spinning');
   await Promise.all([
     loadLPAnalytics(),
+    loadRevenue(),
     loadKPI(), loadHourly(), loadRecent(),
     loadIdeas(), loadUsers()
   ]);
