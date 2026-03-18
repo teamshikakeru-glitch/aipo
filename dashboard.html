@@ -674,11 +674,38 @@ function fmtAgo(dateStr) {
 
 function timeAgo(dateStr) { return fmtAgo(dateStr); }
 
+const tabLoaded = {};
+
 function showTab(name) {
   ['lp','overview','ideas','users','pdca'].forEach(t => {
     document.getElementById('tab-content-'+t).style.display = t===name ? '' : 'none';
     document.getElementById('tab-'+t).classList.toggle('active', t===name);
   });
+  // 未ロードのタブだけ読み込む
+  if (!tabLoaded[name]) {
+    tabLoaded[name] = true;
+    loadTab(name);
+  }
+}
+
+async function loadTab(name) {
+  const icon = document.getElementById('spin-icon');
+  icon.classList.add('spinning');
+  try {
+    if (name === 'lp') {
+      await Promise.allSettled([loadLPAnalytics(), loadFunnel(), loadTimeAnalysis(), loadRevenue()]);
+    } else if (name === 'overview') {
+      await Promise.allSettled([loadKPI(), loadHourly(), loadRecent()]);
+    } else if (name === 'ideas') {
+      await loadIdeas();
+    } else if (name === 'users') {
+      await Promise.allSettled([loadActivityFeed(), loadUserActivity()]);
+    } else if (name === 'pdca') {
+      await loadPDCA();
+    }
+  } finally {
+    icon.classList.remove('spinning');
+  }
 }
 
 async function doAdminLogin() {
@@ -1561,6 +1588,39 @@ async function loadAll() {
   }
 }
 
+function startRealtime() {
+  // ideasが追加されたらKPIを更新
+  sb.channel('dashboard-realtime')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'ideas' }, () => {
+      if (tabLoaded['overview']) loadKPI();
+      if (tabLoaded['users']) loadActivityFeed();
+      // KPIバッジをピカっと光らせる
+      ['kpi-ideas','kpi-ideas-today','act-ideas-today'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.style.transition = 'color .3s'; el.style.color = 'var(--green)'; setTimeout(() => el.style.color = '', 1000); }
+      });
+    })
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'votes' }, () => {
+      if (tabLoaded['overview']) loadKPI();
+      if (tabLoaded['users']) loadActivityFeed();
+      ['kpi-votes-today','act-votes-today'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.style.transition = 'color .3s'; el.style.color = 'var(--amber)'; setTimeout(() => el.style.color = '', 1000); }
+      });
+    })
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'user_events' }, () => {
+      if (tabLoaded['lp']) loadLPAnalytics();
+    })
+    .subscribe();
+
+  // 現在タブだけ3分ごとに更新（5分→3分、かつ現在タブのみ）
+  setInterval(() => {
+    const currentTab = getCurrentTab();
+    tabLoaded[currentTab] = true;
+    loadTab(currentTab);
+  }, 3 * 60 * 1000);
+}
+
 async function init() {
   if (window.location.hash && window.location.hash.includes('access_token')) {
     await new Promise(r => setTimeout(r, 800));
@@ -1571,8 +1631,11 @@ async function init() {
     if (session.user.id === ADMIN_ID) {
       document.getElementById('login-gate').style.display = 'none';
       document.getElementById('dashboard').style.display = 'block';
-      loadAll();
-      setInterval(loadAll, 5*60*1000);
+      // 最初はLPタブだけ読み込む
+      showTab('lp');
+      
+      // Supabase Realtimeで主要カウンターをリアルタイム更新
+      startRealtime();
     } else {
       document.getElementById('lg-err').style.display = 'block';
     }
