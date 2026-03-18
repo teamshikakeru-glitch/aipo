@@ -1558,7 +1558,8 @@ async function loadRevenue() {
   // founder_number=0 は中川さん本人なので除外
   const { data: profiles } = await sb.from('profiles').select('is_founder, is_pro, founder_number, id');
   if (!profiles) return;
-  const payingFounders = profiles.filter(p => p.is_founder && p.founder_number !== 0 && p.id !== ADMIN_ID);
+  // 中川さん本人(ADMIN_ID)だけ除外、他の創設メンバーは全員カウント
+  const payingFounders = profiles.filter(p => p.is_founder && p.id !== ADMIN_ID);
   const payingPros = profiles.filter(p => p.is_pro && !p.is_founder && p.id !== ADMIN_ID);
   const founderRevenue = payingFounders.length * 980;
   const proRevenue = payingPros.length * 300;
@@ -1588,28 +1589,36 @@ async function loadAll() {
   }
 }
 
+function flash(id, color) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.style.transition = 'color .2s';
+  el.style.color = color;
+  setTimeout(() => { el.style.color = ''; }, 1200);
+}
+
 function startRealtime() {
   // ideasが追加されたらKPIを更新
   sb.channel('dashboard-realtime')
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'ideas' }, () => {
       if (tabLoaded['overview']) loadKPI();
       if (tabLoaded['users']) loadActivityFeed();
-      // KPIバッジをピカっと光らせる
-      ['kpi-ideas','kpi-ideas-today','act-ideas-today'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) { el.style.transition = 'color .3s'; el.style.color = 'var(--green)'; setTimeout(() => el.style.color = '', 1000); }
-      });
+      ['kpi-ideas','kpi-ideas-today','act-ideas-today'].forEach(id => flash(id, 'var(--green)'));
     })
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'votes' }, () => {
       if (tabLoaded['overview']) loadKPI();
       if (tabLoaded['users']) loadActivityFeed();
-      ['kpi-votes-today','act-votes-today'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) { el.style.transition = 'color .3s'; el.style.color = 'var(--amber)'; setTimeout(() => el.style.color = '', 1000); }
-      });
+      ['kpi-votes-today','act-votes-today'].forEach(id => flash(id, 'var(--amber)'));
     })
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'user_events' }, () => {
       if (tabLoaded['lp']) loadLPAnalytics();
+    })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
+      // ユーザー登録・創設メンバー購入などを即時反映
+      if (tabLoaded['overview']) loadKPI();
+      if (tabLoaded['lp']) loadRevenue();
+      if (tabLoaded['users']) loadUserActivity();
+      ['kpi-users','revenue-total','revenue-founder','kpi-founders'].forEach(id => flash(id, 'var(--green)'));
     })
     .subscribe();
 
