@@ -554,7 +554,7 @@ input[type=file] { display: none; }
       </div>
       <span class="charge-option-total">3,300円分</span>
     </div>
-    <button id="charge-start-btn" class="primary-btn" style="margin-top:12px" onclick="startCharge()" disabled>金額を選んでください</button>
+    <button id="charge-start-btn" class="primary-btn" style="margin-top:12px;opacity:.5" onclick="selectedChargeAmount?startCharge():showToast('金額を選択してください ↑')">金額を選択してください ↑</button>
     <button onclick="closeChargeModal()" style="width:100%;padding:12px;background:transparent;border:none;font-size:14px;color:var(--text3);cursor:pointer;font-family:var(--sans);margin-top:4px">キャンセル</button>
   </div>
 </div>
@@ -2089,9 +2089,9 @@ function selectCharge(amount) {
   selectedChargeAmount = amount;
   document.querySelectorAll('.charge-option').forEach(o => o.classList.remove('selected'));
   document.getElementById('charge-opt-' + amount)?.classList.add('selected');
-  const labels = { 500: '¥500 でチャージする', 1000: '¥1,000 でチャージする（1,050円分）', 3000: '¥3,000 でチャージする（3,300円分）' };
+  const labels = { 500: '¥500 でチャージする →', 1000: '¥1,000 でチャージする（1,050円分）→', 3000: '¥3,000 でチャージする（3,300円分）→' };
   const btn = document.getElementById('charge-start-btn');
-  if (btn) { btn.disabled = false; btn.textContent = labels[amount] || 'チャージする'; }
+  if (btn) { btn.style.opacity = '1'; btn.textContent = labels[amount] || 'チャージする →'; }
 }
 
 async function startCharge() {
@@ -2107,12 +2107,17 @@ async function startCharge() {
       body: JSON.stringify({ amount: selectedChargeAmount, userId: currentUser.id })
     });
     const json = await res.json();
+    console.log('charge session response:', json);
     if (json.url) { window.location.href = json.url; }
-    else { showToast('エラーが発生しました'); if (btn) { btn.disabled = false; btn.textContent = 'チャージする'; } }
+    else {
+      const msg = json.error || 'エラーが発生しました';
+      showToast('エラー: ' + msg);
+      if (btn) { btn.style.opacity = '1'; btn.textContent = '再試行する →'; }
+    }
   } catch(e) {
-    console.error('startCharge:', e);
-    showToast('通信エラーが発生しました');
-    if (btn) { btn.disabled = false; btn.textContent = 'チャージする'; }
+    console.error('startCharge error:', e);
+    showToast('通信エラー: ' + (e.message || 'APIに接続できません'));
+    if (btn) { btn.style.opacity = '1'; btn.textContent = '再試行する →'; }
   }
 }
 
