@@ -14,7 +14,6 @@
 <meta name="apple-mobile-web-app-title" content="あいぽ">
 <meta name="theme-color" content="#fff8ed">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <style>
 :root {
   --bg: #eceae4;
@@ -1916,139 +1915,223 @@ function showCertificate(idea, votesAtTime) {
   overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
 }
 
+function drawCertificateToCanvas(cert) {
+  const W = 900, H = 460;
+  const canvas = document.createElement('canvas');
+  canvas.width = W * 2; canvas.height = H * 2;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(2, 2);
+
+  const stubX = W - 148;
+  const r = 14;
+
+  // 背景
+  ctx.fillStyle = '#f0ebe1';
+  ctx.fillRect(0, 0, W, H);
+
+  // カード本体
+  roundRect(ctx, 20, 20, W - 40, H - 40, r, '#faf8f4', '#e0d8cc', 1.5);
+
+  // 右スタブ背景
+  roundRectRight(ctx, stubX, 20, 148 - 20, H - 40, r, '#ede9e0');
+
+  // 破線区切り
+  ctx.save();
+  ctx.setLineDash([5, 4]);
+  ctx.strokeStyle = '#d4c9b8';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(stubX, 36);
+  ctx.lineTo(stubX, H - 36);
+  ctx.stroke();
+  ctx.restore();
+
+  // ノッチ（切り込み丸）
+  ctx.fillStyle = '#f0ebe1';
+  ctx.beginPath(); ctx.arc(stubX, 20, 11, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(stubX, H - 20, 11, 0, Math.PI * 2); ctx.fill();
+
+  // --- 左側コンテンツ ---
+  const lx = 44;
+  let ly = 44;
+
+  // ブランドアイコン
+  ctx.fillStyle = '#1a1400';
+  roundRect(ctx, lx, ly, 26, 26, 6, '#1a1400');
+  ctx.fillStyle = '#f59e0b';
+  ctx.font = 'bold 14px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('↗', lx + 13, ly + 18);
+
+  ctx.fillStyle = '#1a1400';
+  ctx.font = 'bold 14px sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('あいぽ', lx + 34, ly + 18);
+  ly += 42;
+
+  // 区切り線
+  ctx.strokeStyle = '#c8bfae'; ctx.lineWidth = 0.5;
+  ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(stubX - 20, ly); ctx.stroke();
+  ctx.fillStyle = '#a09080';
+  ctx.font = '9px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('INVESTMENT CERTIFICATE', (lx + stubX - 20) / 2, ly - 4);
+  ly += 16;
+
+  // DATE + IDEA
+  ctx.fillStyle = '#a09080'; ctx.font = '8px monospace'; ctx.textAlign = 'left';
+  ctx.fillText('DATE', lx, ly);
+  ctx.fillStyle = '#1a1400'; ctx.font = 'bold 14px sans-serif';
+  ctx.fillText(cert.date, lx, ly + 16);
+  ctx.fillStyle = '#a09080'; ctx.font = '9px monospace';
+  ctx.fillText(cert.time, lx, ly + 30);
+
+  ctx.fillStyle = '#a09080'; ctx.font = '8px monospace';
+  ctx.fillText('IDEA', lx + 110, ly);
+  ctx.fillStyle = '#1a1400'; ctx.font = 'bold 13px sans-serif';
+  const ideaShort = cert.name.length > 18 ? cert.name.slice(0,18) + '…' : cert.name;
+  ctx.fillText(ideaShort, lx + 110, ly + 16);
+  ly += 52;
+
+  // TICKER / HOLDER / VOTES AT TIME
+  ctx.strokeStyle = '#d4c9b8'; ctx.lineWidth = 0.5;
+  const fields = [
+    { lbl:'TICKER', val: cert.ticker, x: lx },
+    { lbl:'HOLDER', val: '@' + cert.holder, x: lx + 130 },
+    { lbl:'VOTES AT TIME', val: cert.votesAtTime + '票目', x: lx + 270 },
+  ];
+  fields.forEach((f, i) => {
+    ctx.fillStyle = '#a09080'; ctx.font = '8px monospace';
+    ctx.fillText(f.lbl, f.x, ly);
+    ctx.fillStyle = '#1a1400'; ctx.font = '500 13px monospace';
+    ctx.fillText(f.val, f.x, ly + 16);
+    if (i < 2) {
+      ctx.beginPath();
+      ctx.moveTo(f.x + 115, ly - 4);
+      ctx.lineTo(f.x + 115, ly + 22);
+      ctx.stroke();
+    }
+  });
+  ly += 40;
+
+  // EARLY INVESTOR バッジ
+  if (cert.isEarly) {
+    ctx.fillStyle = '#fef9f0';
+    roundRect(ctx, lx, ly, 110, 20, 3, '#fef9f0', '#fde68a', 1);
+    ctx.fillStyle = '#d97706';
+    ctx.beginPath(); ctx.arc(lx + 10, ly + 10, 3, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#854f0b'; ctx.font = '8px monospace';
+    ctx.fillText('EARLY INVESTOR', lx + 18, ly + 13);
+  }
+
+  // --- 右スタブ ---
+  const sx = stubX + 15;
+  const sw = 118;
+  const cy2 = H / 2;
+
+  // SERIAL
+  ctx.fillStyle = '#a09080'; ctx.font = '8px monospace'; ctx.textAlign = 'center';
+  ctx.fillText('SERIAL', sx + sw/2, 50);
+  ctx.fillStyle = '#e5ddd0';
+  roundRect(ctx, sx + sw/2 - 28, 55, 56, 18, 3, '#e5ddd0');
+  ctx.fillStyle = '#1a1400'; ctx.font = '9px monospace';
+  ctx.fillText(cert.serial, sx + sw/2, 68);
+
+  // INVESTED スタンプ
+  ctx.strokeStyle = '#c0392b'; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.arc(sx + sw/2, cy2, 36, 0, Math.PI*2); ctx.stroke();
+  ctx.fillStyle = '#c0392b'; ctx.font = 'bold 28px sans-serif';
+  ctx.fillText('✓', sx + sw/2, cy2 + 10);
+  ctx.font = '8px monospace';
+  ctx.fillText('INVESTED', sx + sw/2, cy2 + 26);
+
+  // バーコード
+  ctx.fillStyle = '#1a1400'; ctx.textAlign = 'center';
+  const bars = [2,1,3,1,2,1,3,1,2,1,2];
+  const bh = [28,22,28,18,28,20,28,16,24,28,22];
+  const bx0 = sx + sw/2 - 24;
+  let bxi = bx0;
+  bars.forEach((w, i) => {
+    ctx.fillRect(bxi, H - 64 - bh[i], w, bh[i]);
+    bxi += w + 1.5;
+  });
+  ctx.fillStyle = '#a09080'; ctx.font = '8px monospace';
+  ctx.fillText('あいぽ', sx + sw/2, H - 32);
+
+  return canvas;
+}
+
+function roundRect(ctx, x, y, w, h, r, fill, stroke, sw) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y); ctx.arcTo(x + w, y, x + w, y + r, r);
+  ctx.lineTo(x + w, y + h - r); ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+  ctx.lineTo(x + r, y + h); ctx.arcTo(x, y + h, x, y + h - r, r);
+  ctx.lineTo(x, y + r); ctx.arcTo(x, y, x + r, y, r);
+  ctx.closePath();
+  if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+  if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = sw || 1; ctx.stroke(); }
+}
+
+function roundRectRight(ctx, x, y, w, h, r, fill) {
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  ctx.lineTo(x + w - r, y); ctx.arcTo(x + w, y, x + w, y + r, r);
+  ctx.lineTo(x + w, y + h - r); ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+  ctx.lineTo(x, y + h);
+  ctx.closePath();
+  ctx.fillStyle = fill; ctx.fill();
+}
+
 async function shareCertificate(ideaId, encodedName, ticker) {
   const btn = document.getElementById('cert-share-btn');
   if (btn) { btn.innerHTML = '生成中...'; btn.disabled = true; }
 
   try {
-    const el = document.getElementById('cert-inner');
-    const canvas = await html2canvas(el, {
-      scale: 3,
-      backgroundColor: '#f5f1ea',
-      useCORS: true,
-      allowTaint: true,
-      logging: false,
-      foreignObjectRendering: false
-    });
-
     const ideaName = decodeURIComponent(encodedName);
+    const certs = loadCerts();
+    const certData = certs.find(c => c.ideaId === ideaId) || {
+      ticker, name: ideaName, holder: currentUser?.x_username || 'ユーザー',
+      votesAtTime: 1, date: new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}),
+      time: new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}),
+      serial: 'AI-' + String(new Date().getMonth()+1).padStart(2,'0') + String(new Date().getDate()).padStart(2,'0'),
+      isEarly: true
+    };
+
+    const canvas = drawCertificateToCanvas(certData);
     const shareUrl = 'https://aipo-tau.vercel.app/?idea=' + ideaId;
-    const tweetText = encodeURIComponent('「' + ideaName + '」に早期投資しました\n\nあいぽで株券をもらいました\uD83D\uDC47\n' + shareUrl + '\n\n#あいぽ #アイデアIPO');
+    const tweetText = encodeURIComponent('「' + ideaName + '」に早期投資しました\n\nあいぽで株券をもらいました👇\n' + shareUrl + '\n\n#あいぽ #アイデアIPO');
     const xUrl = 'https://twitter.com/intent/tweet?text=' + tweetText;
 
     canvas.toBlob(async (blob) => {
-      const file = new File([blob], 'aipo-certificate-' + ticker + '.png', { type: 'image/png' });
+      const file = new File([blob], 'aipo-certificate-' + ticker + '.png', { type:'image/png' });
 
-      // iOS/Android: Web Share API で写真に保存
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      if (navigator.canShare && navigator.canShare({ files:[file] })) {
         try {
-          await navigator.share({ files: [file], title: 'あいぽ株券', text: '「' + ideaName + '」に早期投資しました #あいぽ' });
+          await navigator.share({ files:[file], title:'あいぽ株券', text:'「' + ideaName + '」に早期投資しました #あいぽ' });
           setTimeout(() => window.open(xUrl, '_blank'), 800);
           return;
-        } catch(shareErr) {
-          if (shareErr.name === 'AbortError') return;
-        }
+        } catch(e) { if (e.name === 'AbortError') return; }
       }
 
-      // PC フォールバック: ダウンロード
       const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.download = 'aipo-certificate-' + ticker + '.png';
-      link.href = url;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const a = document.createElement('a');
+      a.download = 'aipo-certificate-' + ticker + '.png';
+      a.href = url;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
       setTimeout(() => { URL.revokeObjectURL(url); window.open(xUrl, '_blank'); }, 500);
     }, 'image/png');
 
   } catch(e) {
-    console.error(e);
-    showToast('画像の生成に失敗しました');
+    console.error(e); showToast('画像生成に失敗しました');
   } finally {
     if (btn) {
-      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" style="flex-shrink:0"><path d="M2 2l7.5 8.5L2 18h2l6.3-7.1L16 18h4L12 9.2 18.5 2h-2L10.6 8.6 5 2H2z"/></svg> Xでシェアする';
+      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M2 2l7.5 8.5L2 18h2l6.3-7.1L16 18h4L12 9.2 18.5 2h-2L10.6 8.6 5 2H2z"/></svg> Xでシェアする';
       btn.disabled = false;
     }
   }
 }
 
-
-
-const COLL_KEY = 'aipo-certificates';
-
-function saveCertToCollection(idea, votesAtTime) {
-  const certs = loadCerts();
-  const today = new Date();
-  const cert = {
-    id: idea.id + '-' + Date.now(),
-    ideaId: idea.id,
-    ticker: idea.ticker,
-    name: idea.name,
-    genre: idea.genre,
-    emoji: idea.emoji || '💡',
-    votesAtTime: votesAtTime + 1,
-    score: idea.score,
-    date: today.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }),
-    time: today.toLocaleTimeString('ja-JP', { hour:'2-digit', minute:'2-digit' }),
-    serial: 'AI-' + String(today.getMonth()+1).padStart(2,'0') + String(today.getDate()).padStart(2,'0'),
-    holder: currentUser?.x_username || 'ユーザー',
-    isEarly: (votesAtTime + 1) <= 5,
-    isFirst: votesAtTime === 0,
-  };
-  // 同じideaIdの株券が既にあれば上書きしない
-  if (!certs.find(c => c.ideaId === idea.id)) {
-    certs.unshift(cert);
-    localStorage.setItem(COLL_KEY, JSON.stringify(certs));
-  }
-}
-
-function loadCerts() {
-  try { return JSON.parse(localStorage.getItem(COLL_KEY) || '[]'); } catch(e) { return []; }
-}
-
-function renderCertCollection() {
-  const el = document.getElementById('cert-collection-section');
-  if (!el) return;
-  const certs = loadCerts();
-
-  if (certs.length === 0) {
-    el.innerHTML = `<div class="cert-coll-wrap">
-      <div class="cert-coll-hd"><span class="cert-coll-title">株券コレクション</span></div>
-      <div class="cert-empty">
-        <div class="cert-empty-ico">🎫</div>
-        <div class="cert-empty-txt">まだ株券がありません</div>
-        <div class="cert-empty-sub">アイデアを応援すると<br>株券が発行されます</div>
-      </div>
-    </div>`;
-    return;
-  }
-
-  const cards = certs.map((cert, i) => {
-    const goldClass = i === 0 && cert.isFirst ? ' gold' : '';
-    const nameShort = cert.name.length > 16 ? cert.name.slice(0,16) + '…' : cert.name;
-    return `<div class="cert-mini${goldClass}" onclick="showCertFromCollection('${cert.id}')">
-      <div class="cert-mini-brand">AIPO · ${cert.serial}</div>
-      <div class="cert-mini-ticker">${cert.ticker}</div>
-      <div class="cert-mini-name">${nameShort}</div>
-      <div class="cert-mini-date">${cert.date}</div>
-      ${cert.isEarly ? '<div class="cert-mini-early"><div class="cert-mini-early-dot"></div><span class="cert-mini-early-txt">EARLY</span></div>' : ''}
-      <div class="cert-mini-stamp">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#c0392b" stroke-width="2.2" stroke-linecap="round"/></svg>
-      </div>
-    </div>`;
-  }).join('');
-
-  el.innerHTML = `<div class="cert-coll-wrap">
-    <div class="cert-coll-hd">
-      <span class="cert-coll-title">
-        <svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="var(--amber-mid)" stroke-width="1.8"><rect x="2" y="4" width="16" height="13" rx="2"/><path d="M6 4V3a1 1 0 012 0v1M12 4V3a1 1 0 012 0v1"/><line x1="2" y1="8" x2="18" y2="8"/></svg>
-        株券コレクション
-      </span>
-      <span class="cert-coll-count">${certs.length}枚</span>
-    </div>
-    <div class="cert-coll-scroll">${cards}</div>
-  </div>`;
-}
 
 function showCertFromCollection(certId) {
   const certs = loadCerts();
