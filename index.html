@@ -214,7 +214,6 @@ input[type=file] { display: none; }
 .cert-share-btn:active{opacity:.85}
 .cert-close-btn{width:100%;padding:12px;background:transparent;border:none;font-size:13px;color:var(--text3);cursor:pointer;font-family:var(--sans)}
 
-
 .top3-wrap{padding:10px 12px 10px;border-bottom:0.5px solid var(--border)}
 .top3-label{display:flex;align-items:center;gap:5px;margin-bottom:8px}
 .top3-label-txt{font-size:9px;font-weight:700;color:var(--text3);letter-spacing:.06em}
@@ -231,7 +230,6 @@ input[type=file] { display: none; }
 .top3-votes-v{font-size:7px;color:var(--text3);margin-top:3px}
 .top3-vb{position:absolute;bottom:7px;right:7px;width:20px;height:20px;border-radius:50%;border:0.5px solid var(--border2);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .12s;font-family:var(--sans)}
 .top3-vb:hover,.top3-vb.voted{background:var(--green-bg);border-color:var(--green-light)}
-
 
 .cert-coll-wrap{padding:14px 0 4px}
 .cert-coll-hd{display:flex;align-items:center;justify-content:space-between;padding:0 14px;margin-bottom:10px}
@@ -277,6 +275,30 @@ input[type=file] { display: none; }
 .x-login-btn { width: 100%; padding: 16px; background: #000; border: none; border-radius: var(--r-lg); font-size: 16px; font-weight: 700; color: #fff; cursor: pointer; font-family: var(--sans); display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 12px; transition: opacity .15s; }
 .x-login-btn:active { opacity: .85; }
 .login-note { font-size: 11px; color: var(--text3); text-align: center; line-height: 1.6; }
+
+/* === CHARGE UI === */
+.balance-bar{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border-radius:var(--r-lg);padding:12px 16px;margin-bottom:10px;border:1.5px solid var(--amber-border)}
+.balance-num{font-family:var(--mono);font-size:24px;font-weight:700;color:var(--amber)}
+.balance-unit{font-size:12px;color:var(--text3);margin-left:4px}
+.charge-btn-inline{background:var(--amber-mid);color:#fff;border:none;border-radius:20px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:all .15s}
+.charge-btn-inline:active{background:#c06d08}
+.shop-card{background:var(--surface);border-radius:var(--r-lg);padding:14px 16px;margin-bottom:10px}
+.shop-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:0.5px solid var(--border)}
+.shop-item:last-child{border-bottom:none}
+.shop-item-info{flex:1}
+.shop-item-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px}
+.shop-item-sub{font-size:11px;color:var(--text3)}
+.shop-item-btn{background:var(--amber-bg);color:var(--amber);border:1.5px solid var(--amber-border);border-radius:20px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans);white-space:nowrap;transition:all .15s}
+.shop-item-btn:active{background:var(--amber-mid);color:#fff}
+.shop-item-btn:disabled{background:var(--surface2);color:var(--text3);border-color:var(--border2);cursor:not-allowed}
+.charge-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;display:flex;align-items:flex-end;justify-content:center}
+.charge-modal-box{background:var(--surface);border-radius:24px 24px 0 0;padding:24px 20px 44px;width:100%;max-width:390px;animation:slideUp .35s cubic-bezier(.16,1,.3,1)}
+.charge-option{border:1.5px solid var(--border2);border-radius:var(--r-lg);padding:14px 16px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;background:var(--surface)}
+.charge-option.selected{border-color:var(--amber-mid);background:var(--amber-bg)}
+.charge-option-left{display:flex;flex-direction:column;gap:3px}
+.charge-option-amount{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--text)}
+.charge-option-bonus{font-size:11px;color:var(--green);font-weight:700}
+.charge-option-total{font-size:12px;color:var(--amber);font-weight:700}
 </style>
 </head>
 <body>
@@ -358,7 +380,6 @@ input[type=file] { display: none; }
         <div class="votes-chip"><span class="votes-n" id="votes-left">3</span><span class="votes-l">票</span></div>
       </div>
     </div>
-    <!-- TOP3 + タブ -->
     <div class="top3-wrap">
       <div class="top3-label"><span class="top3-label-txt">TOP RANKING</span></div>
       <div class="top3-grid" id="top3-grid">
@@ -449,6 +470,39 @@ input[type=file] { display: none; }
   <div class="feed-body" style="padding:10px 14px 0">
     <div id="portfolio-founder-badge" style="padding:4px 0 8px;padding-left:0"></div>
     <div id="portfolio-insight"></div>
+    <div class="balance-bar">
+      <div style="display:flex;align-items:baseline;gap:2px">
+        <span class="balance-num" id="user-balance">0</span>
+        <span class="balance-unit">円</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:10px;color:var(--text3)">残高</span>
+        <button class="charge-btn-inline" onclick="openChargeModal()">チャージ</button>
+      </div>
+    </div>
+    <div class="shop-card">
+      <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.06em;margin-bottom:10px">ショップ</div>
+      <div class="shop-item">
+        <div class="shop-item-info">
+          <div class="shop-item-name">追加票 × 1票</div>
+          <div class="shop-item-sub">今日の残り票に +1 加算されます</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--amber)">¥50</span>
+          <button class="shop-item-btn" onclick="buyWithBalance('vote',50)">購入</button>
+        </div>
+      </div>
+      <div class="shop-item">
+        <div class="shop-item-info">
+          <div class="shop-item-name">上場枠 × 1枠</div>
+          <div class="shop-item-sub">アイデアを追加で1件上場できます</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--amber)">¥300</span>
+          <button class="shop-item-btn" onclick="buyWithBalance('post',300)">購入</button>
+        </div>
+      </div>
+    </div>
     <div id="cert-collection-section" style="background:var(--surface);border-radius:var(--r-xl);margin-bottom:12px;overflow:hidden"></div>
     <div class="stock-group" id="portfolio-list"></div>
   </div>
@@ -473,6 +527,37 @@ input[type=file] { display: none; }
 
 <input type="file" id="file-input" accept="image/*">
 <div class="toast" id="toast"></div>
+
+<div id="charge-modal-overlay" class="charge-modal-overlay" style="display:none" onclick="if(event.target===this)closeChargeModal()">
+  <div class="charge-modal-box">
+    <div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 20px"></div>
+    <div style="font-size:17px;font-weight:700;text-align:center;margin-bottom:4px">残高をチャージ</div>
+    <div style="font-size:12px;color:var(--text3);text-align:center;margin-bottom:20px">チャージした残高で票や上場枠を購入できます</div>
+    <div class="charge-option" id="charge-opt-500" onclick="selectCharge(500)">
+      <div class="charge-option-left">
+        <span class="charge-option-amount">¥500</span>
+        <span style="font-size:11px;color:var(--text3)">ボーナスなし</span>
+      </div>
+      <span style="font-family:var(--mono);font-size:13px;color:var(--text3)">500円分</span>
+    </div>
+    <div class="charge-option" id="charge-opt-1000" onclick="selectCharge(1000)">
+      <div class="charge-option-left">
+        <span class="charge-option-amount">¥1,000</span>
+        <span class="charge-option-bonus">+50円ボーナス</span>
+      </div>
+      <span class="charge-option-total">1,050円分</span>
+    </div>
+    <div class="charge-option" id="charge-opt-3000" onclick="selectCharge(3000)">
+      <div class="charge-option-left">
+        <span class="charge-option-amount">¥3,000</span>
+        <span class="charge-option-bonus">+300円ボーナス 🎉</span>
+      </div>
+      <span class="charge-option-total">3,300円分</span>
+    </div>
+    <button id="charge-start-btn" class="primary-btn" style="margin-top:12px" onclick="startCharge()" disabled>金額を選んでください</button>
+    <button onclick="closeChargeModal()" style="width:100%;padding:12px;background:transparent;border:none;font-size:14px;color:var(--text3);cursor:pointer;font-family:var(--sans);margin-top:4px">キャンセル</button>
+  </div>
+</div>
 <script>
 const SUPABASE_URL = 'https://qjffvspnnxyykoyhnazm.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqZmZ2c3Bubnh5eWtveWhuYXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzMTIxMzMsImV4cCI6MjA4Njg4ODEzM30.OqeeMZs73RjKY5POW-naf0dB8sFWfZDUKaKvE99EiBo';
@@ -544,7 +629,6 @@ async function voteIdeaToDB(ideaId, votesAtTime) {
   const { data: current } = await sb.from('ideas').select('votes').eq('id', ideaId).single();
   const dbVotes = (current?.votes || 0) + 1;
   await sb.from('ideas').update({ votes: dbVotes, last_voted_at: new Date().toISOString() }).eq('id', ideaId);
-  // Check milestone after vote
   if (dbVotes >= 20) checkMilestone(ideaId);
   return true;
 }
@@ -680,7 +764,6 @@ async function loadDividends() {
     }
     pendingDividends.push(d);
   }
-  // Mark all as claimed
   const ids = data.map(d => d.id);
   await sb.from('dividends').update({ is_claimed: true }).in('id', ids);
   if (data.length > 0) showDividendToast(data);
@@ -718,12 +801,9 @@ async function checkMilestone(ideaId) {
   const idea = ideas.find(i => i.id === ideaId);
   if (!idea) return;
   if (idea.votes < 20) return;
-  // Check if milestone already processed
   const { data: ideaData } = await sb.from('ideas').select('milestone_20_done').eq('id', ideaId).single();
   if (!ideaData || ideaData.milestone_20_done) return;
-  // Mark milestone done
   await sb.from('ideas').update({ milestone_20_done: true }).eq('id', ideaId);
-  // Get all early voters (voted when idea had <= 10 votes)
   const { data: earlyVoters } = await sb.from('votes')
     .select('user_id, idea_votes_at_time')
     .eq('idea_id', ideaId)
@@ -750,7 +830,6 @@ async function checkMilestone(ideaId) {
   if (dividendRows.length > 0) {
     await sb.from('dividends').insert(dividendRows);
   }
-  // Load own dividends immediately
   await loadDividends();
 }
 
@@ -885,7 +964,6 @@ function renderPortfolio() {
     if (currentUser?.id === '7f3162ec-c281-435f-8e8e-3b6d65b8b1c9') loadOwnerStats();
   }
 
-  // 目利きスコアカード
   const insightEl = document.getElementById('portfolio-insight');
   if (insightEl && currentUser) {
     const rank = getInsightRank(insightScore);
@@ -914,6 +992,7 @@ function renderPortfolio() {
     insightEl.innerHTML = '';
   }
 
+  loadBalance();
   renderCertCollection();
   const el = document.getElementById('portfolio-list');
   const myList = ideas.filter(i => myIdeas.has(i.id));
@@ -1033,14 +1112,13 @@ function buildRowList(idea) {
     </div>
     <div style="text-align:right">
       <div style="font-family:var(--mono);font-size:10px;color:var(--text2)">${idea.votes}票</div>
-      ${isHot?'<div style="font-size:7px;color:var(--amber);font-weight:700">注目</div>':'<div style="font-size:7px;color:var(--text3)">${idea.genre.slice(0,4)}</div>'}
+      ${isHot?'<div style="font-size:7px;color:var(--amber);font-weight:700">注目</div>':'<div style="font-size:7px;color:var(--text3)">'+idea.genre.slice(0,4)+'</div>'}
     </div>
     <button onclick="event.stopPropagation();voteIdea('${idea.id}')" style="background:${voted?'var(--surface2)':'rgba(34,168,95,.1)'};border:none;border-radius:50%;width:20px;height:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .12s">
       <svg width="9" height="9" viewBox="0 0 20 20" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="${voted?'#22a85f':'var(--green)'}" stroke-width="2.5" stroke-linecap="round"/></svg>
     </button>
   </div>`;
 }
-
 
 function renderTop3() {
   const top3 = ideas.slice().sort((a,b) => b.score - a.score).slice(0, 3);
@@ -1051,7 +1129,6 @@ function renderTop3() {
     return;
   }
   const ranks = ['1st','2nd','3rd'];
-  const rankColors = ['#ca8a04','var(--text3)','var(--text3)'];
   grid.innerHTML = top3.map((idea, i) => {
     const delta = idea.score - idea.baseScore;
     const ds = (delta>=0?'+':'')+delta.toFixed(1);
@@ -1566,42 +1643,13 @@ function showEditIdea(id) {
   modal.innerHTML = `<div style="background:var(--surface);border-radius:24px 24px 0 0;padding:24px 20px 40px;width:100%;max-width:390px;max-height:90vh;overflow-y:auto">
     <div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 20px"></div>
     <div style="font-family:var(--mono);font-size:10px;color:var(--amber-mid);letter-spacing:.1em;font-weight:700;margin-bottom:16px">EDIT LISTING</div>
-
-    <div class="field-wrap">
-      <div class="field-lbl">アイコン</div>
-      <div style="display:flex;gap:7px;flex-wrap:wrap" id="edit-emoji-row-${id}">${emojiRow}</div>
-    </div>
-
-    <div class="field-wrap">
-      <div class="field-lbl">アイデア名 <span class="field-req">必須</span></div>
-      <input class="inp" id="edit-title-${id}" value="${idea.name}" maxlength="40">
-    </div>
-
-    <div class="field-wrap">
-      <div class="field-lbl">ジャンル <span class="field-req">必須</span></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="edit-genre-grid-${id}">${genreGrid}</div>
-    </div>
-
-    <div class="field-wrap">
-      <div class="field-lbl">ティッカー <span style="font-size:10px;color:var(--text3);font-weight:400">英大文字5字以内</span></div>
-      <input class="inp inp-sm" id="edit-ticker-${id}" value="${idea.ticker||''}" maxlength="5" style="text-transform:uppercase">
-    </div>
-
-    <div class="field-wrap">
-      <div class="field-lbl">説明 <span style="font-size:10px;color:var(--text3);font-weight:400">後から追加可</span></div>
-      <textarea class="inp inp-sm" id="edit-desc-${id}" rows="3">${idea.desc||''}</textarea>
-    </div>
-
-    <div class="field-wrap">
-      <div class="field-lbl">作る技術 <span style="font-size:10px;color:var(--text3);font-weight:400">任意</span></div>
-      <input class="inp inp-sm" id="edit-tech-${id}" value="${idea.tech||''}" placeholder="例：React Native、Python">
-    </div>
-
-    <div class="field-wrap">
-      <div class="field-lbl">進捗ステータス</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="edit-progress-grid-${id}">${progressGrid}</div>
-    </div>
-
+    <div class="field-wrap"><div class="field-lbl">アイコン</div><div style="display:flex;gap:7px;flex-wrap:wrap" id="edit-emoji-row-${id}">${emojiRow}</div></div>
+    <div class="field-wrap"><div class="field-lbl">アイデア名 <span class="field-req">必須</span></div><input class="inp" id="edit-title-${id}" value="${idea.name}" maxlength="40"></div>
+    <div class="field-wrap"><div class="field-lbl">ジャンル <span class="field-req">必須</span></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="edit-genre-grid-${id}">${genreGrid}</div></div>
+    <div class="field-wrap"><div class="field-lbl">ティッカー <span style="font-size:10px;color:var(--text3);font-weight:400">英大文字5字以内</span></div><input class="inp inp-sm" id="edit-ticker-${id}" value="${idea.ticker||''}" maxlength="5" style="text-transform:uppercase"></div>
+    <div class="field-wrap"><div class="field-lbl">説明 <span style="font-size:10px;color:var(--text3);font-weight:400">後から追加可</span></div><textarea class="inp inp-sm" id="edit-desc-${id}" rows="3">${idea.desc||''}</textarea></div>
+    <div class="field-wrap"><div class="field-lbl">作る技術 <span style="font-size:10px;color:var(--text3);font-weight:400">任意</span></div><input class="inp inp-sm" id="edit-tech-${id}" value="${idea.tech||''}" placeholder="例：React Native、Python"></div>
+    <div class="field-wrap"><div class="field-lbl">進捗ステータス</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="edit-progress-grid-${id}">${progressGrid}</div></div>
     <button onclick="saveEditIdea('${id}')" style="width:100%;padding:15px;background:var(--amber-mid);border:none;border-radius:var(--r-lg);font-size:15px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans);margin-top:4px">保存する</button>
     <button onclick="document.getElementById('edit-modal').remove()" style="width:100%;padding:12px;background:transparent;border:none;font-size:14px;color:var(--text3);cursor:pointer;font-family:var(--sans);margin-top:4px">キャンセル</button>
   </div>`;
@@ -1612,10 +1660,7 @@ function showEditIdea(id) {
 function editSelEmoji(el, id) {
   const row = document.getElementById('edit-emoji-row-'+id);
   if (!row) return;
-  row.querySelectorAll('[data-e]').forEach(x => {
-    x.style.border = '2px solid transparent';
-    x.style.background = 'var(--surface2)';
-  });
+  row.querySelectorAll('[data-e]').forEach(x => { x.style.border = '2px solid transparent'; x.style.background = 'var(--surface2)'; });
   el.style.border = '2px solid var(--amber-mid)';
   el.style.background = 'var(--amber-bg)';
 }
@@ -1623,11 +1668,7 @@ function editSelEmoji(el, id) {
 function editSelGenre(el, id) {
   const grid = document.getElementById('edit-genre-grid-'+id);
   if (!grid) return;
-  grid.querySelectorAll('div').forEach(x => {
-    x.style.borderColor = 'var(--border2)';
-    x.style.color = 'var(--text2)';
-    x.style.background = 'var(--surface)';
-  });
+  grid.querySelectorAll('div').forEach(x => { x.style.borderColor = 'var(--border2)'; x.style.color = 'var(--text2)'; x.style.background = 'var(--surface)'; });
   el.style.borderColor = 'var(--amber-mid)';
   el.style.color = 'var(--amber)';
   el.style.background = 'var(--amber-bg)';
@@ -1637,13 +1678,11 @@ function editSelProgress(el, id, val) {
   const grid = document.getElementById('edit-progress-grid-'+id);
   if (!grid) return;
   grid.querySelectorAll('div').forEach(x => {
-    x.style.borderColor = 'var(--border2)';
-    x.style.background = 'var(--surface)';
+    x.style.borderColor = 'var(--border2)'; x.style.background = 'var(--surface)';
     x.querySelector('div').style.color = 'var(--text2)';
     x.querySelectorAll('div')[1].style.color = 'var(--text3)';
   });
-  el.style.borderColor = 'var(--amber-mid)';
-  el.style.background = 'var(--amber-bg)';
+  el.style.borderColor = 'var(--amber-mid)'; el.style.background = 'var(--amber-bg)';
   el.querySelector('div').style.color = 'var(--amber)';
   el.querySelectorAll('div')[1].style.color = 'var(--amber-mid)';
 }
@@ -1651,55 +1690,31 @@ function editSelProgress(el, id, val) {
 async function saveEditIdea(id) {
   const idea = ideas.find(i=>i.id===id);
   if (!idea) return;
-
   const emojiRow = document.getElementById('edit-emoji-row-'+id);
   const selectedEmoji = emojiRow?.querySelector('[style*="var(--amber-mid)"]')?.dataset?.e || idea.emoji;
-
   const genreGrid = document.getElementById('edit-genre-grid-'+id);
   const selectedGenre = genreGrid?.querySelector('[style*="var(--amber-mid)"]')?.textContent?.trim() || idea.genre;
-
   const progressGrid = document.getElementById('edit-progress-grid-'+id);
   const progressDivs = progressGrid?.querySelectorAll('div');
   let selectedProgress = idea.progressStep;
   if (progressDivs) {
     progressDivs.forEach((div, i) => {
-      if (div.style.borderColor === 'var(--amber-mid)' || div.style.background === 'var(--amber-bg)') {
-        selectedProgress = i;
-      }
+      if (div.style.borderColor === 'var(--amber-mid)' || div.style.background === 'var(--amber-bg)') { selectedProgress = i; }
     });
   }
-
   const newName = document.getElementById('edit-title-'+id)?.value?.trim() || idea.name;
   const newDesc = document.getElementById('edit-desc-'+id)?.value?.trim() || '';
   const newTech = document.getElementById('edit-tech-'+id)?.value?.trim() || '';
   const rawTicker = document.getElementById('edit-ticker-'+id)?.value?.trim().toUpperCase();
   const newTicker = rawTicker || idea.ticker;
-
-  idea.name = newName;
-  idea.desc = newDesc;
-  idea.tech = newTech;
-  idea.ticker = newTicker;
-  idea.emoji = selectedEmoji;
-  idea.genre = selectedGenre;
-  idea.progressStep = selectedProgress;
-  idea.progress = selectedProgress;
+  idea.name = newName; idea.desc = newDesc; idea.tech = newTech; idea.ticker = newTicker;
+  idea.emoji = selectedEmoji; idea.genre = selectedGenre;
+  idea.progressStep = selectedProgress; idea.progress = selectedProgress;
   idea.score = calcScore(idea);
-
-  await sb.from('ideas').update({
-    name: newName,
-    description: newDesc,
-    tech: newTech,
-    ticker: newTicker,
-    emoji: selectedEmoji,
-    genre: selectedGenre,
-    progress_step: selectedProgress,
-    updated_at: new Date()
-  }).eq('id', id);
-
+  await sb.from('ideas').update({ name: newName, description: newDesc, tech: newTech, ticker: newTicker, emoji: selectedEmoji, genre: selectedGenre, progress_step: selectedProgress, updated_at: new Date() }).eq('id', id);
   document.getElementById('edit-modal')?.remove();
   showToast('更新しました');
-  renderPortfolio();
-  renderFeed();
+  renderPortfolio(); renderFeed();
 }
 
 function confirmDeleteIdea(id) {
@@ -1782,11 +1797,8 @@ function startRealtime() {
       idea.commentList.unshift({ name:'@'+(data?.x_username||'ユーザー'), text:c.text, time:'たった今', tag: null });
       idea.score = calcScore(idea);
       if (document.getElementById('screen-detail').classList.contains('active')) {
-        const section = document.getElementById('comment-section-'+c.idea_id);
-        if (section) {
-          const list = document.getElementById('comment-list-'+c.idea_id);
-          if (list) { list.innerHTML = `<div style="padding:10px 0;border-bottom:0.5px solid var(--border);animation:fu .5s ease-out"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px"><div style="display:flex;align-items:center;gap:6px"><span style="font-size:12px;font-weight:700;color:var(--text)">@${data?.x_username||'ユーザー'}</span></div><span style="font-size:10px;color:var(--text3)">たった今</span></div><div style="font-size:13px;color:var(--text);line-height:1.6">${c.text}</div></div>` + list.innerHTML; }
-        }
+        const list = document.getElementById('comment-list-'+c.idea_id);
+        if (list) { list.innerHTML = `<div style="padding:10px 0;border-bottom:0.5px solid var(--border);animation:fu .5s ease-out"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px"><div style="display:flex;align-items:center;gap:6px"><span style="font-size:12px;font-weight:700;color:var(--text)">@${data?.x_username||'ユーザー'}</span></div><span style="font-size:10px;color:var(--text3)">たった今</span></div><div style="font-size:13px;color:var(--text);line-height:1.6">${c.text}</div></div>` + list.innerHTML; }
       }
     })
     .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'ideas' }, (payload) => {
@@ -1805,7 +1817,6 @@ function startRealtime() {
     })
     .subscribe();
 }
-
 
 function buildCertHTML(idea, votesAtTime) {
   const today = new Date();
@@ -1845,20 +1856,11 @@ function buildCertHTML(idea, votesAtTime) {
         </div>
       </div>
       <div style="display:flex;align-items:flex-start;gap:6px;flex-wrap:wrap">
-        <div>
-          <div class="cert-field-lbl">TICKER</div>
-          <div class="cert-mono">${idea.ticker}</div>
-        </div>
+        <div><div class="cert-field-lbl">TICKER</div><div class="cert-mono">${idea.ticker}</div></div>
         <div style="width:.5px;height:28px;background:#d4c9b8;margin-top:10px"></div>
-        <div>
-          <div class="cert-field-lbl">HOLDER</div>
-          <div class="cert-mono">${userName}</div>
-        </div>
+        <div><div class="cert-field-lbl">HOLDER</div><div class="cert-mono">${userName}</div></div>
         <div style="width:.5px;height:28px;background:#d4c9b8;margin-top:10px"></div>
-        <div>
-          <div class="cert-field-lbl">VOTES AT TIME</div>
-          <div class="cert-mono">${voteLabel}</div>
-        </div>
+        <div><div class="cert-field-lbl">VOTES AT TIME</div><div class="cert-mono">${voteLabel}</div></div>
       </div>
       <div class="cert-early"><div class="cert-early-dot"></div><span class="cert-early-txt">EARLY INVESTOR</span></div>
     </div>
@@ -1893,7 +1895,6 @@ function buildCertHTML(idea, votesAtTime) {
 function showCertificate(idea, votesAtTime) {
   const existing = document.getElementById('cert-modal');
   if (existing) existing.remove();
-
   const overlay = document.createElement('div');
   overlay.id = 'cert-modal';
   overlay.className = 'cert-modal-overlay';
@@ -1902,9 +1903,7 @@ function showCertificate(idea, votesAtTime) {
       <div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px"></div>
       <div style="font-size:14px;font-weight:700;text-align:center;margin-bottom:4px;color:var(--text)">株券が発行されました</div>
       <div style="font-size:11px;color:var(--text3);text-align:center;margin-bottom:14px">応援の証として保存・シェアできます</div>
-      <div class="cert-wrap" id="cert-inner">
-        ${buildCertHTML(idea, votesAtTime)}
-      </div>
+      <div class="cert-wrap" id="cert-inner">${buildCertHTML(idea, votesAtTime)}</div>
       <button class="cert-share-btn" id="cert-share-btn" onclick="shareCertificate('${idea.id}','${encodeURIComponent(idea.name)}','${idea.ticker}')">
         <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M2 2l7.5 8.5L2 18h2l6.3-7.1L16 18h4L12 9.2 18.5 2h-2L10.6 8.6 5 2H2z"/></svg>
         Xでシェアする
@@ -1916,227 +1915,26 @@ function showCertificate(idea, votesAtTime) {
   overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
 }
 
-function drawCertificateToCanvas(cert) {
-  const W = 900, H = 460;
-  const canvas = document.createElement('canvas');
-  canvas.width = W * 2; canvas.height = H * 2;
-  const ctx = canvas.getContext('2d');
-  ctx.scale(2, 2);
-
-  const stubX = W - 148;
-  const r = 14;
-
-  // 背景
-  ctx.fillStyle = '#f0ebe1';
-  ctx.fillRect(0, 0, W, H);
-
-  // カード本体
-  roundRect(ctx, 20, 20, W - 40, H - 40, r, '#faf8f4', '#e0d8cc', 1.5);
-
-  // 右スタブ背景
-  roundRectRight(ctx, stubX, 20, 148 - 20, H - 40, r, '#ede9e0');
-
-  // 破線区切り
-  ctx.save();
-  ctx.setLineDash([5, 4]);
-  ctx.strokeStyle = '#d4c9b8';
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.moveTo(stubX, 36);
-  ctx.lineTo(stubX, H - 36);
-  ctx.stroke();
-  ctx.restore();
-
-  // ノッチ（切り込み丸）
-  ctx.fillStyle = '#f0ebe1';
-  ctx.beginPath(); ctx.arc(stubX, 20, 11, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.arc(stubX, H - 20, 11, 0, Math.PI * 2); ctx.fill();
-
-  // --- 左側コンテンツ ---
-  const lx = 44;
-  let ly = 44;
-
-  // ブランドアイコン
-  ctx.fillStyle = '#1a1400';
-  roundRect(ctx, lx, ly, 26, 26, 6, '#1a1400');
-  ctx.fillStyle = '#f59e0b';
-  ctx.font = 'bold 14px sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('↗', lx + 13, ly + 18);
-
-  ctx.fillStyle = '#1a1400';
-  ctx.font = 'bold 14px sans-serif';
-  ctx.textAlign = 'left';
-  ctx.fillText('あいぽ', lx + 34, ly + 18);
-  ly += 42;
-
-  // 区切り線
-  ctx.strokeStyle = '#c8bfae'; ctx.lineWidth = 0.5;
-  ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(stubX - 20, ly); ctx.stroke();
-  ctx.fillStyle = '#a09080';
-  ctx.font = '9px monospace';
-  ctx.textAlign = 'center';
-  ctx.fillText('INVESTMENT CERTIFICATE', (lx + stubX - 20) / 2, ly - 4);
-  ly += 16;
-
-  // DATE + IDEA
-  ctx.fillStyle = '#a09080'; ctx.font = '8px monospace'; ctx.textAlign = 'left';
-  ctx.fillText('DATE', lx, ly);
-  ctx.fillStyle = '#1a1400'; ctx.font = 'bold 14px sans-serif';
-  ctx.fillText(cert.date, lx, ly + 16);
-  ctx.fillStyle = '#a09080'; ctx.font = '9px monospace';
-  ctx.fillText(cert.time, lx, ly + 30);
-
-  ctx.fillStyle = '#a09080'; ctx.font = '8px monospace';
-  ctx.fillText('IDEA', lx + 110, ly);
-  ctx.fillStyle = '#1a1400'; ctx.font = 'bold 13px sans-serif';
-  const ideaShort = cert.name.length > 18 ? cert.name.slice(0,18) + '…' : cert.name;
-  ctx.fillText(ideaShort, lx + 110, ly + 16);
-  ly += 52;
-
-  // TICKER / HOLDER / VOTES AT TIME
-  ctx.strokeStyle = '#d4c9b8'; ctx.lineWidth = 0.5;
-  const fields = [
-    { lbl:'TICKER', val: cert.ticker, x: lx },
-    { lbl:'HOLDER', val: '@' + cert.holder, x: lx + 130 },
-    { lbl:'VOTES AT TIME', val: cert.votesAtTime + '票目', x: lx + 270 },
-  ];
-  fields.forEach((f, i) => {
-    ctx.fillStyle = '#a09080'; ctx.font = '8px monospace';
-    ctx.fillText(f.lbl, f.x, ly);
-    ctx.fillStyle = '#1a1400'; ctx.font = '500 13px monospace';
-    ctx.fillText(f.val, f.x, ly + 16);
-    if (i < 2) {
-      ctx.beginPath();
-      ctx.moveTo(f.x + 115, ly - 4);
-      ctx.lineTo(f.x + 115, ly + 22);
-      ctx.stroke();
-    }
-  });
-  ly += 40;
-
-  // EARLY INVESTOR バッジ
-  if (cert.isEarly) {
-    ctx.fillStyle = '#fef9f0';
-    roundRect(ctx, lx, ly, 110, 20, 3, '#fef9f0', '#fde68a', 1);
-    ctx.fillStyle = '#d97706';
-    ctx.beginPath(); ctx.arc(lx + 10, ly + 10, 3, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#854f0b'; ctx.font = '8px monospace';
-    ctx.fillText('EARLY INVESTOR', lx + 18, ly + 13);
-  }
-
-  // --- 右スタブ ---
-  const sx = stubX + 15;
-  const sw = 118;
-  const cy2 = H / 2;
-
-  // SERIAL
-  ctx.fillStyle = '#a09080'; ctx.font = '8px monospace'; ctx.textAlign = 'center';
-  ctx.fillText('SERIAL', sx + sw/2, 50);
-  ctx.fillStyle = '#e5ddd0';
-  roundRect(ctx, sx + sw/2 - 28, 55, 56, 18, 3, '#e5ddd0');
-  ctx.fillStyle = '#1a1400'; ctx.font = '9px monospace';
-  ctx.fillText(cert.serial, sx + sw/2, 68);
-
-  // INVESTED スタンプ
-  ctx.strokeStyle = '#c0392b'; ctx.lineWidth = 2.5;
-  ctx.beginPath(); ctx.arc(sx + sw/2, cy2, 36, 0, Math.PI*2); ctx.stroke();
-  ctx.fillStyle = '#c0392b'; ctx.font = 'bold 28px sans-serif';
-  ctx.fillText('✓', sx + sw/2, cy2 + 10);
-  ctx.font = '8px monospace';
-  ctx.fillText('INVESTED', sx + sw/2, cy2 + 26);
-
-  // バーコード
-  ctx.fillStyle = '#1a1400'; ctx.textAlign = 'center';
-  const bars = [2,1,3,1,2,1,3,1,2,1,2];
-  const bh = [28,22,28,18,28,20,28,16,24,28,22];
-  const bx0 = sx + sw/2 - 24;
-  let bxi = bx0;
-  bars.forEach((w, i) => {
-    ctx.fillRect(bxi, H - 64 - bh[i], w, bh[i]);
-    bxi += w + 1.5;
-  });
-  ctx.fillStyle = '#a09080'; ctx.font = '8px monospace';
-  ctx.fillText('あいぽ', sx + sw/2, H - 32);
-
-  return canvas;
-}
-
-function roundRect(ctx, x, y, w, h, r, fill, stroke, sw) {
-  ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.lineTo(x + w - r, y); ctx.arcTo(x + w, y, x + w, y + r, r);
-  ctx.lineTo(x + w, y + h - r); ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
-  ctx.lineTo(x + r, y + h); ctx.arcTo(x, y + h, x, y + h - r, r);
-  ctx.lineTo(x, y + r); ctx.arcTo(x, y, x + r, y, r);
-  ctx.closePath();
-  if (fill) { ctx.fillStyle = fill; ctx.fill(); }
-  if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = sw || 1; ctx.stroke(); }
-}
-
-function roundRectRight(ctx, x, y, w, h, r, fill) {
-  ctx.beginPath();
-  ctx.moveTo(x, y);
-  ctx.lineTo(x + w - r, y); ctx.arcTo(x + w, y, x + w, y + r, r);
-  ctx.lineTo(x + w, y + h - r); ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
-  ctx.lineTo(x, y + h);
-  ctx.closePath();
-  ctx.fillStyle = fill; ctx.fill();
-}
-
 async function shareCertificate(ideaId, encodedName, ticker) {
   const btn = document.getElementById('cert-share-btn');
   if (btn) { btn.innerHTML = '生成中...'; btn.disabled = true; }
-
   try {
     const ideaName = decodeURIComponent(encodedName);
-    const certs = loadCerts();
-    const certData = certs.find(c => c.ideaId === ideaId);
-
-    // 画面外に株券HTMLを描画してキャプチャ
     const offscreen = document.createElement('div');
     offscreen.style.cssText = 'position:fixed;left:-9999px;top:0;z-index:-1;width:420px;background:#f5f1ea;padding:16px;border-radius:12px';
-    // cert-inner の内容を外枠ごと再現
     const certInner = document.getElementById('cert-inner');
     const certContent = certInner ? certInner.innerHTML
-      : buildCertHTML(
-          ideas.find(function(i){return i.id===ideaId;}) || {id:ideaId,ticker:ticker,name:ideaName,score:50,votes:1,emoji:'💡'},
-          0
-        );
-    offscreen.innerHTML = '<div style="'
-      + 'background:#ede8df;'
-      + 'padding:32px 24px;'
-      + 'border-radius:20px;'
-      + 'display:flex;'
-      + 'align-items:center;'
-      + 'justify-content:center;'
-      + '">'
-      + '<div class="cert-wrap" style="width:100%;max-width:520px;overflow:visible">'
-      + certContent
-      + '</div>'
-      + '</div>';
+      : buildCertHTML(ideas.find(function(i){return i.id===ideaId;}) || {id:ideaId,ticker:ticker,name:ideaName,score:50,votes:1,emoji:'💡'}, 0);
+    offscreen.innerHTML = '<div style="background:#ede8df;padding:32px 24px;border-radius:20px;display:flex;align-items:center;justify-content:center;"><div class="cert-wrap" style="width:100%;max-width:520px;overflow:visible">' + certContent + '</div></div>';
     document.body.appendChild(offscreen);
-
     await new Promise(r => setTimeout(r, 80));
-
-    const canvas = await html2canvas(offscreen.querySelector('div'), {
-      scale: 3,
-      backgroundColor: '#f5f1ea',
-      useCORS: true,
-      allowTaint: true,
-      logging: false,
-      windowWidth: 420,
-      windowHeight: 300
-    });
+    const canvas = await html2canvas(offscreen.querySelector('div'), { scale: 3, backgroundColor: '#f5f1ea', useCORS: true, allowTaint: true, logging: false, windowWidth: 420, windowHeight: 300 });
     document.body.removeChild(offscreen);
-
     const shareUrl = 'https://aipo-tau.vercel.app/?idea=' + ideaId;
     const tweetText = encodeURIComponent('「' + ideaName + '」に早期投資しました\n\nあいぽで株券をもらいました👇\n' + shareUrl + '\n\n#あいぽ #アイデアIPO');
     const xUrl = 'https://twitter.com/intent/tweet?text=' + tweetText;
-
     canvas.toBlob(async (blob) => {
       const file = new File([blob], 'aipo-certificate-' + ticker + '.png', { type:'image/png' });
-
       if (navigator.canShare && navigator.canShare({ files:[file] })) {
         try {
           await navigator.share({ files:[file], title:'あいぽ株券', text:'「' + ideaName + '」に早期投資しました #あいぽ' });
@@ -2144,7 +1942,6 @@ async function shareCertificate(ideaId, encodedName, ticker) {
           return;
         } catch(e) { if (e.name === 'AbortError') return; }
       }
-
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.download = 'aipo-certificate-' + ticker + '.png';
@@ -2152,7 +1949,6 @@ async function shareCertificate(ideaId, encodedName, ticker) {
       document.body.appendChild(a); a.click(); document.body.removeChild(a);
       setTimeout(() => { URL.revokeObjectURL(url); window.open(xUrl, '_blank'); }, 500);
     }, 'image/png');
-
   } catch(e) {
     console.error(e);
     showToast('画像生成に失敗しました: ' + e.message);
@@ -2164,23 +1960,14 @@ async function shareCertificate(ideaId, encodedName, ticker) {
   }
 }
 
-
-
 const COLL_KEY = 'aipo-certificates';
 
 function loadCerts() {
   try {
     const all = JSON.parse(localStorage.getItem(COLL_KEY) || '[]');
-    // ideaId重複を除去（最初のものを残す）
     const seen = new Set();
-    const deduped = all.filter(c => {
-      if (seen.has(c.ideaId)) return false;
-      seen.add(c.ideaId);
-      return true;
-    });
-    if (deduped.length !== all.length) {
-      localStorage.setItem(COLL_KEY, JSON.stringify(deduped));
-    }
+    const deduped = all.filter(c => { if (seen.has(c.ideaId)) return false; seen.add(c.ideaId); return true; });
+    if (deduped.length !== all.length) localStorage.setItem(COLL_KEY, JSON.stringify(deduped));
     return deduped;
   } catch(e) { return []; }
 }
@@ -2191,18 +1978,14 @@ function saveCertToCollection(idea, votesAtTime) {
     if (certs.find(c => c.ideaId === idea.id)) return;
     const today = new Date();
     certs.unshift({
-      id: idea.id + '-' + Date.now(),
-      ideaId: idea.id,
-      ticker: idea.ticker || 'IDEA',
-      name: idea.name || '',
-      votesAtTime: votesAtTime + 1,
-      score: idea.score || 50,
+      id: idea.id + '-' + Date.now(), ideaId: idea.id,
+      ticker: idea.ticker || 'IDEA', name: idea.name || '',
+      votesAtTime: votesAtTime + 1, score: idea.score || 50,
       date: today.toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'}),
       time: today.toLocaleTimeString('ja-JP', {hour:'2-digit',minute:'2-digit'}),
       serial: 'AI-' + String(today.getMonth()+1).padStart(2,'0') + String(today.getDate()).padStart(2,'0'),
       holder: (currentUser && currentUser.x_username) ? currentUser.x_username : 'user',
-      isEarly: (votesAtTime + 1) <= 5,
-      isFirst: votesAtTime === 0,
+      isEarly: (votesAtTime + 1) <= 5, isFirst: votesAtTime === 0,
     });
     localStorage.setItem(COLL_KEY, JSON.stringify(certs));
   } catch(e) { console.error('saveCert error:', e); }
@@ -2214,33 +1997,22 @@ function renderCertCollection() {
     if (!el) return;
     const certs = loadCerts();
     if (certs.length === 0) {
-      el.innerHTML = '<div style="padding:16px 14px"><div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:10px">株券コレクション</div>'
-        + '<div style="text-align:center;padding:20px 0"><div style="font-size:24px;margin-bottom:6px">🎫</div>'
-        + '<div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px">まだ株券がありません</div>'
-        + '<div style="font-size:11px;color:var(--text3);line-height:1.65">アイデアを応援すると<br>株券が発行されます</div></div></div>';
+      el.innerHTML = '<div style="padding:16px 14px"><div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:10px">株券コレクション</div><div style="text-align:center;padding:20px 0"><div style="font-size:24px;margin-bottom:6px">🎫</div><div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px">まだ株券がありません</div><div style="font-size:11px;color:var(--text3);line-height:1.65">アイデアを応援すると<br>株券が発行されます</div></div></div>';
       return;
     }
     var cards = certs.map(function(cert, i) {
       var goldBorder = (i === 0 && cert.isFirst) ? 'border-color:#f5d68a;background:#fffdf5;' : '';
       var nm = cert.name.length > 14 ? cert.name.slice(0,14) + '\u2026' : cert.name;
-      return '<div onclick="showCertFromCollection(\'' + cert.id.replace(/'/g,"\\'") + '\')" '
-        + 'style="width:120px;flex-shrink:0;background:var(--bg);border:1px solid var(--border);' + goldBorder + 'border-radius:10px;padding:9px 8px 28px;cursor:pointer;position:relative;transition:all .2s">'
-        + '<div style="font-family:var(--mono);font-size:7px;color:var(--text3);letter-spacing:.1em;margin-bottom:2px">AIPO \u00B7 ' + cert.serial + '</div>'
+      return '<div onclick="showCertFromCollection(\'' + cert.id.replace(/'/g,"\\'") + '\')" style="width:120px;flex-shrink:0;background:var(--bg);border:1px solid var(--border);' + goldBorder + 'border-radius:10px;padding:9px 8px 28px;cursor:pointer;position:relative;transition:all .2s">'
+        + '<div style="font-family:var(--mono);font-size:7px;color:var(--text3);letter-spacing:.1em;margin-bottom:2px">AIPO · ' + cert.serial + '</div>'
         + '<div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text);line-height:1;margin-bottom:2px">' + cert.ticker + '</div>'
         + '<div style="font-size:9px;font-weight:700;color:var(--text);line-height:1.35;margin-bottom:4px">' + nm + '</div>'
         + '<div style="font-family:var(--mono);font-size:8px;color:var(--text3)">' + cert.date + '</div>'
         + (cert.isEarly ? '<div style="display:inline-flex;align-items:center;gap:3px;background:#fef9f0;border:1px solid #fde68a;border-radius:3px;padding:2px 5px;margin-top:4px"><div style="width:3px;height:3px;border-radius:50%;background:#d97706"></div><span style="font-family:var(--mono);font-size:6px;color:#854f0b">EARLY</span></div>' : '')
-        + '<div style="position:absolute;bottom:7px;right:7px;width:20px;height:20px;border-radius:50%;border:1.5px solid #c0392b;display:flex;align-items:center;justify-content:center">'
-        + '<svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#c0392b" stroke-width="2.2" stroke-linecap="round"/></svg></div>'
+        + '<div style="position:absolute;bottom:7px;right:7px;width:20px;height:20px;border-radius:50%;border:1.5px solid #c0392b;display:flex;align-items:center;justify-content:center"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#c0392b" stroke-width="2.2" stroke-linecap="round"/></svg></div>'
         + '</div>';
     }).join('');
-    el.innerHTML = '<div style="padding:14px 0 4px">'
-      + '<div style="display:flex;align-items:center;justify-content:space-between;padding:0 14px;margin-bottom:8px">'
-      + '<span style="font-size:12px;font-weight:700;color:var(--text)">株券コレクション</span>'
-      + '<span style="font-family:var(--mono);font-size:10px;color:var(--amber-mid);background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:20px;padding:1px 8px">' + certs.length + '枚</span>'
-      + '</div>'
-      + '<div style="display:flex;gap:8px;overflow-x:auto;padding:0 14px 12px;scrollbar-width:none">' + cards + '</div>'
-      + '</div>';
+    el.innerHTML = '<div style="padding:14px 0 4px"><div style="display:flex;align-items:center;justify-content:space-between;padding:0 14px;margin-bottom:8px"><span style="font-size:12px;font-weight:700;color:var(--text)">株券コレクション</span><span style="font-family:var(--mono);font-size:10px;color:var(--amber-mid);background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:20px;padding:1px 8px">' + certs.length + '枚</span></div><div style="display:flex;gap:8px;overflow-x:auto;padding:0 14px 12px;scrollbar-width:none">' + cards + '</div></div>';
   } catch(e) { console.error('renderCertCollection error:', e); }
 }
 
@@ -2262,33 +2034,111 @@ function showCertFromCollection(certId) {
       + '<div style="font-size:11px;color:var(--text3);text-align:center;margin-bottom:14px">' + cert.date + ' ' + cert.time + ' 取得</div>'
       + '<div class="cert-wrap" id="cert-inner">'
       + '<div class="cert-notch-t"></div><div class="cert-notch-b"></div>'
-      + '<div class="cert-left">'
-      + '<div class="cert-brand"><div class="cert-brand-ico"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="7,14 10,10 12,11.5 15,7 18,4" stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="18" cy="4" r="2" fill="#f59e0b"/></svg></div><span class="cert-brand-name">\u3042\u3044\u307d</span></div>'
+      + '<div class="cert-left"><div class="cert-brand"><div class="cert-brand-ico"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="7,14 10,10 12,11.5 15,7 18,4" stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="18" cy="4" r="2" fill="#f59e0b"/></svg></div><span class="cert-brand-name">あいぽ</span></div>'
       + '<div class="cert-divider"><div class="cert-divider-line"></div><span class="cert-divider-txt">INVESTMENT CERTIFICATE</span><div class="cert-divider-line"></div></div>'
-      + '<div style="display:grid;grid-template-columns:auto 1fr;gap:10px;margin-bottom:10px">'
-      + '<div><div class="cert-field-lbl">DATE</div><div class="cert-field-val" style="font-size:11px">' + cert.date + '</div><div style="font-family:var(--mono);font-size:9px;color:#a09080">' + cert.time + '</div></div>'
-      + '<div><div class="cert-field-lbl">IDEA</div><div class="cert-field-val">' + nm + '</div></div></div>'
-      + '<div style="display:flex;align-items:flex-start;gap:6px;flex-wrap:wrap">'
-      + '<div><div class="cert-field-lbl">TICKER</div><div class="cert-mono">' + cert.ticker + '</div></div>'
-      + '<div style="width:.5px;height:28px;background:#d4c9b8;margin-top:10px"></div>'
-      + '<div><div class="cert-field-lbl">HOLDER</div><div class="cert-mono">@' + cert.holder + '</div></div>'
-      + '<div style="width:.5px;height:28px;background:#d4c9b8;margin-top:10px"></div>'
-      + '<div><div class="cert-field-lbl">VOTES AT TIME</div><div class="cert-mono">' + cert.votesAtTime + '\u7968\u76ee</div></div>'
-      + '</div>' + earlyHTML + '</div>'
-      + '<div class="cert-right">'
-      + '<div style="text-align:center"><div style="font-family:var(--mono);font-size:7px;color:#a09080;letter-spacing:.08em;margin-bottom:4px">SERIAL</div><div style="font-family:var(--mono);font-size:9px;color:#1a1400;background:#e5ddd0;border-radius:3px;padding:2px 6px;letter-spacing:.03em">' + cert.serial + '</div></div>'
+      + '<div style="display:grid;grid-template-columns:auto 1fr;gap:10px;margin-bottom:10px"><div><div class="cert-field-lbl">DATE</div><div class="cert-field-val" style="font-size:11px">' + cert.date + '</div><div style="font-family:var(--mono);font-size:9px;color:#a09080">' + cert.time + '</div></div><div><div class="cert-field-lbl">IDEA</div><div class="cert-field-val">' + nm + '</div></div></div>'
+      + '<div style="display:flex;align-items:flex-start;gap:6px;flex-wrap:wrap"><div><div class="cert-field-lbl">TICKER</div><div class="cert-mono">' + cert.ticker + '</div></div><div style="width:.5px;height:28px;background:#d4c9b8;margin-top:10px"></div><div><div class="cert-field-lbl">HOLDER</div><div class="cert-mono">@' + cert.holder + '</div></div><div style="width:.5px;height:28px;background:#d4c9b8;margin-top:10px"></div><div><div class="cert-field-lbl">VOTES AT TIME</div><div class="cert-mono">' + cert.votesAtTime + '票目</div></div></div>' + earlyHTML + '</div>'
+      + '<div class="cert-right"><div style="text-align:center"><div style="font-family:var(--mono);font-size:7px;color:#a09080;letter-spacing:.08em;margin-bottom:4px">SERIAL</div><div style="font-family:var(--mono);font-size:9px;color:#1a1400;background:#e5ddd0;border-radius:3px;padding:2px 6px;letter-spacing:.03em">' + cert.serial + '</div></div>'
       + '<div class="cert-stamp"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#c0392b" stroke-width="2" stroke-linecap="round"/></svg><span class="cert-stamp-txt">INVESTED</span></div>'
-      + '<div style="text-align:center"><div style="display:flex;gap:1.5px;align-items:flex-end;margin-bottom:3px">'
-      + '<div style="width:2px;height:26px;background:#1a1400;border-radius:.5px"></div><div style="width:1px;height:22px;background:#1a1400;border-radius:.5px"></div><div style="width:3px;height:26px;background:#1a1400;border-radius:.5px"></div><div style="width:1px;height:18px;background:#1a1400;border-radius:.5px"></div><div style="width:2px;height:26px;background:#1a1400;border-radius:.5px"></div><div style="width:1px;height:20px;background:#1a1400;border-radius:.5px"></div><div style="width:3px;height:26px;background:#1a1400;border-radius:.5px"></div><div style="width:1px;height:16px;background:#1a1400;border-radius:.5px"></div><div style="width:2px;height:24px;background:#1a1400;border-radius:.5px"></div><div style="width:1px;height:26px;background:#1a1400;border-radius:.5px"></div>'
-      + '</div><div style="font-family:var(--mono);font-size:7px;color:#a09080;letter-spacing:.08em">\u3042\u3044\u307d</div></div>'
-      + '</div></div>'
-      + '<button class="cert-share-btn" id="cert-share-btn" onclick="shareCertificate(\'' + cert.ideaId + '\',\'' + encodeURIComponent(cert.name) + '\',\'' + cert.ticker + '\')">'
-      + '<svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M2 2l7.5 8.5L2 18h2l6.3-7.1L16 18h4L12 9.2 18.5 2h-2L10.6 8.6 5 2H2z"/></svg> X\u3067\u30b7\u30a7\u30a2\u3059\u308b</button>'
-      + '<button class="cert-close-btn" onclick="document.getElementById(\'cert-modal\').remove()">\u9583\u3058\u308b</button>'
+      + '<div style="text-align:center"><div style="display:flex;gap:1.5px;align-items:flex-end;margin-bottom:3px"><div style="width:2px;height:26px;background:#1a1400;border-radius:.5px"></div><div style="width:1px;height:22px;background:#1a1400;border-radius:.5px"></div><div style="width:3px;height:26px;background:#1a1400;border-radius:.5px"></div><div style="width:1px;height:18px;background:#1a1400;border-radius:.5px"></div><div style="width:2px;height:26px;background:#1a1400;border-radius:.5px"></div><div style="width:1px;height:20px;background:#1a1400;border-radius:.5px"></div><div style="width:3px;height:26px;background:#1a1400;border-radius:.5px"></div><div style="width:1px;height:16px;background:#1a1400;border-radius:.5px"></div><div style="width:2px;height:24px;background:#1a1400;border-radius:.5px"></div><div style="width:1px;height:26px;background:#1a1400;border-radius:.5px"></div></div><div style="font-family:var(--mono);font-size:7px;color:#a09080;letter-spacing:.08em">あいぽ</div></div></div>'
+      + '</div>'
+      + '<button class="cert-share-btn" id="cert-share-btn" onclick="shareCertificate(\'' + cert.ideaId + '\',\'' + encodeURIComponent(cert.name) + '\',\'' + cert.ticker + '\')"><svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M2 2l7.5 8.5L2 18h2l6.3-7.1L16 18h4L12 9.2 18.5 2h-2L10.6 8.6 5 2H2z"/></svg> Xでシェアする</button>'
+      + '<button class="cert-close-btn" onclick="document.getElementById(\'cert-modal\').remove()">閉じる</button>'
       + '</div>';
     document.body.appendChild(overlay);
     overlay.addEventListener('click', function(e){ if(e.target===overlay) overlay.remove(); });
   } catch(e) { console.error('showCertFromCollection error:', e); }
+}
+
+// ===== CHARGE / BALANCE =====
+let selectedChargeAmount = 0;
+
+async function loadBalance() {
+  if (!currentUser) { document.getElementById('user-balance').textContent = '0'; return; }
+  try {
+    const { data } = await sb.from('profiles').select('balance').eq('id', currentUser.id).single();
+    const bal = data?.balance ?? 0;
+    document.getElementById('user-balance').textContent = bal.toLocaleString();
+  } catch(e) { console.error('loadBalance:', e); }
+}
+
+function openChargeModal() {
+  if (!currentUser) { showToast('ログインしてください'); return; }
+  selectedChargeAmount = 0;
+  document.querySelectorAll('.charge-option').forEach(o => o.classList.remove('selected'));
+  const btn = document.getElementById('charge-start-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '金額を選んでください'; }
+  document.getElementById('charge-modal-overlay').style.display = 'flex';
+}
+
+function closeChargeModal() {
+  document.getElementById('charge-modal-overlay').style.display = 'none';
+}
+
+function selectCharge(amount) {
+  selectedChargeAmount = amount;
+  document.querySelectorAll('.charge-option').forEach(o => o.classList.remove('selected'));
+  document.getElementById('charge-opt-' + amount)?.classList.add('selected');
+  const labels = { 500: '¥500 でチャージする', 1000: '¥1,000 でチャージする（1,050円分）', 3000: '¥3,000 でチャージする（3,300円分）' };
+  const btn = document.getElementById('charge-start-btn');
+  if (btn) { btn.disabled = false; btn.textContent = labels[amount] || 'チャージする'; }
+}
+
+async function startCharge() {
+  if (!selectedChargeAmount) return;
+  const btn = document.getElementById('charge-start-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '処理中...'; }
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    const token = session?.access_token;
+    const res = await fetch('/api/create-charge-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ amount: selectedChargeAmount })
+    });
+    const json = await res.json();
+    if (json.url) { window.location.href = json.url; }
+    else { showToast('エラーが発生しました'); if (btn) { btn.disabled = false; btn.textContent = 'チャージする'; } }
+  } catch(e) {
+    console.error('startCharge:', e);
+    showToast('通信エラーが発生しました');
+    if (btn) { btn.disabled = false; btn.textContent = 'チャージする'; }
+  }
+}
+
+async function buyWithBalance(type, cost) {
+  if (!currentUser) { showToast('ログインしてください'); return; }
+  const { data } = await sb.from('profiles').select('balance').eq('id', currentUser.id).single();
+  const bal = data?.balance ?? 0;
+  if (bal < cost) {
+    showToast('残高が不足しています。チャージしてください');
+    openChargeModal();
+    return;
+  }
+  const newBal = bal - cost;
+  await sb.from('profiles').update({ balance: newBal }).eq('id', currentUser.id);
+  document.getElementById('user-balance').textContent = newBal.toLocaleString();
+  if (type === 'vote') {
+    votesLeft++;
+    document.getElementById('votes-left').textContent = votesLeft;
+    showToast('追加票を購入しました！+1票 🗳');
+  } else if (type === 'post') {
+    dividendBonus.postRights++;
+    showToast('上場枠を購入しました！アイデアを追加上場できます 🚀');
+  }
+  updatePlanBadge();
+}
+
+function checkChargeSuccess() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('charge') === 'success') {
+    showToast('チャージが完了しました！🎉');
+    window.history.replaceState({}, '', '/');
+    setTimeout(() => loadBalance(), 1000);
+  } else if (params.get('charge') === 'cancel') {
+    showToast('チャージをキャンセルしました');
+    window.history.replaceState({}, '', '/');
+  }
 }
 
 async function init() {
@@ -2318,6 +2168,7 @@ async function init() {
   initEmojiPicker();
   setViewMode(viewMode);
   checkUpgradeSuccess();
+  checkChargeSuccess();
   await fetchIdeas();
   startRealtime();
   updatePlanBadge();
