@@ -897,16 +897,39 @@ async function loadHeroCounts() {
 loadHeroCounts();
 setInterval(loadHeroCounts, 30000);
 
-// ★ LPページビューを記録（lp.htmlを開いた回数をカウント）
+// ★ LP滞在時間計測
 (async function trackLPView() {
+  const openedAt = Date.now();
+  let rowId = null;
+
+  // 開封時に記録
   try {
-    await sbLP.from('user_events').insert({
+    const { data } = await sbLP.from('user_events').insert({
       utm_source: 'lp_pageview',
       referrer: document.referrer || 'direct',
       utm_medium: null,
       utm_campaign: null,
-    });
-  } catch(e) { /* サイレント */ }
+      time_on_page: null,
+    }).select('id').single();
+    if (data) rowId = data.id;
+  } catch(e) {}
+
+  // 離脱時に滞在時間を記録
+  async function recordTime() {
+    if (!rowId) return;
+    const sec = Math.round((Date.now() - openedAt) / 1000);
+    try {
+      await sbLP.from('user_events').update({ time_on_page: sec }).eq('id', rowId);
+    } catch(e) {}
+  }
+
+  // タブを閉じる・別ページへ移動するとき
+  window.addEventListener('pagehide', recordTime);
+  window.addEventListener('beforeunload', recordTime);
+  // visibilitychange（スマホでバックグラウンドに回ったとき）
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') recordTime();
+  });
 })();
 </script>
 </body>
