@@ -232,6 +232,29 @@ input[type=file] { display: none; }
 .top3-vb{position:absolute;bottom:7px;right:7px;width:20px;height:20px;border-radius:50%;border:0.5px solid var(--border2);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .12s;font-family:var(--sans)}
 .top3-vb:hover,.top3-vb.voted{background:var(--green-bg);border-color:var(--green-light)}
 
+
+.cert-coll-wrap{padding:14px 0 4px}
+.cert-coll-hd{display:flex;align-items:center;justify-content:space-between;padding:0 14px;margin-bottom:10px}
+.cert-coll-title{font-size:12px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px}
+.cert-coll-count{font-family:var(--mono);font-size:10px;color:var(--amber-mid);background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:20px;padding:1px 8px}
+.cert-coll-scroll{display:flex;gap:8px;overflow-x:auto;padding:0 14px 12px;scrollbar-width:none}
+.cert-coll-scroll::-webkit-scrollbar{display:none}
+.cert-mini{width:130px;flex-shrink:0;background:#f9f7f3;border:1px solid #e0d8cc;border-radius:10px;padding:10px;cursor:pointer;transition:all .2s;position:relative;overflow:visible}
+.cert-mini:hover{border-color:rgba(232,133,10,.4);transform:translateY(-2px)}
+.cert-mini.gold{border-color:#f5d68a;background:#fffdf5}
+.cert-mini-brand{font-family:var(--mono);font-size:7px;color:#a09080;letter-spacing:.1em;margin-bottom:4px}
+.cert-mini-ticker{font-family:var(--mono);font-size:14px;font-weight:700;color:#1a1400;letter-spacing:.04em;line-height:1;margin-bottom:3px}
+.cert-mini-name{font-size:9px;font-weight:700;color:#1a1400;line-height:1.35;margin-bottom:6px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.cert-mini-date{font-family:var(--mono);font-size:8px;color:#a09080}
+.cert-mini-stamp{position:absolute;bottom:8px;right:8px;width:28px;height:28px;border-radius:50%;border:1.5px solid #c0392b;display:flex;align-items:center;justify-content:center}
+.cert-mini-early{display:inline-flex;align-items:center;gap:3px;background:#fef9f0;border:1px solid #fde68a;border-radius:3px;padding:2px 5px;margin-top:4px}
+.cert-mini-early-dot{width:3px;height:3px;border-radius:50%;background:#d97706}
+.cert-mini-early-txt{font-family:var(--mono);font-size:6px;color:#854f0b;letter-spacing:.06em}
+.cert-empty{padding:24px 14px;text-align:center}
+.cert-empty-ico{font-size:28px;margin-bottom:8px}
+.cert-empty-txt{font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px}
+.cert-empty-sub{font-size:11px;color:var(--text3);line-height:1.65}
+
 .splash { position: fixed; inset: 0; background: var(--amber-bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999; transition: opacity .5s; }
 .splash.hide { opacity: 0; pointer-events: none; }
 .splash-logo { margin-bottom: 20px; animation: splashPop .6s cubic-bezier(.34,1.56,.64,1) forwards; }
@@ -427,6 +450,7 @@ input[type=file] { display: none; }
   <div class="feed-body" style="padding:10px 14px 0">
     <div id="portfolio-founder-badge" style="padding:4px 0 8px;padding-left:0"></div>
     <div id="portfolio-insight"></div>
+    <div id="cert-collection-section" style="background:var(--surface);border-radius:var(--r-xl);margin-bottom:12px;overflow:hidden"></div>
     <div class="stock-group" id="portfolio-list"></div>
   </div>
 </div>
@@ -891,6 +915,7 @@ function renderPortfolio() {
     insightEl.innerHTML = '';
   }
 
+  renderCertCollection();
   const el = document.getElementById('portfolio-list');
   const myList = ideas.filter(i => myIdeas.has(i.id));
   const favList = ideas.filter(i => favIdeas.has(i.id) && !myIdeas.has(i.id));
@@ -1365,6 +1390,7 @@ function voteIdea(id) {
   renderFeed();
   if (votesLeft <= 0) updateXBonus();
   updatePlanBadge();
+  saveCertToCollection(idea, votesAtTime);
   setTimeout(() => showCertificate(idea, votesAtTime), 400);
 }
 
@@ -1947,6 +1973,188 @@ async function shareCertificate(ideaId, encodedName, ticker) {
   }
 }
 
+
+
+const COLL_KEY = 'aipo-certificates';
+
+function saveCertToCollection(idea, votesAtTime) {
+  const certs = loadCerts();
+  const today = new Date();
+  const cert = {
+    id: idea.id + '-' + Date.now(),
+    ideaId: idea.id,
+    ticker: idea.ticker,
+    name: idea.name,
+    genre: idea.genre,
+    emoji: idea.emoji || '💡',
+    votesAtTime: votesAtTime + 1,
+    score: idea.score,
+    date: today.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }),
+    time: today.toLocaleTimeString('ja-JP', { hour:'2-digit', minute:'2-digit' }),
+    serial: 'AI-' + String(today.getMonth()+1).padStart(2,'0') + String(today.getDate()).padStart(2,'0'),
+    holder: currentUser?.x_username || 'ユーザー',
+    isEarly: (votesAtTime + 1) <= 5,
+    isFirst: votesAtTime === 0,
+  };
+  // 同じideaIdの株券が既にあれば上書きしない
+  if (!certs.find(c => c.ideaId === idea.id)) {
+    certs.unshift(cert);
+    localStorage.setItem(COLL_KEY, JSON.stringify(certs));
+  }
+}
+
+function loadCerts() {
+  try { return JSON.parse(localStorage.getItem(COLL_KEY) || '[]'); } catch(e) { return []; }
+}
+
+function renderCertCollection() {
+  const el = document.getElementById('cert-collection-section');
+  if (!el) return;
+  const certs = loadCerts();
+
+  if (certs.length === 0) {
+    el.innerHTML = `<div class="cert-coll-wrap">
+      <div class="cert-coll-hd"><span class="cert-coll-title">株券コレクション</span></div>
+      <div class="cert-empty">
+        <div class="cert-empty-ico">🎫</div>
+        <div class="cert-empty-txt">まだ株券がありません</div>
+        <div class="cert-empty-sub">アイデアを応援すると<br>株券が発行されます</div>
+      </div>
+    </div>`;
+    return;
+  }
+
+  const cards = certs.map((cert, i) => {
+    const goldClass = i === 0 && cert.isFirst ? ' gold' : '';
+    const nameShort = cert.name.length > 16 ? cert.name.slice(0,16) + '…' : cert.name;
+    return `<div class="cert-mini${goldClass}" onclick="showCertFromCollection('${cert.id}')">
+      <div class="cert-mini-brand">AIPO · ${cert.serial}</div>
+      <div class="cert-mini-ticker">${cert.ticker}</div>
+      <div class="cert-mini-name">${nameShort}</div>
+      <div class="cert-mini-date">${cert.date}</div>
+      ${cert.isEarly ? '<div class="cert-mini-early"><div class="cert-mini-early-dot"></div><span class="cert-mini-early-txt">EARLY</span></div>' : ''}
+      <div class="cert-mini-stamp">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#c0392b" stroke-width="2.2" stroke-linecap="round"/></svg>
+      </div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = `<div class="cert-coll-wrap">
+    <div class="cert-coll-hd">
+      <span class="cert-coll-title">
+        <svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="var(--amber-mid)" stroke-width="1.8"><rect x="2" y="4" width="16" height="13" rx="2"/><path d="M6 4V3a1 1 0 012 0v1M12 4V3a1 1 0 012 0v1"/><line x1="2" y1="8" x2="18" y2="8"/></svg>
+        株券コレクション
+      </span>
+      <span class="cert-coll-count">${certs.length}枚</span>
+    </div>
+    <div class="cert-coll-scroll">${cards}</div>
+  </div>`;
+}
+
+function showCertFromCollection(certId) {
+  const certs = loadCerts();
+  const cert = certs.find(c => c.id === certId);
+  if (!cert) return;
+
+  const idea = ideas.find(i => i.id === cert.ideaId) || {
+    id: cert.ideaId, ticker: cert.ticker, name: cert.name,
+    emoji: cert.emoji, score: cert.score, votes: cert.votesAtTime
+  };
+
+  const existing = document.getElementById('cert-modal');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'cert-modal';
+  overlay.className = 'cert-modal-overlay';
+
+  const ideaForCert = { ...idea, name: cert.name, ticker: cert.ticker };
+
+  overlay.innerHTML = `
+    <div class="cert-modal-box">
+      <div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px"></div>
+      <div style="font-size:14px;font-weight:700;text-align:center;margin-bottom:4px;color:var(--text)">あなたの株券</div>
+      <div style="font-size:11px;color:var(--text3);text-align:center;margin-bottom:14px">${cert.date} ${cert.time} 取得</div>
+      <div class="cert-wrap" id="cert-inner">
+        ${buildCertHTMLFromData(cert)}
+      </div>
+      <button class="cert-share-btn" onclick="shareCertificate('${cert.ideaId}','${encodeURIComponent(cert.name)}','${cert.ticker}')">
+        <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" style="flex-shrink:0"><path d="M2 2l7.5 8.5L2 18h2l6.3-7.1L16 18h4L12 9.2 18.5 2h-2L10.6 8.6 5 2H2z"/></svg>
+        Xでシェアする
+      </button>
+      <button class="cert-close-btn" onclick="document.getElementById('cert-modal').remove()">閉じる</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+}
+
+function buildCertHTMLFromData(cert) {
+  return `
+    <div class="cert-notch-t"></div>
+    <div class="cert-notch-b"></div>
+    <div class="cert-left">
+      <div class="cert-brand">
+        <div class="cert-brand-ico">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+            <polyline points="7,14 10,10 12,11.5 15,7 18,4" stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="18" cy="4" r="2" fill="#f59e0b"/>
+          </svg>
+        </div>
+        <span class="cert-brand-name">あいぽ</span>
+      </div>
+      <div class="cert-divider">
+        <div class="cert-divider-line"></div>
+        <span class="cert-divider-txt">INVESTMENT CERTIFICATE</span>
+        <div class="cert-divider-line"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:auto 1fr;gap:10px;margin-bottom:10px">
+        <div>
+          <div class="cert-field-lbl">DATE</div>
+          <div class="cert-field-val" style="font-size:11px">${cert.date}</div>
+          <div style="font-family:var(--mono);font-size:9px;color:#a09080">${cert.time}</div>
+        </div>
+        <div>
+          <div class="cert-field-lbl">IDEA</div>
+          <div class="cert-field-val">${cert.name.length > 16 ? cert.name.slice(0,16) + '…' : cert.name}</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:6px;flex-wrap:wrap">
+        <div><div class="cert-field-lbl">TICKER</div><div class="cert-mono">${cert.ticker}</div></div>
+        <div style="width:.5px;height:28px;background:#d4c9b8;margin-top:10px"></div>
+        <div><div class="cert-field-lbl">HOLDER</div><div class="cert-mono">@${cert.holder}</div></div>
+        <div style="width:.5px;height:28px;background:#d4c9b8;margin-top:10px"></div>
+        <div><div class="cert-field-lbl">VOTES AT TIME</div><div class="cert-mono">${cert.votesAtTime}票目</div></div>
+      </div>
+      ${cert.isEarly ? '<div class="cert-early"><div class="cert-early-dot"></div><span class="cert-early-txt">EARLY INVESTOR</span></div>' : ''}
+    </div>
+    <div class="cert-right">
+      <div style="text-align:center">
+        <div style="font-family:var(--mono);font-size:7px;color:#a09080;letter-spacing:.08em;margin-bottom:4px">SERIAL</div>
+        <div style="font-family:var(--mono);font-size:9px;color:#1a1400;background:#e5ddd0;border-radius:3px;padding:2px 6px;letter-spacing:.03em">${cert.serial}</div>
+      </div>
+      <div class="cert-stamp">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#c0392b" stroke-width="2" stroke-linecap="round"/></svg>
+        <span class="cert-stamp-txt">INVESTED</span>
+      </div>
+      <div style="text-align:center">
+        <div style="display:flex;gap:1.5px;align-items:flex-end;margin-bottom:3px">
+          <div style="width:2px;height:26px;background:#1a1400;border-radius:.5px"></div>
+          <div style="width:1px;height:22px;background:#1a1400;border-radius:.5px"></div>
+          <div style="width:3px;height:26px;background:#1a1400;border-radius:.5px"></div>
+          <div style="width:1px;height:18px;background:#1a1400;border-radius:.5px"></div>
+          <div style="width:2px;height:26px;background:#1a1400;border-radius:.5px"></div>
+          <div style="width:1px;height:20px;background:#1a1400;border-radius:.5px"></div>
+          <div style="width:3px;height:26px;background:#1a1400;border-radius:.5px"></div>
+          <div style="width:1px;height:16px;background:#1a1400;border-radius:.5px"></div>
+          <div style="width:2px;height:24px;background:#1a1400;border-radius:.5px"></div>
+          <div style="width:1px;height:26px;background:#1a1400;border-radius:.5px"></div>
+        </div>
+        <div style="font-family:var(--mono);font-size:7px;color:#a09080;letter-spacing:.08em">あいぽ</div>
+      </div>
+    </div>
+  `;
+}
 
 async function init() {
   const splash = document.getElementById('splash');
