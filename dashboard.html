@@ -169,6 +169,24 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
 .ua-voted-idea{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:11px}
 .ua-voted-idea:last-child{border-bottom:none}
 
+/* PDCA GOAL */
+.goal-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.goal-item:last-child{border-bottom:none}
+.goal-check{width:20px;height:20px;border-radius:5px;border:2px solid var(--border2);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.goal-check.done{background:var(--green);border-color:var(--green)}
+.goal-text{flex:1;font-size:13px;color:var(--ink)}
+.goal-text.done{text-decoration:line-through;color:var(--ink3)}
+.goal-del{background:transparent;border:none;color:var(--ink4);cursor:pointer;font-size:14px;padding:2px 6px}
+
+/* PDCA ACTION LOG */
+.al-item{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);align-items:flex-start}
+.al-item:last-child{border-bottom:none}
+.al-cat{font-size:16px;flex-shrink:0;margin-top:1px}
+.al-info{flex:1;min-width:0}
+.al-text{font-size:12px;color:var(--ink);line-height:1.45;margin-bottom:2px}
+.al-date{font-family:var(--mono);font-size:9px;color:var(--ink3)}
+.al-del{background:transparent;border:none;color:var(--ink4);cursor:pointer;font-size:12px;padding:2px 6px}
+
 /* EMPTY / SKELETON */
 .empty{padding:28px 16px;text-align:center}
 .empty-ico{font-size:24px;margin-bottom:8px;opacity:.4}
@@ -211,14 +229,95 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
   </div>
 
   <div class="tab-wrap">
-    <button class="tab-btn active" onclick="showTab('lp')" id="tab-lp">LPの成果</button>
+    <button class="tab-btn active" onclick="showTab('pdca')" id="tab-pdca">📋 PDCA</button>
+    <button class="tab-btn" onclick="showTab('lp')" id="tab-lp">LPの成果</button>
     <button class="tab-btn" onclick="showTab('overview')" id="tab-overview">概要</button>
     <button class="tab-btn" onclick="showTab('ideas')" id="tab-ideas">アイデア</button>
     <button class="tab-btn" onclick="showTab('users')" id="tab-users">ユーザー</button>
   </div>
 
+  <!-- PDCA TAB -->
+  <div id="tab-content-pdca" class="main">
+
+    <!-- A: 自動インサイト -->
+    <div id="pdca-insights-wrap"></div>
+
+    <!-- P: 今週の目標 -->
+    <div class="section-title">P — 今週の目標</div>
+    <div class="panel" style="margin-bottom:14px">
+      <div class="panel-head">
+        <div class="panel-title">WEEKLY GOALS</div>
+        <div class="panel-meta" id="goals-week"></div>
+      </div>
+      <div class="panel-body">
+        <div id="goals-list" style="margin-bottom:12px"></div>
+        <div style="display:flex;gap:8px">
+          <input id="goal-input" type="text" placeholder="例：新規ユーザー5人、LP流入30人..."
+            style="flex:1;padding:10px 12px;border:1px solid var(--border2);border-radius:var(--rs);font-size:13px;font-family:var(--sans);background:var(--surface);color:var(--ink);outline:none"
+            onkeydown="if(event.key==='Enter')addGoal()">
+          <button onclick="addGoal()"
+            style="padding:10px 16px;background:var(--amber);border:none;border-radius:var(--rs);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">追加</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- D: アクションログ -->
+    <div class="section-title">D — やったこと</div>
+    <div class="panel" style="margin-bottom:14px">
+      <div class="panel-head">
+        <div class="panel-title">ACTION LOG</div>
+        <div class="panel-meta">施策の記録</div>
+      </div>
+      <div class="panel-body">
+        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+          <select id="action-category"
+            style="padding:10px 12px;border:1px solid var(--border2);border-radius:var(--rs);font-size:12px;font-family:var(--sans);background:var(--surface);color:var(--ink);outline:none">
+            <option value="x_post">🐦 Xに投稿</option>
+            <option value="lp_update">📄 LP更新</option>
+            <option value="feature">✨ 機能追加</option>
+            <option value="outreach">🤝 営業・DM</option>
+            <option value="other">📌 その他</option>
+          </select>
+          <input id="action-input" type="text" placeholder="例：あいぽについてXに投稿した"
+            style="flex:1;min-width:200px;padding:10px 12px;border:1px solid var(--border2);border-radius:var(--rs);font-size:13px;font-family:var(--sans);background:var(--surface);color:var(--ink);outline:none"
+            onkeydown="if(event.key==='Enter')addAction()">
+          <button onclick="addAction()"
+            style="padding:10px 16px;background:var(--ink);border:none;border-radius:var(--rs);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">記録</button>
+        </div>
+        <div id="action-log-list"></div>
+      </div>
+    </div>
+
+    <!-- C: 結果グラフ（アクションと流入の重ね表示） -->
+    <div class="section-title">C — 結果（アクション×流入の相関）</div>
+    <div class="panel" style="margin-bottom:14px">
+      <div class="panel-head">
+        <div class="panel-title">ACTION × TRAFFIC</div>
+        <div class="panel-meta">直近14日間</div>
+      </div>
+      <div class="panel-body">
+        <div id="pdca-chart" style="position:relative;height:120px;margin-bottom:8px"></div>
+        <div id="pdca-chart-labels" style="display:flex;gap:0;margin-bottom:8px"></div>
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:5px"><div style="width:12px;height:4px;background:var(--amber);border-radius:2px"></div><span style="font-size:10px;color:var(--ink3)">LP流入数</span></div>
+          <div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:10px;background:var(--ink);border-radius:50%"></div><span style="font-size:10px;color:var(--ink3)">アクション実施日</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 週次サマリー -->
+    <div class="section-title">今週のまとめ</div>
+    <div class="panel">
+      <div class="panel-head"><div class="panel-title">WEEKLY SUMMARY</div></div>
+      <div class="panel-body" id="weekly-summary-body">
+        <div class="skel"></div><div class="skel" style="width:70%"></div>
+      </div>
+    </div>
+
+  </div>
+
   <!-- LP TAB（メイン） -->
-  <div id="tab-content-lp" class="main">
+  <div id="tab-content-lp" class="main" style="display:none">
 
     <div class="section-title">LPからあいぽに来た人数</div>
     <!-- 売上カード -->
@@ -458,7 +557,7 @@ function fmtAgo(dateStr) {
 function timeAgo(dateStr) { return fmtAgo(dateStr); }
 
 function showTab(name) {
-  ['lp','overview','ideas','users'].forEach(t => {
+  ['pdca','lp','overview','ideas','users'].forEach(t => {
     document.getElementById('tab-content-'+t).style.display = t===name ? '' : 'none';
     document.getElementById('tab-'+t).classList.toggle('active', t===name);
   });
@@ -894,6 +993,240 @@ async function loadTimeAnalysis() {
     </div>`;
 }
 
+// ===== GOALS (localStorageで管理) =====
+const GOALS_KEY = 'aipo-dash-goals-' + new Date().toISOString().slice(0,7); // 月ごとにリセット
+
+function loadGoals() {
+  try { return JSON.parse(localStorage.getItem(GOALS_KEY) || '[]'); } catch(e) { return []; }
+}
+function saveGoals(goals) { localStorage.setItem(GOALS_KEY, JSON.stringify(goals)); }
+
+function renderGoals() {
+  const goals = loadGoals();
+  const now = new Date();
+  const weekStr = now.getFullYear()+'年'+String(now.getMonth()+1).padStart(2,'0')+'月第'+Math.ceil(now.getDate()/7)+'週';
+  document.getElementById('goals-week').textContent = weekStr;
+  if (goals.length === 0) {
+    document.getElementById('goals-list').innerHTML = '<div style="font-size:12px;color:var(--ink3);padding:8px 0">今週の目標を追加してください</div>';
+    return;
+  }
+  document.getElementById('goals-list').innerHTML = goals.map((g,i) => `
+    <div class="goal-item">
+      <div class="goal-check ${g.done?'done':''}" onclick="toggleGoal(${i})">
+        ${g.done?'<svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2.5"><path d="M4 10l4 4 8-8"/></svg>':''}
+      </div>
+      <div class="goal-text ${g.done?'done':''}">${g.text}</div>
+      <button class="goal-del" onclick="deleteGoal(${i})">×</button>
+    </div>`).join('');
+}
+
+function addGoal() {
+  const input = document.getElementById('goal-input');
+  const text = input.value.trim();
+  if (!text) return;
+  const goals = loadGoals();
+  goals.push({ text, done: false });
+  saveGoals(goals);
+  input.value = '';
+  renderGoals();
+}
+
+function toggleGoal(i) {
+  const goals = loadGoals();
+  goals[i].done = !goals[i].done;
+  saveGoals(goals);
+  renderGoals();
+}
+
+function deleteGoal(i) {
+  const goals = loadGoals();
+  goals.splice(i, 1);
+  saveGoals(goals);
+  renderGoals();
+}
+
+// ===== ACTION LOG (Supabase) =====
+const CAT_ICONS = { x_post:'🐦', lp_update:'📄', feature:'✨', outreach:'🤝', other:'📌' };
+const CAT_LABELS = { x_post:'Xに投稿', lp_update:'LP更新', feature:'機能追加', outreach:'営業・DM', other:'その他' };
+
+async function addAction() {
+  const input = document.getElementById('action-input');
+  const cat = document.getElementById('action-category').value;
+  const text = input.value.trim();
+  if (!text) return;
+  const btn = document.querySelector('#tab-content-pdca button[onclick="addAction()"]');
+  if (btn) { btn.textContent = '保存中...'; btn.disabled = true; }
+  try {
+    await sb.from('action_logs').insert({ content: text, category: cat });
+    input.value = '';
+    await loadActionLog();
+    await loadPDCAChart();
+    await loadWeeklySummary();
+  } catch(e) { alert('保存失敗: '+e.message); }
+  finally { if (btn) { btn.textContent = '記録'; btn.disabled = false; } }
+}
+
+async function loadActionLog() {
+  const { data } = await sb.from('action_logs').select('*').order('logged_at', { ascending: false }).limit(20);
+  if (!data || data.length === 0) {
+    document.getElementById('action-log-list').innerHTML = '<div style="font-size:12px;color:var(--ink3);padding:8px 0">まだ記録がありません。やったことを記録していきましょう。</div>';
+    return;
+  }
+  document.getElementById('action-log-list').innerHTML = data.map(a => `
+    <div class="al-item">
+      <div class="al-cat">${CAT_ICONS[a.category]||'📌'}</div>
+      <div class="al-info">
+        <div class="al-text">${a.content}</div>
+        <div class="al-date">${a.logged_at} · ${CAT_LABELS[a.category]||a.category}</div>
+      </div>
+      <button class="al-del" onclick="deleteAction('${a.id}')">×</button>
+    </div>`).join('');
+}
+
+async function deleteAction(id) {
+  if (!confirm('削除しますか？')) return;
+  await sb.from('action_logs').delete().eq('id', id);
+  await loadActionLog();
+  await loadPDCAChart();
+}
+
+// ===== PDCA CHART（アクション×流入の相関） =====
+async function loadPDCAChart() {
+  // 直近14日間のデータ
+  const days = Array.from({length:14}, (_,i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (13-i));
+    return d.toISOString().slice(0,10);
+  });
+
+  const startDate = days[0];
+  const [{ data: events }, { data: actions }] = await Promise.all([
+    sb.from('user_events').select('created_at').gte('created_at', startDate+'T00:00:00Z'),
+    sb.from('action_logs').select('logged_at').gte('logged_at', startDate)
+  ]);
+
+  // 日別LP流入数
+  const trafficByDay = {};
+  days.forEach(d => trafficByDay[d] = 0);
+  if (events) events.forEach(e => {
+    const day = e.created_at.slice(0,10);
+    if (trafficByDay[day] !== undefined) trafficByDay[day]++;
+  });
+
+  // アクション実施日
+  const actionDays = new Set();
+  if (actions) actions.forEach(a => actionDays.add(a.logged_at));
+
+  const maxTraffic = Math.max(...Object.values(trafficByDay), 1);
+  const chartH = 100;
+
+  const chart = document.getElementById('pdca-chart');
+  const labels = document.getElementById('pdca-chart-labels');
+
+  chart.innerHTML = `
+    <div style="display:flex;align-items:flex-end;gap:2px;height:${chartH}px;position:relative">
+      ${days.map(day => {
+        const cnt = trafficByDay[day];
+        const barH = Math.max(cnt/maxTraffic*chartH, cnt>0?4:1);
+        const isAction = actionDays.has(day);
+        const isToday = day === new Date().toISOString().slice(0,10);
+        return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;position:relative">
+          ${isAction ? `<div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:10px;height:10px;background:var(--ink);border-radius:50%;z-index:2" title="アクション実施"></div>` : ''}
+          ${isAction ? `<div style="position:absolute;top:10px;left:50%;transform:translateX(-50%);width:1px;height:calc(100% - ${barH}px - 10px);background:rgba(28,20,9,.15)"></div>` : ''}
+          <div style="width:100%;background:${isToday?'var(--green)':cnt>0?'var(--amber)':'var(--border)'};height:${barH}px;border-radius:2px 2px 0 0;position:relative;z-index:1">
+            ${cnt > 0 ? `<div style="position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:8px;color:var(--amber);white-space:nowrap">${cnt}</div>` : ''}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+
+  labels.innerHTML = days.map(day => {
+    const d = new Date(day+'T00:00:00');
+    const isAction = actionDays.has(day);
+    const isToday = day === new Date().toISOString().slice(0,10);
+    return `<div style="flex:1;text-align:center;font-family:var(--mono);font-size:7px;color:${isToday?'var(--green)':isAction?'var(--ink)':'var(--ink4)'};font-weight:${isAction?'700':'400'}">${String(d.getMonth()+1)+'/'+String(d.getDate())}</div>`;
+  }).join('');
+}
+
+// ===== WEEKLY SUMMARY =====
+async function loadWeeklySummary() {
+  const weekStart = new Date();
+  weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1); // 月曜
+  const weekStartStr = weekStart.toISOString().slice(0,10);
+  const lastWeekStart = new Date(weekStart);
+  lastWeekStart.setDate(lastWeekStart.getDate() - 7);
+  const lastWeekStartStr = lastWeekStart.toISOString().slice(0,10);
+
+  const [
+    { count: usersTotal },
+    { count: lpThisWeek },
+    { count: lpLastWeek },
+    { count: actionsThisWeek },
+    { data: goals }
+  ] = await Promise.all([
+    sb.from('profiles').select('id',{count:'exact',head:true}).neq('id', ADMIN_ID),
+    sb.from('user_events').select('id',{count:'exact',head:true}).gte('created_at', weekStartStr+'T00:00:00Z'),
+    sb.from('user_events').select('id',{count:'exact',head:true}).gte('created_at', lastWeekStartStr+'T00:00:00Z').lt('created_at', weekStartStr+'T00:00:00Z'),
+    sb.from('action_logs').select('id',{count:'exact',head:true}).gte('logged_at', weekStartStr),
+    sb.from('action_logs').select('*').gte('logged_at', weekStartStr).order('logged_at', {ascending:false})
+  ]);
+
+  const localGoals = loadGoals();
+  const doneGoals = localGoals.filter(g => g.done).length;
+  const lpDiff = (lpThisWeek||0) - (lpLastWeek||0);
+  const lpTrend = lpDiff > 0 ? `▲${lpDiff}` : lpDiff < 0 ? `▼${Math.abs(lpDiff)}` : '±0';
+  const lpTrendColor = lpDiff > 0 ? 'var(--green)' : lpDiff < 0 ? 'var(--red)' : 'var(--ink3)';
+
+  document.getElementById('weekly-summary-body').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:12px">
+        <div style="font-size:10px;color:var(--ink3);margin-bottom:6px">今週の流入</div>
+        <div style="font-family:var(--mono);font-size:24px;font-weight:700;color:var(--ink)">${lpThisWeek||0}<span style="font-size:11px;margin-left:4px;color:${lpTrendColor}">${lpTrend}</span></div>
+        <div style="font-size:10px;color:var(--ink3)">先週比</div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:12px">
+        <div style="font-size:10px;color:var(--ink3);margin-bottom:6px">今週のアクション数</div>
+        <div style="font-family:var(--mono);font-size:24px;font-weight:700;color:var(--ink)">${actionsThisWeek||0}件</div>
+        <div style="font-size:10px;color:var(--ink3)">施策を実行した回数</div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:12px">
+        <div style="font-size:10px;color:var(--ink3);margin-bottom:6px">目標達成</div>
+        <div style="font-family:var(--mono);font-size:24px;font-weight:700;color:${doneGoals>0?'var(--green)':'var(--ink)'}">${doneGoals}/${localGoals.length}</div>
+        <div style="font-size:10px;color:var(--ink3)">今週の目標</div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:12px">
+        <div style="font-size:10px;color:var(--ink3);margin-bottom:6px">累計ユーザー</div>
+        <div style="font-family:var(--mono);font-size:24px;font-weight:700;color:var(--ink)">${usersTotal||0}人</div>
+        <div style="font-size:10px;color:var(--ink3)">登録者の合計</div>
+      </div>
+    </div>
+    ${goals && goals.length > 0 ? `
+    <div style="font-family:var(--mono);font-size:9px;color:var(--ink3);letter-spacing:.08em;margin-bottom:8px">今週やったこと</div>
+    ${goals.map(a => `<div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;color:var(--ink)">${CAT_ICONS[a.category]||'📌'} ${a.content}</div>`).join('')}` : ''}`;
+
+  // 自動インサイト
+  const insights = [];
+  if (lpDiff > 0) insights.push({ type:'good', text:`先週より流入が${lpDiff}件増えました。${actionsThisWeek > 0 ? '今週の施策が効いているかもしれません。' : ''}` });
+  if (lpDiff < 0) insights.push({ type:'warn', text:`先週より流入が${Math.abs(lpDiff)}件減っています。アクションを増やしてみましょう。` });
+  if (actionsThisWeek === 0 && new Date().getDay() > 2) insights.push({ type:'warn', text:`今週はまだアクションが記録されていません。Xへの投稿など何か施策を打ちましょう。` });
+  if (doneGoals === localGoals.length && localGoals.length > 0) insights.push({ type:'good', text:`今週の目標を全て達成しています！🎉` });
+
+  document.getElementById('pdca-insights-wrap').innerHTML = insights.length > 0 ? `
+    <div style="margin-bottom:20px">
+      ${insights.map(ins => `
+        <div style="display:flex;gap:10px;align-items:flex-start;padding:12px 14px;margin-bottom:8px;background:${ins.type==='good'?'var(--green-bg)':'rgba(192,57,43,.06)'};border:1px solid ${ins.type==='good'?'var(--green-border)':'rgba(192,57,43,.2)'};border-radius:var(--rs)">
+          <div style="font-size:16px;flex-shrink:0">${ins.type==='good'?'✅':'⚠️'}</div>
+          <div style="font-size:12px;color:var(--ink);line-height:1.6">${ins.text}</div>
+        </div>`).join('')}
+    </div>` : '';
+}
+
+// ===== PDCA メインロード =====
+async function loadPDCA() {
+  renderGoals();
+  await Promise.all([loadActionLog(), loadPDCAChart(), loadWeeklySummary()]);
+}
+
 async function loadRevenue() {
   // founder_number=0 は中川さん本人なので除外
   const { data: profiles } = await sb.from('profiles').select('is_founder, is_pro, founder_number, id');
@@ -914,6 +1247,7 @@ async function loadAll() {
   const icon = document.getElementById('spin-icon');
   icon.classList.add('spinning');
   await Promise.all([
+    loadPDCA(),
     loadLPAnalytics(),
     loadFunnel(),
     loadTimeAnalysis(),
