@@ -363,14 +363,27 @@ const LP_BUTTONS = {
 };
 
 function timeAgo(dateStr) {
-  const str = dateStr.endsWith('Z') ? dateStr : dateStr + 'Z';
-  const diff = Date.now() - new Date(str).getTime();
-  const m = Math.floor(diff/60000);
-  if (m < 1) return 'たった今';
-  if (m < 60) return m+'分前';
-  const h = Math.floor(m/60);
-  if (h < 24) return h+'時間前';
-  return Math.floor(h/24)+'日前';
+  if (!dateStr) return '—';
+  // Supabaseのタイムスタンプ（+00:00形式やZ形式）を正しくパース
+  const str = dateStr.replace(' ', 'T').replace(/\+00$/, 'Z');
+  const normalized = str.endsWith('Z') ? str : str + 'Z';
+  const d = new Date(normalized);
+  if (isNaN(d.getTime())) return '—';
+  // 日本時間で表示
+  const jst = new Date(d.getTime() + 9*60*60*1000);
+  const mm = String(jst.getUTCMonth()+1).padStart(2,'0');
+  const dd = String(jst.getUTCDate()).padStart(2,'0');
+  const hh = String(jst.getUTCHours()).padStart(2,'0');
+  const mi = String(jst.getUTCMinutes()).padStart(2,'0');
+  // 経過時間も添える
+  const diff = Date.now() - d.getTime();
+  const mins = Math.floor(diff/60000);
+  let ago = '';
+  if (mins < 1) ago = 'たった今';
+  else if (mins < 60) ago = mins+'分前';
+  else if (mins < 24*60) ago = Math.floor(mins/60)+'時間前';
+  else ago = Math.floor(mins/1440)+'日前';
+  return { date: mm+'/'+dd+' '+hh+':'+mi, ago };
 }
 
 function showTab(name) {
@@ -531,7 +544,10 @@ async function loadLPAnalytics() {
     const {label, icon} = normalize(e.referrer);
     return `<div class="tl-row">
       <div class="tl-dot" style="${isLp?'':'border-color:var(--ink3);background:var(--surface2)'}"></div>
-      <div class="tl-time">${timeAgo(e.created_at)}</div>
+      <div class="tl-time" style="min-width:80px">
+        <div>${typeof timeAgo(e.created_at)==='object'?timeAgo(e.created_at).date:'—'}</div>
+        <div style="color:var(--ink4);font-size:8px;margin-top:1px">${typeof timeAgo(e.created_at)==='object'?timeAgo(e.created_at).ago:''}</div>
+      </div>
       <div>
         <div class="tl-text">${isLp && btnInfo ? btnInfo.icon+' LP「'+btnInfo.name+'」から' : icon+' '+label+'から'}</div>
         <div class="tl-sub">${isLp ? 'utm_source=lp' : (e.referrer||'direct')}</div>
@@ -574,7 +590,7 @@ async function loadRecent() {
   const im={}; if(ideas) ideas.forEach(i=>im[i.id]=i);
   document.getElementById('recent-body').innerHTML = views.map(v => {
     const idea = im[v.idea_id];
-    return `<div class="tl-row"><div class="tl-dot"></div><div class="tl-time">${timeAgo(v.viewed_at)}</div><div><div class="tl-text">${idea?idea.name:'不明'}</div><div class="tl-sub">${idea?idea.ticker:'—'}</div></div></div>`;
+    return `<div class="tl-row"><div class="tl-dot"></div><div class="tl-time" style="min-width:80px"><div>${typeof timeAgo(v.viewed_at)==='object'?timeAgo(v.viewed_at).date:'—'}</div><div style="color:var(--ink4);font-size:8px;margin-top:1px">${typeof timeAgo(v.viewed_at)==='object'?timeAgo(v.viewed_at).ago:''}</div></div><div><div class="tl-text">${idea?idea.name:'不明'}</div><div class="tl-sub">${idea?idea.ticker:'—'}</div></div></div>`;
   }).join('');
 }
 
