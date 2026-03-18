@@ -4,205 +4,335 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>あいぽ COMMAND</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=IBM+Plex+Mono:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  --bg:#f5f0e8;--surface:#fff;--surface2:#faf7f2;
-  --ink:#1c1409;--ink2:#4a3c28;--ink3:#8c7a5e;--ink4:#c4b49a;
-  --amber:#e8850a;--amber-bg:#fff8ed;--amber-border:#f5d68a;
-  --green:#1a7a4a;--green-bg:#edf7f2;--green-border:#9de0cc;
-  --red:#c0392b;--red-bg:#fff0f0;
-  --border:rgba(28,20,9,0.09);--border2:rgba(28,20,9,0.16);
-  --mono:'IBM Plex Mono',monospace;--sans:'Noto Sans JP',sans-serif;
-  --r:14px;--rs:8px;
+  --bg:#0f0e0c;
+  --bg2:#161410;
+  --card:#1c1a16;
+  --card2:#221f19;
+  --border:rgba(255,255,255,0.07);
+  --border2:rgba(255,255,255,0.13);
+  --amber:#f59e0b;
+  --amber2:#d97706;
+  --amber-dim:rgba(245,158,11,0.15);
+  --amber-glow:rgba(245,158,11,0.08);
+  --green:#22c55e;
+  --green-dim:rgba(34,197,94,0.12);
+  --red:#ef4444;
+  --red-dim:rgba(239,68,68,0.1);
+  --text:#f5f0e8;
+  --text2:#a09070;
+  --text3:#5a5040;
+  --mono:'IBM Plex Mono',monospace;
+  --display:'Syne',sans-serif;
+  --sans:'Noto Sans JP',sans-serif;
+  --r:12px;
+  --rs:8px;
 }
-html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-height:100vh}
+html,body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh}
 
-/* LOGIN */
-#login-gate{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;padding:32px}
-.lg-logo{width:56px;height:56px;background:var(--ink);border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:24px;box-shadow:0 4px 20px rgba(28,20,9,.2)}
-.lg-logo svg{width:26px;height:26px}
-.lg-tag{font-family:var(--mono);font-size:9px;color:var(--amber);letter-spacing:.18em;margin-bottom:10px}
-.lg-title{font-size:22px;font-weight:700;color:var(--ink);margin-bottom:6px;letter-spacing:-.02em}
-.lg-sub{font-size:12px;color:var(--ink3);margin-bottom:36px;text-align:center;line-height:1.7}
-.lg-btn{width:100%;max-width:300px;padding:15px;background:var(--ink);border:none;border-radius:var(--rs);color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--sans);display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 4px 16px rgba(28,20,9,.2)}
-.lg-err{display:none;margin-top:16px;font-family:var(--mono);font-size:11px;color:var(--red);text-align:center}
+/* ===== LOGIN ===== */
+#login-gate{
+  position:fixed;inset:0;background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  z-index:999;padding:32px;
+}
+.lg-emblem{
+  width:64px;height:64px;background:var(--amber);border-radius:20px;
+  display:flex;align-items:center;justify-content:center;margin-bottom:28px;
+  box-shadow:0 0 40px rgba(245,158,11,0.4);
+}
+.lg-emblem svg{width:28px;height:28px}
+.lg-tag{font-family:var(--mono);font-size:9px;color:var(--amber);letter-spacing:.2em;margin-bottom:10px;text-transform:uppercase}
+.lg-title{font-family:var(--display);font-size:26px;font-weight:800;color:var(--text);margin-bottom:6px;letter-spacing:-.02em}
+.lg-sub{font-size:12px;color:var(--text2);margin-bottom:40px;text-align:center;line-height:1.7}
+.lg-btn{
+  width:100%;max-width:280px;padding:15px;
+  background:var(--text);border:none;border-radius:var(--rs);
+  color:var(--bg);font-size:14px;font-weight:700;cursor:pointer;
+  font-family:var(--sans);display:flex;align-items:center;justify-content:center;gap:10px;
+}
+.lg-err{display:none;margin-top:16px;font-family:var(--mono);font-size:11px;color:var(--red)}
 
-/* TOPBAR */
-.topbar{background:var(--ink);height:50px;display:flex;align-items:center;padding:0 16px;gap:12px;position:sticky;top:0;z-index:50}
-.tb-logo{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--amber);letter-spacing:.06em}
-.tb-sep{width:1px;height:16px;background:rgba(255,255,255,.15)}
-.tb-label{font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.35);letter-spacing:.1em}
+/* ===== TOPBAR ===== */
+.topbar{
+  height:52px;background:var(--bg2);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 16px;gap:12px;
+  position:sticky;top:0;z-index:50;
+}
+.tb-wordmark{font-family:var(--display);font-size:16px;font-weight:800;color:var(--amber);letter-spacing:-.01em}
+.tb-sep{width:1px;height:16px;background:var(--border2)}
+.tb-label{font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:.12em;text-transform:uppercase}
 .tb-spacer{flex:1}
-.tb-live{display:flex;align-items:center;gap:5px;background:rgba(34,168,95,.15);border:1px solid rgba(34,168,95,.25);border-radius:20px;padding:4px 10px}
-.tb-dot{width:5px;height:5px;border-radius:50%;background:#4ade80;animation:blink 1.8s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-.tb-live-txt{font-family:var(--mono);font-size:9px;color:#4ade80;letter-spacing:.06em;font-weight:700}
-.tb-refresh{background:transparent;border:none;color:rgba(255,255,255,.5);cursor:pointer;font-size:16px;padding:4px;line-height:1}
-.spinning{animation:spin .6s linear infinite}
+.tb-live{
+  display:flex;align-items:center;gap:5px;
+  background:var(--green-dim);border:1px solid rgba(34,197,94,0.2);
+  border-radius:20px;padding:4px 10px;
+}
+.tb-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:blink 1.8s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.tb-live-txt{font-family:var(--mono);font-size:9px;color:var(--green);letter-spacing:.08em;font-weight:700}
+.tb-refresh{
+  background:transparent;border:1px solid var(--border2);border-radius:var(--rs);
+  color:var(--text2);cursor:pointer;font-size:13px;padding:6px 10px;
+  display:flex;align-items:center;transition:border-color .15s;
+}
+.tb-refresh:hover{border-color:var(--amber);color:var(--amber)}
+.spinning{animation:spin .6s linear infinite;display:inline-block}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* TABS */
-.tab-wrap{background:var(--surface);border-bottom:1px solid var(--border);display:flex;overflow-x:auto;scrollbar-width:none;padding:0 14px;gap:4px}
-.tab-btn{background:transparent;border:none;padding:11px 14px;font-size:11px;font-weight:700;color:var(--ink3);cursor:pointer;font-family:var(--sans);white-space:nowrap;border-bottom:2px solid transparent;transition:all .15s}
+/* ===== TABS ===== */
+.tab-wrap{
+  background:var(--bg2);border-bottom:1px solid var(--border);
+  display:flex;overflow-x:auto;scrollbar-width:none;
+  padding:0 12px;gap:0;
+}
+.tab-wrap::-webkit-scrollbar{display:none}
+.tab-btn{
+  background:transparent;border:none;border-bottom:2px solid transparent;
+  padding:12px 14px;font-size:11px;font-weight:700;color:var(--text3);
+  cursor:pointer;font-family:var(--sans);white-space:nowrap;
+  transition:color .15s,border-color .15s;
+}
+.tab-btn:hover{color:var(--text2)}
 .tab-btn.active{color:var(--amber);border-bottom-color:var(--amber)}
 
-/* MAIN */
-.main{padding:16px 14px 80px}
-.section-title{font-family:var(--mono);font-size:9px;color:var(--ink3);letter-spacing:.12em;text-transform:uppercase;margin:0 2px 10px;display:flex;align-items:center;gap:8px}
-.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+/* ===== MAIN ===== */
+.main{padding:16px 14px 80px;max-width:800px;margin:0 auto}
 
-/* KPI */
-.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
-.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;position:relative;overflow:hidden;box-shadow:0 1px 6px rgba(28,20,9,.06)}
-.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2.5px;background:var(--amber);border-radius:var(--r) var(--r) 0 0}
-.kpi-card.green::before{background:var(--green)}
-.kpi-card.red::before{background:var(--red)}
-.kpi-lbl{font-family:var(--mono);font-size:8px;color:var(--ink3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
-.kpi-val{font-family:var(--mono);font-size:32px;font-weight:700;color:var(--amber);line-height:1;margin-bottom:5px}
+/* ===== SECTION TITLE ===== */
+.sec-title{
+  font-family:var(--mono);font-size:9px;color:var(--text3);
+  letter-spacing:.14em;text-transform:uppercase;
+  margin:0 0 10px;display:flex;align-items:center;gap:8px;
+}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ===== CARD ===== */
+.card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r);
+  margin-bottom:14px;overflow:hidden;
+}
+.card-head{
+  padding:13px 16px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.card-title{font-family:var(--mono);font-size:9px;color:var(--amber);letter-spacing:.1em;font-weight:700}
+.card-meta{font-family:var(--mono);font-size:8px;color:var(--text3)}
+.card-body{padding:14px 16px}
+
+/* ===== KPI ROW ===== */
+.kpi-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.kpi{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r);
+  padding:14px;position:relative;overflow:hidden;
+}
+.kpi::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--amber);border-radius:var(--r) var(--r) 0 0;
+}
+.kpi.green::before{background:var(--green)}
+.kpi.red::before{background:var(--red)}
+.kpi.dim::before{background:var(--border2)}
+.kpi-lbl{font-family:var(--mono);font-size:8px;color:var(--text3);letter-spacing:.1em;margin-bottom:8px;line-height:1.4}
+.kpi-val{font-family:var(--mono);font-size:28px;font-weight:700;color:var(--text);line-height:1;margin-bottom:4px}
+.kpi-val.amber{color:var(--amber)}
 .kpi-val.green{color:var(--green)}
-.kpi-val.ink{color:var(--ink)}
-.kpi-sub{font-size:10px;color:var(--ink3)}
+.kpi-val.red{color:var(--red)}
+.kpi-sub{font-size:10px;color:var(--text3);line-height:1.4}
 
-/* PANEL */
-.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:14px;box-shadow:0 1px 6px rgba(28,20,9,.06);overflow:hidden}
-.panel-head{padding:14px 16px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.panel-title{font-family:var(--mono);font-size:9px;color:var(--amber);letter-spacing:.1em;font-weight:700}
-.panel-meta{font-family:var(--mono);font-size:8px;color:var(--ink4)}
-.panel-body{padding:12px 16px}
+/* ===== REVENUE CARD ===== */
+.rev-card{
+  background:linear-gradient(135deg,var(--card),#1a1600);
+  border:1px solid rgba(245,158,11,0.2);border-radius:var(--r);
+  padding:16px;margin-bottom:14px;position:relative;overflow:hidden;
+}
+.rev-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--amber),var(--amber2));
+}
+.rev-glow{
+  position:absolute;top:-20px;right:-20px;width:100px;height:100px;
+  background:radial-gradient(circle,rgba(245,158,11,0.12),transparent 70%);
+  pointer-events:none;
+}
+.rev-total-lbl{font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:.12em;margin-bottom:6px}
+.rev-total-val{font-family:var(--mono);font-size:40px;font-weight:700;color:var(--amber);line-height:1;margin-bottom:14px}
+.rev-breakdown{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.rev-item{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:var(--rs);padding:10px}
+.rev-item-lbl{font-size:9px;color:var(--text3);margin-bottom:6px}
+.rev-item-val{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--text);margin-bottom:2px}
+.rev-item-sub{font-size:9px;color:var(--text3)}
 
-/* LP BUTTON ROWS - メイン機能 */
-.btn-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border)}
+/* ===== FUNNEL ===== */
+.funnel-step{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 0;border-bottom:1px solid var(--border);
+}
+.funnel-step:last-child{border-bottom:none}
+.funnel-num{font-family:var(--mono);font-size:24px;font-weight:700;color:var(--text);min-width:52px}
+.funnel-info{flex:1;min-width:0}
+.funnel-lbl{font-size:12px;font-weight:700;color:var(--text);margin-bottom:5px}
+.funnel-bar{height:6px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden;margin-bottom:4px}
+.funnel-bar-fill{height:100%;border-radius:3px;transition:width .9s cubic-bezier(.4,0,.2,1)}
+.funnel-sub{font-size:10px;color:var(--text3)}
+.funnel-drop{font-family:var(--mono);font-size:9px;padding:2px 8px;border-radius:3px;margin:4px 0;display:inline-block}
+.funnel-drop.bad{background:var(--red-dim);color:var(--red)}
+.funnel-drop.ok{background:var(--green-dim);color:var(--green)}
+
+/* ===== TIME ANALYSIS ===== */
+.time-kpi-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+.time-kpi{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:var(--rs);padding:10px;text-align:center}
+.time-kpi-lbl{font-family:var(--mono);font-size:8px;color:var(--text3);letter-spacing:.08em;margin-bottom:6px}
+.time-kpi-val{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--text)}
+
+/* ===== BUTTON PERF ===== */
+.btn-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border)}
 .btn-row:last-child{border-bottom:none}
-.btn-label{flex:1;min-width:0}
-.btn-name{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:2px}
-.btn-campaign{font-family:var(--mono);font-size:9px;color:var(--ink3)}
-.btn-bar-wrap{flex:1;min-width:0}
-.btn-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:4px}
+.btn-icon{font-size:18px;flex-shrink:0;width:28px;text-align:center}
+.btn-info{flex:1;min-width:0}
+.btn-name{font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px}
+.btn-bar{height:5px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden}
 .btn-bar-fill{height:100%;background:var(--amber);border-radius:3px;transition:width .8s cubic-bezier(.4,0,.2,1)}
-.btn-bar-fill.top{background:linear-gradient(90deg,var(--amber),#bf6d00)}
-.btn-count{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--ink);text-align:right;flex-shrink:0;min-width:36px}
-.btn-pct{font-family:var(--mono);font-size:9px;color:var(--ink3);text-align:right}
+.btn-bar-fill.top{background:linear-gradient(90deg,var(--amber),#fbbf24)}
+.btn-right{text-align:right;flex-shrink:0;min-width:40px}
+.btn-count{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--text)}
+.btn-pct{font-family:var(--mono);font-size:9px;color:var(--text3)}
 
-/* SOURCE ROWS */
+/* ===== SOURCE ROWS ===== */
 .src-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
 .src-row:last-child{border-bottom:none}
-.src-icon{width:32px;height:32px;border-radius:var(--rs);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;background:var(--surface2);border:1px solid var(--border)}
+.src-icon{width:32px;height:32px;border-radius:var(--rs);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;background:rgba(255,255,255,0.05);border:1px solid var(--border)}
 .src-info{flex:1;min-width:0}
-.src-name{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:3px}
-.src-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.src-name{font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px}
+.src-bar{height:4px;background:rgba(255,255,255,0.07);border-radius:2px;overflow:hidden}
 .src-bar-fill{height:100%;background:var(--amber);border-radius:2px;transition:width .8s}
-.src-count{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--ink);flex-shrink:0;text-align:right;min-width:36px}
-.src-pct{font-family:var(--mono);font-size:9px;color:var(--ink3);text-align:right}
+.src-count{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--text);text-align:right;min-width:32px}
+.src-pct{font-family:var(--mono);font-size:9px;color:var(--text3);text-align:right}
 
-/* TIMELINE */
+/* ===== TIMELINE ===== */
 .tl-row{display:flex;gap:12px;padding:9px 0;border-bottom:1px solid var(--border);align-items:flex-start}
 .tl-row:last-child{border-bottom:none}
-.tl-dot{width:7px;height:7px;border-radius:50%;background:var(--amber-bg);border:1.5px solid var(--amber);flex-shrink:0;margin-top:4px}
-.tl-time{font-family:var(--mono);font-size:9px;color:var(--ink3);flex-shrink:0;min-width:56px;padding-top:1px}
-.tl-text{font-size:12px;color:var(--ink);line-height:1.45}
-.tl-sub{font-family:var(--mono);font-size:9px;color:var(--ink3);margin-top:2px}
+.tl-dot{width:7px;height:7px;border-radius:50%;background:var(--amber-dim);border:1.5px solid var(--amber);flex-shrink:0;margin-top:4px}
+.tl-dot.dim{border-color:var(--text3);background:transparent}
+.tl-time{flex-shrink:0;min-width:80px}
+.tl-date{font-family:var(--mono);font-size:10px;color:var(--text2)}
+.tl-ago{font-family:var(--mono);font-size:8px;color:var(--text3);margin-top:1px}
+.tl-body{min-width:0}
+.tl-text{font-size:12px;color:var(--text);line-height:1.45}
+.tl-sub{font-family:var(--mono);font-size:9px;color:var(--text3);margin-top:2px}
 
-/* INSIGHT CARD */
-.insight-card{background:linear-gradient(135deg,var(--amber-bg),#fff8e0);border:1.5px solid var(--amber-border);border-radius:var(--r);padding:16px;margin-bottom:14px}
-.insight-title{font-family:var(--mono);font-size:9px;color:var(--amber);letter-spacing:.1em;font-weight:700;margin-bottom:10px}
-.insight-line{font-size:13px;color:var(--ink);line-height:1.7;margin-bottom:6px;display:flex;align-items:flex-start;gap:8px}
-.insight-line::before{content:'→';font-family:var(--mono);color:var(--amber);flex-shrink:0;margin-top:1px}
-
-/* HOURLY */
-.hour-chart{display:flex;align-items:flex-end;gap:3px;height:64px;padding-top:4px;margin-bottom:4px}
-.hour-bar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px}
-.hour-bar-fill{width:100%;border-radius:2px 2px 0 0;background:var(--amber);min-height:2px;transition:height .6s}
-.hour-bar-fill.now{background:var(--green)}
-.hour-labels{display:flex;gap:3px}
-.hour-lbl{flex:1;text-align:center;font-family:var(--mono);font-size:7px;color:var(--ink4)}
-
-/* IDEA TABLE */
+/* ===== IDEA ROWS ===== */
 .idea-row{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--border)}
 .idea-row:last-child{border-bottom:none}
-.idea-rank{font-family:var(--mono);font-size:9px;color:var(--ink4);min-width:18px}
-.idea-ticker{font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:3px;padding:1px 5px;flex-shrink:0}
-.idea-name{flex:1;font-size:12px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
-.idea-score{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--green);flex-shrink:0}
-.idea-views{font-family:var(--mono);font-size:10px;color:var(--ink3);flex-shrink:0;min-width:28px;text-align:right}
+.idea-rank{font-family:var(--mono);font-size:9px;color:var(--text3);min-width:20px}
+.idea-ticker{font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-dim);border:1px solid rgba(245,158,11,0.2);border-radius:3px;padding:1px 5px;flex-shrink:0}
+.idea-name{flex:1;font-size:12px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.idea-score{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--green);flex-shrink:0}
+.idea-votes{font-family:var(--mono);font-size:10px;color:var(--text3);flex-shrink:0;min-width:28px;text-align:right}
 
-/* USERS */
-.user-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
-.user-row:last-child{border-bottom:none}
-.user-av{width:34px;height:34px;border-radius:50%;background:var(--amber-bg);border:1.5px solid var(--amber-border);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--amber);flex-shrink:0}
-.user-info{flex:1;min-width:0}
-.user-name{font-size:12px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.user-id{font-family:var(--mono);font-size:9px;color:var(--ink3);margin-top:1px}
-.badge{font-family:var(--mono);font-size:8px;padding:2px 7px;border-radius:3px;font-weight:700;flex-shrink:0}
-.badge.founder{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
-.badge.pro{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
-.badge.free{background:var(--surface2);color:var(--ink3);border:1px solid var(--border)}
-
-/* FUNNEL */
-.funnel-step{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
-.funnel-step:last-child{border-bottom:none}
-.funnel-num{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--ink);min-width:60px}
-.funnel-info{flex:1;min-width:0}
-.funnel-label{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px}
-.funnel-bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin-bottom:4px}
-.funnel-bar-fill{height:100%;border-radius:4px;transition:width .8s cubic-bezier(.4,0,.2,1)}
-.funnel-drop{font-family:var(--mono);font-size:10px}
-.funnel-drop.bad{color:var(--red)}
-.funnel-drop.ok{color:var(--green)}
-
-/* USER ACTIVITY */
+/* ===== USER ROWS ===== */
 .ua-row{padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer}
 .ua-row:last-child{border-bottom:none}
 .ua-header{display:flex;align-items:center;gap:10px}
-.ua-av{width:34px;height:34px;border-radius:50%;background:var(--amber-bg);border:1.5px solid var(--amber-border);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--amber);flex-shrink:0}
-.ua-name{flex:1;font-size:13px;font-weight:700;color:var(--ink)}
-.ua-score{display:flex;align-items:center;gap:6px}
-.ua-votes{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--amber)}
-.ua-from{font-family:var(--mono);font-size:8px;padding:2px 7px;border-radius:3px;font-weight:700}
-.ua-from.lp{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
-.ua-from.x{background:#e8f4ff;color:#1d9bf0;border:1px solid #b3d9ff}
-.ua-from.direct{background:var(--surface2);color:var(--ink3);border:1px solid var(--border)}
-.ua-detail{margin-top:10px;padding:10px;background:var(--surface2);border-radius:var(--rs);display:none}
+.ua-av{width:34px;height:34px;border-radius:50%;background:var(--amber-dim);border:1.5px solid rgba(245,158,11,0.3);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--amber);flex-shrink:0}
+.ua-name{flex:1;font-size:12px;font-weight:700;color:var(--text)}
+.badge{font-family:var(--mono);font-size:8px;padding:2px 7px;border-radius:3px;font-weight:700;flex-shrink:0}
+.badge.founder{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(245,158,11,0.25)}
+.badge.pro{background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,0.25)}
+.badge.free{background:rgba(255,255,255,0.05);color:var(--text3);border:1px solid var(--border)}
+.ua-detail{margin-top:10px;padding:10px;background:rgba(255,255,255,0.03);border-radius:var(--rs);display:none}
 .ua-detail.open{display:block}
-.ua-voted-idea{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:11px}
+.ua-voted-idea{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:11px;color:var(--text2)}
 .ua-voted-idea:last-child{border-bottom:none}
 
-/* PDCA GOAL */
+/* ===== PDCA ===== */
 .goal-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
 .goal-item:last-child{border-bottom:none}
-.goal-check{width:20px;height:20px;border-radius:5px;border:2px solid var(--border2);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.goal-check{width:20px;height:20px;border-radius:5px;border:1.5px solid var(--border2);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
 .goal-check.done{background:var(--green);border-color:var(--green)}
-.goal-text{flex:1;font-size:13px;color:var(--ink)}
-.goal-text.done{text-decoration:line-through;color:var(--ink3)}
-.goal-del{background:transparent;border:none;color:var(--ink4);cursor:pointer;font-size:14px;padding:2px 6px}
-
-/* PDCA ACTION LOG */
+.goal-text{flex:1;font-size:13px;color:var(--text)}
+.goal-text.done{text-decoration:line-through;color:var(--text3)}
+.goal-del{background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:2px 6px}
 .al-item{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);align-items:flex-start}
 .al-item:last-child{border-bottom:none}
 .al-cat{font-size:16px;flex-shrink:0;margin-top:1px}
 .al-info{flex:1;min-width:0}
-.al-text{font-size:12px;color:var(--ink);line-height:1.45;margin-bottom:2px}
-.al-date{font-family:var(--mono);font-size:9px;color:var(--ink3)}
-.al-del{background:transparent;border:none;color:var(--ink4);cursor:pointer;font-size:12px;padding:2px 6px}
+.al-text{font-size:12px;color:var(--text);line-height:1.45;margin-bottom:2px}
+.al-date{font-family:var(--mono);font-size:9px;color:var(--text3)}
+.al-del{background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:12px;padding:2px 6px}
 
-/* EMPTY / SKELETON */
-.empty{padding:28px 16px;text-align:center}
-.empty-ico{font-size:24px;margin-bottom:8px;opacity:.4}
-.empty-txt{font-family:var(--mono);font-size:10px;color:var(--ink3);letter-spacing:.06em}
-.skel{background:linear-gradient(90deg,var(--surface2) 25%,var(--border) 50%,var(--surface2) 75%);background-size:200% 100%;animation:sh 1.3s infinite;border-radius:4px;height:12px;margin-bottom:8px}
+/* ===== INPUT ===== */
+.dash-input{
+  width:100%;padding:10px 12px;
+  background:rgba(255,255,255,0.05);border:1px solid var(--border2);
+  border-radius:var(--rs);font-size:13px;font-family:var(--sans);
+  color:var(--text);outline:none;transition:border-color .15s;
+}
+.dash-input:focus{border-color:var(--amber)}
+.dash-input::placeholder{color:var(--text3)}
+.dash-select{
+  padding:10px 12px;
+  background:rgba(255,255,255,0.05);border:1px solid var(--border2);
+  border-radius:var(--rs);font-size:12px;font-family:var(--sans);
+  color:var(--text);outline:none;
+}
+.dash-btn-primary{
+  padding:10px 16px;background:var(--amber);border:none;
+  border-radius:var(--rs);color:var(--bg);font-size:13px;font-weight:700;
+  cursor:pointer;font-family:var(--sans);transition:opacity .15s;
+  white-space:nowrap;
+}
+.dash-btn-primary:hover{opacity:.88}
+.dash-btn-dark{
+  padding:10px 16px;background:rgba(255,255,255,0.1);border:1px solid var(--border2);
+  border-radius:var(--rs);color:var(--text);font-size:13px;font-weight:700;
+  cursor:pointer;font-family:var(--sans);transition:background .15s;
+  white-space:nowrap;
+}
+.dash-btn-dark:hover{background:rgba(255,255,255,0.15)}
+
+/* ===== INSIGHT ===== */
+.insight-wrap{margin-bottom:14px}
+.insight-good{display:flex;gap:10px;align-items:flex-start;padding:11px 13px;margin-bottom:8px;background:var(--green-dim);border:1px solid rgba(34,197,94,0.2);border-radius:var(--rs)}
+.insight-warn{display:flex;gap:10px;align-items:flex-start;padding:11px 13px;margin-bottom:8px;background:var(--red-dim);border:1px solid rgba(239,68,68,0.2);border-radius:var(--rs)}
+.insight-ico{font-size:15px;flex-shrink:0}
+.insight-txt{font-size:12px;color:var(--text);line-height:1.6}
+
+/* ===== CHART HOURLY ===== */
+.hour-chart{display:flex;align-items:flex-end;gap:3px;height:60px;padding-top:4px;margin-bottom:4px}
+.hour-bar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px}
+.hour-fill{width:100%;border-radius:2px 2px 0 0;background:var(--amber);min-height:2px;transition:height .6s}
+.hour-fill.now{background:var(--green)}
+.hour-labels{display:flex;gap:3px;margin-bottom:4px}
+.hour-lbl{flex:1;text-align:center;font-family:var(--mono);font-size:7px;color:var(--text3)}
+
+/* ===== EMPTY / SKEL ===== */
+.empty{padding:32px 16px;text-align:center}
+.empty-ico{font-size:24px;margin-bottom:8px;opacity:.3}
+.empty-txt{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:.06em;line-height:1.6}
+.skel{background:linear-gradient(90deg,var(--card) 25%,var(--card2) 50%,var(--card) 75%);background-size:200% 100%;animation:sh 1.3s infinite;border-radius:4px;height:12px;margin-bottom:8px}
 @keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ===== WEEKLY SUMMARY STATS ===== */
+.ws-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.ws-item{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:var(--rs);padding:11px}
+.ws-lbl{font-size:10px;color:var(--text3);margin-bottom:5px}
+.ws-val{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--text)}
+.ws-sub{font-size:9px;color:var(--text3);margin-top:2px}
 </style>
 </head>
 <body>
 
 <!-- LOGIN -->
 <div id="login-gate">
-  <div class="lg-logo">
-    <svg viewBox="0 0 24 24" fill="none" stroke="#e8850a" stroke-width="2" stroke-linecap="round">
+  <div class="lg-emblem">
+    <svg viewBox="0 0 24 24" fill="none" stroke="var(--bg)" stroke-width="2.5" stroke-linecap="round">
       <polyline points="3,17 8,12 12,14 17,7 21,9"/>
-      <circle cx="21" cy="9" r="2" fill="#e8850a" stroke="none"/>
+      <circle cx="21" cy="9" r="2.5" fill="var(--bg)" stroke="none"/>
     </svg>
   </div>
   <div class="lg-tag">AIPO · COMMAND CENTER</div>
@@ -217,295 +347,229 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
 
 <!-- DASHBOARD -->
 <div id="dashboard" style="display:none">
+
   <div class="topbar">
-    <div class="tb-logo">AIPO</div>
+    <div class="tb-wordmark">AIPO</div>
     <div class="tb-sep"></div>
     <div class="tb-label">COMMAND</div>
     <div class="tb-spacer"></div>
     <div class="tb-live"><div class="tb-dot"></div><span class="tb-live-txt">LIVE</span></div>
-    <button class="tb-refresh" id="refresh-btn" onclick="loadAll()">
+    <button class="tb-refresh" onclick="loadAll()">
       <span id="spin-icon">↺</span>
     </button>
   </div>
 
   <div class="tab-wrap">
-    <button class="tab-btn active" onclick="showTab('pdca')" id="tab-pdca">📋 PDCA</button>
-    <button class="tab-btn" onclick="showTab('lp')" id="tab-lp">LPの成果</button>
+    <button class="tab-btn active" onclick="showTab('lp')" id="tab-lp">LPの成果</button>
     <button class="tab-btn" onclick="showTab('overview')" id="tab-overview">概要</button>
     <button class="tab-btn" onclick="showTab('ideas')" id="tab-ideas">アイデア</button>
     <button class="tab-btn" onclick="showTab('users')" id="tab-users">ユーザー</button>
+    <button class="tab-btn" onclick="showTab('pdca')" id="tab-pdca">PDCA</button>
   </div>
 
-  <!-- PDCA TAB -->
-  <div id="tab-content-pdca" class="main">
+  <!-- LP TAB -->
+  <div id="tab-content-lp" class="main">
 
-    <!-- A: 自動インサイト -->
     <div id="pdca-insights-wrap"></div>
 
-    <!-- P: 今週の目標 -->
-    <div class="section-title">P — 今週の目標</div>
-    <div class="panel" style="margin-bottom:14px">
-      <div class="panel-head">
-        <div class="panel-title">WEEKLY GOALS</div>
-        <div class="panel-meta" id="goals-week"></div>
+    <!-- 売上 -->
+    <div class="rev-card">
+      <div class="rev-glow"></div>
+      <div class="rev-total-lbl">REVENUE（概算）</div>
+      <div style="display:flex;align-items:baseline;gap:4px;margin-bottom:14px">
+        <div class="rev-total-val" id="revenue-total">—</div>
+        <div style="font-family:var(--mono);font-size:14px;color:var(--text3)">円</div>
       </div>
-      <div class="panel-body">
-        <div id="goals-list" style="margin-bottom:12px"></div>
-        <div style="display:flex;gap:8px">
-          <input id="goal-input" type="text" placeholder="例：新規ユーザー5人、LP流入30人..."
-            style="flex:1;padding:10px 12px;border:1px solid var(--border2);border-radius:var(--rs);font-size:13px;font-family:var(--sans);background:var(--surface);color:var(--ink);outline:none"
-            onkeydown="if(event.key==='Enter')addGoal()">
-          <button onclick="addGoal()"
-            style="padding:10px 16px;background:var(--amber);border:none;border-radius:var(--rs);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">追加</button>
+      <div class="rev-breakdown">
+        <div class="rev-item">
+          <div class="rev-item-lbl">👑 創設メンバー（買い切り）</div>
+          <div class="rev-item-val" id="revenue-founder">—</div>
+          <div class="rev-item-sub"><span id="founder-count-rev">—</span>人 × ¥980</div>
+        </div>
+        <div class="rev-item">
+          <div class="rev-item-lbl">🥃 Pro（月額）</div>
+          <div class="rev-item-val" style="color:var(--green)" id="revenue-pro">—</div>
+          <div class="rev-item-sub"><span id="pro-count-rev">—</span>人 × ¥300/月</div>
         </div>
       </div>
     </div>
 
-    <!-- D: アクションログ -->
-    <div class="section-title">D — やったこと</div>
-    <div class="panel" style="margin-bottom:14px">
-      <div class="panel-head">
-        <div class="panel-title">ACTION LOG</div>
-        <div class="panel-meta">施策の記録</div>
-      </div>
-      <div class="panel-body">
-        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
-          <select id="action-category"
-            style="padding:10px 12px;border:1px solid var(--border2);border-radius:var(--rs);font-size:12px;font-family:var(--sans);background:var(--surface);color:var(--ink);outline:none">
-            <option value="x_post">🐦 Xに投稿</option>
-            <option value="lp_update">📄 LP更新</option>
-            <option value="feature">✨ 機能追加</option>
-            <option value="outreach">🤝 営業・DM</option>
-            <option value="other">📌 その他</option>
-          </select>
-          <input id="action-input" type="text" placeholder="例：あいぽについてXに投稿した"
-            style="flex:1;min-width:200px;padding:10px 12px;border:1px solid var(--border2);border-radius:var(--rs);font-size:13px;font-family:var(--sans);background:var(--surface);color:var(--ink);outline:none"
-            onkeydown="if(event.key==='Enter')addAction()">
-          <button onclick="addAction()"
-            style="padding:10px 16px;background:var(--ink);border:none;border-radius:var(--rs);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">記録</button>
-        </div>
-        <div id="action-log-list"></div>
-      </div>
-    </div>
-
-    <!-- C: 結果グラフ（アクションと流入の重ね表示） -->
-    <div class="section-title">C — 結果（アクション×流入の相関）</div>
-    <div class="panel" style="margin-bottom:14px">
-      <div class="panel-head">
-        <div class="panel-title">ACTION × TRAFFIC</div>
-        <div class="panel-meta">直近14日間</div>
-      </div>
-      <div class="panel-body">
-        <div id="pdca-chart" style="position:relative;height:120px;margin-bottom:8px"></div>
-        <div id="pdca-chart-labels" style="display:flex;gap:0;margin-bottom:8px"></div>
-        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
-          <div style="display:flex;align-items:center;gap:5px"><div style="width:12px;height:4px;background:var(--amber);border-radius:2px"></div><span style="font-size:10px;color:var(--ink3)">LP流入数</span></div>
-          <div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:10px;background:var(--ink);border-radius:50%"></div><span style="font-size:10px;color:var(--ink3)">アクション実施日</span></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 週次サマリー -->
-    <div class="section-title">今週のまとめ</div>
-    <div class="panel">
-      <div class="panel-head"><div class="panel-title">WEEKLY SUMMARY</div></div>
-      <div class="panel-body" id="weekly-summary-body">
-        <div class="skel"></div><div class="skel" style="width:70%"></div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- LP TAB（メイン） -->
-  <div id="tab-content-lp" class="main" style="display:none">
-
-    <div class="section-title">LPからあいぽに来た人数</div>
-    <!-- 売上カード -->
-    <div class="panel" style="margin-bottom:20px;background:linear-gradient(135deg,#fff8ed,#fffdf5);border:1.5px solid var(--amber-border)">
-      <div class="panel-head" style="background:transparent;border-bottom-color:var(--amber-border)">
-        <div class="panel-title">💰 売上合計（Supabase集計）</div>
-        <div class="panel-meta">創設メンバー×¥980 + Pro×¥300/月</div>
-      </div>
-      <div class="panel-body">
-        <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:12px">
-          <div style="font-family:var(--mono);font-size:36px;font-weight:700;color:var(--amber)" id="revenue-total">—</div>
-          <div style="font-size:11px;color:var(--ink3)">円</div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <div style="background:#fff;border:1px solid var(--border);border-radius:var(--rs);padding:12px">
-            <div style="font-family:var(--mono);font-size:8px;color:var(--ink3);letter-spacing:.08em;margin-bottom:6px">👑 創設メンバー（買い切り）</div>
-            <div style="font-family:var(--mono);font-size:20px;font-weight:700;color:var(--ink)" id="revenue-founder">—</div>
-            <div style="font-size:10px;color:var(--ink3);margin-top:3px"><span id="founder-count-rev">—</span>人 × ¥980</div>
-          </div>
-          <div style="background:#fff;border:1px solid var(--border);border-radius:var(--rs);padding:12px">
-            <div style="font-family:var(--mono);font-size:8px;color:var(--ink3);letter-spacing:.08em;margin-bottom:6px">🥃 Pro（月額）</div>
-            <div style="font-family:var(--mono);font-size:20px;font-weight:700;color:var(--green)" id="revenue-pro">—</div>
-            <div style="font-size:10px;color:var(--ink3);margin-top:3px"><span id="pro-count-rev">—</span>人 × ¥300/月</div>
-          </div>
-        </div>
-        <div style="margin-top:10px;font-size:10px;color:var(--ink3);line-height:1.6">
-          ※ Stripeと同期していないため概算です。Proは現在の月次収益として表示。
-        </div>
-      </div>
-    </div>
-
-    <div class="kpi-grid" style="margin-bottom:20px">
-      <div class="kpi-card">
+    <!-- LP KPI -->
+    <div class="kpi-row" style="grid-template-columns:1fr 1fr">
+      <div class="kpi dim">
         <div class="kpi-lbl">LPを開いた人数（累計）</div>
-        <div class="kpi-val ink" id="lp-open-total">—</div>
+        <div class="kpi-val" id="lp-open-total">—</div>
         <div class="kpi-sub">lp.htmlにアクセスした回数</div>
       </div>
-      <div class="kpi-card">
+      <div class="kpi dim">
         <div class="kpi-lbl">LPを開いた人数（今日）</div>
-        <div class="kpi-val ink" id="lp-open-today">—</div>
+        <div class="kpi-val" id="lp-open-today">—</div>
         <div class="kpi-sub">今日LPを開いた回数</div>
       </div>
-      <div class="kpi-card">
+    </div>
+    <div class="kpi-row" style="grid-template-columns:1fr 1fr">
+      <div class="kpi">
         <div class="kpi-lbl">LP→アプリ 累計</div>
-        <div class="kpi-val ink" id="lp-total">—</div>
+        <div class="kpi-val amber" id="lp-total">—</div>
         <div class="kpi-sub">LPのボタンを押してあいぽを開いた人</div>
       </div>
-      <div class="kpi-card green">
+      <div class="kpi green">
         <div class="kpi-lbl">LP→アプリ 今日</div>
         <div class="kpi-val green" id="lp-today">—</div>
         <div class="kpi-sub">今日LPからあいぽに来た人</div>
       </div>
     </div>
 
-    <div id="lp-insight-wrap"></div>
-
-    <div class="section-title">どこで人が落ちているか（ファネル）</div>
-    <div class="panel" style="margin-bottom:20px">
-      <div class="panel-head">
-        <div class="panel-title">CONVERSION FUNNEL</div>
-        <div class="panel-meta">LP→登録までの流れ</div>
-      </div>
-      <div class="panel-body" id="funnel-body">
-        <div class="skel"></div><div class="skel" style="width:70%"></div>
-      </div>
+    <!-- ファネル -->
+    <div class="sec-title">どこで人が落ちているか</div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-head"><div class="card-title">CONVERSION FUNNEL</div><div class="card-meta">LP → 登録までの流れ</div></div>
+      <div class="card-body" id="funnel-body"><div class="skel"></div><div class="skel" style="width:70%"></div></div>
     </div>
 
-    <div class="section-title">LPでの滞在時間分析</div>
-    <div class="panel" style="margin-bottom:20px">
-      <div class="panel-head">
-        <div class="panel-title">TIME ON PAGE</div>
-        <div class="panel-meta">lp.htmlの滞在時間</div>
-      </div>
-      <div class="panel-body" id="time-analysis-body">
-        <div class="skel"></div><div class="skel" style="width:60%"></div>
-      </div>
+    <!-- 滞在時間 -->
+    <div class="sec-title">LPでの滞在時間</div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-head"><div class="card-title">TIME ON PAGE</div><div class="card-meta">lp.html 滞在時間分析</div></div>
+      <div class="card-body" id="time-analysis-body"><div class="skel"></div><div class="skel" style="width:60%"></div></div>
     </div>
 
-    <div class="section-title">LPのどのボタンから来たか</div>
-    <div class="panel" style="margin-bottom:20px">
-      <div class="panel-head">
-        <div class="panel-title">BUTTON PERFORMANCE</div>
-        <div class="panel-meta" id="lp-btn-total-meta">累計</div>
-      </div>
-      <div class="panel-body" id="lp-buttons-body">
-        <div class="skel"></div><div class="skel" style="width:70%"></div>
-      </div>
+    <!-- ボタン別 -->
+    <div class="sec-title">LPのどのボタンから来たか</div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-head"><div class="card-title">BUTTON PERFORMANCE</div><div class="card-meta" id="lp-btn-total-meta">累計</div></div>
+      <div class="card-body" id="lp-buttons-body"><div class="skel"></div><div class="skel" style="width:70%"></div></div>
     </div>
 
-    <div class="section-title">LP以外からの流入</div>
-    <div class="panel" style="margin-bottom:20px">
-      <div class="panel-head">
-        <div class="panel-title">OTHER SOURCES</div>
-        <div class="panel-meta" id="other-total-meta"></div>
-      </div>
-      <div class="panel-body" id="other-sources-body">
-        <div class="skel"></div>
-      </div>
+    <!-- その他流入 -->
+    <div class="sec-title">LP以外からの流入</div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-head"><div class="card-title">OTHER SOURCES</div><div class="card-meta" id="other-total-meta"></div></div>
+      <div class="card-body" id="other-sources-body"><div class="skel"></div></div>
     </div>
 
-    <div class="section-title">直近の流入タイムライン</div>
-    <div class="panel">
-      <div class="panel-head">
-        <div class="panel-title">RECENT EVENTS</div>
-        <div class="panel-meta">直近20件</div>
-      </div>
-      <div class="panel-body" id="lp-timeline-body">
-        <div class="skel"></div>
-      </div>
+    <!-- タイムライン -->
+    <div class="sec-title">直近の流入タイムライン</div>
+    <div class="card">
+      <div class="card-head"><div class="card-title">RECENT EVENTS</div><div class="card-meta">直近20件</div></div>
+      <div class="card-body" id="lp-timeline-body"><div class="skel"></div></div>
     </div>
+
   </div>
 
   <!-- OVERVIEW TAB -->
   <div id="tab-content-overview" class="main" style="display:none">
-    <div class="section-title">サマリー</div>
-    <div class="kpi-grid">
-      <div class="kpi-card">
-        <div class="kpi-lbl">登録ユーザー数</div>
-        <div class="kpi-val" id="kpi-users">—</div>
-        <div class="kpi-sub">あいぽにログインしたことがある人</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-lbl">上場中のアイデア数</div>
-        <div class="kpi-val" id="kpi-ideas">—</div>
-        <div class="kpi-sub">現在マーケットにあるアイデアの数</div>
-      </div>
-      <div class="kpi-card green">
-        <div class="kpi-lbl">創設メンバー数</div>
-        <div class="kpi-val green" id="kpi-founders">—</div>
-        <div class="kpi-sub" id="kpi-founders-sub">¥980を払ってくれた人</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-lbl">今日の閲覧数</div>
-        <div class="kpi-val" id="kpi-views">—</div>
-        <div class="kpi-sub">今日アイデアの詳細を開いた回数</div>
-      </div>
+    <div class="sec-title">サマリー</div>
+    <div class="kpi-row">
+      <div class="kpi"><div class="kpi-lbl">登録ユーザー数</div><div class="kpi-val amber" id="kpi-users">—</div><div class="kpi-sub">あいぽにログインした人</div></div>
+      <div class="kpi"><div class="kpi-lbl">上場中のアイデア数</div><div class="kpi-val amber" id="kpi-ideas">—</div><div class="kpi-sub">マーケットにあるアイデア</div></div>
+      <div class="kpi green"><div class="kpi-lbl">創設メンバー数</div><div class="kpi-val green" id="kpi-founders">—</div><div class="kpi-sub" id="kpi-founders-sub">¥980を払ってくれた人</div></div>
+      <div class="kpi dim"><div class="kpi-lbl">今日の閲覧数</div><div class="kpi-val" id="kpi-views">—</div><div class="kpi-sub">今日アイデアを開いた回数</div></div>
     </div>
 
-    <div class="section-title">本日の時間別閲覧</div>
-    <div class="panel" style="margin-bottom:14px">
-      <div class="panel-body">
+    <div class="sec-title">本日の時間別閲覧</div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-body">
         <div class="hour-chart" id="hourly-chart"></div>
         <div class="hour-labels" id="hourly-labels"></div>
       </div>
     </div>
 
-    <div class="section-title">最新アクティビティ</div>
-    <div class="panel">
-      <div class="panel-body" id="recent-body">
-        <div class="skel"></div><div class="skel" style="width:70%"></div>
-      </div>
+    <div class="sec-title">最新アクティビティ</div>
+    <div class="card">
+      <div class="card-body" id="recent-body"><div class="skel"></div><div class="skel" style="width:70%"></div></div>
     </div>
   </div>
 
   <!-- IDEAS TAB -->
   <div id="tab-content-ideas" class="main" style="display:none">
-    <div class="section-title">閲覧数ランキング</div>
-    <div class="panel" style="margin-bottom:14px">
-      <div class="panel-head"><div class="panel-title">MOST VIEWED</div><div class="panel-meta">idea_views</div></div>
-      <div class="panel-body" id="most-viewed-body"><div class="skel"></div></div>
+    <div class="sec-title">閲覧数ランキング</div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-head"><div class="card-title">MOST VIEWED</div><div class="card-meta">idea_views</div></div>
+      <div class="card-body" id="most-viewed-body"><div class="skel"></div></div>
     </div>
-    <div class="section-title">スコア順</div>
-    <div class="panel">
-      <div class="panel-head"><div class="panel-title">ALL IDEAS</div></div>
-      <div class="panel-body" id="all-ideas-body"><div class="skel"></div></div>
+    <div class="sec-title">スコア順</div>
+    <div class="card">
+      <div class="card-head"><div class="card-title">ALL IDEAS</div></div>
+      <div class="card-body" id="all-ideas-body"><div class="skel"></div></div>
     </div>
   </div>
 
   <!-- USERS TAB -->
   <div id="tab-content-users" class="main" style="display:none">
-    <div class="section-title">熱量ランキング</div>
-    <div class="panel" style="margin-bottom:14px">
-      <div class="panel-head">
-        <div class="panel-title">USER ACTIVITY</div>
-        <div class="panel-meta">票数が多い順</div>
-      </div>
-      <div class="panel-body" id="user-activity-body"><div class="skel"></div></div>
+    <div class="sec-title">熱量ランキング（投票数順）</div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-head"><div class="card-title">USER ACTIVITY</div><div class="card-meta">票数が多い順</div></div>
+      <div class="card-body" id="user-activity-body"><div class="skel"></div></div>
     </div>
-
-    <div class="section-title">ユーザー詳細（タップで展開）</div>
-    <div class="panel">
-      <div class="panel-head"><div class="panel-title">ALL USERS</div><div class="panel-meta" id="users-meta">—人</div></div>
-      <div class="panel-body" id="users-body"><div class="skel"></div></div>
+    <div class="sec-title">全ユーザー（タップで詳細）</div>
+    <div class="card">
+      <div class="card-head"><div class="card-title">ALL USERS</div><div class="card-meta" id="users-meta">—人</div></div>
+      <div class="card-body" id="users-body"><div class="skel"></div></div>
     </div>
   </div>
+
+  <!-- PDCA TAB -->
+  <div id="tab-content-pdca" class="main" style="display:none">
+
+    <div id="pdca-insights-pdca-wrap"></div>
+
+    <div class="sec-title">P — 今週の目標</div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-head"><div class="card-title">WEEKLY GOALS</div><div class="card-meta" id="goals-week"></div></div>
+      <div class="card-body">
+        <div id="goals-list" style="margin-bottom:12px"></div>
+        <div style="display:flex;gap:8px">
+          <input id="goal-input" type="text" class="dash-input" placeholder="例：新規ユーザー5人、LP流入30人..." onkeydown="if(event.key==='Enter')addGoal()">
+          <button class="dash-btn-primary" onclick="addGoal()">追加</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-title">D — やったこと</div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-head"><div class="card-title">ACTION LOG</div><div class="card-meta">施策の記録</div></div>
+      <div class="card-body">
+        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+          <select id="action-category" class="dash-select">
+            <option value="x_post">🐦 Xに投稿</option>
+            <option value="lp_update">📄 LP更新</option>
+            <option value="feature">✨ 機能追加</option>
+            <option value="outreach">🤝 営業・DM</option>
+            <option value="other">📌 その他</option>
+          </select>
+          <input id="action-input" type="text" class="dash-input" style="flex:1;min-width:160px" placeholder="例：あいぽについてXに投稿した" onkeydown="if(event.key==='Enter')addAction()">
+          <button class="dash-btn-dark" onclick="addAction()">記録</button>
+        </div>
+        <div id="action-log-list"></div>
+      </div>
+    </div>
+
+    <div class="sec-title">C — アクション×流入の相関</div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-head"><div class="card-title">ACTION × TRAFFIC</div><div class="card-meta">直近14日間</div></div>
+      <div class="card-body">
+        <div id="pdca-chart" style="position:relative;height:120px;margin-bottom:8px"></div>
+        <div id="pdca-chart-labels" style="display:flex;gap:0;margin-bottom:10px"></div>
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:5px"><div style="width:12px;height:4px;background:var(--amber);border-radius:2px"></div><span style="font-size:10px;color:var(--text3)">LP流入数</span></div>
+          <div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:10px;background:var(--text);border-radius:50%"></div><span style="font-size:10px;color:var(--text3)">アクション実施日</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-title">今週のまとめ</div>
+    <div class="card">
+      <div class="card-head"><div class="card-title">WEEKLY SUMMARY</div></div>
+      <div class="card-body" id="weekly-summary-body"><div class="skel"></div><div class="skel" style="width:70%"></div></div>
+    </div>
+
+  </div>
+
 </div>
 
 <script>
+
 const SUPABASE_URL = 'https://qjffvspnnxyykoyhnazm.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqZmZ2c3Bubnh5eWtveWhuYXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzMTIxMzMsImV4cCI6MjA4Njg4ODEzM30.OqeeMZs73RjKY5POW-naf0dB8sFWfZDUKaKvE99EiBo';
 const ADMIN_ID = '7f3162ec-c281-435f-8e8e-3b6d65b8b1c9';
@@ -557,7 +621,7 @@ function fmtAgo(dateStr) {
 function timeAgo(dateStr) { return fmtAgo(dateStr); }
 
 function showTab(name) {
-  ['pdca','lp','overview','ideas','users'].forEach(t => {
+  ['lp','overview','ideas','users','pdca'].forEach(t => {
     document.getElementById('tab-content-'+t).style.display = t===name ? '' : 'none';
     document.getElementById('tab-'+t).classList.toggle('active', t===name);
   });
@@ -1277,6 +1341,7 @@ async function init() {
 }
 
 init();
+
 </script>
 </body>
 </html>
