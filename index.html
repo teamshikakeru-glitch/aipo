@@ -2169,7 +2169,20 @@ async function shareCertificate(ideaId, encodedName, ticker) {
 const COLL_KEY = 'aipo-certificates';
 
 function loadCerts() {
-  try { return JSON.parse(localStorage.getItem(COLL_KEY) || '[]'); } catch(e) { return []; }
+  try {
+    const all = JSON.parse(localStorage.getItem(COLL_KEY) || '[]');
+    // ideaId重複を除去（最初のものを残す）
+    const seen = new Set();
+    const deduped = all.filter(c => {
+      if (seen.has(c.ideaId)) return false;
+      seen.add(c.ideaId);
+      return true;
+    });
+    if (deduped.length !== all.length) {
+      localStorage.setItem(COLL_KEY, JSON.stringify(deduped));
+    }
+    return deduped;
+  } catch(e) { return []; }
 }
 
 function saveCertToCollection(idea, votesAtTime) {
