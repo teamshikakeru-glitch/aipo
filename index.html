@@ -2043,24 +2043,20 @@ function openZukanBook() {
   function slotHTML(cert, idx) {
     if (cert) {
       const isPinned = cert.id === pinnedId || (!pinnedId && idx === 0);
-      return `<div style="position:relative">
-        <div onclick="openZukanCert('${cert.id}')" style="position:relative;background:${cert.isEarly?'#fffdf5':'#faf8f4'};border:2px solid ${isPinned?'var(--amber-mid)':cert.isEarly?'#e8c84a':'#d4cbbe'};border-radius:7px;aspect-ratio:2/3;display:flex;flex-direction:column;justify-content:space-between;padding:5px;box-shadow:${isPinned?'0 0 0 1px var(--amber-mid)':'0 1px 5px rgba(0,0,0,.08)'};cursor:pointer;transition:transform .12s;-webkit-tap-highlight-color:transparent" onmousedown="this.style.transform='scale(.92)'" onmouseup="this.style.transform='scale(1)'" ontouchstart="this.style.transform='scale(.92)'" ontouchend="this.style.transform='scale(1)'">
-          ${cert.isEarly?'<div style="position:absolute;top:0;left:0;right:0;height:3px;border-radius:7px 7px 0 0" class="gold-shimmer-line"></div>':''}
-          <div style="margin-top:${cert.isEarly?'6px':'0'}">
-            <div style="font-family:var(--mono);font-size:5.5px;color:#b0a898;letter-spacing:.04em;margin-bottom:1px">AIPO</div>
-            <div style="font-family:var(--mono);font-size:9px;font-weight:700;color:#1a1400;line-height:1;margin-bottom:2px">${cert.ticker}</div>
-            <div style="font-size:6.5px;color:#3a3028;line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${cert.name}</div>
-          </div>
-          <div style="display:flex;align-items:center;justify-content:space-between">
-            <div style="font-family:var(--mono);font-size:5px;color:#b0a898">${cert.serial}</div>
-            <div style="width:13px;height:13px;border-radius:50%;border:1.5px solid #c0392b;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-              <svg width="6" height="6" viewBox="0 0 20 20" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#c0392b" stroke-width="2.5" stroke-linecap="round"/></svg>
-            </div>
+      return `<div onclick="openZukanCert('${cert.id}')" style="position:relative;background:${cert.isEarly?'#fffdf5':'#faf8f4'};border:1.5px solid ${isPinned?'var(--amber-mid)':cert.isEarly?'#e8c84a':'#d4cbbe'};border-radius:7px;aspect-ratio:2/3;display:flex;flex-direction:column;justify-content:space-between;padding:5px;overflow:hidden;cursor:pointer;-webkit-tap-highlight-color:transparent" ontouchstart="this.style.opacity='.75'" ontouchend="this.style.opacity='1'">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;${cert.isEarly?'':'background:transparent'}" ${cert.isEarly?'class="gold-shimmer-line"':''}></div>
+        <div style="margin-top:5px">
+          <div style="font-family:var(--mono);font-size:5.5px;color:#b0a898;letter-spacing:.04em;margin-bottom:1px">AIPO</div>
+          <div style="font-family:var(--mono);font-size:9px;font-weight:700;color:#1a1400;line-height:1;margin-bottom:2px">${cert.ticker}</div>
+          <div style="font-size:6.5px;color:#3a3028;line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${cert.name}</div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div style="font-family:var(--mono);font-size:5px;color:#b0a898">${cert.serial}</div>
+          <div style="width:13px;height:13px;border-radius:50%;border:1.5px solid #c0392b;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <svg width="6" height="6" viewBox="0 0 20 20" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#c0392b" stroke-width="2.5" stroke-linecap="round"/></svg>
           </div>
         </div>
-        <div onclick="event.stopPropagation();pinCert('${cert.id}')" style="position:absolute;top:-5px;right:-5px;width:16px;height:16px;border-radius:50%;background:${isPinned?'var(--amber-mid)':'#fff'};border:1.5px solid ${isPinned?'var(--amber-mid)':'#d4cbbe'};display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;box-shadow:0 1px 4px rgba(0,0,0,.12)">
-          <svg width="7" height="7" viewBox="0 0 20 20" fill="${isPinned?'#fff':'none'}" stroke="${isPinned?'#fff':'#b0aea6'}" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-        </div>
+        ${isPinned?'<div style="position:absolute;top:4px;right:4px;width:6px;height:6px;border-radius:50%;background:var(--amber-mid)"></div>':''}
       </div>`;
     }
     const near = idx < certs.length + 3;
@@ -2192,6 +2188,18 @@ function openZukanBook() {
 }
 
 
+function pinCertFromDetail(certId) {
+  pinCert(certId);
+  // Update the button state in current detail view
+  const btn = document.getElementById('pin-btn-' + certId);
+  if (btn) {
+    btn.style.background = 'var(--amber-mid)';
+    btn.style.borderColor = 'var(--amber-mid)';
+    btn.style.color = '#fff';
+    btn.innerHTML = '<svg width="11" height="11" viewBox="0 0 20 20" fill="#fff" stroke="#fff" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>表示中';
+  }
+}
+
 function pinCert(certId) {
   localStorage.setItem('aipo-pinned-cert', certId);
   showToast('ホームに表示する株券を変更しました');
@@ -2270,10 +2278,16 @@ function openZukanCert(certId) {
       </div>
       <div style="font-size:13px;font-weight:700;color:var(--text)">${cert.ticker}</div>
       <div style="font-size:9px;color:var(--text3);margin-left:2px">${cert.serial}</div>
-      <button onclick="shareCertificate('${cert.ideaId}','${encodeURIComponent(cert.name)}','${cert.ticker}')" style="margin-left:auto;display:flex;align-items:center;gap:5px;background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:5px 12px;cursor:pointer;font-family:var(--sans);font-size:11px;font-weight:700;color:var(--text2)">
-        <svg width="11" height="11" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="17" cy="3" r="2"/><circle cx="17" cy="17" r="2"/><circle cx="3" cy="10" r="2"/><path d="M5 10h9M15.3 4.5l-8.6 4M15.3 15.5l-8.6-4"/></svg>
-        シェア
-      </button>
+      <div style="margin-left:auto;display:flex;gap:6px">
+        <button id="pin-btn-detail" onclick="pinCertFromDetail('${cert.id}')" style="display:flex;align-items:center;gap:4px;border-radius:20px;padding:5px 11px;cursor:pointer;font-family:var(--sans);font-size:11px;font-weight:700;border:1px solid var(--amber-border);background:var(--amber-bg);color:var(--amber)">
+          <svg width="10" height="10" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          ホームに表示
+        </button>
+        <button onclick="shareCertificate('${cert.ideaId}','${encodeURIComponent(cert.name)}','${cert.ticker}')" style="display:flex;align-items:center;gap:4px;background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:5px 11px;cursor:pointer;font-family:var(--sans);font-size:11px;font-weight:700;color:var(--text2)">
+          <svg width="10" height="10" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="17" cy="3" r="2"/><circle cx="17" cy="17" r="2"/><circle cx="3" cy="10" r="2"/><path d="M5 10h9M15.3 4.5l-8.6 4M15.3 15.5l-8.6-4"/></svg>
+          シェア
+        </button>
+      </div>
     </div>
 
     <div style="flex:1;overflow-y:auto;scrollbar-width:none;padding:12px 12px 20px;background:var(--surface2)">
