@@ -896,6 +896,18 @@ async function loadHeroCounts() {
 }
 loadHeroCounts();
 setInterval(loadHeroCounts, 30000);
+
+// ★ LPページビューを記録（lp.htmlを開いた回数をカウント）
+(async function trackLPView() {
+  try {
+    await sbLP.from('user_events').insert({
+      utm_source: 'lp_pageview',
+      referrer: document.referrer || 'direct',
+      utm_medium: null,
+      utm_campaign: null,
+    });
+  } catch(e) { /* サイレント */ }
+})();
 </script>
 </body>
 </html>
