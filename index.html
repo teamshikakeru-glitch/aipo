@@ -2094,7 +2094,7 @@ async function startCharge() {
     const res = await fetch('/api/create-charge-session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-      body: JSON.stringify({ amount: selectedChargeAmount })
+      body: JSON.stringify({ amount: selectedChargeAmount, userId: currentUser.id })
     });
     const json = await res.json();
     if (json.url) { window.location.href = json.url; }
