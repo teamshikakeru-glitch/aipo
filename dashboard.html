@@ -1293,16 +1293,19 @@ async function loadRevenue() {
 async function loadAll() {
   const icon = document.getElementById('spin-icon');
   icon.classList.add('spinning');
-  await Promise.all([
-    loadPDCA(),
-    loadLPAnalytics(),
-    loadFunnel(),
-    loadTimeAnalysis(),
-    loadRevenue(),
-    loadKPI(), loadHourly(), loadRecent(),
-    loadIdeas(), loadUserActivity()
-  ]);
-  icon.classList.remove('spinning');
+  try {
+    await Promise.allSettled([
+      loadPDCA(),
+      loadLPAnalytics(),
+      loadFunnel(),
+      loadTimeAnalysis(),
+      loadRevenue(),
+      loadKPI(), loadHourly(), loadRecent(),
+      loadIdeas(), loadUserActivity()
+    ]);
+  } finally {
+    icon.classList.remove('spinning');
+  }
 }
 
 async function init() {
