@@ -140,6 +140,35 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
 .badge.pro{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
 .badge.free{background:var(--surface2);color:var(--ink3);border:1px solid var(--border)}
 
+/* FUNNEL */
+.funnel-step{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.funnel-step:last-child{border-bottom:none}
+.funnel-num{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--ink);min-width:60px}
+.funnel-info{flex:1;min-width:0}
+.funnel-label{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.funnel-bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin-bottom:4px}
+.funnel-bar-fill{height:100%;border-radius:4px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.funnel-drop{font-family:var(--mono);font-size:10px}
+.funnel-drop.bad{color:var(--red)}
+.funnel-drop.ok{color:var(--green)}
+
+/* USER ACTIVITY */
+.ua-row{padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.ua-row:last-child{border-bottom:none}
+.ua-header{display:flex;align-items:center;gap:10px}
+.ua-av{width:34px;height:34px;border-radius:50%;background:var(--amber-bg);border:1.5px solid var(--amber-border);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--amber);flex-shrink:0}
+.ua-name{flex:1;font-size:13px;font-weight:700;color:var(--ink)}
+.ua-score{display:flex;align-items:center;gap:6px}
+.ua-votes{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--amber)}
+.ua-from{font-family:var(--mono);font-size:8px;padding:2px 7px;border-radius:3px;font-weight:700}
+.ua-from.lp{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.ua-from.x{background:#e8f4ff;color:#1d9bf0;border:1px solid #b3d9ff}
+.ua-from.direct{background:var(--surface2);color:var(--ink3);border:1px solid var(--border)}
+.ua-detail{margin-top:10px;padding:10px;background:var(--surface2);border-radius:var(--rs);display:none}
+.ua-detail.open{display:block}
+.ua-voted-idea{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:11px}
+.ua-voted-idea:last-child{border-bottom:none}
+
 /* EMPTY / SKELETON */
 .empty{padding:28px 16px;text-align:center}
 .empty-ico{font-size:24px;margin-bottom:8px;opacity:.4}
@@ -246,6 +275,17 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
 
     <div id="lp-insight-wrap"></div>
 
+    <div class="section-title">どこで人が落ちているか（ファネル）</div>
+    <div class="panel" style="margin-bottom:20px">
+      <div class="panel-head">
+        <div class="panel-title">CONVERSION FUNNEL</div>
+        <div class="panel-meta">LP→登録までの流れ</div>
+      </div>
+      <div class="panel-body" id="funnel-body">
+        <div class="skel"></div><div class="skel" style="width:70%"></div>
+      </div>
+    </div>
+
     <div class="section-title">LPのどのボタンから来たか</div>
     <div class="panel" style="margin-bottom:20px">
       <div class="panel-head">
@@ -338,9 +378,18 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
 
   <!-- USERS TAB -->
   <div id="tab-content-users" class="main" style="display:none">
-    <div class="section-title">登録ユーザー一覧</div>
+    <div class="section-title">熱量ランキング</div>
+    <div class="panel" style="margin-bottom:14px">
+      <div class="panel-head">
+        <div class="panel-title">USER ACTIVITY</div>
+        <div class="panel-meta">票数が多い順</div>
+      </div>
+      <div class="panel-body" id="user-activity-body"><div class="skel"></div></div>
+    </div>
+
+    <div class="section-title">ユーザー詳細（タップで展開）</div>
     <div class="panel">
-      <div class="panel-head"><div class="panel-title">USERS</div><div class="panel-meta" id="users-meta">—人</div></div>
+      <div class="panel-head"><div class="panel-title">ALL USERS</div><div class="panel-meta" id="users-meta">—人</div></div>
       <div class="panel-body" id="users-body"><div class="skel"></div></div>
     </div>
   </div>
@@ -621,16 +670,148 @@ async function loadIdeas() {
     <div class="idea-row"><div class="idea-rank">${String(idx+1).padStart(2,'0')}</div><div class="idea-ticker">${idea.ticker||'—'}</div><div class="idea-name">${idea.name}</div><div class="idea-views">${idea.votes}票</div><div class="idea-score">${parseFloat(idea.score||0).toFixed(1)}</div></div>`).join('');
 }
 
-// ===== USERS =====
-async function loadUsers() {
-  const {data:profiles} = await sb.from('profiles').select('id,x_username,is_pro,is_founder,founder_number').order('is_founder',{ascending:false});
-  if (!profiles||profiles.length===0) { document.getElementById('users-body').innerHTML='<div class="empty"><div class="empty-ico">👤</div><div class="empty-txt">データなし</div></div>'; return; }
-  document.getElementById('users-meta').textContent = profiles.length+'人';
-  document.getElementById('users-body').innerHTML = profiles.map(p => {
-    const initials = (p.x_username||'U').slice(0,2).toUpperCase();
-    const badge = p.is_founder ? `<span class="badge founder">👑 #${p.founder_number===0?'00':String(p.founder_number||0).padStart(2,'0')}</span>` : p.is_pro ? `<span class="badge pro">PRO</span>` : `<span class="badge free">FREE</span>`;
-    return `<div class="user-row"><div class="user-av">${initials}</div><div class="user-info"><div class="user-name">${p.x_username||'（名前未設定）'}</div><div class="user-id">${p.id.slice(0,12)}...</div></div>${badge}</div>`;
+// loadUsers は loadUserActivity に統合
+
+async function loadFunnel() {
+  const today = new Date().toISOString().slice(0,10);
+
+  // ステップ1: LPを開いた人（lp_pageview）
+  const { count: lpOpened } = await sb.from('user_events')
+    .select('id', { count: 'exact', head: true })
+    .eq('utm_source', 'lp_pageview');
+
+  // ステップ2: LPからあいぽを開いた人（utm_source=lp）
+  const { count: lpClicked } = await sb.from('user_events')
+    .select('id', { count: 'exact', head: true })
+    .eq('utm_source', 'lp');
+
+  // ステップ3: 登録ユーザー数（管理者除く）
+  const { count: registered } = await sb.from('profiles')
+    .select('id', { count: 'exact', head: true })
+    .neq('id', ADMIN_ID);
+
+  const steps = [
+    { label: 'LPを開いた', count: lpOpened || 0, color: '#e8850a', desc: 'lp.htmlにアクセスした人' },
+    { label: 'あいぽを開いた', count: lpClicked || 0, color: '#d97706', desc: 'LPのボタンを押した人' },
+    { label: '登録した', count: registered || 0, color: '#1a7a4a', desc: 'ログインして登録した人' },
+  ];
+
+  const maxCount = steps[0].count || 1;
+
+  document.getElementById('funnel-body').innerHTML = steps.map((step, i) => {
+    const pct = maxCount > 0 ? Math.round(step.count / maxCount * 100) : 0;
+    const prev = i > 0 ? steps[i-1].count : null;
+    const dropPct = prev && prev > 0 ? Math.round((1 - step.count/prev) * 100) : null;
+    const dropHTML = dropPct !== null
+      ? `<div class="funnel-drop ${dropPct > 70 ? 'bad' : 'ok'}">↑ ここで${dropPct}%が離脱</div>`
+      : '';
+    return `
+      ${i > 0 ? `<div style="padding:4px 0 0 6px;font-family:var(--mono);font-size:10px;color:${dropPct > 70 ? 'var(--red)' : 'var(--green)'};margin-bottom:-4px">${dropHTML}</div>` : ''}
+      <div class="funnel-step">
+        <div>
+          <div class="funnel-num">${step.count.toLocaleString()}</div>
+          <div style="font-family:var(--mono);font-size:8px;color:var(--ink3)">人</div>
+        </div>
+        <div class="funnel-info">
+          <div class="funnel-label">${['①','②','③'][i]} ${step.label}</div>
+          <div class="funnel-bar">
+            <div class="funnel-bar-fill" style="width:${pct}%;background:${step.color}"></div>
+          </div>
+          <div style="font-size:10px;color:var(--ink3)">${step.desc}</div>
+        </div>
+        <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--ink3)">${pct}%</div>
+      </div>`;
   }).join('');
+}
+
+async function loadUserActivity() {
+  // 全ユーザーの投票数を集計
+  const { data: votes } = await sb.from('votes').select('user_id, idea_id, idea_votes_at_time');
+  const { data: profiles } = await sb.from('profiles').select('id, x_username, is_founder, is_pro').neq('id', ADMIN_ID);
+  const { data: ideas } = await sb.from('ideas').select('id, name, ticker');
+  const { data: events } = await sb.from('user_events').select('user_id, utm_source, referrer').not('user_id', 'is', null);
+
+  if (!profiles) return;
+
+  const ideaMap = {};
+  if (ideas) ideas.forEach(i => ideaMap[i.id] = i);
+
+  // ユーザーごとの投票集計
+  const voteMap = {};
+  const voteDetails = {};
+  if (votes) votes.forEach(v => {
+    if (!v.user_id) return;
+    voteMap[v.user_id] = (voteMap[v.user_id] || 0) + 1;
+    if (!voteDetails[v.user_id]) voteDetails[v.user_id] = [];
+    voteDetails[v.user_id].push(v);
+  });
+
+  // ユーザーごとの流入元
+  const sourceMap = {};
+  if (events) events.forEach(e => {
+    if (!e.user_id || sourceMap[e.user_id]) return;
+    if (e.utm_source === 'lp') sourceMap[e.user_id] = 'lp';
+    else if (e.referrer && (e.referrer.includes('t.co') || e.referrer.includes('twitter') || e.referrer.includes('x.com'))) sourceMap[e.user_id] = 'x';
+    else sourceMap[e.user_id] = 'direct';
+  });
+
+  // 投票数でソート
+  const sorted = [...profiles].sort((a, b) => (voteMap[b.id]||0) - (voteMap[a.id]||0));
+
+  // 熱量ランキング（上位）
+  document.getElementById('user-activity-body').innerHTML = sorted.slice(0, 8).map((p, idx) => {
+    const voteCount = voteMap[p.id] || 0;
+    const src = sourceMap[p.id] || 'direct';
+    const srcLabel = { lp: 'LP経由', x: 'X経由', direct: '直接' }[src];
+    const srcClass = src;
+    const initials = (p.x_username||'U').slice(0,2).toUpperCase();
+    const heat = voteCount >= 3 ? '🔥' : voteCount >= 1 ? '👍' : '💤';
+    return `<div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border)">
+      <div style="font-family:var(--mono);font-size:11px;color:var(--ink4);min-width:20px">${String(idx+1).padStart(2,'0')}</div>
+      <div class="ua-av">${initials}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:700;color:var(--ink)">${heat} ${p.x_username||'（未設定）'}</div>
+        <div style="font-size:10px;color:var(--ink3);margin-top:2px">投票 ${voteCount}回 · <span class="ua-from ${srcClass}" style="display:inline-block">${srcLabel}</span></div>
+      </div>
+      <div style="font-family:var(--mono);font-size:20px;font-weight:700;color:var(--amber)">${voteCount}<span style="font-size:10px;color:var(--ink3)">票</span></div>
+    </div>`;
+  }).join('') || '<div class="empty"><div class="empty-ico">🗳</div><div class="empty-txt">投票データなし</div></div>';
+
+  // 全ユーザー詳細（タップで展開）
+  document.getElementById('users-body').innerHTML = sorted.map(p => {
+    const voteCount = voteMap[p.id] || 0;
+    const userVotes = voteDetails[p.id] || [];
+    const src = sourceMap[p.id] || 'direct';
+    const srcLabel = { lp: 'LP経由', x: 'X経由', direct: '直接' }[src];
+    const badge = p.is_founder ? '👑 創設' : p.is_pro ? 'PRO' : 'FREE';
+    const initials = (p.x_username||'U').slice(0,2).toUpperCase();
+    const detailId = 'ua-detail-' + p.id.slice(0,8);
+
+    const votedIdeasHTML = userVotes.slice(0,5).map(v => {
+      const idea = ideaMap[v.idea_id];
+      return `<div class="ua-voted-idea">
+        <span style="font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:3px;padding:1px 5px">${idea?.ticker||'—'}</span>
+        <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${idea?.name||'不明'}</span>
+        <span style="font-family:var(--mono);font-size:9px;color:var(--ink3)">${v.idea_votes_at_time||'?'}票目</span>
+      </div>`;
+    }).join('');
+
+    return `<div class="ua-row" onclick="document.getElementById('${detailId}').classList.toggle('open')">
+      <div class="ua-header">
+        <div class="ua-av">${initials}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:700;color:var(--ink)">${p.x_username||'（未設定）'}</div>
+          <div style="font-size:10px;color:var(--ink3);margin-top:1px">${badge} · ${srcLabel} · 投票${voteCount}回</div>
+        </div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--ink4)">▼</div>
+      </div>
+      <div class="ua-detail" id="${detailId}">
+        <div style="font-family:var(--mono);font-size:9px;color:var(--ink3);letter-spacing:.08em;margin-bottom:8px">応援したアイデア</div>
+        ${votedIdeasHTML || '<div style="font-size:11px;color:var(--ink3)">まだ投票なし</div>'}
+        ${userVotes.length > 5 ? `<div style="font-size:10px;color:var(--ink3);margin-top:6px">他${userVotes.length-5}件...</div>` : ''}
+      </div>
+    </div>`;
+  }).join('') || '<div class="empty"><div class="empty-ico">👤</div><div class="empty-txt">データなし</div></div>';
 }
 
 async function loadRevenue() {
@@ -654,9 +835,10 @@ async function loadAll() {
   icon.classList.add('spinning');
   await Promise.all([
     loadLPAnalytics(),
+    loadFunnel(),
     loadRevenue(),
     loadKPI(), loadHourly(), loadRecent(),
-    loadIdeas(), loadUsers()
+    loadIdeas(), loadUserActivity()
   ]);
   icon.classList.remove('spinning');
 }
