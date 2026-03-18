@@ -1,121 +1,144 @@
-// api/stripe-webhook.js
-// 既存のPro/創設メンバー処理に加えて、チャージ決済を処理する
+const Stripe = require('stripe');
+const { createClient } = require('@supabase/supabase-js');
 
-import Stripe from 'stripe';
-import { createClient } from '@supabase/supabase-js';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-// チャージ額 → ボーナス対応表
-const CHARGE_BONUS_MAP = {
-  500:  0,    // ¥500チャージ → ボーナスなし
-  1000: 50,   // ¥1000チャージ → +50円ボーナス
-  3000: 300,  // ¥3000チャージ → +300円ボーナス
-};
+// 創設メンバーの料金ID（Stripeで確認）
+const FOUNDER_PRICE_ID = 'price_founder'; // ← 実際のPriceIDに変更が必要
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
   const sig = req.headers['stripe-signature'];
   let event;
-
   try {
-    event = stripe.webhooks.constructEvent(
-      req.body,
-      sig,
-      process.env.STRIPE_WEBHOOK_SECRET
-    );
+    const rawBody = await getRawBody(req);
+    event = stripe.webhooks.constructEvent(rawBody, sig, process.env.STRIPE_WEBHOOK_SECRET);
   } catch (err) {
+    console.error('Webhook signature error:', err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
-    const userId = session.metadata?.user_id;
-    const mode = session.metadata?.mode; // 'charge' or 'subscription'
+    const userId = session.client_reference_id;
+    const customerEmail = session.customer_details?.email;
 
-    // ── チャージ決済の処理 ──
-    if (mode === 'charge' && userId) {
-      const chargeAmount = session.metadata?.charge_amount
-        ? parseInt(session.metadata.charge_amount)
-        : 0;
-      const bonus = CHARGE_BONUS_MAP[chargeAmount] ?? 0;
-      const total = chargeAmount + bonus;
+    console.log('checkout.session.completed', { userId, customerEmail, mode: session.mode });
 
-      // balanceを加算
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('balance')
-        .eq('id', userId)
-        .single();
-
-      const newBalance = (profile?.balance ?? 0) + total;
-
-      await supabase
-        .from('profiles')
-        .update({ balance: newBalance })
-        .eq('id', userId);
-
-      // チャージ履歴を保存
-      await supabase.from('charge_history').insert({
-        user_id: userId,
-        amount: chargeAmount,
-        bonus: bonus,
-        total: total,
-        stripe_session_id: session.id,
-      });
-
-      return res.json({ received: true, mode: 'charge', total });
+    if (!userId && !customerEmail) {
+      console.error('No userId or email in session');
+      return res.status(200).json({ received: true });
     }
 
-    // ── 既存：Pro/創設メンバー処理 ──
-    const priceId = session.line_items?.data?.[0]?.price?.id
-      ?? session.metadata?.price_id;
-
-    if (priceId === process.env.STRIPE_PRO_PRICE_ID) {
-      await supabase
-        .from('profiles')
-        .update({ is_pro: true })
-        .eq('id', userId);
+    // userIdがない場合はemailからUUIDを取得
+    let resolvedUserId = userId;
+    if (!resolvedUserId && customerEmail) {
+      const { data: users } = await supabase.auth.admin.listUsers();
+      const user = users?.users?.find(u => u.email === customerEmail);
+      resolvedUserId = user?.id;
+      console.log('Resolved userId from email:', resolvedUserId);
     }
 
-    if (priceId === process.env.STRIPE_FOUNDER_PRICE_ID) {
-      // 創設メンバー番号の採番
+    if (!resolvedUserId) {
+      console.error('Could not resolve userId');
+      return res.status(200).json({ received: true });
+    }
+
+    // セッションの明細からどの商品か判定
+    const lineItems = await stripe.checkout.sessions.listLineItems(session.id);
+    const priceId = lineItems.data[0]?.price?.id;
+    const amount = session.amount_total; // 円単位
+
+    console.log('priceId:', priceId, 'amount:', amount, 'mode:', session.mode);
+
+    // 創設メンバー判定：一括払い(payment mode)かつ¥980
+    const isFounderPurchase = session.mode === 'payment' && amount === 980;
+    // Pro判定：サブスク
+    const isProPurchase = session.mode === 'subscription';
+
+    if (isFounderPurchase) {
+      // 創設メンバー番号を採番
       const { count } = await supabase
         .from('profiles')
-        .select('*', { count: 'exact', head: true })
+        .select('id', { count: 'exact', head: true })
         .eq('is_founder', true);
+      const founderNumber = (count || 0) + 1;
 
-      await supabase
-        .from('profiles')
-        .update({
-          is_founder: true,
-          is_pro: true,
-          founder_number: String(count).padStart(2, '0'),
-        })
-        .eq('id', userId);
+      // profilesレコードがなければ作成、あれば更新
+      const { error } = await supabase.from('profiles').upsert({
+        id: resolvedUserId,
+        is_founder: true,
+        is_pro: true,
+        founder_number: founderNumber,
+      }, { onConflict: 'id' });
+
+      if (error) {
+        console.error('Founder upsert error:', error);
+      } else {
+        console.log(`✅ Founder #${founderNumber} set for userId: ${resolvedUserId}`);
+      }
+
+    } else if (isProPurchase) {
+      // Proプラン
+      const { error } = await supabase.from('profiles').upsert({
+        id: resolvedUserId,
+        is_pro: true,
+      }, { onConflict: 'id' });
+
+      if (error) {
+        console.error('Pro upsert error:', error);
+      } else {
+        console.log(`✅ Pro set for userId: ${resolvedUserId}`);
+      }
+
+      // subscriptionsテーブルも更新
+      await supabase.from('subscriptions').upsert({
+        user_id: resolvedUserId,
+        stripe_customer_id: session.customer,
+        stripe_subscription_id: session.subscription,
+        status: 'active',
+        updated_at: new Date(),
+      }, { onConflict: 'user_id' });
     }
   }
 
-  // ── サブスク解約 ──
+  // Proキャンセル
   if (event.type === 'customer.subscription.deleted') {
-    const customerId = event.data.object.customer;
-    const { data: profiles } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('stripe_customer_id', customerId);
+    const sub = event.data.object;
+    const { data } = await supabase
+      .from('subscriptions')
+      .select('user_id')
+      .eq('stripe_subscription_id', sub.id)
+      .single();
 
-    if (profiles?.length) {
-      await supabase
-        .from('profiles')
+    if (data?.user_id) {
+      await supabase.from('profiles')
         .update({ is_pro: false })
-        .eq('id', profiles[0].id);
+        .eq('id', data.user_id);
+
+      await supabase.from('subscriptions')
+        .update({ status: 'canceled', updated_at: new Date() })
+        .eq('stripe_subscription_id', sub.id);
+
+      console.log(`✅ Pro canceled for userId: ${data.user_id}`);
     }
   }
 
-  res.json({ received: true });
+  res.status(200).json({ received: true });
+};
+
+async function getRawBody(req) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    req.on('data', chunk => chunks.push(chunk));
+    req.on('end', () => resolve(Buffer.concat(chunks)));
+    req.on('error', reject);
+  });
 }
+
+module.exports.config = { api: { bodyParser: false } };
