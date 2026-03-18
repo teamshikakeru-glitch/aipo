@@ -469,8 +469,10 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
     <div class="kpi-grid">
       <div class="kpi amber"><div class="kpi-lbl">登録ユーザー数</div><div class="kpi-num amber" id="kpi-users">—</div><div class="kpi-detail">あいぽにログインした人</div></div>
       <div class="kpi amber"><div class="kpi-lbl">上場中のアイデア数</div><div class="kpi-num amber" id="kpi-ideas">—</div><div class="kpi-detail">マーケットにあるアイデア</div></div>
-      <div class="kpi green"><div class="kpi-lbl">創設メンバー数</div><div class="kpi-num green" id="kpi-founders">—</div><div class="kpi-detail" id="kpi-founders-sub">¥980を払った人</div></div>
+      <div class="kpi green"><div class="kpi-lbl">今日の新規上場</div><div class="kpi-num green" id="kpi-ideas-today">—</div><div class="kpi-detail">今日追加されたアイデア</div></div>
+      <div class="kpi green"><div class="kpi-lbl">今日の応援票</div><div class="kpi-num green" id="kpi-votes-today">—</div><div class="kpi-detail">今日投じられた票数</div></div>
       <div class="kpi dim"><div class="kpi-lbl">今日の閲覧数</div><div class="kpi-num" id="kpi-views">—</div><div class="kpi-detail">アイデアを開いた回数</div></div>
+      <div class="kpi dim"><div class="kpi-lbl">創設メンバー数</div><div class="kpi-num" id="kpi-founders">—</div><div class="kpi-detail" id="kpi-founders-sub">¥980を払った人</div></div>
     </div>
 
     <div class="sec">本日の時間別閲覧</div>
@@ -503,11 +505,60 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
 
   <!-- ===== USERS TAB ===== -->
   <div id="tab-content-users" class="main" style="display:none">
+
+    <!-- 今日の活動サマリー -->
+    <div class="kpi-grid" style="margin-bottom:14px">
+      <div class="kpi green">
+        <div class="kpi-lbl">今日の新規上場</div>
+        <div class="kpi-num green" id="act-ideas-today">—</div>
+        <div class="kpi-detail">今日追加されたアイデア</div>
+      </div>
+      <div class="kpi amber">
+        <div class="kpi-lbl">今日の応援票</div>
+        <div class="kpi-num amber" id="act-votes-today">—</div>
+        <div class="kpi-detail">今日投じられた票数</div>
+      </div>
+      <div class="kpi dim">
+        <div class="kpi-lbl">今週の新規上場</div>
+        <div class="kpi-num" id="act-ideas-week">—</div>
+        <div class="kpi-detail">今週追加されたアイデア</div>
+      </div>
+      <div class="kpi dim">
+        <div class="kpi-lbl">今週の応援票</div>
+        <div class="kpi-num" id="act-votes-week">—</div>
+        <div class="kpi-detail">今週投じられた票数</div>
+      </div>
+    </div>
+
+    <!-- 今日の上場アイデア -->
+    <div class="sec">今日 上場されたアイデア</div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-head"><div class="card-title">TODAY'S LISTINGS</div><div class="card-meta" id="today-listings-meta"></div></div>
+      <div class="card-body" id="today-listings-body"><div class="skel"></div></div>
+    </div>
+
+    <!-- 活動フィード -->
+    <div class="sec">直近の活動フィード</div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-head">
+        <div class="card-title">ACTIVITY FEED</div>
+        <div style="display:flex;gap:6px">
+          <button onclick="filterFeed('all')" id="feed-all" style="font-family:var(--mono);font-size:9px;padding:3px 8px;border-radius:20px;border:1px solid var(--amber);background:var(--amber-light);color:var(--amber);cursor:pointer">すべて</button>
+          <button onclick="filterFeed('post')" id="feed-post" style="font-family:var(--mono);font-size:9px;padding:3px 8px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--ink3);cursor:pointer">上場</button>
+          <button onclick="filterFeed('vote')" id="feed-vote" style="font-family:var(--mono);font-size:9px;padding:3px 8px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--ink3);cursor:pointer">応援</button>
+        </div>
+      </div>
+      <div class="card-body" id="activity-feed-body"><div class="skel"></div><div class="skel" style="width:70%"></div></div>
+    </div>
+
+    <!-- 熱量ランキング -->
     <div class="sec">熱量ランキング（投票数順）</div>
-    <div class="card">
-      <div class="card-head"><div class="card-title">USER ACTIVITY</div></div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-head"><div class="card-title">USER ACTIVITY</div><div class="card-meta">票数が多い順</div></div>
       <div class="card-body" id="user-activity-body"><div class="skel"></div></div>
     </div>
+
+    <!-- 全ユーザー -->
     <div class="sec">全ユーザー（タップで詳細）</div>
     <div class="card">
       <div class="card-head"><div class="card-title">ALL USERS</div><div class="card-meta" id="users-meta">—人</div></div>
@@ -817,18 +868,29 @@ async function loadLPAnalytics() {
 
 // ===== OVERVIEW =====
 async function loadKPI() {
-  const [uR, fR, iR, vR] = await Promise.all([
+  const today = new Date().toISOString().slice(0,10);
+  const weekStart = new Date(); weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1);
+  const weekStr = weekStart.toISOString().slice(0,10);
+
+  const [uR, fR, iR, vR, ideasTodayR, votesTodayR] = await Promise.all([
     sb.from('profiles').select('id',{count:'exact',head:true}),
     sb.from('profiles').select('id',{count:'exact',head:true}).eq('is_founder',true),
     sb.from('ideas').select('id',{count:'exact',head:true}),
-    sb.from('idea_views').select('id',{count:'exact',head:true}).gte('viewed_at', new Date().toISOString().slice(0,10)+'T00:00:00Z')
+    sb.from('idea_views').select('id',{count:'exact',head:true}).gte('viewed_at', today+'T00:00:00Z'),
+    sb.from('ideas').select('id',{count:'exact',head:true}).gte('updated_at', today+'T00:00:00Z'),
+    sb.from('votes').select('id',{count:'exact',head:true}).gte('created_at', today+'T00:00:00Z'),
   ]);
   document.getElementById('kpi-users').textContent = uR.count ?? '—';
   document.getElementById('kpi-ideas').textContent = iR.count ?? '—';
   document.getElementById('kpi-founders').textContent = fR.count ?? '—';
   const rem = Math.max(0, 100-(fR.count||0));
-  document.getElementById('kpi-founders-sub').textContent = `残り${rem}枠`;
+  const subEl = document.getElementById('kpi-founders-sub');
+  if (subEl) subEl.textContent = `残り${rem}枠`;
   document.getElementById('kpi-views').textContent = vR.count ?? '—';
+  const itEl = document.getElementById('kpi-ideas-today');
+  if (itEl) itEl.textContent = ideasTodayR.count ?? '0';
+  const vtEl = document.getElementById('kpi-votes-today');
+  if (vtEl) vtEl.textContent = votesTodayR.count ?? '0';
 }
 
 async function loadHourly() {
@@ -870,6 +932,155 @@ async function loadIdeas() {
 }
 
 // loadUsers は loadUserActivity に統合
+
+let allFeedItems = [];
+let currentFeedFilter = 'all';
+
+function filterFeed(type) {
+  currentFeedFilter = type;
+  ['all','post','vote'].forEach(t => {
+    const btn = document.getElementById('feed-'+t);
+    if (!btn) return;
+    if (t === type) {
+      btn.style.background = 'var(--amber-light)';
+      btn.style.borderColor = 'var(--amber)';
+      btn.style.color = 'var(--amber)';
+    } else {
+      btn.style.background = 'transparent';
+      btn.style.borderColor = 'var(--border)';
+      btn.style.color = 'var(--ink3)';
+    }
+  });
+  renderFeed();
+}
+
+function renderFeed() {
+  const items = currentFeedFilter === 'all'
+    ? allFeedItems
+    : allFeedItems.filter(i => i.type === currentFeedFilter);
+
+  if (items.length === 0) {
+    document.getElementById('activity-feed-body').innerHTML =
+      '<div class="empty"><div class="empty-ico">📭</div><div class="empty-txt">データがありません</div></div>';
+    return;
+  }
+
+  document.getElementById('activity-feed-body').innerHTML = items.slice(0,30).map(item => {
+    const dotColor = item.type === 'post'
+      ? 'border-color:var(--green);background:var(--green-light)'
+      : 'border-color:var(--amber-bright);background:var(--amber-light)';
+    const icon = item.type === 'post' ? '📈' : '🗳';
+    const action = item.type === 'post' ? '上場した' : '応援した';
+    const ideaText = item.ideaName
+      ? `<span style="font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:3px;padding:1px 5px;margin-right:4px">${item.ideaTicker||'—'}</span>${item.ideaName.length>20?item.ideaName.slice(0,20)+'…':item.ideaName}`
+      : '—';
+
+    return `<div style="display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--border)">
+      <div style="width:7px;height:7px;border-radius:50%;border:1.5px solid;flex-shrink:0;margin-top:4px;${dotColor}"></div>
+      <div style="flex-shrink:0;min-width:82px">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--ink2);font-weight:500">${fmtDate(item.at)}</div>
+        <div style="font-family:var(--mono);font-size:8px;color:var(--ink3);margin-top:1px">${fmtAgo(item.at)}</div>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
+          <span style="font-size:13px">${icon}</span>
+          <span style="font-size:12px;font-weight:700;color:var(--ink)">${item.userName}</span>
+          <span style="font-size:11px;color:var(--ink3)">が${action}</span>
+        </div>
+        <div style="font-size:11px;color:var(--ink2)">${ideaText}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function loadActivityFeed() {
+  const today = new Date().toISOString().slice(0,10);
+  const weekStart = new Date(); weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1);
+  const weekStr = weekStart.toISOString().slice(0,10);
+
+  // アイデアデータ取得
+  const { data: ideasAll } = await sb.from('ideas')
+    .select('id,name,ticker,user_id,created_at')
+    .order('updated_at', { ascending: false });
+
+  const { data: votesAll } = await sb.from('votes')
+    .select('user_id,idea_id,idea_votes_at_time,created_at')
+    .order('created_at', { ascending: false })
+    .limit(100);
+
+  const { data: profiles } = await sb.from('profiles')
+    .select('id,x_username');
+
+  const ideaMap = {};
+  if (ideasAll) ideasAll.forEach(i => ideaMap[i.id] = i);
+
+  const userMap = {};
+  if (profiles) profiles.forEach(p => userMap[p.id] = p.x_username || '匿名');
+
+  // 今日・今週の上場数・票数
+  const ideasToday = (ideasAll||[]).filter(i => i.updated_at && i.updated_at.slice(0,10) === today);
+  const ideasWeek = (ideasAll||[]).filter(i => i.updated_at && i.updated_at.slice(0,10) >= weekStr);
+  const votesToday = (votesAll||[]).filter(v => v.created_at && v.created_at.slice(0,10) === today);
+  const votesWeek = (votesAll||[]).filter(v => v.created_at && v.created_at.slice(0,10) >= weekStr);
+
+  const atEl = document.getElementById('act-ideas-today');
+  const vtEl = document.getElementById('act-votes-today');
+  const awEl = document.getElementById('act-ideas-week');
+  const vwEl = document.getElementById('act-votes-week');
+  if (atEl) atEl.textContent = ideasToday.length;
+  if (vtEl) vtEl.textContent = votesToday.length;
+  if (awEl) awEl.textContent = ideasWeek.length;
+  if (vwEl) vwEl.textContent = votesWeek.length;
+
+  // 今日の上場アイデア一覧
+  const tlEl = document.getElementById('today-listings-meta');
+  if (tlEl) tlEl.textContent = `${ideasToday.length}件`;
+  const tlBody = document.getElementById('today-listings-body');
+  if (tlBody) {
+    if (ideasToday.length === 0) {
+      tlBody.innerHTML = '<div class="empty"><div class="empty-ico">💡</div><div class="empty-txt">今日はまだ上場なし</div></div>';
+    } else {
+      tlBody.innerHTML = ideasToday.map(idea => `
+        <div class="idea-row">
+          <span class="idea-ticker">${idea.ticker||'—'}</span>
+          <span class="idea-name">${idea.name}</span>
+          <span style="font-family:var(--mono);font-size:9px;color:var(--ink3);flex-shrink:0">${fmtAgo(idea.updated_at)}</span>
+          <span style="font-size:11px;color:var(--ink3);flex-shrink:0;margin-left:4px">by ${userMap[idea.user_id]||'—'}</span>
+        </div>`).join('');
+    }
+  }
+
+  // 活動フィードのデータ構築（上場 + 応援を混合）
+  const feedPosts = (ideasAll||[]).slice(0,50).map(i => ({
+    type: 'post',
+    at: i.updated_at,
+    userId: i.user_id,
+    userName: userMap[i.user_id] || '匿名',
+    ideaId: i.id,
+    ideaName: i.name,
+    ideaTicker: i.ticker,
+  }));
+
+  const feedVotes = (votesAll||[]).map(v => ({
+    type: 'vote',
+    at: v.created_at,
+    userId: v.user_id,
+    userName: userMap[v.user_id] || '匿名',
+    ideaId: v.idea_id,
+    ideaName: ideaMap[v.idea_id]?.name,
+    ideaTicker: ideaMap[v.idea_id]?.ticker,
+    votesAtTime: v.idea_votes_at_time,
+  }));
+
+  // 時系列でマージ
+  allFeedItems = [...feedPosts, ...feedVotes].sort((a,b) => {
+    const da = parseDate(a.at), db = parseDate(b.at);
+    if (!da || !db) return 0;
+    return db.getTime() - da.getTime();
+  });
+
+  renderFeed();
+}
 
 async function loadFunnel() {
   const today = new Date().toISOString().slice(0,10);
