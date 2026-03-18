@@ -2038,12 +2038,13 @@ function openZukanBook() {
   const TOTAL = 32;
   const slots = Array.from({length:TOTAL}, (_,i) => i < certs.length ? certs[i] : null);
   const pinnedId = localStorage.getItem('aipo-pinned-cert');
+  let currentPage = 0; // 0 or 1
 
   function slotHTML(cert, idx) {
     if (cert) {
       const isPinned = cert.id === pinnedId || (!pinnedId && idx === 0);
-      return `<div class="zukan-slot" style="position:relative">
-        <div onclick="openZukanCert('${cert.id}')" style="position:relative;background:${cert.isEarly?'#fffdf5':'#faf8f4'};border:2px solid ${isPinned?'var(--amber-mid)':cert.isEarly?'#e8c84a':'#d4cbbe'};border-radius:7px;aspect-ratio:2/3;display:flex;flex-direction:column;justify-content:space-between;padding:5px;box-shadow:${isPinned?'0 0 0 1px var(--amber-mid)':'0 1px 5px rgba(0,0,0,.08)'};cursor:pointer;transition:transform .12s" onmousedown="this.style.transform='scale(.92)'" onmouseup="this.style.transform='scale(1)'">
+      return `<div style="position:relative">
+        <div onclick="openZukanCert('${cert.id}')" style="position:relative;background:${cert.isEarly?'#fffdf5':'#faf8f4'};border:2px solid ${isPinned?'var(--amber-mid)':cert.isEarly?'#e8c84a':'#d4cbbe'};border-radius:7px;aspect-ratio:2/3;display:flex;flex-direction:column;justify-content:space-between;padding:5px;box-shadow:${isPinned?'0 0 0 1px var(--amber-mid)':'0 1px 5px rgba(0,0,0,.08)'};cursor:pointer;transition:transform .12s;-webkit-tap-highlight-color:transparent" onmousedown="this.style.transform='scale(.92)'" onmouseup="this.style.transform='scale(1)'" ontouchstart="this.style.transform='scale(.92)'" ontouchend="this.style.transform='scale(1)'">
           ${cert.isEarly?'<div style="position:absolute;top:0;left:0;right:0;height:3px;border-radius:7px 7px 0 0" class="gold-shimmer-line"></div>':''}
           <div style="margin-top:${cert.isEarly?'6px':'0'}">
             <div style="font-family:var(--mono);font-size:5.5px;color:#b0a898;letter-spacing:.04em;margin-bottom:1px">AIPO</div>
@@ -2057,8 +2058,8 @@ function openZukanBook() {
             </div>
           </div>
         </div>
-        <div onclick="pinCert('${cert.id}')" style="position:absolute;top:-5px;right:-5px;width:16px;height:16px;border-radius:50%;background:${isPinned?'var(--amber-mid)':'#fff'};border:1.5px solid ${isPinned?'var(--amber-mid)':'#d4cbbe'};display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;box-shadow:0 1px 4px rgba(0,0,0,.12)">
-          <svg width="8" height="8" viewBox="0 0 20 20" fill="${isPinned?'#fff':'#ccc'}"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <div onclick="event.stopPropagation();pinCert('${cert.id}')" style="position:absolute;top:-5px;right:-5px;width:16px;height:16px;border-radius:50%;background:${isPinned?'var(--amber-mid)':'#fff'};border:1.5px solid ${isPinned?'var(--amber-mid)':'#d4cbbe'};display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;box-shadow:0 1px 4px rgba(0,0,0,.12)">
+          <svg width="7" height="7" viewBox="0 0 20 20" fill="${isPinned?'#fff':'none'}" stroke="${isPinned?'#fff':'#b0aea6'}" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
         </div>
       </div>`;
     }
@@ -2069,14 +2070,17 @@ function openZukanBook() {
     </div>`;
   }
 
-  const leftSlots  = slots.slice(0, 16);
-  const rightSlots = slots.slice(16, 32);
+  function pageHTML(page) {
+    const sl = slots.slice(page*16, page*16+16);
+    return `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px">${sl.map((c,i)=>slotHTML(c,page*16+i)).join('')}</div>`;
+  }
 
   const overlay = document.getElementById('zukan-overlay');
   if (!overlay) return;
   overlay.style.display = 'block';
   overlay.innerHTML = `
   <div style="height:100%;display:flex;flex-direction:column;animation:zukanSlideUp .4s cubic-bezier(.16,1,.3,1) both;background:var(--surface)">
+
     <div style="background:var(--surface);padding:12px 14px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0">
       <div onclick="closeZukanBook()" style="cursor:pointer;color:var(--text2);display:flex;align-items:center">
         <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 5l-5 5 5 5"/></svg>
@@ -2085,53 +2089,127 @@ function openZukanBook() {
         <div style="font-size:15px;font-weight:700;color:var(--text)">株券図鑑</div>
         <div style="font-size:9px;color:var(--text3)">Investment Certificate Book</div>
       </div>
-      <div style="margin-left:auto;display:flex;align-items:center;gap:5px">
-        <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--amber-mid)">${certs.length}</div>
-        <div style="font-size:9px;color:var(--text3)">/ ${TOTAL}枚</div>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
+        <button onclick="shareZukan()" style="display:flex;align-items:center;gap:5px;background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:5px 12px;cursor:pointer;font-family:var(--sans);font-size:11px;font-weight:700;color:var(--text2)">
+          <svg width="11" height="11" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="17" cy="3" r="2"/><circle cx="17" cy="17" r="2"/><circle cx="3" cy="10" r="2"/><path d="M5 10h9M15.3 4.5l-8.6 4M15.3 15.5l-8.6-4"/></svg>
+          シェア
+        </button>
+        <div style="display:flex;align-items:center;gap:4px">
+          <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--amber-mid)">${certs.length}</div>
+          <div style="font-size:9px;color:var(--text3)">/ ${TOTAL}枚</div>
+        </div>
       </div>
     </div>
 
-    <div style="padding:8px 12px;border-bottom:0.5px solid var(--border);flex-shrink:0">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-        <div style="font-size:9px;color:var(--text3)">コレクション達成率</div>
-        <div style="font-family:var(--mono);font-size:9px;color:var(--amber-mid)">${(certs.length/TOTAL*100).toFixed(1)}%</div>
-      </div>
-      <div style="background:rgba(0,0,0,.07);border-radius:4px;height:4px;overflow:hidden">
+    <div style="padding:8px 12px 0;flex-shrink:0">
+      <div style="background:rgba(0,0,0,.07);border-radius:4px;height:3px;overflow:hidden">
         <div style="background:linear-gradient(90deg,#f5d68a,#e8850a);height:100%;width:${(certs.length/TOTAL*100).toFixed(1)}%;border-radius:4px"></div>
       </div>
-      <div style="font-size:9px;color:var(--text3);margin-top:5px">⭐ をタップするとホームに表示する株券を選べます</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px">
+        <div style="font-size:9px;color:var(--text3)">ピンをタップするとホーム表示を変更できます</div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--amber-mid)">${(certs.length/TOTAL*100).toFixed(1)}%</div>
+      </div>
     </div>
 
-    <div style="flex:1;overflow-y:auto;scrollbar-width:none;background:#f5f3ee">
-      <div style="margin:10px 10px 0;background:#fff;border-radius:14px;overflow:hidden;border:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,.06)">
-        <div style="display:grid;grid-template-columns:1fr 8px 1fr">
-          <div style="padding:7px 8px 12px;background:#fefdfb">
-            <div style="font-family:var(--mono);font-size:7px;color:#c8bfae;text-align:center;padding:4px 0;border-bottom:0.5px solid rgba(0,0,0,.06);margin-bottom:6px">PAGE 1</div>
-            <div id="book-left" style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px">${leftSlots.map((c,i)=>slotHTML(c,i)).join('')}</div>
-            <div style="font-family:var(--mono);font-size:7px;color:#c8bfae;text-align:center;padding:4px 0;border-top:0.5px solid rgba(0,0,0,.06);margin-top:6px">— 1 —</div>
+    <div style="flex:1;overflow:hidden;position:relative;background:#f5f3ee" id="zukan-pages-wrap">
+      <div id="zukan-pages" style="display:flex;width:200%;height:100%;transition:transform .35s cubic-bezier(.4,0,.2,1)">
+        <div style="width:50%;height:100%;overflow-y:auto;scrollbar-width:none;padding:10px 12px 20px">
+          <div style="background:#fff;border-radius:14px;overflow:hidden;border:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,.06)">
+            <div style="font-family:var(--mono);font-size:7px;color:#c8bfae;text-align:center;padding:6px 0;border-bottom:0.5px solid rgba(0,0,0,.06)">PAGE 1</div>
+            <div style="padding:8px 8px 10px">${pageHTML(0)}</div>
+            <div style="font-family:var(--mono);font-size:7px;color:#c8bfae;text-align:center;padding:6px 0;border-top:0.5px solid rgba(0,0,0,.06)">— 1 —</div>
           </div>
-          <div style="background:linear-gradient(180deg,rgba(0,0,0,.07),rgba(0,0,0,.02),rgba(0,0,0,.07))"></div>
-          <div style="padding:7px 8px 12px;background:#fdfcf9">
-            <div style="font-family:var(--mono);font-size:7px;color:#c8bfae;text-align:center;padding:4px 0;border-bottom:0.5px solid rgba(0,0,0,.06);margin-bottom:6px">PAGE 2</div>
-            <div id="book-right" style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px">${rightSlots.map((c,i)=>slotHTML(c,i+16)).join('')}</div>
-            <div style="font-family:var(--mono);font-size:7px;color:#c8bfae;text-align:center;padding:4px 0;border-top:0.5px solid rgba(0,0,0,.06);margin-top:6px">— 2 —</div>
+          <div style="padding:10px 0;text-align:center;font-size:10px;color:var(--text3)">← スワイプで次のページへ →</div>
+        </div>
+        <div style="width:50%;height:100%;overflow-y:auto;scrollbar-width:none;padding:10px 12px 20px">
+          <div style="background:#fff;border-radius:14px;overflow:hidden;border:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,.06)">
+            <div style="font-family:var(--mono);font-size:7px;color:#c8bfae;text-align:center;padding:6px 0;border-bottom:0.5px solid rgba(0,0,0,.06)">PAGE 2</div>
+            <div style="padding:8px 8px 10px">${pageHTML(1)}</div>
+            <div style="font-family:var(--mono);font-size:7px;color:#c8bfae;text-align:center;padding:6px 0;border-top:0.5px solid rgba(0,0,0,.06)">— 2 —</div>
           </div>
         </div>
       </div>
-      <div style="padding:10px 14px;text-align:center">
-        <div style="font-size:10px;color:var(--text3);line-height:1.7">早期に応援するほどレアな株券になります<br>ゴールドラインは EARLY INVESTOR の証です</div>
+
+      <!-- Page dots -->
+      <div id="zukan-dots" style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:5">
+        <div onclick="window._zukanGoPage&&window._zukanGoPage(0)" style="width:20px;height:4px;border-radius:2px;background:var(--amber-mid);cursor:pointer;transition:all .3s" id="zdot-0"></div>
+        <div onclick="window._zukanGoPage&&window._zukanGoPage(1)" style="width:8px;height:4px;border-radius:2px;background:rgba(0,0,0,.15);cursor:pointer;transition:all .3s" id="zdot-1"></div>
       </div>
     </div>
+
   </div>`;
+
+  // Swipe handling
+  let tx = 0, startX = 0, startY = 0, dragging = false, lockAxis = null;
+  const pages = overlay.querySelector('#zukan-pages');
+  const wrap  = overlay.querySelector('#zukan-pages-wrap');
+
+  function goPage(n) {
+    currentPage = Math.max(0, Math.min(1, n));
+    pages.style.transition = 'transform .35s cubic-bezier(.4,0,.2,1)';
+    pages.style.transform = `translateX(${currentPage === 0 ? '0' : '-50%'})`;
+    ['zdot-0','zdot-1'].forEach((id,i) => {
+      const d = overlay.querySelector('#'+id);
+      if (d) {
+        d.style.background = i === currentPage ? 'var(--amber-mid)' : 'rgba(0,0,0,.15)';
+        d.style.width = i === currentPage ? '20px' : '8px';
+      }
+    });
+  }
+  // expose for dot clicks
+  window._zukanGoPage = goPage;
+  overlay.querySelector('#zdot-0').onclick = () => goPage(0);
+  overlay.querySelector('#zdot-1').onclick = () => goPage(1);
+
+  wrap.addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    dragging = true; lockAxis = null;
+    pages.style.transition = 'none';
+  }, {passive:true});
+
+  wrap.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    const dx = e.touches[0].clientX - startX;
+    const dy = e.touches[0].clientY - startY;
+    if (!lockAxis) lockAxis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+    if (lockAxis === 'x') {
+      e.preventDefault();
+      const base = currentPage * -50;
+      const pct = (dx / wrap.offsetWidth) * 100;
+      pages.style.transform = `translateX(calc(${base}% + ${dx}px))`;
+    }
+  }, {passive:false});
+
+  wrap.addEventListener('touchend', e => {
+    if (!dragging || lockAxis !== 'x') { dragging = false; return; }
+    const dx = e.changedTouches[0].clientX - startX;
+    dragging = false;
+    if (dx < -40 && currentPage === 0) goPage(1);
+    else if (dx > 40 && currentPage === 1) goPage(0);
+    else goPage(currentPage);
+  }, {passive:true});
 }
+
 
 function pinCert(certId) {
   localStorage.setItem('aipo-pinned-cert', certId);
-  showToast('ホームに表示する株券を変更しました ⭐');
+  showToast('ホームに表示する株券を変更しました');
   // Re-render portfolio to reflect change
   renderCertCollection();
   // Re-render book to update star states
   openZukanBook();
+}
+
+function shareZukan() {
+  const certs = loadCerts();
+  if (certs.length === 0) { showToast('まだ株券がありません'); return; }
+  const lines = certs.slice(0,5).map(function(c) {
+    return (c.isEarly ? '[EARLY] ' : '') + c.ticker + ' - ' + c.name.slice(0,20);
+  }).join('\n');
+  const more = certs.length > 5 ? ('\n他' + (certs.length - 5) + '枚...') : '';
+  const body = 'あいぽ 株券図鑑\n\n' + certs.length + '枚コレクション中！\n\n' + lines + more + '\n\n#あいぽ #アイデアIPO\nhttps://aipo-tau.vercel.app';
+  window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(body), '_blank');
 }
 
 function closeZukanBook() {
@@ -2192,6 +2270,10 @@ function openZukanCert(certId) {
       </div>
       <div style="font-size:13px;font-weight:700;color:var(--text)">${cert.ticker}</div>
       <div style="font-size:9px;color:var(--text3);margin-left:2px">${cert.serial}</div>
+      <button onclick="shareCertificate('${cert.ideaId}','${encodeURIComponent(cert.name)}','${cert.ticker}')" style="margin-left:auto;display:flex;align-items:center;gap:5px;background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:5px 12px;cursor:pointer;font-family:var(--sans);font-size:11px;font-weight:700;color:var(--text2)">
+        <svg width="11" height="11" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="17" cy="3" r="2"/><circle cx="17" cy="17" r="2"/><circle cx="3" cy="10" r="2"/><path d="M5 10h9M15.3 4.5l-8.6 4M15.3 15.5l-8.6-4"/></svg>
+        シェア
+      </button>
     </div>
 
     <div style="flex:1;overflow-y:auto;scrollbar-width:none;padding:12px 12px 20px;background:var(--surface2)">
