@@ -2238,6 +2238,93 @@ function buildCertHTMLFromData(cert) {
   `;
 }
 
+
+const COLL_KEY = 'aipo-certificates';
+
+function saveCertToCollection(idea, votesAtTime) {
+  const certs = loadCerts();
+  const today = new Date();
+  const cert = {
+    id: idea.id + '-' + Date.now(),
+    ideaId: idea.id,
+    ticker: idea.ticker,
+    name: idea.name,
+    genre: idea.genre || '',
+    votesAtTime: votesAtTime + 1,
+    score: idea.score,
+    date: today.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }),
+    time: today.toLocaleTimeString('ja-JP', { hour:'2-digit', minute:'2-digit' }),
+    serial: 'AI-' + String(today.getMonth()+1).padStart(2,'0') + String(today.getDate()).padStart(2,'0'),
+    holder: currentUser?.x_username || 'user',
+    isEarly: (votesAtTime + 1) <= 5,
+    isFirst: votesAtTime === 0,
+  };
+  if (!certs.find(c => c.ideaId === idea.id)) {
+    certs.unshift(cert);
+    try { localStorage.setItem(COLL_KEY, JSON.stringify(certs)); } catch(e) {}
+  }
+}
+
+function loadCerts() {
+  try { return JSON.parse(localStorage.getItem(COLL_KEY) || '[]'); } catch(e) { return []; }
+}
+
+function renderCertCollection() {
+  const el = document.getElementById('cert-collection-section');
+  if (!el) return;
+  const certs = loadCerts();
+  if (certs.length === 0) {
+    el.innerHTML = '<div class="cert-coll-wrap"><div class="cert-coll-hd"><span class="cert-coll-title">株券コレクション</span></div><div class="cert-empty"><div style="font-size:28px;margin-bottom:8px">🎫</div><div class="cert-empty-txt">まだ株券がありません</div><div class="cert-empty-sub">アイデアを応援すると<br>株券が発行されます</div></div></div>';
+    return;
+  }
+  const cards = certs.map((cert, i) => {
+    const goldClass = i === 0 && cert.isFirst ? ' gold' : '';
+    const nameShort = cert.name.length > 16 ? cert.name.slice(0,16) + '…' : cert.name;
+    return '<div class="cert-mini' + goldClass + '" onclick="showCertFromCollection(\'' + cert.id + '\')">'
+      + '<div class="cert-mini-brand">AIPO · ' + cert.serial + '</div>'
+      + '<div class="cert-mini-ticker">' + cert.ticker + '</div>'
+      + '<div class="cert-mini-name">' + nameShort + '</div>'
+      + '<div class="cert-mini-date">' + cert.date + '</div>'
+      + (cert.isEarly ? '<div class="cert-mini-early"><div class="cert-mini-early-dot"></div><span class="cert-mini-early-txt">EARLY</span></div>' : '')
+      + '<div class="cert-mini-stamp"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#c0392b" stroke-width="2.2" stroke-linecap="round"/></svg></div>'
+      + '</div>';
+  }).join('');
+  el.innerHTML = '<div class="cert-coll-wrap"><div class="cert-coll-hd"><span class="cert-coll-title">株券コレクション</span><span class="cert-coll-count">' + certs.length + '枚</span></div><div class="cert-coll-scroll">' + cards + '</div></div>';
+}
+
+function showCertFromCollection(certId) {
+  const certs = loadCerts();
+  const cert = certs.find(c => c.id === certId);
+  if (!cert) return;
+  const existing = document.getElementById('cert-modal');
+  if (existing) existing.remove();
+  const overlay = document.createElement('div');
+  overlay.id = 'cert-modal';
+  overlay.className = 'cert-modal-overlay';
+  const nameShort = cert.name.length > 16 ? cert.name.slice(0,16) + '…' : cert.name;
+  overlay.innerHTML = '<div class="cert-modal-box">'
+    + '<div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px"></div>'
+    + '<div style="font-size:14px;font-weight:700;text-align:center;margin-bottom:4px;color:var(--text)">あなたの株券</div>'
+    + '<div style="font-size:11px;color:var(--text3);text-align:center;margin-bottom:14px">' + cert.date + ' ' + cert.time + ' 取得</div>'
+    + '<div class="cert-wrap" id="cert-inner"><div class="cert-notch-t"></div><div class="cert-notch-b"></div>'
+    + '<div class="cert-left"><div class="cert-brand"><div class="cert-brand-ico"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="7,14 10,10 12,11.5 15,7 18,4" stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="18" cy="4" r="2" fill="#f59e0b"/></svg></div><span class="cert-brand-name">あいぽ</span></div>'
+    + '<div class="cert-divider"><div class="cert-divider-line"></div><span class="cert-divider-txt">INVESTMENT CERTIFICATE</span><div class="cert-divider-line"></div></div>'
+    + '<div style="display:grid;grid-template-columns:auto 1fr;gap:10px;margin-bottom:10px"><div><div class="cert-field-lbl">DATE</div><div class="cert-field-val" style="font-size:11px">' + cert.date + '</div><div style="font-family:var(--mono);font-size:9px;color:#a09080">' + cert.time + '</div></div><div><div class="cert-field-lbl">IDEA</div><div class="cert-field-val">' + nameShort + '</div></div></div>'
+    + '<div style="display:flex;align-items:flex-start;gap:6px;flex-wrap:wrap"><div><div class="cert-field-lbl">TICKER</div><div class="cert-mono">' + cert.ticker + '</div></div><div style="width:.5px;height:28px;background:#d4c9b8;margin-top:10px"></div><div><div class="cert-field-lbl">HOLDER</div><div class="cert-mono">@' + cert.holder + '</div></div><div style="width:.5px;height:28px;background:#d4c9b8;margin-top:10px"></div><div><div class="cert-field-lbl">VOTES AT TIME</div><div class="cert-mono">' + cert.votesAtTime + '票目</div></div></div>'
+    + (cert.isEarly ? '<div class="cert-early"><div class="cert-early-dot"></div><span class="cert-early-txt">EARLY INVESTOR</span></div>' : '')
+    + '</div>'
+    + '<div class="cert-right"><div style="text-align:center"><div style="font-family:var(--mono);font-size:7px;color:#a09080;letter-spacing:.08em;margin-bottom:4px">SERIAL</div><div style="font-family:var(--mono);font-size:9px;color:#1a1400;background:#e5ddd0;border-radius:3px;padding:2px 6px;letter-spacing:.03em">' + cert.serial + '</div></div>'
+    + '<div class="cert-stamp"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#c0392b" stroke-width="2" stroke-linecap="round"/></svg><span class="cert-stamp-txt">INVESTED</span></div>'
+    + '<div style="text-align:center"><div style="display:flex;gap:1.5px;align-items:flex-end;margin-bottom:3px"><div style="width:2px;height:26px;background:#1a1400;border-radius:.5px"></div><div style="width:1px;height:22px;background:#1a1400;border-radius:.5px"></div><div style="width:3px;height:26px;background:#1a1400;border-radius:.5px"></div><div style="width:1px;height:18px;background:#1a1400;border-radius:.5px"></div><div style="width:2px;height:26px;background:#1a1400;border-radius:.5px"></div><div style="width:1px;height:20px;background:#1a1400;border-radius:.5px"></div><div style="width:3px;height:26px;background:#1a1400;border-radius:.5px"></div><div style="width:1px;height:16px;background:#1a1400;border-radius:.5px"></div><div style="width:2px;height:24px;background:#1a1400;border-radius:.5px"></div><div style="width:1px;height:26px;background:#1a1400;border-radius:.5px"></div></div><div style="font-family:var(--mono);font-size:7px;color:#a09080;letter-spacing:.08em">あいぽ</div></div>'
+    + '</div></div>'
+    + '<button class="cert-share-btn" id="cert-share-btn" onclick="shareCertificate(\'' + cert.ideaId + '\',\'' + encodeURIComponent(cert.name) + '\',\'' + cert.ticker + '\')">'
+    + '<svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M2 2l7.5 8.5L2 18h2l6.3-7.1L16 18h4L12 9.2 18.5 2h-2L10.6 8.6 5 2H2z"/></svg> Xでシェアする</button>'
+    + '<button class="cert-close-btn" onclick="document.getElementById(\'cert-modal\').remove()">閉じる</button>'
+    + '</div>';
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+}
+
 async function init() {
   const splash = document.getElementById('splash');
   const hasSession = await checkSession();
