@@ -2096,12 +2096,14 @@ async function shareCertificate(ideaId, encodedName, ticker) {
     // 画面外に株券HTMLを描画してキャプチャ
     const offscreen = document.createElement('div');
     offscreen.style.cssText = 'position:fixed;left:-9999px;top:0;z-index:-1;width:420px;background:#f5f1ea;padding:16px;border-radius:12px';
-    offscreen.innerHTML = '<div class="cert-wrap" style="width:388px">'
-      + (certData ? buildCertHTMLFromData(certData) : buildCertHTML(
-          ideas.find(i=>i.id===ideaId) || {id:ideaId,ticker,name:ideaName,score:50,votes:1,emoji:'💡'},
+    // cert-inner の中身をそのままコピーして使う
+    const certInner = document.getElementById('cert-inner');
+    offscreen.innerHTML = certInner
+      ? certInner.outerHTML
+      : '<div class="cert-wrap" style="width:388px">' + buildCertHTML(
+          ideas.find(function(i){return i.id===ideaId;}) || {id:ideaId,ticker:ticker,name:ideaName,score:50,votes:1,emoji:'💡'},
           0
-        ))
-      + '</div>';
+        ) + '</div>';
     document.body.appendChild(offscreen);
 
     await new Promise(r => setTimeout(r, 80));
