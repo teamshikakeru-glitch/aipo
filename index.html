@@ -2096,19 +2096,30 @@ async function shareCertificate(ideaId, encodedName, ticker) {
     // 画面外に株券HTMLを描画してキャプチャ
     const offscreen = document.createElement('div');
     offscreen.style.cssText = 'position:fixed;left:-9999px;top:0;z-index:-1;width:420px;background:#f5f1ea;padding:16px;border-radius:12px';
-    // cert-inner の中身をそのままコピーして使う
+    // cert-inner の内容を外枠ごと再現
     const certInner = document.getElementById('cert-inner');
-    offscreen.innerHTML = certInner
-      ? certInner.outerHTML
-      : '<div class="cert-wrap" style="width:388px">' + buildCertHTML(
+    const certContent = certInner ? certInner.innerHTML
+      : buildCertHTML(
           ideas.find(function(i){return i.id===ideaId;}) || {id:ideaId,ticker:ticker,name:ideaName,score:50,votes:1,emoji:'💡'},
           0
-        ) + '</div>';
+        );
+    offscreen.innerHTML = '<div style="'
+      + 'background:#ede8df;'
+      + 'padding:32px 24px;'
+      + 'border-radius:20px;'
+      + 'display:flex;'
+      + 'align-items:center;'
+      + 'justify-content:center;'
+      + '">'
+      + '<div class="cert-wrap" style="width:100%;max-width:520px;overflow:visible">'
+      + certContent
+      + '</div>'
+      + '</div>';
     document.body.appendChild(offscreen);
 
     await new Promise(r => setTimeout(r, 80));
 
-    const canvas = await html2canvas(offscreen.querySelector('.cert-wrap'), {
+    const canvas = await html2canvas(offscreen.querySelector('div'), {
       scale: 3,
       backgroundColor: '#f5f1ea',
       useCORS: true,
