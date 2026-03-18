@@ -223,14 +223,24 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
 
     <div class="kpi-grid" style="margin-bottom:20px">
       <div class="kpi-card">
-        <div class="kpi-lbl">LP経由 累計人数</div>
+        <div class="kpi-lbl">LPを開いた人数（累計）</div>
+        <div class="kpi-val ink" id="lp-open-total">—</div>
+        <div class="kpi-sub">lp.htmlにアクセスした回数</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-lbl">LPを開いた人数（今日）</div>
+        <div class="kpi-val ink" id="lp-open-today">—</div>
+        <div class="kpi-sub">今日LPを開いた回数</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-lbl">LP→アプリ 累計</div>
         <div class="kpi-val ink" id="lp-total">—</div>
-        <div class="kpi-sub">LPのボタンを押してあいぽを開いた人の合計</div>
+        <div class="kpi-sub">LPのボタンを押してあいぽを開いた人</div>
       </div>
       <div class="kpi-card green">
-        <div class="kpi-lbl">LP経由 今日</div>
+        <div class="kpi-lbl">LP→アプリ 今日</div>
         <div class="kpi-val green" id="lp-today">—</div>
-        <div class="kpi-sub">今日LPから来た人数</div>
+        <div class="kpi-sub">今日LPからあいぽに来た人</div>
       </div>
     </div>
 
@@ -399,6 +409,14 @@ async function loadLPAnalytics() {
 
   document.getElementById('lp-total').textContent = lpEvents.length;
   document.getElementById('lp-today').textContent = todayLp.length;
+
+  // LP開封数（lp.html自体を開いた回数）
+  const { data: lpViews, count: lpViewTotal } = await sb.from('user_events')
+    .select('created_at', { count: 'exact' })
+    .eq('utm_source', 'lp_pageview');
+  const lpViewToday = (lpViews||[]).filter(e => e.created_at.slice(0,10) === today).length;
+  document.getElementById('lp-open-total').textContent = lpViewTotal || 0;
+  document.getElementById('lp-open-today').textContent = lpViewToday;
   document.getElementById('lp-btn-total-meta').textContent = `LP経由 累計${lpEvents.length}件`;
 
   // ===== LP ボタン別集計 =====
@@ -589,18 +607,19 @@ async function loadUsers() {
 }
 
 async function loadRevenue() {
-  const { data: profiles } = await sb.from('profiles').select('is_founder, is_pro');
+  // founder_number=0 は中川さん本人なので除外
+  const { data: profiles } = await sb.from('profiles').select('is_founder, is_pro, founder_number, id');
   if (!profiles) return;
-  const founderCount = profiles.filter(p => p.is_founder).length;
-  const proCount = profiles.filter(p => p.is_pro && !p.is_founder).length;
-  const founderRevenue = founderCount * 980;
-  const proRevenue = proCount * 300;
+  const payingFounders = profiles.filter(p => p.is_founder && p.founder_number !== 0 && p.id !== ADMIN_ID);
+  const payingPros = profiles.filter(p => p.is_pro && !p.is_founder && p.id !== ADMIN_ID);
+  const founderRevenue = payingFounders.length * 980;
+  const proRevenue = payingPros.length * 300;
   const total = founderRevenue + proRevenue;
   document.getElementById('revenue-total').textContent = total.toLocaleString();
   document.getElementById('revenue-founder').textContent = '¥' + founderRevenue.toLocaleString();
   document.getElementById('revenue-pro').textContent = '¥' + proRevenue.toLocaleString();
-  document.getElementById('founder-count-rev').textContent = founderCount;
-  document.getElementById('pro-count-rev').textContent = proCount;
+  document.getElementById('founder-count-rev').textContent = payingFounders.length;
+  document.getElementById('pro-count-rev').textContent = payingPros.length;
 }
 
 async function loadAll() {
