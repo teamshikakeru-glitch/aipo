@@ -7,8 +7,8 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-// 創設メンバーの料金ID（Stripeで確認）
-const FOUNDER_PRICE_ID = 'price_founder'; // ← 実際のPriceIDに変更が必要
+// 創設メンバーの料金ID
+const FOUNDER_PRICE_ID = 'price_1TAnVaRzgQ2yKTeQdRvZ4ll8';
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
@@ -56,8 +56,8 @@ module.exports = async function handler(req, res) {
 
     console.log('priceId:', priceId, 'amount:', amount, 'mode:', session.mode);
 
-    // 創設メンバー判定：一括払い(payment mode)かつ¥980
-    const isFounderPurchase = session.mode === 'payment' && amount === 980;
+    // 創設メンバー判定：Price IDで判定（一番確実）
+    const isFounderPurchase = priceId === FOUNDER_PRICE_ID || (session.mode === 'payment' && amount === 980);
     // Pro判定：サブスク
     const isProPurchase = session.mode === 'subscription';
 
