@@ -1976,23 +1976,89 @@ function renderCertCollection() {
   const el = document.getElementById('cert-collection-section');
   if (!el) return;
   const certs = loadCerts();
+
+  // Get pinned cert id from localStorage
+  const pinnedId = localStorage.getItem('aipo-pinned-cert');
+  const featured = certs.find(c => c.id === pinnedId) || certs[0] || null;
+
+  if (certs.length === 0) {
+    el.innerHTML = `
+    <div style="background:var(--surface);border-radius:var(--r-xl);padding:20px;text-align:center;margin-bottom:12px;border:1px solid var(--border)">
+      <div style="font-size:28px;margin-bottom:8px">🎫</div>
+      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">まだ株券がありません</div>
+      <div style="font-size:11px;color:var(--text3);line-height:1.65">マーケットでアイデアを応援すると<br>株券が発行されます</div>
+    </div>`;
+    return;
+  }
+
+  const c = featured;
+  const earlyStripe = c.isEarly
+    ? `<div style="position:absolute;top:0;left:0;right:0;height:4px;border-radius:18px 18px 0 0" class="gold-shimmer-line"></div>`
+    : '';
+  const earlyBadge = c.isEarly
+    ? `<div style="display:inline-flex;align-items:center;gap:3px;background:#fef9f0;border:1px solid #fde68a;border-radius:20px;padding:2px 8px;margin-bottom:7px"><div style="width:3px;height:3px;border-radius:50%;background:#d97706"></div><span style="font-family:var(--mono);font-size:7px;color:#854f0b;font-weight:700;letter-spacing:.05em">EARLY INVESTOR</span></div>`
+    : '';
+
+  el.innerHTML = `
+  <div style="margin-bottom:12px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.07em">株券</div>
+      <div style="font-size:10px;color:var(--amber-mid);font-family:var(--mono)">${certs.length}枚所持</div>
+    </div>
+    <div onclick="openZukanBook()" style="cursor:pointer;position:relative;background:${c.isEarly?'#fffdf5':'#faf8f4'};border:1px solid ${c.isEarly?'#f0d080':'#e0d8cc'};border-radius:18px;overflow:hidden;display:flex;transition:transform .12s;box-shadow:0 2px 10px rgba(0,0,0,.07)" onmousedown="this.style.transform='scale(.98)'" onmouseup="this.style.transform='scale(1)'">
+      ${earlyStripe}
+      <div style="flex:1;padding:${c.isEarly?'16px':'13px'} 13px 13px 16px">
+        ${earlyBadge}
+        <div style="font-family:var(--mono);font-size:7px;color:#a09080;letter-spacing:.1em;margin-bottom:4px">INVESTMENT CERTIFICATE</div>
+        <div style="font-size:15px;font-weight:700;color:#1a1400;line-height:1.35;margin-bottom:10px">${c.name.length>22?c.name.slice(0,22)+'…':c.name}</div>
+        <div style="display:flex;gap:16px;margin-bottom:7px">
+          <div><div style="font-family:var(--mono);font-size:7px;color:#a09080;margin-bottom:2px">TICKER</div><div style="font-family:var(--mono);font-size:13px;font-weight:700;color:#1a1400">${c.ticker}</div></div>
+          <div><div style="font-family:var(--mono);font-size:7px;color:#a09080;margin-bottom:2px">VOTES AT TIME</div><div style="font-family:var(--mono);font-size:13px;font-weight:700;color:#1a1400">${c.votesAtTime}票目</div></div>
+        </div>
+        <div style="font-family:var(--mono);font-size:8px;color:#a09080">${c.date}</div>
+      </div>
+      <div style="width:72px;flex-shrink:0;border-left:2px dashed #d4c9b8;background:#ede9e0;border-radius:0 18px 18px 0;display:flex;flex-direction:column;align-items:center;justify-content:space-around;padding:14px 0">
+        <div style="font-family:var(--mono);font-size:7px;color:#a09080;text-align:center;letter-spacing:.04em">SERIAL<br>${c.serial}</div>
+        <div style="width:42px;height:42px;border-radius:50%;border:2px solid #c0392b;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;background:#fff">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#c0392b" stroke-width="2" stroke-linecap="round"/></svg>
+          <span style="font-family:var(--mono);font-size:6px;color:#c0392b;letter-spacing:.04em">DONE</span>
+        </div>
+        <div style="font-family:var(--mono);font-size:7px;color:#a09080">あいぽ</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:center;margin-top:8px;gap:4px;cursor:pointer" onclick="openZukanBook()">
+      <svg width="10" height="10" viewBox="0 0 20 20" fill="none" stroke="var(--text3)" stroke-width="2"><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="11" y="3" width="6" height="6" rx="1"/><rect x="3" y="11" width="6" height="6" rx="1"/><rect x="11" y="11" width="6" height="6" rx="1"/></svg>
+      <div style="font-size:10px;color:var(--text3)">図鑑を開く</div>
+    </div>
+  </div>`;
+}
+
+function openZukanBook() {
+  const certs = loadCerts();
   const TOTAL = 32;
   const slots = Array.from({length:TOTAL}, (_,i) => i < certs.length ? certs[i] : null);
+  const pinnedId = localStorage.getItem('aipo-pinned-cert');
 
   function slotHTML(cert, idx) {
     if (cert) {
-      return `<div class="zukan-slot" onclick="openZukanCert('${cert.id}')" style="position:relative;background:${cert.isEarly?'#fffdf5':'#faf8f4'};border:1px solid ${cert.isEarly?'#e8c84a':'#d4cbbe'};border-radius:7px;aspect-ratio:2/3;display:flex;flex-direction:column;justify-content:space-between;padding:5px;box-shadow:0 1px 5px rgba(0,0,0,.08)">
-        ${cert.isEarly?'<div style="position:absolute;top:0;left:0;right:0;height:3px;border-radius:7px 7px 0 0" class="gold-shimmer-line"></div>':''}
-        <div style="margin-top:${cert.isEarly?'6px':'0'}">
-          <div style="font-family:var(--mono);font-size:5.5px;color:#b0a898;letter-spacing:.04em;margin-bottom:1px">AIPO</div>
-          <div style="font-family:var(--mono);font-size:9px;font-weight:700;color:#1a1400;line-height:1;margin-bottom:2px">${cert.ticker}</div>
-          <div style="font-size:6.5px;color:#3a3028;line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${cert.name}</div>
-        </div>
-        <div style="display:flex;align-items:center;justify-content:space-between">
-          <div style="font-family:var(--mono);font-size:5px;color:#b0a898">${cert.serial}</div>
-          <div style="width:13px;height:13px;border-radius:50%;border:1.5px solid #c0392b;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-            <svg width="6" height="6" viewBox="0 0 20 20" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#c0392b" stroke-width="2.5" stroke-linecap="round"/></svg>
+      const isPinned = cert.id === pinnedId || (!pinnedId && idx === 0);
+      return `<div class="zukan-slot" style="position:relative">
+        <div onclick="openZukanCert('${cert.id}')" style="position:relative;background:${cert.isEarly?'#fffdf5':'#faf8f4'};border:2px solid ${isPinned?'var(--amber-mid)':cert.isEarly?'#e8c84a':'#d4cbbe'};border-radius:7px;aspect-ratio:2/3;display:flex;flex-direction:column;justify-content:space-between;padding:5px;box-shadow:${isPinned?'0 0 0 1px var(--amber-mid)':'0 1px 5px rgba(0,0,0,.08)'};cursor:pointer;transition:transform .12s" onmousedown="this.style.transform='scale(.92)'" onmouseup="this.style.transform='scale(1)'">
+          ${cert.isEarly?'<div style="position:absolute;top:0;left:0;right:0;height:3px;border-radius:7px 7px 0 0" class="gold-shimmer-line"></div>':''}
+          <div style="margin-top:${cert.isEarly?'6px':'0'}">
+            <div style="font-family:var(--mono);font-size:5.5px;color:#b0a898;letter-spacing:.04em;margin-bottom:1px">AIPO</div>
+            <div style="font-family:var(--mono);font-size:9px;font-weight:700;color:#1a1400;line-height:1;margin-bottom:2px">${cert.ticker}</div>
+            <div style="font-size:6.5px;color:#3a3028;line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${cert.name}</div>
           </div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div style="font-family:var(--mono);font-size:5px;color:#b0a898">${cert.serial}</div>
+            <div style="width:13px;height:13px;border-radius:50%;border:1.5px solid #c0392b;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="6" height="6" viewBox="0 0 20 20" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#c0392b" stroke-width="2.5" stroke-linecap="round"/></svg>
+            </div>
+          </div>
+        </div>
+        <div onclick="pinCert('${cert.id}')" style="position:absolute;top:-5px;right:-5px;width:16px;height:16px;border-radius:50%;background:${isPinned?'var(--amber-mid)':'#fff'};border:1.5px solid ${isPinned?'var(--amber-mid)':'#d4cbbe'};display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;box-shadow:0 1px 4px rgba(0,0,0,.12)">
+          <svg width="8" height="8" viewBox="0 0 20 20" fill="${isPinned?'#fff':'#ccc'}"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
         </div>
       </div>`;
     }
@@ -2006,35 +2072,79 @@ function renderCertCollection() {
   const leftSlots  = slots.slice(0, 16);
   const rightSlots = slots.slice(16, 32);
 
-  el.innerHTML = `
-    <!-- BOOK -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-      <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.07em">株券図鑑</div>
-      ${certs.length === 0 ? '<div style="font-size:10px;color:var(--text3)">応援すると解禁されます</div>' : ''}
+  const overlay = document.getElementById('zukan-overlay');
+  if (!overlay) return;
+  overlay.style.display = 'block';
+  overlay.innerHTML = `
+  <div style="height:100%;display:flex;flex-direction:column;animation:zukanSlideUp .4s cubic-bezier(.16,1,.3,1) both;background:var(--surface)">
+    <div style="background:var(--surface);padding:12px 14px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0">
+      <div onclick="closeZukanBook()" style="cursor:pointer;color:var(--text2);display:flex;align-items:center">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 5l-5 5 5 5"/></svg>
+      </div>
+      <div>
+        <div style="font-size:15px;font-weight:700;color:var(--text)">株券図鑑</div>
+        <div style="font-size:9px;color:var(--text3)">Investment Certificate Book</div>
+      </div>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:5px">
+        <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--amber-mid)">${certs.length}</div>
+        <div style="font-size:9px;color:var(--text3)">/ ${TOTAL}枚</div>
+      </div>
     </div>
-    <div style="background:var(--surface);border-radius:14px;overflow:hidden;border:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:12px">
-      <div style="padding:8px 12px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between">
-        <div style="font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:.06em">COLLECTION BOOK</div>
-        <div style="display:flex;align-items:center;gap:6px">
-          <div style="background:rgba(0,0,0,.06);border-radius:4px;height:4px;width:80px;overflow:hidden"><div style="background:linear-gradient(90deg,#f5d68a,#e8850a);height:100%;width:${(certs.length/TOTAL*100).toFixed(1)}%;border-radius:4px"></div></div>
-          <div style="font-family:var(--mono);font-size:9px;color:var(--amber-mid)">${certs.length}/${TOTAL}</div>
+
+    <div style="padding:8px 12px;border-bottom:0.5px solid var(--border);flex-shrink:0">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <div style="font-size:9px;color:var(--text3)">コレクション達成率</div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--amber-mid)">${(certs.length/TOTAL*100).toFixed(1)}%</div>
+      </div>
+      <div style="background:rgba(0,0,0,.07);border-radius:4px;height:4px;overflow:hidden">
+        <div style="background:linear-gradient(90deg,#f5d68a,#e8850a);height:100%;width:${(certs.length/TOTAL*100).toFixed(1)}%;border-radius:4px"></div>
+      </div>
+      <div style="font-size:9px;color:var(--text3);margin-top:5px">⭐ をタップするとホームに表示する株券を選べます</div>
+    </div>
+
+    <div style="flex:1;overflow-y:auto;scrollbar-width:none;background:#f5f3ee">
+      <div style="margin:10px 10px 0;background:#fff;border-radius:14px;overflow:hidden;border:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,.06)">
+        <div style="display:grid;grid-template-columns:1fr 8px 1fr">
+          <div style="padding:7px 8px 12px;background:#fefdfb">
+            <div style="font-family:var(--mono);font-size:7px;color:#c8bfae;text-align:center;padding:4px 0;border-bottom:0.5px solid rgba(0,0,0,.06);margin-bottom:6px">PAGE 1</div>
+            <div id="book-left" style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px">${leftSlots.map((c,i)=>slotHTML(c,i)).join('')}</div>
+            <div style="font-family:var(--mono);font-size:7px;color:#c8bfae;text-align:center;padding:4px 0;border-top:0.5px solid rgba(0,0,0,.06);margin-top:6px">— 1 —</div>
+          </div>
+          <div style="background:linear-gradient(180deg,rgba(0,0,0,.07),rgba(0,0,0,.02),rgba(0,0,0,.07))"></div>
+          <div style="padding:7px 8px 12px;background:#fdfcf9">
+            <div style="font-family:var(--mono);font-size:7px;color:#c8bfae;text-align:center;padding:4px 0;border-bottom:0.5px solid rgba(0,0,0,.06);margin-bottom:6px">PAGE 2</div>
+            <div id="book-right" style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px">${rightSlots.map((c,i)=>slotHTML(c,i+16)).join('')}</div>
+            <div style="font-family:var(--mono);font-size:7px;color:#c8bfae;text-align:center;padding:4px 0;border-top:0.5px solid rgba(0,0,0,.06);margin-top:6px">— 2 —</div>
+          </div>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 8px 1fr">
-        <div style="padding:6px 7px 10px;background:#fefdfb">
-          <div style="font-family:var(--mono);font-size:7px;color:#c8bfae;text-align:center;padding:4px 0;border-bottom:0.5px solid rgba(0,0,0,.06);margin-bottom:5px">PAGE 1</div>
-          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px">${leftSlots.map((c,i)=>slotHTML(c,i)).join('')}</div>
-          <div style="font-family:var(--mono);font-size:7px;color:#c8bfae;text-align:center;padding:4px 0;border-top:0.5px solid rgba(0,0,0,.06);margin-top:5px">— 1 —</div>
-        </div>
-        <div style="background:linear-gradient(180deg,rgba(0,0,0,.07),rgba(0,0,0,.02),rgba(0,0,0,.07))"></div>
-        <div style="padding:6px 7px 10px;background:#fdfcf9">
-          <div style="font-family:var(--mono);font-size:7px;color:#c8bfae;text-align:center;padding:4px 0;border-bottom:0.5px solid rgba(0,0,0,.06);margin-bottom:5px">PAGE 2</div>
-          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px">${rightSlots.map((c,i)=>slotHTML(c,i+16)).join('')}</div>
-          <div style="font-family:var(--mono);font-size:7px;color:#c8bfae;text-align:center;padding:4px 0;border-top:0.5px solid rgba(0,0,0,.06);margin-top:5px">— 2 —</div>
-        </div>
+      <div style="padding:10px 14px;text-align:center">
+        <div style="font-size:10px;color:var(--text3);line-height:1.7">早期に応援するほどレアな株券になります<br>ゴールドラインは EARLY INVESTOR の証です</div>
       </div>
-    </div>`;
+    </div>
+  </div>`;
 }
+
+function pinCert(certId) {
+  localStorage.setItem('aipo-pinned-cert', certId);
+  showToast('ホームに表示する株券を変更しました ⭐');
+  // Re-render portfolio to reflect change
+  renderCertCollection();
+  // Re-render book to update star states
+  openZukanBook();
+}
+
+function closeZukanBook() {
+  const overlay = document.getElementById('zukan-overlay');
+  if (!overlay) return;
+  overlay.style.animation = 'zukanSlideUp .25s cubic-bezier(.4,0,.8,1) reverse both';
+  setTimeout(() => {
+    overlay.style.display = 'none';
+    overlay.style.animation = '';
+    overlay.innerHTML = '';
+  }, 250);
+}
+
 
 function spawnZukanParticles() {
   const container = document.getElementById('zukan-particles');
