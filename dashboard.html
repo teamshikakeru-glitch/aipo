@@ -286,6 +286,17 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
       </div>
     </div>
 
+    <div class="section-title">LPでの滞在時間分析</div>
+    <div class="panel" style="margin-bottom:20px">
+      <div class="panel-head">
+        <div class="panel-title">TIME ON PAGE</div>
+        <div class="panel-meta">lp.htmlの滞在時間</div>
+      </div>
+      <div class="panel-body" id="time-analysis-body">
+        <div class="skel"></div><div class="skel" style="width:60%"></div>
+      </div>
+    </div>
+
     <div class="section-title">LPのどのボタンから来たか</div>
     <div class="panel" style="margin-bottom:20px">
       <div class="panel-head">
@@ -814,6 +825,75 @@ async function loadUserActivity() {
   }).join('') || '<div class="empty"><div class="empty-ico">👤</div><div class="empty-txt">データなし</div></div>';
 }
 
+async function loadTimeAnalysis() {
+  const { data } = await sb.from('user_events')
+    .select('time_on_page, created_at')
+    .eq('utm_source', 'lp_pageview')
+    .not('time_on_page', 'is', null)
+    .order('created_at', { ascending: false });
+
+  if (!data || data.length === 0) {
+    document.getElementById('time-analysis-body').innerHTML =
+      '<div class="empty"><div class="empty-ico">⏱</div><div class="empty-txt">まだデータがありません<br>lp.htmlをアップすると計測開始</div></div>';
+    return;
+  }
+
+  const times = data.map(d => d.time_on_page).filter(t => t !== null);
+  const avg = Math.round(times.reduce((a,b) => a+b, 0) / times.length);
+  const bounced = times.filter(t => t < 10).length; // 10秒未満を直帰
+  const bounceRate = Math.round(bounced / times.length * 100);
+
+  // 滞在時間の分布
+  const buckets = [
+    { label: '0〜10秒', desc: 'ほぼ離脱', min: 0, max: 10, color: '#c0392b' },
+    { label: '10〜30秒', desc: '少し見た', min: 10, max: 30, color: '#e8850a' },
+    { label: '30秒〜1分', desc: '読んでいる', min: 30, max: 60, color: '#d97706' },
+    { label: '1〜3分', desc: 'かなり読んだ', min: 60, max: 180, color: '#1a7a4a' },
+    { label: '3分以上', desc: '熱心に読んだ', min: 180, max: Infinity, color: '#15803d' },
+  ];
+
+  const bucketCounts = buckets.map(b => ({
+    ...b,
+    count: times.filter(t => t >= b.min && t < b.max).length
+  }));
+  const maxCount = Math.max(...bucketCounts.map(b => b.count), 1);
+
+  // サマリーKPI
+  const fmtSec = s => s >= 60 ? Math.floor(s/60)+'分'+String(s%60).padStart(2,'0')+'秒' : s+'秒';
+
+  document.getElementById('time-analysis-body').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px">
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:12px;text-align:center">
+        <div style="font-family:var(--mono);font-size:8px;color:var(--ink3);letter-spacing:.08em;margin-bottom:6px">平均滞在時間</div>
+        <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--ink)">${fmtSec(avg)}</div>
+      </div>
+      <div style="background:${bounceRate > 60 ? 'rgba(192,57,43,.06)' : 'var(--green-bg)'};border:1px solid ${bounceRate > 60 ? 'rgba(192,57,43,.2)' : 'var(--green-border)'};border-radius:var(--rs);padding:12px;text-align:center">
+        <div style="font-family:var(--mono);font-size:8px;color:var(--ink3);letter-spacing:.08em;margin-bottom:6px">直帰率（10秒未満）</div>
+        <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:${bounceRate > 60 ? 'var(--red)' : 'var(--green)'}">${bounceRate}%</div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:12px;text-align:center">
+        <div style="font-family:var(--mono);font-size:8px;color:var(--ink3);letter-spacing:.08em;margin-bottom:6px">計測サンプル数</div>
+        <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--ink)">${times.length}件</div>
+      </div>
+    </div>
+    <div style="margin-bottom:4px;font-family:var(--mono);font-size:9px;color:var(--ink3);letter-spacing:.08em">滞在時間の分布</div>
+    ${bucketCounts.map(b => `
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+        <div style="min-width:72px;font-size:11px;font-weight:700;color:var(--ink)">${b.label}</div>
+        <div style="flex:1">
+          <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:3px">
+            <div style="height:100%;width:${Math.round(b.count/maxCount*100)}%;background:${b.color};border-radius:3px;transition:width .8s"></div>
+          </div>
+          <div style="font-size:9px;color:var(--ink3)">${b.desc}</div>
+        </div>
+        <div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--ink);min-width:28px;text-align:right">${b.count}</div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--ink3);min-width:30px;text-align:right">${times.length > 0 ? Math.round(b.count/times.length*100) : 0}%</div>
+      </div>`).join('')}
+    <div style="margin-top:12px;padding:10px;background:var(--surface2);border-radius:var(--rs);font-size:11px;color:var(--ink3);line-height:1.7">
+      💡 直帰率${bounceRate}% ${bounceRate > 60 ? '— ファーストビューで離脱が多い。ヒーローコピーを見直す価値があります。' : bounceRate > 30 ? '— 標準的な数値です。' : '— LP内容が刺さっています。'}
+    </div>`;
+}
+
 async function loadRevenue() {
   // founder_number=0 は中川さん本人なので除外
   const { data: profiles } = await sb.from('profiles').select('is_founder, is_pro, founder_number, id');
@@ -836,6 +916,7 @@ async function loadAll() {
   await Promise.all([
     loadLPAnalytics(),
     loadFunnel(),
+    loadTimeAnalysis(),
     loadRevenue(),
     loadKPI(), loadHourly(), loadRecent(),
     loadIdeas(), loadUserActivity()
