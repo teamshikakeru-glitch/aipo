@@ -191,30 +191,28 @@ input[type=file] { display: none; }
 .cert-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:400;display:flex;align-items:flex-end;justify-content:center}
 .cert-modal-box{background:var(--surface);border-radius:24px 24px 0 0;padding:24px 20px 44px;width:100%;max-width:390px;animation:slideUp .35s cubic-bezier(.16,1,.3,1)}
 @keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
-.cert-wrap{background:#f5f1ea;border-radius:12px;overflow:hidden;border:1px solid #e0d8cc;display:flex;margin-bottom:16px}
-.cert-left{flex:1;padding:20px;min-width:0}
-.cert-right{width:100px;flex-shrink:0;border-left:2px dashed #d4c9b8;background:#ede9e0;padding:14px 12px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;position:relative}
-.cert-right::before,.cert-right::after{content:'';position:absolute;left:-11px;width:20px;height:20px;background:#e8e2d8;border-radius:50%;border:1px solid #d4c9b8}
-.cert-right::before{top:-10px}
-.cert-right::after{bottom:-10px}
-.cert-brand{display:flex;align-items:center;gap:6px;margin-bottom:14px}
+.cert-wrap{background:#f5f1ea;border-radius:12px;overflow:visible;border:1px solid #e0d8cc;display:flex;margin-bottom:16px;position:relative}
+.cert-notch-t{position:absolute;left:calc(100% - 101px);top:-10px;width:20px;height:20px;background:#e8dfd0;border-radius:50%;border:1px solid #d4c9b8;z-index:2}
+.cert-notch-b{position:absolute;left:calc(100% - 101px);bottom:-10px;width:20px;height:20px;background:#e8dfd0;border-radius:50%;border:1px solid #d4c9b8;z-index:2}
+.cert-left{flex:1;padding:18px 16px;min-width:0}
+.cert-right{width:96px;flex-shrink:0;border-left:2px dashed #d4c9b8;background:#ede9e0;border-radius:0 12px 12px 0;padding:14px 10px;display:flex;flex-direction:column;align-items:center;justify-content:space-between}
+.cert-brand{display:flex;align-items:center;gap:6px;margin-bottom:12px}
 .cert-brand-ico{width:22px;height:22px;background:#1a1400;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .cert-brand-name{font-size:11px;font-weight:700;color:#1a1400;letter-spacing:-.01em}
-.cert-divider{display:flex;align-items:center;gap:6px;margin-bottom:14px}
-.cert-divider::before,.cert-divider::after{content:'';flex:1;height:.5px;background:#c8bfae}
-.cert-divider span{font-family:var(--mono);font-size:7px;color:#a09080;letter-spacing:.12em}
+.cert-divider{display:flex;align-items:center;gap:6px;margin-bottom:12px}
+.cert-divider-line{flex:1;height:.5px;background:#c8bfae}
+.cert-divider-txt{font-family:var(--mono);font-size:7px;color:#a09080;letter-spacing:.1em}
 .cert-field-lbl{font-family:var(--mono);font-size:7px;color:#a09080;letter-spacing:.1em;margin-bottom:2px}
-.cert-field-val{font-size:12px;font-weight:700;color:#1a1400;line-height:1.3;font-family:var(--sans)}
-.cert-mono{font-family:var(--mono);font-size:12px;font-weight:500;color:#1a1400;letter-spacing:.04em}
-.cert-stamp{width:56px;height:56px;border-radius:50%;border:2px solid #c0392b;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+.cert-field-val{font-size:12px;font-weight:700;color:#1a1400;line-height:1.3}
+.cert-mono{font-family:var(--mono);font-size:11px;font-weight:500;color:#1a1400;letter-spacing:.04em}
+.cert-stamp{width:54px;height:54px;border-radius:50%;border:2px solid #c0392b;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
 .cert-stamp-txt{font-family:var(--mono);font-size:7px;color:#c0392b;letter-spacing:.06em;font-weight:500}
-.cert-early{display:inline-flex;align-items:center;gap:4px;background:#fef9f0;border:1px solid #fde68a;border-radius:3px;padding:3px 8px;margin-top:8px}
-.cert-early-dot{width:4px;height:4px;border-radius:50%;background:#d97706}
+.cert-early{display:flex;align-items:center;gap:4px;background:#fef9f0;border:1px solid #fde68a;border-radius:3px;padding:3px 8px;margin-top:8px;width:fit-content}
+.cert-early-dot{width:4px;height:4px;border-radius:50%;background:#d97706;flex-shrink:0}
 .cert-early-txt{font-family:var(--mono);font-size:7px;color:#854f0b;letter-spacing:.06em}
 .cert-share-btn{width:100%;padding:14px;background:#000;border:none;border-radius:var(--r-lg);font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans);display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;transition:opacity .15s}
 .cert-share-btn:active{opacity:.85}
 .cert-close-btn{width:100%;padding:12px;background:transparent;border:none;font-size:13px;color:var(--text3);cursor:pointer;font-family:var(--sans)}
-.cert-bars{display:flex;gap:1.5px;align-items:flex-end}
 
 
 .top3-wrap{padding:10px 12px 10px;border-bottom:0.5px solid var(--border)}
@@ -1793,6 +1791,8 @@ function buildCertHTML(idea, votesAtTime) {
   const voteLabel = (votesAtTime + 1) + '票目';
   const ideaName = idea.name.length > 16 ? idea.name.slice(0, 16) + '…' : idea.name;
   return `
+    <div class="cert-notch-t"></div>
+    <div class="cert-notch-b"></div>
     <div class="cert-left">
       <div class="cert-brand">
         <div class="cert-brand-ico">
@@ -1803,8 +1803,12 @@ function buildCertHTML(idea, votesAtTime) {
         </div>
         <span class="cert-brand-name">あいぽ</span>
       </div>
-      <div class="cert-divider"><span>INVESTMENT CERTIFICATE</span></div>
-      <div style="display:grid;grid-template-columns:auto 1fr;gap:12px;margin-bottom:12px">
+      <div class="cert-divider">
+        <div class="cert-divider-line"></div>
+        <span class="cert-divider-txt">INVESTMENT CERTIFICATE</span>
+        <div class="cert-divider-line"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:auto 1fr;gap:10px;margin-bottom:10px">
         <div>
           <div class="cert-field-lbl">DATE</div>
           <div class="cert-field-val" style="font-size:11px">${dateStr}</div>
@@ -1815,47 +1819,47 @@ function buildCertHTML(idea, votesAtTime) {
           <div class="cert-field-val">${ideaName}</div>
         </div>
       </div>
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <div style="display:flex;align-items:flex-start;gap:6px;flex-wrap:wrap">
         <div>
           <div class="cert-field-lbl">TICKER</div>
           <div class="cert-mono">${idea.ticker}</div>
         </div>
-        <div style="width:.5px;height:28px;background:#d4c9b8"></div>
+        <div style="width:.5px;height:28px;background:#d4c9b8;margin-top:10px"></div>
         <div>
           <div class="cert-field-lbl">HOLDER</div>
-          <div class="cert-mono" style="font-size:11px">${userName}</div>
+          <div class="cert-mono">${userName}</div>
         </div>
-        <div style="width:.5px;height:28px;background:#d4c9b8"></div>
+        <div style="width:.5px;height:28px;background:#d4c9b8;margin-top:10px"></div>
         <div>
           <div class="cert-field-lbl">VOTES AT TIME</div>
-          <div class="cert-mono" style="font-size:11px">${voteLabel}</div>
+          <div class="cert-mono">${voteLabel}</div>
         </div>
       </div>
       <div class="cert-early"><div class="cert-early-dot"></div><span class="cert-early-txt">EARLY INVESTOR</span></div>
     </div>
     <div class="cert-right">
-      <div>
-        <div style="font-family:var(--mono);font-size:7px;color:#a09080;letter-spacing:.08em;text-align:center;margin-bottom:4px">SERIAL</div>
-        <div style="font-family:var(--mono);font-size:9px;color:#1a1400;background:#ede5d8;border-radius:3px;padding:2px 5px;letter-spacing:.03em;text-align:center">${serial}</div>
+      <div style="text-align:center">
+        <div style="font-family:var(--mono);font-size:7px;color:#a09080;letter-spacing:.08em;margin-bottom:4px">SERIAL</div>
+        <div style="font-family:var(--mono);font-size:9px;color:#1a1400;background:#e5ddd0;border-radius:3px;padding:2px 6px;letter-spacing:.03em">${serial}</div>
       </div>
       <div class="cert-stamp">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#c0392b" stroke-width="2" stroke-linecap="round"/></svg>
         <span class="cert-stamp-txt">INVESTED</span>
       </div>
-      <div>
-        <div class="cert-bars" style="margin-bottom:3px">
-          <div style="width:2px;height:28px;background:#1a1400;border-radius:.5px"></div>
-          <div style="width:1px;height:24px;background:#1a1400;border-radius:.5px"></div>
-          <div style="width:3px;height:28px;background:#1a1400;border-radius:.5px"></div>
-          <div style="width:1px;height:18px;background:#1a1400;border-radius:.5px"></div>
-          <div style="width:2px;height:28px;background:#1a1400;border-radius:.5px"></div>
+      <div style="text-align:center">
+        <div style="display:flex;gap:1.5px;align-items:flex-end;margin-bottom:3px">
+          <div style="width:2px;height:26px;background:#1a1400;border-radius:.5px"></div>
           <div style="width:1px;height:22px;background:#1a1400;border-radius:.5px"></div>
-          <div style="width:3px;height:28px;background:#1a1400;border-radius:.5px"></div>
+          <div style="width:3px;height:26px;background:#1a1400;border-radius:.5px"></div>
           <div style="width:1px;height:18px;background:#1a1400;border-radius:.5px"></div>
           <div style="width:2px;height:26px;background:#1a1400;border-radius:.5px"></div>
-          <div style="width:1px;height:28px;background:#1a1400;border-radius:.5px"></div>
+          <div style="width:1px;height:20px;background:#1a1400;border-radius:.5px"></div>
+          <div style="width:3px;height:26px;background:#1a1400;border-radius:.5px"></div>
+          <div style="width:1px;height:16px;background:#1a1400;border-radius:.5px"></div>
+          <div style="width:2px;height:24px;background:#1a1400;border-radius:.5px"></div>
+          <div style="width:1px;height:26px;background:#1a1400;border-radius:.5px"></div>
         </div>
-        <div style="font-family:var(--mono);font-size:7px;color:#a09080;letter-spacing:.08em;text-align:center">あいぽ</div>
+        <div style="font-family:var(--mono);font-size:7px;color:#a09080;letter-spacing:.08em">あいぽ</div>
       </div>
     </div>
   `;
@@ -1889,41 +1893,60 @@ function showCertificate(idea, votesAtTime) {
 
 async function shareCertificate(ideaId, encodedName, ticker) {
   const btn = document.getElementById('cert-share-btn');
-  if (btn) { btn.textContent = '生成中...'; btn.disabled = true; }
+  if (btn) { btn.innerHTML = '生成中...'; btn.disabled = true; }
 
   try {
     const el = document.getElementById('cert-inner');
     const canvas = await html2canvas(el, {
-      scale: 2,
+      scale: 3,
       backgroundColor: '#f5f1ea',
       useCORS: true,
-      logging: false
+      allowTaint: true,
+      logging: false,
+      foreignObjectRendering: false
     });
 
-    const link = document.createElement('a');
-    link.download = 'aipo-certificate-' + ticker + '.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-
     const ideaName = decodeURIComponent(encodedName);
-    const text = encodeURIComponent(
-      `「${ideaName}」に早期投資しました
+    const shareUrl = 'https://aipo-tau.vercel.app/?idea=' + ideaId;
+    const tweetText = encodeURIComponent('「' + ideaName + '」に早期投資しました\n\nあいぽで株券をもらいました\uD83D\uDC47\n' + shareUrl + '\n\n#あいぽ #アイデアIPO');
+    const xUrl = 'https://twitter.com/intent/tweet?text=' + tweetText;
 
-あいぽで株券をもらいました👇
-https://aipo-tau.vercel.app
+    canvas.toBlob(async (blob) => {
+      const file = new File([blob], 'aipo-certificate-' + ticker + '.png', { type: 'image/png' });
 
-#あいぽ #アイデアIPO`
-    );
-    setTimeout(() => {
-      window.open('https://twitter.com/intent/tweet?text=' + text, '_blank');
-    }, 500);
+      // iOS/Android: Web Share API で写真に保存
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], title: 'あいぽ株券', text: '「' + ideaName + '」に早期投資しました #あいぽ' });
+          setTimeout(() => window.open(xUrl, '_blank'), 800);
+          return;
+        } catch(shareErr) {
+          if (shareErr.name === 'AbortError') return;
+        }
+      }
+
+      // PC フォールバック: ダウンロード
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.download = 'aipo-certificate-' + ticker + '.png';
+      link.href = url;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => { URL.revokeObjectURL(url); window.open(xUrl, '_blank'); }, 500);
+    }, 'image/png');
 
   } catch(e) {
+    console.error(e);
     showToast('画像の生成に失敗しました');
   } finally {
-    if (btn) { btn.textContent = 'Xでシェアする'; btn.disabled = false; }
+    if (btn) {
+      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" style="flex-shrink:0"><path d="M2 2l7.5 8.5L2 18h2l6.3-7.1L16 18h4L12 9.2 18.5 2h-2L10.6 8.6 5 2H2z"/></svg> Xでシェアする';
+      btn.disabled = false;
+    }
   }
 }
+
 
 async function init() {
   const splash = document.getElementById('splash');
