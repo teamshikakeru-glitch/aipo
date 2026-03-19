@@ -48,13 +48,7 @@ html, body { overflow-x: hidden !important; width: 100%; max-width: 100vw; posit
 html { overflow-x: hidden; }
 body { background: var(--bg); color: var(--text); font-family: var(--sans); overscroll-behavior: none; overflow-x: hidden !important; width: 100%; touch-action: pan-y pinch-zoom; }
 .app { max-width: 390px; margin: 0 auto; min-height: 100vh; overflow: hidden; width: 100%; }
-
-@media (min-width: 768px) {
-  body { background: #d8d4cc; }
-  .app { box-shadow: 0 8px 40px rgba(0,0,0,.18); border-radius: 28px; margin: 24px auto; min-height: calc(100vh - 48px); }
-  .bottom-nav { border-radius: 0 0 28px 28px; }
-}
-.screen { display: none; min-height: 100vh; padding-bottom: 90px; overflow-x: hidden; width: 100%; }
+.screen { display: none; min-height: 100vh; padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)); overflow-x: hidden; width: 100%; }
 .screen.active { display: block; }
 .header { background: var(--surface); padding: 16px 18px 0; position: sticky; top: 0; z-index: 20; }
 .hd-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
@@ -100,9 +94,9 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); over
 .upload-btn { background: var(--surface2); border: 1.5px solid var(--border2); border-radius: 20px; padding: 5px 12px; font-size: 11px; color: var(--text2); cursor: pointer; font-family: var(--sans); font-weight: 700; transition: all .15s; }
 .upload-btn:hover { border-color: var(--amber-border); color: var(--amber); background: var(--amber-bg); }
 .upload-btn.done { background: var(--green-bg); border-color: var(--green-border); color: var(--green); pointer-events: none; }
-.bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 390px; background: rgba(245,241,234,.72); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 0.5px solid rgba(220,210,195,.6); display: flex; justify-content: space-around; align-items: stretch; z-index: 30; }
+.bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 390px; background: rgba(245,241,234,.72); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 0.5px solid rgba(220,210,195,.6); display: flex; justify-content: space-around; align-items: stretch; z-index: 30; padding-bottom: env(safe-area-inset-bottom, 0px); }
 .nav-icon-box { width: 30px; height: 30px; border-radius: 9px; background: #fff; border: 0.5px solid rgba(0,0,0,.08); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,.06); flex-shrink: 0; }
-.nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 8px 0 16px; cursor: pointer; color: var(--text3); font-size: 10px; font-weight: 700; transition: color .15s; min-height: 62px; }
+.nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 8px 0 12px; cursor: pointer; color: var(--text3); font-size: 10px; font-weight: 700; transition: color .15s; }
 .nav-item.active { color: var(--amber-mid); }
 .nav-item svg { width: 18px; height: 18px; }
 .nav-post-wrap-unused { display:none; }
@@ -316,7 +310,7 @@ input[type=file] { display: none; }
 .hiroba-ai-text{font-size:13px;color:rgba(255,255,255,.88);line-height:1.65;font-weight:600}
 .hiroba-form{background:var(--surface);border-radius:16px;border:0.5px solid var(--border);padding:16px;margin-bottom:16px}
 .hiroba-form-label{font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:.1em;margin-bottom:10px}
-.hiroba-textarea{width:100%;border:1px solid var(--border);border-radius:10px;padding:12px;font-size:14px;color:var(--text);background:var(--surface2);font-family:var(--sans);resize:none;outline:none;line-height:1.6;transition:border-color .15s}
+.hiroba-textarea{width:100%;border:1px solid var(--border);border-radius:10px;padding:12px;font-size:16px;color:var(--text);background:var(--surface2);font-family:var(--sans);resize:none;outline:none;line-height:1.6;transition:border-color .15s;-webkit-user-select:text;user-select:text;pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:rgba(0,0,0,.05)}
 .hiroba-textarea:focus{border-color:var(--amber-border)}
 .hiroba-tags{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
 .hiroba-tag{padding:5px 12px;border-radius:100px;border:1px solid var(--border);font-size:11px;font-weight:700;color:var(--text3);background:var(--surface);cursor:pointer;transition:all .15s;font-family:var(--sans)}
@@ -493,6 +487,7 @@ input[type=file] { display: none; }
     </div>
   </div>
 </div><!-- /screen-scroll -->
+</div>
 
 <div class="screen" id="screen-detail" style="padding-bottom:90px">
   <div class="sub-header">
@@ -520,7 +515,7 @@ input[type=file] { display: none; }
   </div>
 </div>
 
-<div class="screen" id="screen-hiroba" style="padding-bottom:0">
+<div class="screen" id="screen-hiroba">
   <div class="sub-header">
     <div class="back-btn" onclick="goTo('feed')"><svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 5l-5 5 5 5"/></svg></div>
     <div class="sub-title">広場</div>
@@ -601,7 +596,7 @@ input[type=file] { display: none; }
     <div class="postbox-sub" style="margin-top:6px;opacity:0;transition:opacity .3s 1.1s" id="postbox-sub">少し待つとAIが返信します</div>
   </div>
 </div>
-</div>
+
 <div class="screen" id="screen-portfolio">
   <div class="screen-scroll">
   <div class="header" style="padding:0">
@@ -636,7 +631,7 @@ input[type=file] { display: none; }
     <div id="zukan-particles" style="position:fixed;inset:0;pointer-events:none;z-index:60"></div>
   </div>
 </div>
-</div>
+
 <div class="bottom-nav">
   <div class="nav-item active" id="nav-feed" onclick="goTo('feed')">
     <div class="nav-icon-box">
@@ -1902,61 +1897,7 @@ function checkChargeSuccess() {
   if (params.get('charge') === 'success') { showToast('チャージが完了しました！🎉'); window.history.replaceState({}, '', '/'); setTimeout(() => loadBalance(), 1000); }
   else if (params.get('charge') === 'cancel') { showToast('チャージをキャンセルしました'); window.history.replaceState({}, '', '/'); }
 }
-async function loadHirobaList() {
-  const el = document.getElementById('hiroba-list');
-  if (!el) return;
-  try {
-    const { data, error } = await sb.from('hiroba_posts')
-      .select('*, profiles(x_username)')
-      .order('created_at', { ascending: false })
-      .limit(20);
-    if (error || !data || data.length === 0) {
-      el.innerHTML = '<div style="padding:20px;text-align:center;font-size:12px;color:var(--text3)">まだ投稿がありません</div>';
-      return;
-    }
-    el.innerHTML = data.map(post => {
-      const name = post.user_id ? ('@' + (post.profiles?.x_username || 'ユーザー')) : '匿名';
-      const initial = name[1]?.toUpperCase() || '?';
-      return `<div class="hiroba-comment">
-        <div class="hiroba-comment-meta">
-          <div class="hiroba-avatar">${initial}</div>
-          <span class="hiroba-comment-name">${name}</span>
-          <span class="hiroba-comment-tag">${post.tag || 'その他'}</span>
-          <span class="hiroba-comment-time">${timeAgo(post.created_at)}</span>
-        </div>
-        <div class="hiroba-comment-text">${post.text}</div>
-        ${post.ai_reply ? `<div class="hiroba-ai-reply"><span class="hiroba-ai-reply-label">AI</span><span class="hiroba-ai-reply-text">${post.ai_reply}</span></div>` : ''}
-      </div>`;
-    }).join('');
-  } catch(e) {
-    el.innerHTML = '<div style="padding:20px;text-align:center;font-size:12px;color:var(--text3)">読み込みに失敗しました</div>';
-  }
-}
 
-let hirobaTag = '機能要望';
-function selHirobaTag(el) {
-  document.querySelectorAll('.hiroba-tag').forEach(x => x.classList.remove('sel'));
-  el.classList.add('sel');
-  hirobaTag = el.dataset.tag;
-}
-
-async function sendHiroba() {
-  const text = document.getElementById('hiroba-input')?.value?.trim();
-  if (!text) { showToast('内容を入力してください'); return; }
-  const anon = document.getElementById('hiroba-anon-check')?.checked;
-  const userId = anon ? null : currentUser?.id;
-  const { error } = await sb.from('hiroba_posts').insert({ user_id: userId, text, tag: hirobaTag });
-  if (error) { showToast('送信に失敗しました'); return; }
-  document.getElementById('hiroba-input').value = '';
-  const overlay = document.getElementById('postbox-overlay');
-  if (overlay) {
-    overlay.classList.add('show');
-    const sub = document.getElementById('postbox-sub');
-    if (sub) sub.style.opacity = '1';
-    setTimeout(() => overlay.classList.remove('show'), 2200);
-  }
-  setTimeout(() => loadHirobaList(), 500);
-}
 async function init() {
   const splash = document.getElementById('splash');
   const hasSession = await checkSession();
