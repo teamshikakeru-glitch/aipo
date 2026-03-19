@@ -610,9 +610,16 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
         <div class="card-title">USER DIRECTORY</div>
         <div class="card-meta" id="users-meta">—人</div>
       </div>
-      <div style="padding:8px 16px;border-bottom:1px solid var(--border)">
-        <input id="user-search" type="text" placeholder="名前・メールで検索..." oninput="filterUsers(this.value)"
-          style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--rs);font-size:13px;font-family:var(--sans);background:var(--bg);color:var(--ink);outline:none">
+      <!-- 検索 + フィルタ -->
+      <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <input id="user-search" type="text" placeholder="名前で検索..." oninput="filterUsers()"
+          style="flex:1;min-width:140px;padding:8px 12px;border:1px solid var(--border);border-radius:var(--rs);font-size:13px;font-family:var(--sans);background:var(--bg);color:var(--ink);outline:none">
+        <div style="display:flex;gap:6px">
+          <button onclick="setUserFilter('all')" id="uf-all" style="font-family:var(--mono);font-size:9px;padding:4px 10px;border-radius:20px;border:1px solid var(--amber);background:var(--amber-light);color:var(--amber);cursor:pointer;white-space:nowrap">全員</button>
+          <button onclick="setUserFilter('founder')" id="uf-founder" style="font-family:var(--mono);font-size:9px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--ink3);cursor:pointer;white-space:nowrap">👑 創設</button>
+          <button onclick="setUserFilter('pro')" id="uf-pro" style="font-family:var(--mono);font-size:9px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--ink3);cursor:pointer;white-space:nowrap">PRO</button>
+          <button onclick="setUserFilter('free')" id="uf-free" style="font-family:var(--mono);font-size:9px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--ink3);cursor:pointer;white-space:nowrap">FREE</button>
+        </div>
       </div>
       <div class="card-body" id="users-body"><div class="skel"></div></div>
     </div>
@@ -658,7 +665,7 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
             <option value="outreach">🤝 営業・DM</option>
             <option value="other">📌 その他</option>
           </select>
-          <input id="action-input" type="text" class="inp" style="flex:1;min-width:160px" placeholder="今日やったことを記録..." onkeydown="if(event.key==='Enter')addAction()">
+          <input id="action-input" type="text" class="inp" style="flex:1;min-width:160px" placeholder="今日やったことを記録..." onkeydown="if(event.key==='Enter'&&!event.isComposing)addAction()">
           <button class="btn-log" onclick="addAction()">記録</button>
         </div>
         <div id="action-log-list"></div>
@@ -672,7 +679,7 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
       <div class="card-body">
         <div id="goals-list" style="margin-bottom:10px"></div>
         <div style="display:flex;gap:8px">
-          <input id="goal-input" type="text" class="inp" placeholder="今週の目標を追加（例：ユーザー5人）" onkeydown="if(event.key==='Enter')addGoal()">
+          <input id="goal-input" type="text" class="inp" placeholder="今週の目標を追加（例：ユーザー5人）" onkeydown="if(event.key==='Enter'&&!event.isComposing)addGoal()">
           <button class="btn-add" onclick="addGoal()">追加</button>
         </div>
       </div>
@@ -922,22 +929,19 @@ async function loadLPAnalytics() {
   const { data: ideas } = await sb.from('ideas').select('id,name,ticker');
   const im = {}; if(ideas) ideas.forEach(i=>im[i.id]=i);
 
-  document.getElementById('lp-timeline-body').innerHTML = all.slice(0,40).map((e, idx) => {
+  // lp_pageview（LP開封）は除外して流入イベントのみ表示（重複を避ける）
+  const tlEvents = all.filter(e => e.utm_source !== 'lp_pageview');
+  document.getElementById('lp-timeline-body').innerHTML = tlEvents.slice(0,30).map((e, idx) => {
     const isLp = e.utm_source === 'lp';
-    const isPageview = e.utm_source === 'lp_pageview';
     const btnInfo = isLp && e.utm_campaign ? (LP_BUTTONS[e.utm_campaign]||{name:e.utm_campaign,icon:'🔗'}) : null;
     const {label, icon} = normalize(e.referrer);
     const detailId = 'tl-detail-' + idx;
     const summary = isLp && btnInfo
       ? `${btnInfo.icon} LP「${btnInfo.name}」から`
-      : isPageview
-      ? `📄 LP を開いた`
       : `${icon} ${label}から`;
     const detail = isLp
-      ? `utm_source=lp · campaign=${e.utm_campaign||'—'} · medium=${e.utm_medium||'—'}`
-      : isPageview
-      ? `LP開封 · referrer: ${e.referrer||'direct'}`
-      : `referrer: ${e.referrer||'direct'}`;
+      ? `LP経由 · campaign=${e.utm_campaign||'—'} · medium=${e.utm_medium||'—'}`
+      : `直接流入 · referrer: ${e.referrer||'direct'}`;
     const dotColor = isLp ? 'border-color:var(--amber-bright);background:var(--amber-light)' : 'border-color:var(--border2);background:var(--bg)';
     return `<div style="border-bottom:1px solid var(--border);cursor:pointer" onclick="document.getElementById('${detailId}').classList.toggle('open')">
       <div style="display:flex;gap:10px;align-items:center;padding:8px 0">
@@ -953,7 +957,7 @@ async function loadLPAnalytics() {
         <div style="font-family:var(--mono);font-size:10px;color:var(--ink3);line-height:1.7">${detail}</div>
       </div>
     </div>`;
-  }).join('');
+  }).join('') || '<div class="empty"><div class="empty-ico">📭</div><div class="empty-txt">流入データなし</div></div>';
 }
 
 // ===== OVERVIEW =====
@@ -1127,13 +1131,46 @@ async function loadIdeas() {
 
 // ===== USER DIRECTORY =====
 let allUsersData = [];
+let currentUserFilter = 'all';
 
-function filterUsers(query) {
-  const q = query.toLowerCase();
-  const filtered = q
-    ? allUsersData.filter(u => (u.name||'').toLowerCase().includes(q) || (u.email||'').toLowerCase().includes(q))
-    : allUsersData;
+function setUserFilter(type) {
+  currentUserFilter = type;
+  ['all','founder','pro','free'].forEach(t => {
+    const btn = document.getElementById('uf-'+t);
+    if (!btn) return;
+    if (t === type) {
+      btn.style.background = 'var(--amber-light)'; btn.style.borderColor = 'var(--amber)'; btn.style.color = 'var(--amber)';
+    } else {
+      btn.style.background = 'transparent'; btn.style.borderColor = 'var(--border)'; btn.style.color = 'var(--ink3)';
+    }
+  });
+  filterUsers();
+}
+
+function filterUsers() {
+  const q = (document.getElementById('user-search')?.value||'').toLowerCase();
+  let filtered = allUsersData;
+  if (currentUserFilter === 'founder') filtered = filtered.filter(u => u.is_founder);
+  else if (currentUserFilter === 'pro') filtered = filtered.filter(u => u.is_pro && !u.is_founder);
+  else if (currentUserFilter === 'free') filtered = filtered.filter(u => !u.is_pro && !u.is_founder);
+  if (q) filtered = filtered.filter(u => (u.name||'').toLowerCase().includes(q));
   renderUserDirectory(filtered);
+}
+
+function copyEmail(email, btn) {
+  navigator.clipboard.writeText(email).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = '✓';
+    btn.style.background = 'var(--green-light)';
+    btn.style.borderColor = 'var(--green-border)';
+    btn.style.color = 'var(--green)';
+    setTimeout(() => {
+      btn.textContent = orig;
+      btn.style.background = '';
+      btn.style.borderColor = '';
+      btn.style.color = '';
+    }, 1500);
+  });
 }
 
 function renderUserDirectory(users) {
@@ -1145,20 +1182,20 @@ function renderUserDirectory(users) {
   }
   body.innerHTML = users.map((u, idx) => {
     const badge = u.is_founder
-      ? `<span class="badge founder">👑 #${u.founder_number===0?'00':String(u.founder_number||0).padStart(2,'0')}</span>`
+      ? `<span class="badge founder">👑 創設 #${u.founder_number===0?'00':String(u.founder_number||0).padStart(2,'0')}</span>`
       : u.is_pro ? `<span class="badge pro">PRO</span>` : `<span class="badge free">FREE</span>`;
-    const initials = (u.name||'U').slice(0,2).toUpperCase();
-    return `<div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border)">
+    const initials = (u.name||u.email||'U').replace(/[^a-zA-Zぁ-ん亜-熙]/g,'').slice(0,2).toUpperCase() || 'U';
+    const emailDisplay = u.email && u.email.includes('@')
+      ? `<button onclick="copyEmail('${u.email}',this)" style="font-family:var(--mono);font-size:10px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:4px;padding:2px 8px;cursor:pointer;transition:all .15s">${u.email}</button>`
+      : `<span style="font-family:var(--mono);font-size:10px;color:var(--ink3)">UUID: ${u.id.slice(0,12)}...</span>`;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border)">
       <div style="font-family:var(--mono);font-size:10px;color:var(--ink3);min-width:22px;text-align:center">${String(idx+1).padStart(2,'0')}</div>
-      <div style="width:34px;height:34px;border-radius:50%;background:var(--amber-light);border:1.5px solid var(--amber-border);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--amber);flex-shrink:0">${initials}</div>
+      <div style="width:34px;height:34px;border-radius:50%;background:${u.is_founder?'var(--amber-light)':u.is_pro?'var(--green-light)':'var(--bg)'};border:1.5px solid ${u.is_founder?'var(--amber-border)':u.is_pro?'var(--green-border)':'var(--border)'};display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:700;color:${u.is_founder?'var(--amber)':u.is_pro?'var(--green)':'var(--ink3)'};flex-shrink:0">${initials}</div>
       <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:2px">${u.name||'（名前未設定）'}</div>
-        <div style="font-family:var(--mono);font-size:10px;color:var(--ink3)">${u.email||'—'}</div>
+        <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px">${u.name}</div>
+        ${emailDisplay}
       </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
-        ${badge}
-        <div style="font-family:var(--mono);font-size:9px;color:var(--ink3)">${u.joined}</div>
-      </div>
+      ${badge}
     </div>`;
   }).join('');
 }
@@ -1166,35 +1203,31 @@ function renderUserDirectory(users) {
 async function loadUserDirectory() {
   const { data: profiles } = await sb.from('profiles')
     .select('id, x_username, is_pro, is_founder, founder_number')
+    .neq('id', ADMIN_ID)
     .order('is_founder', { ascending: false });
-
-  // auth.usersからメールアドレスを取得するため、admin APIは使えないので
-  // user_eventsテーブルのuser_idと紐付け or profilesのemailカラムを参照
-  // 代わりにSupabaseのauth.usersはservice_role経由のみ取得可能
-  // ここではprofilesのidをベースに、別途emailをfetchするAPIを使う
-  // → フォールバックとして、既知のユーザーデータを表示
 
   if (!profiles) return;
 
   const metaEl = document.getElementById('users-meta');
-  if (metaEl) metaEl.textContent = profiles.filter(p => p.id !== ADMIN_ID).length + '人';
+  if (metaEl) metaEl.textContent = profiles.length + '人';
 
-  // Supabaseのanon keyではauth.usersにアクセス不可のため
-  // メールはユーザー本人がアクセスしたときのsessionから取得する仕組みが必要
-  // 代わりにUUIDの一部を表示
-  allUsersData = profiles
-    .filter(p => p.id !== ADMIN_ID)
-    .map(p => ({
-      id: p.id,
-      name: p.x_username || '（名前未設定）',
-      email: p.id.slice(0,8) + '...（メールはSupabase管理画面で確認）',
-      is_founder: p.is_founder,
-      is_pro: p.is_pro,
-      founder_number: p.founder_number,
-      joined: p.id.slice(0,4),
-    }));
+  // メールアドレスはanon keyで直接取得不可のため
+  // user_eventsテーブルに保存されたGoogleアカウントメールを使う
+  // → auth.usersはservice roleのみアクセス可能
+  // 暫定：x_usernameをメインで表示、メールはAPIで別途取得
+  allUsersData = profiles.map(p => ({
+    id: p.id,
+    name: p.x_username || '（Xアカウント未設定）',
+    email: null, // anon keyでは取得不可
+    is_founder: p.is_founder,
+    is_pro: p.is_pro,
+    founder_number: p.founder_number,
+  }));
 
   renderUserDirectory(allUsersData);
+
+  // メールを取得するためのAPI呼び出し（Service Role Key必要）
+  // → dashboard用のAPIエンドポイントが必要。現状はSupabase管理画面で確認
 }
 
 let allFeedItems = [];
