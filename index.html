@@ -608,9 +608,20 @@ async function voteIdeaToDB(ideaId, votesAtTime) {
   });
   if (error) { console.error('vote insert error:', error); return false; }
 
-  // RPCでideas.votesをインクリメント（RLSを回避するsecurity definer関数）
+  // RPCでideas.votesをインクリメント
   const { error: rpcError } = await sb.rpc('increment_idea_votes', { idea_id: ideaId });
   if (rpcError) { console.error('increment_idea_votes error:', rpcError); }
+
+  // 投票後のスコアをDBにも書き戻す
+  const idea = ideas.find(i => i.id === ideaId);
+  if (idea) {
+    const newScore = calcScore(idea);
+    const { error: scoreError } = await sb.rpc('update_idea_score', {
+      idea_id: ideaId,
+      new_score: newScore
+    });
+    if (scoreError) { console.error('update_idea_score error:', scoreError); }
+  }
 
   // マイルストーンチェック
   const { data: current } = await sb.from('ideas').select('votes').eq('id', ideaId).single();
