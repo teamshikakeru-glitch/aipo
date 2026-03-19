@@ -627,7 +627,6 @@ input[type=file] { display: none; }
     <div id="zukan-particles" style="position:fixed;inset:0;pointer-events:none;z-index:60"></div>
   </div>
 </div>
-</div><!-- /screen-portfolio -->
 
 <div class="bottom-nav">
   <div class="nav-item active" id="nav-feed" onclick="goTo('feed')">
@@ -1419,7 +1418,7 @@ function toggleFav(id) {
 function resetPost() {
   document.getElementById('inp-title').value=''; document.getElementById('inp-desc').value=''; document.getElementById('inp-tech').value=''; document.getElementById('inp-ticker').value='';
   selectedEmoji='💡'; selectedGenre='';
-  document.querySelectorAll('.ep').forEach(x=>x.classList.remove('sel')); document.querySelector('[data-e="💡"]')?.classList.add('sel');
+  document.querySelectorAll('.ep').forEach(x=>x.classList.remove('sel'));
   document.querySelectorAll('.genre-item').forEach(x=>x.classList.remove('selected'));
 }
 
