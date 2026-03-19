@@ -1410,7 +1410,8 @@ async function shareCertificate(ideaId, encodedName, ticker) {
     const ideaName = decodeURIComponent(encodedName);
 
     // すでにモーダルに表示されているcert-wrapを直接キャプチャ
-    const certWrap = document.querySelector('#cert-inner .cert-wrap');
+    // cert-inner自体がcert-wrap（同じ要素）
+    const certWrap = document.getElementById('cert-inner');
     if (!certWrap) { showToast('株券が見つかりません'); return; }
 
     // cert-wrapをそのまま高解像度でキャプチャ
