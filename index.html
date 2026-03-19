@@ -1401,6 +1401,8 @@ function showCertificate(idea, votesAtTime) {
   const overlay = document.createElement('div'); overlay.id = 'cert-modal'; overlay.className = 'cert-modal-overlay';
   overlay.innerHTML = `<div class="cert-modal-box"><div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px"></div><div style="font-size:14px;font-weight:700;text-align:center;margin-bottom:4px;color:var(--text)">株券が発行されました</div><div style="font-size:11px;color:var(--text3);text-align:center;margin-bottom:14px">応援の証として保存・シェアできます</div><div class="cert-wrap" id="cert-inner">${buildCertHTML(idea, votesAtTime)}</div><button class="cert-share-btn" id="cert-share-btn" onclick="shareCertificate('${idea.id}','${encodeURIComponent(idea.name)}','${idea.ticker}')"><svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M2 2l7.5 8.5L2 18h2l6.3-7.1L16 18h4L12 9.2 18.5 2h-2L10.6 8.6 5 2H2z"/></svg>Xでシェアする</button><button class="cert-close-btn" onclick="document.getElementById('cert-modal').remove()">閉じる</button></div>`;
   document.body.appendChild(overlay);
+  // シェア用にHTML保存
+  _lastCertHTML = buildCertHTML(idea, votesAtTime);
   overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
 }
 
@@ -1408,24 +1410,35 @@ async function shareCertificate(ideaId, encodedName, ticker) {
   const btn = document.getElementById('cert-share-btn'); if (btn) { btn.innerHTML = '生成中...'; btn.disabled = true; }
   try {
     const ideaName = decodeURIComponent(encodedName);
+    const certHTML = _lastCertHTML;
+    if (!certHTML) { showToast('株券データがありません'); if(btn){btn.innerHTML='Xでシェアする';btn.disabled=false;} return; }
 
-    // すでにモーダルに表示されているcert-wrapを直接キャプチャ
-    // cert-inner自体がcert-wrap（同じ要素）
-    const certWrap = document.getElementById('cert-inner');
-    if (!certWrap) { showToast('株券が見つかりません'); return; }
+    // オフスクリーンでcert-wrapを正確に再現
+    const wrap = document.createElement('div');
+    wrap.className = 'cert-wrap';
+    wrap.style.cssText = [
+      'position:fixed','left:-9999px','top:0','z-index:-1',
+      'width:580px','background:#f5f1ea',
+      'border-radius:12px','border:1px solid #e0d8cc',
+      'display:flex','overflow:visible'
+    ].join(';');
+    wrap.innerHTML = certHTML;
+    document.body.appendChild(wrap);
+    await new Promise(r => setTimeout(r, 200));
 
-    // cert-wrapをそのまま高解像度でキャプチャ
-    const certCanvas = await html2canvas(certWrap, {
+    const certCanvas = await html2canvas(wrap, {
       scale: 3,
       backgroundColor: '#f5f1ea',
       useCORS: true,
       allowTaint: true,
       logging: false,
+      windowWidth: 700,
     });
+    document.body.removeChild(wrap);
 
-    // 余白付きの最終Canvasを生成
-    const PAD = 80;    // 上下左右の余白px（scale:3後のpx）
-    const FOOT = 48;   // フッター領域の高さ
+    // 余白・背景・フッター付きの最終Canvas
+    const PAD = 72;
+    const FOOT = 56;
     const BG = '#ede8df';
     const fw = certCanvas.width + PAD * 2;
     const fh = certCanvas.height + PAD * 2 + FOOT;
@@ -1439,24 +1452,18 @@ async function shareCertificate(ideaId, encodedName, ticker) {
     ctx.fillStyle = BG;
     ctx.fillRect(0, 0, fw, fh);
 
-    // シャドウ
-    ctx.shadowColor = 'rgba(0,0,0,0.13)';
-    ctx.shadowBlur = 36;
-    ctx.shadowOffsetY = 8;
-    ctx.fillStyle = '#f5f1ea';
-    ctx.roundRect(PAD - 4, PAD - 4, certCanvas.width + 8, certCanvas.height + 8, 24);
-    ctx.fill();
+    // シャドウ付きで株券を描画
+    ctx.shadowColor = 'rgba(0,0,0,0.14)';
+    ctx.shadowBlur = 40;
+    ctx.shadowOffsetY = 10;
+    ctx.drawImage(certCanvas, PAD, PAD);
     ctx.shadowColor = 'transparent';
 
-    // 株券を貼り付け
-    ctx.drawImage(certCanvas, PAD, PAD);
-
-    // フッターテキスト
+    // フッター
     ctx.fillStyle = 'rgba(26,20,0,0.28)';
-    ctx.font = '500 ' + (9 * 3) + 'px "DM Mono",monospace';
-    ctx.letterSpacing = '3px';
+    ctx.font = '500 24px DM Mono,monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('AIPO — IDEA IPO MARKET  ·  aipo-tau.vercel.app', fw / 2, PAD * 2 + certCanvas.height + 24);
+    ctx.fillText('AIPO — IDEA IPO MARKET  ·  aipo-tau.vercel.app', fw / 2, PAD * 2 + certCanvas.height + 28);
 
     const canvas = final;
     const shareUrl = 'https://aipo-tau.vercel.app/?idea=' + ideaId;
@@ -1477,6 +1484,7 @@ async function shareCertificate(ideaId, encodedName, ticker) {
 }
 
 const COLL_KEY = 'aipo-certificates';
+let _lastCertHTML = ''; // シェア用に保存
 
 function loadCerts() {
   try {
