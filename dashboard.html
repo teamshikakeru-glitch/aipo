@@ -2172,8 +2172,8 @@ async function loadHomeTab() {
     { data: ideasAll },
     { data: votesToday },
   ] = await Promise.all([
-    sb.from('profiles').select('id',{count:'exact',head:true}).neq('id', ADMIN_ID),
-    sb.from('profiles').select('id',{count:'exact',head:true}).neq('id', ADMIN_ID).gte('created_at', today+'T00:00:00Z'),
+    sb.from('profiles').select('id',{count:'exact',head:true}),
+    sb.from('profiles').select('id',{count:'exact',head:true}).gte('created_at', today+'T00:00:00Z'),
     sb.from('ideas').select('id,ticker,name,description,genre,score,votes,updated_at,user_id').order('updated_at',{ascending:false}),
     sb.from('votes').select('idea_id,created_at').gte('created_at', today+'T00:00:00Z'),
   ]);
