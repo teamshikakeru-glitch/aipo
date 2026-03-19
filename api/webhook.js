@@ -62,11 +62,13 @@ module.exports = async function handler(req, res) {
     const isProPurchase = session.mode === 'subscription';
 
     if (isFounderPurchase) {
-      // 創設メンバー番号を採番
+      // 創設メンバー番号を採番（管理者UUID除く）
+      const ADMIN_UUID = '7f3162ec-c281-435f-8e8e-3b6d65b8b1c9';
       const { count } = await supabase
         .from('profiles')
         .select('id', { count: 'exact', head: true })
-        .eq('is_founder', true);
+        .eq('is_founder', true)
+        .neq('id', ADMIN_UUID);
       const founderNumber = (count || 0) + 1;
 
       // profilesレコードがなければ作成、あれば更新
