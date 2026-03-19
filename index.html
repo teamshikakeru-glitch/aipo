@@ -486,6 +486,7 @@ input[type=file] { display: none; }
       <div class="xb-row"><div class="xb-left"><div class="xb-label">コメントした</div><div class="xb-sub">スクショを貼るだけでOK</div></div><div style="display:flex;align-items:center;gap:8px"><div class="xb-badge" id="xb-badge-comment">+1票</div><button class="upload-btn" id="xb-btn-comment" onclick="triggerUpload('comment')">スクショを貼る</button></div></div>
     </div>
   </div>
+</div>
 
 <div class="screen" id="screen-detail" style="padding-bottom:90px">
   <div class="sub-header">
@@ -572,28 +573,6 @@ input[type=file] { display: none; }
     <div id="hiroba-list"><div class="empty"><div class="empty-ico">📭</div><div class="empty-txt">まだ投稿がありません</div></div></div>
   </div>
 </div>
-
-<!-- 郵便箱オーバーレイ -->
-<div class="postbox-overlay" id="postbox-overlay">
-  <svg width="110" height="150" viewBox="0 0 80 120" fill="none">
-    <rect x="15" y="50" width="50" height="65" rx="8" fill="#cc2222"/>
-    <rect x="18" y="52" width="18" height="28" rx="4" fill="rgba(255,255,255,.1)"/>
-    <rect x="22" y="68" width="36" height="6" rx="3" fill="#1a0000"/>
-    <ellipse cx="40" cy="82" rx="15" ry="15" fill="#bb1111"/>
-    <text x="40" y="79" text-anchor="middle" font-size="6" fill="white" font-weight="bold" font-family="serif">郵便</text>
-    <text x="40" y="87" text-anchor="middle" font-size="5" fill="white" font-family="sans-serif">POST</text>
-    <ellipse cx="40" cy="50" rx="26" ry="8" fill="#dd2222"/>
-    <rect x="14" y="44" width="52" height="8" rx="4" fill="#ee3333"/>
-    <rect x="14" y="38" width="52" height="8" rx="3" fill="#ee3333"/>
-    <ellipse cx="40" cy="38" rx="26" ry="7" fill="#ff4444"/>
-    <ellipse cx="40" cy="32" rx="8" ry="4" fill="#cc1111"/>
-  </svg>
-  <div class="hiroba-done-msg">
-    <div class="postbox-done">AIが受け取りました</div>
-    <div class="postbox-sub" style="margin-top:6px;opacity:0;transition:opacity .3s 1.1s" id="postbox-sub">少し待つとAIが返信します</div>
-  </div>
-</div>
-
 <div class="screen" id="screen-portfolio">
   <div class="header" style="padding:0">
     <div style="background:var(--surface);padding:14px 16px 14px;border-bottom:0.5px solid var(--border)">
@@ -654,6 +633,28 @@ input[type=file] { display: none; }
     ホーム
   </div>
 </div>
+
+<!-- 郵便箱オーバーレイ -->
+<div class="postbox-overlay" id="postbox-overlay">
+  <svg width="110" height="150" viewBox="0 0 80 120" fill="none">
+    <rect x="15" y="50" width="50" height="65" rx="8" fill="#cc2222"/>
+    <rect x="18" y="52" width="18" height="28" rx="4" fill="rgba(255,255,255,.1)"/>
+    <rect x="22" y="68" width="36" height="6" rx="3" fill="#1a0000"/>
+    <ellipse cx="40" cy="82" rx="15" ry="15" fill="#bb1111"/>
+    <text x="40" y="79" text-anchor="middle" font-size="6" fill="white" font-weight="bold" font-family="serif">郵便</text>
+    <text x="40" y="87" text-anchor="middle" font-size="5" fill="white" font-family="sans-serif">POST</text>
+    <ellipse cx="40" cy="50" rx="26" ry="8" fill="#dd2222"/>
+    <rect x="14" y="44" width="52" height="8" rx="4" fill="#ee3333"/>
+    <rect x="14" y="38" width="52" height="8" rx="3" fill="#ee3333"/>
+    <ellipse cx="40" cy="38" rx="26" ry="7" fill="#ff4444"/>
+    <ellipse cx="40" cy="32" rx="8" ry="4" fill="#cc1111"/>
+  </svg>
+  <div class="hiroba-done-msg">
+    <div class="postbox-done">AIが受け取りました</div>
+    <div class="postbox-sub" style="margin-top:6px;opacity:0;transition:opacity .3s 1.1s" id="postbox-sub">少し待つとAIが返信します</div>
+  </div>
+</div>
+
 </div><!-- /app -->
 
 <!-- Legal Footer -->
