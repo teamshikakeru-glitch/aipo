@@ -360,7 +360,7 @@ input[type=file] { display: none; }
 }
 
 
-.screen-scroll { display: contents; }
+.screen-scroll { display: block; }
 </style>
 </head>
 <body>
@@ -486,8 +486,6 @@ input[type=file] { display: none; }
       <div class="xb-row"><div class="xb-left"><div class="xb-label">コメントした</div><div class="xb-sub">スクショを貼るだけでOK</div></div><div style="display:flex;align-items:center;gap:8px"><div class="xb-badge" id="xb-badge-comment">+1票</div><button class="upload-btn" id="xb-btn-comment" onclick="triggerUpload('comment')">スクショを貼る</button></div></div>
     </div>
   </div>
-</div><!-- /screen-scroll -->
-</div>
 
 <div class="screen" id="screen-detail" style="padding-bottom:90px">
   <div class="sub-header">
@@ -521,7 +519,6 @@ input[type=file] { display: none; }
     <div class="sub-title">広場</div>
     <div style="font-size:10px;font-weight:700;color:#4ade80;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);border-radius:100px;padding:3px 10px;margin-left:auto">AI監視中</div>
   </div>
-  <div class="screen-scroll">
   <div style="padding:0 14px 4px;font-size:12px;color:var(--text3)">あなたの声が、あいぽの未来を作る。</div>
   <div class="hiroba-body">
     <!-- AIバー -->
@@ -598,7 +595,6 @@ input[type=file] { display: none; }
 </div>
 
 <div class="screen" id="screen-portfolio">
-  <div class="screen-scroll">
   <div class="header" style="padding:0">
     <div style="background:var(--surface);padding:14px 16px 14px;border-bottom:0.5px solid var(--border)">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
@@ -657,6 +653,7 @@ input[type=file] { display: none; }
     </div>
     ホーム
   </div>
+</div>
 </div>
 </div>
 
