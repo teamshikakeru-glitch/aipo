@@ -365,7 +365,8 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
   </div>
 
   <div class="tab-wrap">
-    <button class="tab-btn active" onclick="showTab('lp')" id="tab-lp">LPの成果</button>
+    <button class="tab-btn active" onclick="showTab('home')" id="tab-home">ホーム</button>
+    <button class="tab-btn" onclick="showTab('lp')" id="tab-lp">LP分析</button>
     <button class="tab-btn" onclick="showTab('overview')" id="tab-overview">概要</button>
     <button class="tab-btn" onclick="showTab('ideas')" id="tab-ideas">アイデア</button>
     <button class="tab-btn" onclick="showTab('users')" id="tab-users">ユーザー</button>
@@ -709,7 +710,7 @@ function timeAgo(dateStr) { return fmtAgo(dateStr); }
 const tabLoaded = {};
 
 function showTab(name) {
-  ['lp','overview','ideas','users','pdca'].forEach(t => {
+  ['home','lp','overview','ideas','users','pdca'].forEach(t => {
     document.getElementById('tab-content-'+t).style.display = t===name ? '' : 'none';
     document.getElementById('tab-'+t).classList.toggle('active', t===name);
   });
@@ -724,8 +725,10 @@ async function loadTab(name) {
   const icon = document.getElementById('spin-icon');
   icon.classList.add('spinning');
   try {
-    if (name === 'lp') {
-      await Promise.allSettled([loadLPAnalytics(), loadFunnel(), loadTimeAnalysis(), loadRevenue()]);
+    if (name === 'home') {
+      await Promise.allSettled([loadHomeTab(), loadRevenue()]);
+    } else if (name === 'lp') {
+      await Promise.allSettled([loadLPAnalytics(), loadFunnel(), loadTimeAnalysis()]);
     } else if (name === 'overview') {
       await Promise.allSettled([loadKPI(), loadHourly(), loadRecent()]);
     } else if (name === 'ideas') {
@@ -770,23 +773,7 @@ async function loadLPAnalytics() {
   document.getElementById('lp-total').textContent = lpEvents.length;
   document.getElementById('lp-today').textContent = todayLp.length;
 
-  // トップKPI（サマリー）
-  const [
-    { count: usersTotal },
-    { count: usersToday },
-    { count: ideasToday2 },
-    { count: votesToday2 },
-  ] = await Promise.all([
-    sb.from('profiles').select('id',{count:'exact',head:true}).neq('id', ADMIN_ID),
-    sb.from('profiles').select('id',{count:'exact',head:true}).neq('id', ADMIN_ID).gte('created_at', today+'T00:00:00Z'),
-    sb.from('ideas').select('id',{count:'exact',head:true}).gte('updated_at', today+'T00:00:00Z'),
-    sb.from('votes').select('id',{count:'exact',head:true}).gte('created_at', today+'T00:00:00Z'),
-  ]);
-  const setKPI = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val ?? '0'; };
-  setKPI('top-users-total', usersTotal);
-  setKPI('top-users-today', usersToday);
-  setKPI('top-ideas-today', ideasToday2);
-  setKPI('top-votes-today', votesToday2);
+
 
   // LP開封数（lp.html自体を開いた回数）
   const { data: lpViews, count: lpViewTotal } = await sb.from('user_events')
@@ -1751,18 +1738,105 @@ function flash(id, color) {
   setTimeout(() => { el.style.color = ''; }, 1200);
 }
 
+async function loadHomeTab() {
+  const today = new Date().toISOString().slice(0,10);
+
+  const [
+    { count: usersTotal },
+    { count: usersToday },
+    { data: ideasAll },
+    { data: votesToday },
+  ] = await Promise.all([
+    sb.from('profiles').select('id',{count:'exact',head:true}).neq('id', ADMIN_ID),
+    sb.from('profiles').select('id',{count:'exact',head:true}).neq('id', ADMIN_ID).gte('created_at', today+'T00:00:00Z'),
+    sb.from('ideas').select('id,ticker,name,score,votes,updated_at,user_id').order('updated_at',{ascending:false}),
+    sb.from('votes').select('idea_id,created_at').gte('created_at', today+'T00:00:00Z'),
+  ]);
+
+  // KPI
+  const set = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val ?? '0'; };
+  set('top-users-total', usersTotal);
+  set('top-users-today', usersToday);
+
+  const ideasToday = (ideasAll||[]).filter(i => i.updated_at && i.updated_at.slice(0,10) === today);
+  set('top-ideas-today', ideasToday.length);
+  set('top-votes-today', (votesToday||[]).length);
+
+  // ユーザー名
+  const {data: profiles} = await sb.from('profiles').select('id,x_username');
+  const userMap = {}; if(profiles) profiles.forEach(p=>userMap[p.id]=p.x_username||'匿名');
+
+  // アイデアカード（ホーム用）
+  function homeIdeaRow(idea, badge='') {
+    const score = parseFloat(idea.score||0).toFixed(1);
+    const scoreColor = score>=70?'var(--green)':score>=50?'var(--amber)':'var(--ink3)';
+    return `<div style="display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border)">
+      <span style="font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:4px;padding:2px 7px;flex-shrink:0">${idea.ticker||'—'}</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:3px">${idea.name}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <span style="font-size:10px;color:var(--ink3)">by ${userMap[idea.user_id]||'—'}</span>
+          ${badge}
+        </div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-family:var(--mono);font-size:16px;font-weight:700;color:${scoreColor}">${score}</div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--ink3)">${idea.votes}票</div>
+      </div>
+    </div>`;
+  }
+
+  // 今日の上場
+  const hmEl = document.getElementById('home-listings-meta');
+  if(hmEl) hmEl.textContent = ideasToday.length + '件';
+  const hlEl = document.getElementById('home-listings-body');
+  if(hlEl) {
+    if(ideasToday.length === 0) {
+      hlEl.innerHTML = '<div class="empty"><div class="empty-ico">💡</div><div class="empty-txt">今日はまだ上場なし</div></div>';
+    } else {
+      hlEl.innerHTML = ideasToday.map(idea => homeIdeaRow(idea,
+        `<span style="font-family:var(--mono);font-size:9px;color:var(--green);background:var(--green-light);border:1px solid var(--green-border);border-radius:3px;padding:1px 6px">NEW · ${fmtAgo(idea.updated_at)}</span>`
+      )).join('');
+    }
+  }
+
+  // 今日票が入ったアイデア
+  const votedMap = {};
+  if(votesToday) votesToday.forEach(v=>{ votedMap[v.idea_id]=(votedMap[v.idea_id]||0)+1; });
+  const ideaMap = {}; if(ideasAll) ideasAll.forEach(i=>ideaMap[i.id]=i);
+  const vmMeta = document.getElementById('home-voted-meta');
+  if(vmMeta) vmMeta.textContent = Object.keys(votedMap).length + '件';
+  const vbEl = document.getElementById('home-voted-body');
+  if(vbEl) {
+    const votedIds = Object.keys(votedMap);
+    if(votedIds.length === 0) {
+      vbEl.innerHTML = '<div class="empty"><div class="empty-ico">🗳</div><div class="empty-txt">今日はまだ投票なし</div></div>';
+    } else {
+      const votedIdeas = votedIds.map(id=>ideaMap[id]).filter(Boolean).sort((a,b)=>(votedMap[b.id]||0)-(votedMap[a.id]||0));
+      vbEl.innerHTML = votedIdeas.map(idea => homeIdeaRow(idea,
+        `<span style="font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:3px;padding:1px 6px">+${votedMap[idea.id]}票 今日</span>`
+      )).join('');
+    }
+  }
+
+  // LP分析のKPIも更新（loadLPAnalyticsが後で呼ばれるが先に0埋めしておく）
+  ['top-users-total','top-users-today','top-ideas-today','top-votes-today'].forEach(id=>{});
+}
+
 function startRealtime() {
   // ideasが追加されたらKPIを更新
   sb.channel('dashboard-realtime')
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'ideas' }, () => {
+      if (tabLoaded['home']) loadHomeTab();
       if (tabLoaded['overview']) loadKPI();
       if (tabLoaded['users']) loadActivityFeed();
-      ['kpi-ideas','kpi-ideas-today','act-ideas-today'].forEach(id => flash(id, 'var(--green)'));
+      ['kpi-ideas','kpi-ideas-today','act-ideas-today','top-ideas-today'].forEach(id => flash(id, 'var(--green)'));
     })
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'votes' }, () => {
+      if (tabLoaded['home']) loadHomeTab();
       if (tabLoaded['overview']) loadKPI();
       if (tabLoaded['users']) loadActivityFeed();
-      ['kpi-votes-today','act-votes-today'].forEach(id => flash(id, 'var(--amber)'));
+      ['kpi-votes-today','act-votes-today','top-votes-today'].forEach(id => flash(id, 'var(--amber)'));
     })
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'user_events' }, () => {
       if (tabLoaded['lp']) loadLPAnalytics();
@@ -1795,7 +1869,7 @@ async function init() {
       document.getElementById('login-gate').style.display = 'none';
       document.getElementById('dashboard').style.display = 'block';
       // 最初はLPタブだけ読み込む
-      showTab('lp');
+      showTab('home');
       
       // Supabase Realtimeで主要カウンターをリアルタイム更新
       startRealtime();
