@@ -48,6 +48,12 @@ html, body { overflow-x: hidden !important; width: 100%; max-width: 100vw; posit
 html { overflow-x: hidden; }
 body { background: var(--bg); color: var(--text); font-family: var(--sans); overscroll-behavior: none; overflow-x: hidden !important; width: 100%; touch-action: pan-y pinch-zoom; }
 .app { max-width: 390px; margin: 0 auto; min-height: 100vh; overflow: hidden; width: 100%; }
+
+@media (min-width: 768px) {
+  body { background: #d8d4cc; }
+  .app { box-shadow: 0 8px 40px rgba(0,0,0,.18); border-radius: 28px; margin: 24px auto; min-height: calc(100vh - 48px); }
+  .bottom-nav { border-radius: 0 0 28px 28px; }
+}
 .screen { display: none; min-height: 100vh; padding-bottom: 90px; overflow-x: hidden; width: 100%; }
 .screen.active { display: block; }
 .header { background: var(--surface); padding: 16px 18px 0; position: sticky; top: 0; z-index: 20; }
@@ -596,7 +602,7 @@ input[type=file] { display: none; }
     <div class="postbox-sub" style="margin-top:6px;opacity:0;transition:opacity .3s 1.1s" id="postbox-sub">少し待つとAIが返信します</div>
   </div>
 </div>
-
+</div>
 <div class="screen" id="screen-portfolio">
   <div class="screen-scroll">
   <div class="header" style="padding:0">
@@ -631,7 +637,7 @@ input[type=file] { display: none; }
     <div id="zukan-particles" style="position:fixed;inset:0;pointer-events:none;z-index:60"></div>
   </div>
 </div>
-
+</div>
 <div class="bottom-nav">
   <div class="nav-item active" id="nav-feed" onclick="goTo('feed')">
     <div class="nav-icon-box">
