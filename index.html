@@ -333,10 +333,10 @@ input[type=file] { display: none; }
 /* 郵便箱オーバーレイ */
 .postbox-overlay{
   position:fixed;inset:0;z-index:600;background:rgba(250,248,243,.95);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
-  opacity:0;pointer-events:none;transition:opacity .3s;
+  display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+  transition:opacity .3s;
 }
-.postbox-overlay.show{opacity:1;pointer-events:all}
+.postbox-overlay.show{display:flex;opacity:1;}
 .postbox-done{font-size:16px;font-weight:700;color:var(--text);text-align:center;opacity:0;transition:opacity .3s .9s}
 .postbox-overlay.show .postbox-done{opacity:1}
 .postbox-sub{font-size:12px;color:var(--text3);text-align:center}
