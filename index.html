@@ -599,12 +599,23 @@ async function loadVotedIds() {
 }
 
 async function voteIdeaToDB(ideaId, votesAtTime) {
-  const { error } = await sb.from('votes').insert({ user_id: currentUser?.id, idea_id: ideaId, created_at: new Date().toISOString(), idea_votes_at_time: votesAtTime });
-  if (error) { console.error('vote:', error); return false; }
+  // votesテーブルに記録
+  const { error } = await sb.from('votes').insert({
+    user_id: currentUser?.id,
+    idea_id: ideaId,
+    created_at: new Date().toISOString(),
+    idea_votes_at_time: votesAtTime
+  });
+  if (error) { console.error('vote insert error:', error); return false; }
+
+  // RPCでideas.votesをインクリメント（RLSを回避するsecurity definer関数）
+  const { error: rpcError } = await sb.rpc('increment_idea_votes', { idea_id: ideaId });
+  if (rpcError) { console.error('increment_idea_votes error:', rpcError); }
+
+  // マイルストーンチェック
   const { data: current } = await sb.from('ideas').select('votes').eq('id', ideaId).single();
-  const dbVotes = (current?.votes || 0) + 1;
-  await sb.from('ideas').update({ votes: dbVotes, last_voted_at: new Date().toISOString() }).eq('id', ideaId);
-  if (dbVotes >= 20) checkMilestone(ideaId);
+  if ((current?.votes || 0) >= 20) checkMilestone(ideaId);
+
   return true;
 }
 
