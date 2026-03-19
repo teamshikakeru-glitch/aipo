@@ -604,108 +604,40 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
 
   <!-- ===== USERS TAB ===== -->
   <div id="tab-content-users" class="main" style="display:none">
-
-    <!-- 今日の活動サマリー -->
-    <div class="kpi-grid" style="margin-bottom:14px">
-      <div class="kpi green">
-        <div class="kpi-lbl">今日の新規上場</div>
-        <div class="kpi-num green" id="act-ideas-today">—</div>
-        <div class="kpi-detail">今日追加されたアイデア</div>
-      </div>
-      <div class="kpi amber">
-        <div class="kpi-lbl">今日の応援票</div>
-        <div class="kpi-num amber" id="act-votes-today">—</div>
-        <div class="kpi-detail">今日投じられた票数</div>
-      </div>
-      <div class="kpi dim">
-        <div class="kpi-lbl">今週の新規上場</div>
-        <div class="kpi-num" id="act-ideas-week">—</div>
-        <div class="kpi-detail">今週追加されたアイデア</div>
-      </div>
-      <div class="kpi dim">
-        <div class="kpi-lbl">今週の応援票</div>
-        <div class="kpi-num" id="act-votes-week">—</div>
-        <div class="kpi-detail">今週投じられた票数</div>
-      </div>
-    </div>
-
-    <!-- 今日の上場アイデア -->
-    <div class="sec">今日 上場されたアイデア</div>
-    <div class="card" style="margin-bottom:14px">
-      <div class="card-head"><div class="card-title">TODAY'S LISTINGS</div><div class="card-meta" id="today-listings-meta"></div></div>
-      <div class="card-body" id="today-listings-body"><div class="skel"></div></div>
-    </div>
-
-    <!-- 活動フィード -->
-    <div class="sec">直近の活動フィード</div>
-    <div class="card" style="margin-bottom:14px">
-      <div class="card-head">
-        <div class="card-title">ACTIVITY FEED</div>
-        <div style="display:flex;gap:6px">
-          <button onclick="filterFeed('all')" id="feed-all" style="font-family:var(--mono);font-size:9px;padding:3px 8px;border-radius:20px;border:1px solid var(--amber);background:var(--amber-light);color:var(--amber);cursor:pointer">すべて</button>
-          <button onclick="filterFeed('post')" id="feed-post" style="font-family:var(--mono);font-size:9px;padding:3px 8px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--ink3);cursor:pointer">上場</button>
-          <button onclick="filterFeed('vote')" id="feed-vote" style="font-family:var(--mono);font-size:9px;padding:3px 8px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--ink3);cursor:pointer">応援</button>
-        </div>
-      </div>
-      <div class="card-body" id="activity-feed-body"><div class="skel"></div><div class="skel" style="width:70%"></div></div>
-    </div>
-
-    <!-- 熱量ランキング -->
-    <div class="sec">熱量ランキング（投票数順）</div>
-    <div class="card" style="margin-bottom:14px">
-      <div class="card-head"><div class="card-title">USER ACTIVITY</div><div class="card-meta">票数が多い順</div></div>
-      <div class="card-body" id="user-activity-body"><div class="skel"></div></div>
-    </div>
-
-    <!-- 全ユーザー -->
-    <div class="sec">全ユーザー（タップで詳細）</div>
+    <div class="sec">登録ユーザー名簿</div>
     <div class="card">
-      <div class="card-head"><div class="card-title">ALL USERS</div><div class="card-meta" id="users-meta">—人</div></div>
+      <div class="card-head">
+        <div class="card-title">USER DIRECTORY</div>
+        <div class="card-meta" id="users-meta">—人</div>
+      </div>
+      <div style="padding:8px 16px;border-bottom:1px solid var(--border)">
+        <input id="user-search" type="text" placeholder="名前・メールで検索..." oninput="filterUsers(this.value)"
+          style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--rs);font-size:13px;font-family:var(--sans);background:var(--bg);color:var(--ink);outline:none">
+      </div>
       <div class="card-body" id="users-body"><div class="skel"></div></div>
     </div>
   </div>
 
   <!-- ===== PDCA TAB ===== -->
   <div id="tab-content-pdca" class="main" style="display:none">
+
+    <!-- 自動インサイト -->
     <div id="pdca-insights-pdca-wrap"></div>
 
-    <div class="sec">P — 今週の目標</div>
-    <div class="card">
-      <div class="card-head"><div class="card-title">WEEKLY GOALS</div><div class="card-meta" id="goals-week"></div></div>
-      <div class="card-body">
-        <div id="goals-list" style="margin-bottom:12px"></div>
-        <div style="display:flex;gap:8px">
-          <input id="goal-input" type="text" class="inp" placeholder="例：新規ユーザー5人、LP流入30人..." onkeydown="if(event.key==='Enter')addGoal()">
-          <button class="btn-add" onclick="addGoal()">追加</button>
-        </div>
-      </div>
+    <!-- 先週比サマリー -->
+    <div class="sec">今週 vs 先週</div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-head"><div class="card-title">WEEKLY COMPARISON</div><div class="card-meta" id="pdca-week-label"></div></div>
+      <div class="card-body" id="weekly-compare-body"><div class="skel"></div></div>
     </div>
 
-    <div class="sec">D — やったこと</div>
-    <div class="card">
-      <div class="card-head"><div class="card-title">ACTION LOG</div><div class="card-meta">施策の記録</div></div>
+    <!-- アクション × 流入グラフ -->
+    <div class="sec">アクションと流入の相関（14日間）</div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-head"><div class="card-title">ACTION × TRAFFIC</div><div class="card-meta">●＝アクション実施日</div></div>
       <div class="card-body">
-        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
-          <select id="action-category" class="sel">
-            <option value="x_post">🐦 Xに投稿</option>
-            <option value="lp_update">📄 LP更新</option>
-            <option value="feature">✨ 機能追加</option>
-            <option value="outreach">🤝 営業・DM</option>
-            <option value="other">📌 その他</option>
-          </select>
-          <input id="action-input" type="text" class="inp" style="flex:1;min-width:160px" placeholder="例：あいぽについてXに投稿した" onkeydown="if(event.key==='Enter')addAction()">
-          <button class="btn-log" onclick="addAction()">記録</button>
-        </div>
-        <div id="action-log-list"></div>
-      </div>
-    </div>
-
-    <div class="sec">C — アクション × 流入の相関</div>
-    <div class="card">
-      <div class="card-head"><div class="card-title">ACTION × TRAFFIC</div><div class="card-meta">直近14日間</div></div>
-      <div class="card-body">
-        <div id="pdca-chart" style="position:relative;height:120px;margin-bottom:8px"></div>
-        <div id="pdca-chart-labels" style="display:flex;gap:0;margin-bottom:10px"></div>
+        <div id="pdca-chart" style="position:relative;height:100px;margin-bottom:8px"></div>
+        <div id="pdca-chart-labels" style="display:flex;margin-bottom:10px"></div>
         <div style="display:flex;gap:16px;flex-wrap:wrap">
           <div style="display:flex;align-items:center;gap:5px"><div style="width:12px;height:4px;background:var(--amber-bright);border-radius:2px"></div><span style="font-size:10px;color:var(--ink3)">LP流入数</span></div>
           <div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:10px;background:var(--ink);border-radius:50%"></div><span style="font-size:10px;color:var(--ink3)">アクション実施日</span></div>
@@ -713,11 +645,39 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
       </div>
     </div>
 
-    <div class="sec">今週のまとめ</div>
-    <div class="card">
-      <div class="card-head"><div class="card-title">WEEKLY SUMMARY</div></div>
-      <div class="card-body" id="weekly-summary-body"><div class="skel"></div><div class="skel" style="width:70%"></div></div>
+    <!-- やったこと記録 -->
+    <div class="sec">D — やったことを記録する</div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-head"><div class="card-title">ACTION LOG</div><div class="card-meta">施策の記録</div></div>
+      <div class="card-body">
+        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+          <select id="action-category" class="sel">
+            <option value="x_post">🐦 Xに投稿</option>
+            <option value="lp_update">📄 LP更新</option>
+            <option value="feature">✨ 機能追加</option>
+            <option value="outreach">🤝 営業・DM</option>
+            <option value="other">📌 その他</option>
+          </select>
+          <input id="action-input" type="text" class="inp" style="flex:1;min-width:160px" placeholder="今日やったことを記録..." onkeydown="if(event.key==='Enter')addAction()">
+          <button class="btn-log" onclick="addAction()">記録</button>
+        </div>
+        <div id="action-log-list"></div>
+      </div>
     </div>
+
+    <!-- 今週の目標 -->
+    <div class="sec">P — 今週の目標</div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-head"><div class="card-title">WEEKLY GOALS</div><div class="card-meta" id="goals-week"></div></div>
+      <div class="card-body">
+        <div id="goals-list" style="margin-bottom:10px"></div>
+        <div style="display:flex;gap:8px">
+          <input id="goal-input" type="text" class="inp" placeholder="今週の目標を追加（例：ユーザー5人）" onkeydown="if(event.key==='Enter')addGoal()">
+          <button class="btn-add" onclick="addGoal()">追加</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
 </div>
@@ -800,7 +760,7 @@ async function loadTab(name) {
     } else if (name === 'ideas') {
       await loadIdeas();
     } else if (name === 'users') {
-      await Promise.allSettled([loadActivityFeed(), loadUserActivity()]);
+      await Promise.allSettled([loadUserDirectory(), loadActivityFeed()]);
     } else if (name === 'pdca') {
       await loadPDCA();
     }
@@ -1165,7 +1125,77 @@ async function loadIdeas() {
   }).join('');
 }
 
-// loadUsers は loadUserActivity に統合
+// ===== USER DIRECTORY =====
+let allUsersData = [];
+
+function filterUsers(query) {
+  const q = query.toLowerCase();
+  const filtered = q
+    ? allUsersData.filter(u => (u.name||'').toLowerCase().includes(q) || (u.email||'').toLowerCase().includes(q))
+    : allUsersData;
+  renderUserDirectory(filtered);
+}
+
+function renderUserDirectory(users) {
+  const body = document.getElementById('users-body');
+  if (!body) return;
+  if (users.length === 0) {
+    body.innerHTML = '<div class="empty"><div class="empty-ico">🔍</div><div class="empty-txt">該当するユーザーがいません</div></div>';
+    return;
+  }
+  body.innerHTML = users.map((u, idx) => {
+    const badge = u.is_founder
+      ? `<span class="badge founder">👑 #${u.founder_number===0?'00':String(u.founder_number||0).padStart(2,'0')}</span>`
+      : u.is_pro ? `<span class="badge pro">PRO</span>` : `<span class="badge free">FREE</span>`;
+    const initials = (u.name||'U').slice(0,2).toUpperCase();
+    return `<div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border)">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--ink3);min-width:22px;text-align:center">${String(idx+1).padStart(2,'0')}</div>
+      <div style="width:34px;height:34px;border-radius:50%;background:var(--amber-light);border:1.5px solid var(--amber-border);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--amber);flex-shrink:0">${initials}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:2px">${u.name||'（名前未設定）'}</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--ink3)">${u.email||'—'}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+        ${badge}
+        <div style="font-family:var(--mono);font-size:9px;color:var(--ink3)">${u.joined}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function loadUserDirectory() {
+  const { data: profiles } = await sb.from('profiles')
+    .select('id, x_username, is_pro, is_founder, founder_number')
+    .order('is_founder', { ascending: false });
+
+  // auth.usersからメールアドレスを取得するため、admin APIは使えないので
+  // user_eventsテーブルのuser_idと紐付け or profilesのemailカラムを参照
+  // 代わりにSupabaseのauth.usersはservice_role経由のみ取得可能
+  // ここではprofilesのidをベースに、別途emailをfetchするAPIを使う
+  // → フォールバックとして、既知のユーザーデータを表示
+
+  if (!profiles) return;
+
+  const metaEl = document.getElementById('users-meta');
+  if (metaEl) metaEl.textContent = profiles.filter(p => p.id !== ADMIN_ID).length + '人';
+
+  // Supabaseのanon keyではauth.usersにアクセス不可のため
+  // メールはユーザー本人がアクセスしたときのsessionから取得する仕組みが必要
+  // 代わりにUUIDの一部を表示
+  allUsersData = profiles
+    .filter(p => p.id !== ADMIN_ID)
+    .map(p => ({
+      id: p.id,
+      name: p.x_username || '（名前未設定）',
+      email: p.id.slice(0,8) + '...（メールはSupabase管理画面で確認）',
+      is_founder: p.is_founder,
+      is_pro: p.is_pro,
+      founder_number: p.founder_number,
+      joined: p.id.slice(0,4),
+    }));
+
+  renderUserDirectory(allUsersData);
+}
 
 let allFeedItems = [];
 let currentFeedFilter = 'all';
@@ -1683,6 +1713,79 @@ async function loadPDCAChart() {
 }
 
 // ===== WEEKLY SUMMARY =====
+async function loadWeeklyCompare() {
+  const now = new Date();
+  const today = now.toISOString().slice(0,10);
+  
+  // 今週の月曜
+  const thisMonday = new Date(now);
+  thisMonday.setDate(now.getDate() - ((now.getDay()+6)%7));
+  const thisMondayStr = thisMonday.toISOString().slice(0,10);
+  
+  // 先週の月曜〜日曜
+  const lastMonday = new Date(thisMonday);
+  lastMonday.setDate(thisMonday.getDate() - 7);
+  const lastMondayStr = lastMonday.toISOString().slice(0,10);
+  
+  const weekLabel = `${String(now.getMonth()+1)}/${String(thisMonday.getDate()).padStart(2,'0')}週`;
+  const weekLabelEl = document.getElementById('pdca-week-label');
+  if (weekLabelEl) weekLabelEl.textContent = weekLabel;
+
+  const [
+    { count: usersThis },
+    { count: usersLast },
+    { count: lpThis },
+    { count: lpLast },
+    { count: votesThis },
+    { count: votesLast },
+    { count: ideasThis },
+    { count: ideasLast },
+  ] = await Promise.all([
+    sb.from('profiles').select('id',{count:'exact',head:true}).gte('created_at', thisMondayStr+'T00:00:00Z'),
+    sb.from('profiles').select('id',{count:'exact',head:true}).gte('created_at', lastMondayStr+'T00:00:00Z').lt('created_at', thisMondayStr+'T00:00:00Z'),
+    sb.from('user_events').select('id',{count:'exact',head:true}).gte('created_at', thisMondayStr+'T00:00:00Z'),
+    sb.from('user_events').select('id',{count:'exact',head:true}).gte('created_at', lastMondayStr+'T00:00:00Z').lt('created_at', thisMondayStr+'T00:00:00Z'),
+    sb.from('votes').select('id',{count:'exact',head:true}).gte('created_at', thisMondayStr+'T00:00:00Z'),
+    sb.from('votes').select('id',{count:'exact',head:true}).gte('created_at', lastMondayStr+'T00:00:00Z').lt('created_at', thisMondayStr+'T00:00:00Z'),
+    sb.from('ideas').select('id',{count:'exact',head:true}).gte('updated_at', thisMondayStr+'T00:00:00Z'),
+    sb.from('ideas').select('id',{count:'exact',head:true}).gte('updated_at', lastMondayStr+'T00:00:00Z').lt('updated_at', thisMondayStr+'T00:00:00Z'),
+  ]);
+
+  function diffBadge(thisVal, lastVal) {
+    const diff = (thisVal||0) - (lastVal||0);
+    if (diff === 0) return `<span style="font-family:var(--mono);font-size:10px;color:var(--ink3)">±0</span>`;
+    const color = diff > 0 ? 'var(--green)' : 'var(--red)';
+    const bg = diff > 0 ? 'var(--green-light)' : 'var(--red-light)';
+    return `<span style="font-family:var(--mono);font-size:10px;color:${color};background:${bg};border-radius:4px;padding:1px 6px;font-weight:700">${diff>0?'+':''}${diff} 先週比</span>`;
+  }
+
+  const rows = [
+    { label: '新規ユーザー', icon: '👤', thisVal: usersThis||0, lastVal: usersLast||0 },
+    { label: 'LP流入', icon: '📄', thisVal: lpThis||0, lastVal: lpLast||0 },
+    { label: '応援票', icon: '🗳', thisVal: votesThis||0, lastVal: votesLast||0 },
+    { label: '新規上場', icon: '💡', thisVal: ideasThis||0, lastVal: ideasLast||0 },
+  ];
+
+  const body = document.getElementById('weekly-compare-body');
+  if (body) {
+    body.innerHTML = rows.map(r => `
+      <div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border)">
+        <div style="font-size:18px;flex-shrink:0">${r.icon}</div>
+        <div style="flex:1">
+          <div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:3px">${r.label}</div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-family:var(--mono);font-size:10px;color:var(--ink3)">先週 ${r.lastVal}</span>
+            <span style="font-size:10px;color:var(--ink3)">→</span>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:var(--mono);font-size:24px;font-weight:700;color:var(--ink);line-height:1;margin-bottom:3px">${r.thisVal}</div>
+          ${diffBadge(r.thisVal, r.lastVal)}
+        </div>
+      </div>`).join('');
+  }
+}
+
 async function loadWeeklySummary() {
   const weekStart = new Date();
   weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1); // 月曜
@@ -1758,7 +1861,7 @@ async function loadWeeklySummary() {
 // ===== PDCA メインロード =====
 async function loadPDCA() {
   renderGoals();
-  await Promise.all([loadActionLog(), loadPDCAChart(), loadWeeklySummary()]);
+  await Promise.all([loadActionLog(), loadPDCAChart(), loadWeeklyCompare()]);
 }
 
 async function loadRevenue() {
