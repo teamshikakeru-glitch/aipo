@@ -1009,8 +1009,9 @@ async function loadIdeas() {
   }
 
   // ユーザー名取得
-  const {data: profiles} = await sb.from('profiles').select('id,x_username');
-  const userMap = {}; if(profiles) profiles.forEach(p=>userMap[p.id]=p.x_username||'匿名');
+  const {data: profiles} = await sb.from('user_profiles_view').select('id,display_name,x_username');
+  const userMap = {};
+  if(profiles) profiles.forEach(p=>userMap[p.id]=p.display_name||p.x_username||'匿名');
 
   // 閲覧数マップ
   const vm={}; if(views) views.forEach(v=>{vm[v.idea_id]=(vm[v.idea_id]||0)+1;});
@@ -1974,9 +1975,10 @@ async function loadHomeTab() {
   set('top-ideas-today', ideasToday.length);
   set('top-votes-today', (votesToday||[]).length);
 
-  // ユーザー名
-  const {data: profiles} = await sb.from('profiles').select('id,x_username');
-  const userMap = {}; if(profiles) profiles.forEach(p=>userMap[p.id]=p.x_username||'匿名');
+  // ユーザー名（Googleの表示名を優先）
+  const {data: profiles} = await sb.from('user_profiles_view').select('id,display_name,x_username');
+  const userMap = {};
+  if(profiles) profiles.forEach(p=>userMap[p.id]=p.display_name||p.x_username||'匿名');
 
   // アイデアカード（ホーム用・タップで詳細展開）
   function homeIdeaRow(idea, badge='') {
