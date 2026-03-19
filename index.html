@@ -94,11 +94,12 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); over
 .upload-btn { background: var(--surface2); border: 1.5px solid var(--border2); border-radius: 20px; padding: 5px 12px; font-size: 11px; color: var(--text2); cursor: pointer; font-family: var(--sans); font-weight: 700; transition: all .15s; }
 .upload-btn:hover { border-color: var(--amber-border); color: var(--amber); background: var(--amber-bg); }
 .upload-btn.done { background: var(--green-bg); border-color: var(--green-border); color: var(--green); pointer-events: none; }
-.bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 390px; background: rgba(245,241,234,.72); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 0.5px solid rgba(220,210,195,.6); display: flex; z-index: 30; }
-.nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 0 16px; cursor: pointer; color: var(--text3); font-size: 10px; font-weight: 700; transition: color .15s; }
+.bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 390px; background: rgba(245,241,234,.72); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 0.5px solid rgba(220,210,195,.6); display: flex; justify-content: space-around; align-items: stretch; z-index: 30; }
+.nav-icon-box { width: 30px; height: 30px; border-radius: 9px; background: #fff; border: 0.5px solid rgba(0,0,0,.08); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,.06); flex-shrink: 0; }
+.nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 8px 0 16px; cursor: pointer; color: var(--text3); font-size: 10px; font-weight: 700; transition: color .15s; min-height: 62px; }
 .nav-item.active { color: var(--amber-mid); }
 .nav-item svg { width: 18px; height: 18px; }
-.nav-post-wrap { flex: 1; display: flex; align-items: center; justify-content: center; padding: 6px 0 12px; }
+.nav-post-wrap-unused { display:none; }
 .nav-post-btn {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: 3px; background: none; border: none; cursor: pointer;
@@ -300,6 +301,64 @@ input[type=file] { display: none; }
 .preview-cancel{flex:1;padding:13px;background:var(--surface2);border:1px solid var(--border);border-radius:100px;font-size:14px;font-weight:600;color:var(--text2);cursor:pointer;font-family:var(--sans)}
 .preview-confirm{flex:2;padding:13px;background:var(--amber-mid);border:none;border-radius:100px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans);box-shadow:0 3px 12px rgba(232,133,10,.35)}
 
+
+/* ─── HIROBA ─── */
+.hiroba-body{padding:0 14px 100px}
+.hiroba-ai-bar{background:linear-gradient(135deg,#1a1400,#2d2010);border-radius:14px;padding:14px 16px;margin:14px 0;display:flex;gap:10px;align-items:flex-start}
+.hiroba-ai-dot{width:7px;height:7px;border-radius:50%;background:#4ade80;animation:blink 1.8s infinite;flex-shrink:0;margin-top:3px}
+.hiroba-ai-label{font-family:var(--mono);font-size:8px;color:rgba(232,133,10,.7);letter-spacing:.12em;margin-bottom:4px}
+.hiroba-ai-text{font-size:13px;color:rgba(255,255,255,.88);line-height:1.65;font-weight:600}
+.hiroba-form{background:var(--surface);border-radius:16px;border:0.5px solid var(--border);padding:16px;margin-bottom:16px}
+.hiroba-form-label{font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:.1em;margin-bottom:10px}
+.hiroba-textarea{width:100%;border:1px solid var(--border);border-radius:10px;padding:12px;font-size:14px;color:var(--text);background:var(--surface2);font-family:var(--sans);resize:none;outline:none;line-height:1.6;transition:border-color .15s}
+.hiroba-textarea:focus{border-color:var(--amber-border)}
+.hiroba-tags{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.hiroba-tag{padding:5px 12px;border-radius:100px;border:1px solid var(--border);font-size:11px;font-weight:700;color:var(--text3);background:var(--surface);cursor:pointer;transition:all .15s;font-family:var(--sans)}
+.hiroba-tag.sel{background:var(--amber-bg);border-color:var(--amber-border);color:var(--amber)}
+.hiroba-anon{display:flex;align-items:center;gap:6px;margin:8px 0;font-size:12px;color:var(--text3)}
+.hiroba-send{width:100%;padding:14px;background:var(--ink,#1a1400);border:none;border-radius:100px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans);display:flex;align-items:center;justify-content:center;gap:6px;margin-top:10px;transition:opacity .15s}
+.hiroba-send:active{opacity:.85}
+.hiroba-section-title{font-size:12px;font-weight:700;color:var(--text3);letter-spacing:.06em;margin:16px 0 10px;font-family:var(--mono)}
+.hiroba-comment{background:var(--surface);border-radius:14px;border:0.5px solid var(--border);padding:14px;margin-bottom:10px}
+.hiroba-comment-meta{display:flex;align-items:center;gap:7px;margin-bottom:8px}
+.hiroba-avatar{width:26px;height:26px;border-radius:50%;background:var(--surface2);border:0.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--text3);flex-shrink:0}
+.hiroba-comment-name{font-size:12px;font-weight:700;color:var(--text)}
+.hiroba-comment-tag{font-size:8px;font-weight:700;padding:2px 7px;border-radius:4px;background:var(--surface2);color:var(--text3);border:0.5px solid var(--border)}
+.hiroba-comment-time{font-size:10px;color:var(--text3);margin-left:auto}
+.hiroba-comment-text{font-size:13px;color:var(--text);line-height:1.7}
+.hiroba-ai-reply{background:var(--amber-bg);border:0.5px solid var(--amber-border);border-radius:8px;padding:8px 10px;margin-top:8px;display:flex;gap:6px;align-items:flex-start}
+.hiroba-ai-reply-label{font-family:var(--mono);font-size:8px;color:var(--amber);font-weight:700;white-space:nowrap;margin-top:1px}
+.hiroba-ai-reply-text{font-size:11px;color:var(--amber);line-height:1.6}
+
+/* 郵便箱オーバーレイ */
+.postbox-overlay{
+  position:fixed;inset:0;z-index:600;background:rgba(250,248,243,.95);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+  opacity:0;pointer-events:none;transition:opacity .3s;
+}
+.postbox-overlay.show{opacity:1;pointer-events:all}
+.postbox-done{font-size:16px;font-weight:700;color:var(--text);text-align:center;opacity:0;transition:opacity .3s .9s}
+.postbox-overlay.show .postbox-done{opacity:1}
+.postbox-sub{font-size:12px;color:var(--text3);text-align:center}
+.envelope-anim{
+  width:52px;height:36px;position:absolute;
+  animation:env-fly 1.1s cubic-bezier(.4,0,.2,1) forwards;
+  opacity:0;
+}
+@keyframes env-fly{
+  0%{opacity:1;top:80px;left:50%;transform:translateX(-50%) scale(1) rotate(-5deg)}
+  50%{opacity:1;top:180px;left:50%;transform:translateX(-50%) scale(.8) rotate(3deg)}
+  80%{opacity:.6;top:280px;left:50%;transform:translateX(-52%) scale(.4) rotate(5deg)}
+  100%{opacity:0;top:310px;left:50%;transform:translateX(-52%) scale(.1) rotate(8deg)}
+}
+@keyframes box-shake{
+  0%,100%{transform:none}
+  20%{transform:rotate(-3deg) translateX(-3px)}
+  40%{transform:rotate(3deg) translateX(3px)}
+  60%{transform:rotate(-2deg)}
+  80%{transform:rotate(1deg)}
+}
+
 </style>
 </head>
 <body>
@@ -450,6 +509,87 @@ input[type=file] { display: none; }
     <div class="field-wrap"><div class="field-lbl">作る技術 <span class="field-opt">任意</span></div><input class="inp inp-sm" id="inp-tech" type="text" placeholder="例：React Native、Python、Webアプリ"></div>
     <div class="post-notice">情報を追加するほどスコアが上がります。まずはアイデア名とジャンルだけでも上場できます。</div>
     <button class="primary-btn" onclick="showPostPreview()">プレビューを確認して上場する →</button>
+  </div>
+</div>
+
+<div class="screen" id="screen-hiroba" style="padding-bottom:0">
+  <div class="sub-header">
+    <div class="back-btn" onclick="goTo('feed')"><svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 5l-5 5 5 5"/></svg></div>
+    <div class="sub-title">広場</div>
+    <div style="font-size:10px;font-weight:700;color:#4ade80;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);border-radius:100px;padding:3px 10px;margin-left:auto">AI監視中</div>
+  </div>
+  <div style="padding:0 14px 4px;font-size:12px;color:var(--text3)">あなたの声が、あいぽの未来を作る。</div>
+  <div class="hiroba-body">
+    <!-- AIバー -->
+    <div class="hiroba-ai-bar">
+      <div class="hiroba-ai-dot"></div>
+      <div>
+        <div class="hiroba-ai-label">AI AGENT MONITORING</div>
+        <div class="hiroba-ai-text">ここに書かれた意見はAIエージェントが読んでいます。なんでも書いてください。</div>
+      </div>
+    </div>
+    <!-- 郵便箱 -->
+    <div style="display:flex;justify-content:center;margin:8px 0 16px">
+      <svg id="hiroba-postbox" width="90" height="130" viewBox="0 0 80 120" fill="none">
+        <rect x="15" y="50" width="50" height="65" rx="8" fill="#cc2222"/>
+        <rect x="18" y="52" width="18" height="28" rx="4" fill="rgba(255,255,255,.1)"/>
+        <rect x="22" y="68" width="36" height="6" rx="3" fill="#1a0000"/>
+        <rect x="23" y="69" width="34" height="4" rx="2" fill="#2a0000"/>
+        <ellipse cx="40" cy="82" rx="15" ry="15" fill="#bb1111"/>
+        <text x="40" y="79" text-anchor="middle" font-size="6" fill="white" font-weight="bold" font-family="serif">郵便</text>
+        <text x="40" y="87" text-anchor="middle" font-size="5" fill="white" font-family="sans-serif">POST</text>
+        <ellipse cx="40" cy="50" rx="26" ry="8" fill="#dd2222"/>
+        <rect x="14" y="44" width="52" height="8" rx="4" fill="#dd2222"/>
+        <ellipse cx="40" cy="44" rx="26" ry="8" fill="#ee3333"/>
+        <rect x="14" y="38" width="52" height="8" rx="3" fill="#ee3333"/>
+        <ellipse cx="40" cy="38" rx="26" ry="7" fill="#ff4444"/>
+        <ellipse cx="40" cy="34" rx="12" ry="5" fill="#dd2222"/>
+        <ellipse cx="40" cy="32" rx="8" ry="4" fill="#cc1111"/>
+      </svg>
+    </div>
+    <!-- 投稿フォーム -->
+    <div class="hiroba-form">
+      <div class="hiroba-form-label">VOICE YOUR OPINION</div>
+      <textarea class="hiroba-textarea" id="hiroba-input" rows="4" placeholder="こんな機能が欲しい、ここが使いづらい、なんでも..."></textarea>
+      <div class="hiroba-tags">
+        <div class="hiroba-tag sel" onclick="selHirobaTag(this)" data-tag="機能要望">機能要望</div>
+        <div class="hiroba-tag" onclick="selHirobaTag(this)" data-tag="バグ報告">バグ報告</div>
+        <div class="hiroba-tag" onclick="selHirobaTag(this)" data-tag="アイデア">アイデア</div>
+        <div class="hiroba-tag" onclick="selHirobaTag(this)" data-tag="その他">その他</div>
+      </div>
+      <label class="hiroba-anon">
+        <input type="checkbox" id="hiroba-anon-check" style="width:16px;height:16px;accent-color:var(--amber-mid)">
+        匿名で投稿する
+      </label>
+      <button class="hiroba-send" onclick="sendHiroba()">
+        <svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2"><path d="M3 10l14-7-7 14-2-6z"/></svg>
+        送信する
+      </button>
+    </div>
+    <!-- 履歴 -->
+    <div class="hiroba-section-title">RECENT VOICES</div>
+    <div id="hiroba-list"><div class="empty"><div class="empty-ico">📭</div><div class="empty-txt">まだ投稿がありません</div></div></div>
+  </div>
+</div>
+
+<!-- 郵便箱オーバーレイ -->
+<div class="postbox-overlay" id="postbox-overlay">
+  <svg width="110" height="150" viewBox="0 0 80 120" fill="none">
+    <rect x="15" y="50" width="50" height="65" rx="8" fill="#cc2222"/>
+    <rect x="18" y="52" width="18" height="28" rx="4" fill="rgba(255,255,255,.1)"/>
+    <rect x="22" y="68" width="36" height="6" rx="3" fill="#1a0000"/>
+    <ellipse cx="40" cy="82" rx="15" ry="15" fill="#bb1111"/>
+    <text x="40" y="79" text-anchor="middle" font-size="6" fill="white" font-weight="bold" font-family="serif">郵便</text>
+    <text x="40" y="87" text-anchor="middle" font-size="5" fill="white" font-family="sans-serif">POST</text>
+    <ellipse cx="40" cy="50" rx="26" ry="8" fill="#dd2222"/>
+    <rect x="14" y="44" width="52" height="8" rx="4" fill="#ee3333"/>
+    <rect x="14" y="38" width="52" height="8" rx="3" fill="#ee3333"/>
+    <ellipse cx="40" cy="38" rx="26" ry="7" fill="#ff4444"/>
+    <ellipse cx="40" cy="32" rx="8" ry="4" fill="#cc1111"/>
+  </svg>
+  <div class="hiroba-done-msg">
+    <div class="postbox-done">AIが受け取りました</div>
+    <div class="postbox-sub" style="margin-top:6px;opacity:0;transition:opacity .3s 1.1s" id="postbox-sub">少し待つとAIが返信します</div>
   </div>
 </div>
 
@@ -945,7 +1085,8 @@ function goTo(s) {
   document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
   if (s === 'feed') { document.getElementById('nav-feed').classList.add('active'); renderFeed(); }
   if (s === 'portfolio') { document.getElementById('nav-portfolio').classList.add('active'); renderPortfolio(); }
-  if (s === 'post') resetPost();
+  if (s === 'hiroba') { document.getElementById('nav-hiroba').classList.add('active'); loadHirobaList(); }
+  if (s === 'post') { document.getElementById('nav-post-tab').classList.add('active'); resetPost(); }
   window.scrollTo(0,0);
 }
 
