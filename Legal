@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>特定商取引法・利用規約・プライバシーポリシー — あいぽ</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cream:#f5f0e8;--white:#fff;--ink:#1c1409;--ink2:#4a3c28;--ink3:#8c7a5e;
+  --amber:#d97706;--border:#e0d8cc;
+  --sans:'Noto Sans JP',sans-serif;--serif:'Noto Serif JP',serif;
+}
+html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);line-height:1.8;-webkit-font-smoothing:antialiased}
+
+/* HEADER */
+.site-header{background:var(--white);border-bottom:1px solid var(--border);padding:0 6vw;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.site-logo{font-family:var(--serif);font-size:18px;font-weight:700;color:var(--ink);text-decoration:none;letter-spacing:-.03em}
+.back-link{font-size:12px;color:var(--amber);text-decoration:none;display:flex;align-items:center;gap:4px}
+.back-link:hover{text-decoration:underline}
+
+/* NAV TABS */
+.legal-nav{background:var(--white);border-bottom:1px solid var(--border);display:flex;overflow-x:auto;scrollbar-width:none;padding:0 6vw}
+.legal-nav::-webkit-scrollbar{display:none}
+.legal-nav a{display:block;padding:14px 20px;font-size:12px;font-weight:700;color:var(--ink3);text-decoration:none;white-space:nowrap;border-bottom:2.5px solid transparent;transition:color .15s,border-color .15s}
+.legal-nav a:hover{color:var(--ink)}
+.legal-nav a.active{color:var(--amber);border-bottom-color:var(--amber)}
+
+/* MAIN */
+.legal-wrap{max-width:760px;margin:0 auto;padding:48px 6vw 80px}
+
+/* SECTIONS */
+.legal-section{display:none}
+.legal-section.active{display:block}
+
+.legal-title{font-family:var(--serif);font-size:28px;font-weight:700;color:var(--ink);letter-spacing:-.03em;margin-bottom:6px}
+.legal-updated{font-size:11px;color:var(--ink3);margin-bottom:40px;font-style:italic}
+.legal-intro{font-size:14px;color:var(--ink2);line-height:1.9;margin-bottom:32px;padding:16px 20px;background:var(--white);border:1px solid var(--border);border-radius:10px;border-left:3px solid var(--amber)}
+
+h2.l-h2{font-size:16px;font-weight:700;color:var(--ink);margin:36px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+h3.l-h3{font-size:14px;font-weight:700;color:var(--ink);margin:20px 0 8px}
+p.l-p{font-size:13px;color:var(--ink2);line-height:1.9;margin-bottom:12px}
+ul.l-ul{padding-left:20px;margin-bottom:12px}
+ul.l-ul li{font-size:13px;color:var(--ink2);line-height:1.9;margin-bottom:4px}
+.l-table{width:100%;border-collapse:collapse;margin-bottom:20px;font-size:13px}
+.l-table th{background:var(--cream);padding:10px 14px;text-align:left;font-weight:700;color:var(--ink);border:1px solid var(--border);white-space:nowrap;vertical-align:top;width:160px}
+.l-table td{padding:10px 14px;color:var(--ink2);border:1px solid var(--border);line-height:1.8;vertical-align:top}
+.highlight{color:var(--amber);font-weight:700}
+
+/* FOOTER */
+.legal-footer{text-align:center;padding:20px;font-size:11px;color:var(--ink3)}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="https://aipo-tau.vercel.app" class="site-logo">あいぽ</a>
+  <a href="https://aipo-tau.vercel.app" class="back-link">← アプリに戻る</a>
+</header>
+
+<nav class="legal-nav">
+  <a href="#tokusho" class="active" onclick="showSection('tokusho',this)">特定商取引法に基づく表記</a>
+  <a href="#terms" onclick="showSection('terms',this)">利用規約</a>
+  <a href="#privacy" onclick="showSection('privacy',this)">プライバシーポリシー</a>
+</nav>
+
+<div class="legal-wrap">
+
+  <!-- ===== 特定商取引法 ===== -->
+  <div id="section-tokusho" class="legal-section active">
+    <h1 class="legal-title">特定商取引法に基づく表記</h1>
+    <p class="legal-updated">最終更新日：2026年3月19日</p>
+
+    <table class="l-table">
+      <tr><th>販売事業者</th><td>あいぽ運営事務局（中川航輝）</td></tr>
+      <tr><th>運営責任者</th><td>中川航輝</td></tr>
+      <tr><th>所在地</th><td>※請求があった場合、遅滞なく開示します</td></tr>
+      <tr><th>電話番号</th><td>※請求があった場合、遅滞なく開示します</td></tr>
+      <tr><th>メールアドレス</th><td>team.shikakeru@gmail.com</td></tr>
+      <tr><th>サービス名</th><td>あいぽ（アイデアIPO市場）</td></tr>
+      <tr><th>サービスURL</th><td>https://aipo-tau.vercel.app</td></tr>
+      <tr><th>販売価格</th><td>
+        ・あいぽ Pro：月額 ¥300（税込）<br>
+        ・創設メンバープラン：¥980（税込・買い切り）
+      </td></tr>
+      <tr><th>料金以外の必要費用</th><td>インターネット接続料金・通信費はお客様のご負担となります</td></tr>
+      <tr><th>お支払い方法</th><td>クレジットカード（Stripe決済）</td></tr>
+      <tr><th>サービス提供時期</th><td>お支払い確認後、即時にサービスをご利用いただけます</td></tr>
+      <tr><th>返品・キャンセル</th><td>
+        ・月額プラン（Pro）：次回更新日の前日までにキャンセルすることで、翌月以降の課金が停止されます。当月分の返金はいたしかねます。<br>
+        ・買い切りプラン（創設メンバー）：デジタルコンテンツの性質上、購入後の返金はお断りしております。
+      </td></tr>
+      <tr><th>動作環境</th><td>最新版のGoogle Chrome、Safari、Firefoxを推奨します</td></tr>
+    </table>
+
+    <p class="l-p" style="font-size:11px;color:var(--ink3)">※所在地・電話番号は、ユーザーからの請求があった場合には遅滞なく開示いたします（特定商取引法施行規則第8条に基づく省略）。</p>
+  </div>
+
+  <!-- ===== 利用規約 ===== -->
+  <div id="section-terms" class="legal-section">
+    <h1 class="legal-title">利用規約</h1>
+    <p class="legal-updated">最終更新日：2026年3月19日</p>
+    <p class="legal-intro">本利用規約（以下「本規約」）は、あいぽ運営事務局（中川航輝）（以下「当社」）が提供するサービス「あいぽ」（以下「本サービス」）の利用条件を定めるものです。ユーザーの皆さまには、本規約に同意いただいた上で本サービスをご利用いただきます。</p>
+
+    <h2 class="l-h2">第1条（適用）</h2>
+    <p class="l-p">本規約は、ユーザーと当社との間の本サービスの利用に関わる一切の関係に適用されます。</p>
+
+    <h2 class="l-h2">第2条（利用登録）</h2>
+    <p class="l-p">登録希望者が本規約に同意の上、当社の定める方法によって利用登録を申請し、当社がこれを承認することによって、利用登録が完了します。当社は、以下の場合に利用登録を拒否することがあります。</p>
+    <ul class="l-ul">
+      <li>虚偽の情報を申請した場合</li>
+      <li>過去に本規約に違反したことがある者からの申請である場合</li>
+      <li>その他、当社が利用登録を相当でないと判断した場合</li>
+    </ul>
+
+    <h2 class="l-h2">第3条（禁止事項）</h2>
+    <p class="l-p">ユーザーは、本サービスの利用にあたり、以下の行為をしてはなりません。</p>
+    <ul class="l-ul">
+      <li>法令または公序良俗に違反する行為</li>
+      <li>犯罪行為に関連する行為</li>
+      <li>当社や他のユーザー、第三者の知的財産権・プライバシー・名誉を侵害する行為</li>
+      <li>他のユーザーに対する嫌がらせ・誹謗中傷</li>
+      <li>本サービスのサーバーに過大な負荷をかける行為</li>
+      <li>本サービスの運営を妨害するおそれのある行為</li>
+      <li>不正アクセスをし、またはこれを試みる行為</li>
+      <li>他のユーザーに成りすます行為</li>
+      <li>反社会的勢力等への利益供与</li>
+      <li>その他、当社が不適切と判断する行為</li>
+    </ul>
+
+    <h2 class="l-h2">第4条（本サービスの提供の停止等）</h2>
+    <p class="l-p">当社は、以下のいずれかの事由があると判断した場合、ユーザーへの予告なく本サービスの全部または一部の提供を停止または中断することができます。</p>
+    <ul class="l-ul">
+      <li>本サービスにかかるコンピュータシステムの保守点検または更新を行う場合</li>
+      <li>地震・落雷・火災・停電・天災などの不可抗力により、本サービスの提供が困難となった場合</li>
+      <li>その他、当社が本サービスの提供が困難と判断した場合</li>
+    </ul>
+
+    <h2 class="l-h2">第5条（著作権）</h2>
+    <p class="l-p">ユーザーが本サービスに投稿したアイデア・コメント等のコンテンツについて、著作権はユーザー自身に帰属します。ただし、ユーザーは当社に対し、本サービスの運営・改善・宣伝のために当該コンテンツを無償で利用する権利（複製・翻案・公衆送信を含む）を許諾するものとします。</p>
+
+    <h2 class="l-h2">第6条（免責事項）</h2>
+    <p class="l-p">当社は、本サービスに起因してユーザーに生じたあらゆる損害について、当社の故意または重過失による場合を除き、一切の責任を負いません。本サービスは現状有姿で提供されており、特定の目的への適合性・有用性・完全性を保証するものではありません。</p>
+
+    <h2 class="l-h2">第7条（サービス内容の変更等）</h2>
+    <p class="l-p">当社は、ユーザーへの予告なく本サービスの内容を変更または廃止することができます。これによりユーザーに生じた損害について、当社は責任を負いません。</p>
+
+    <h2 class="l-h2">第8条（利用規約の変更）</h2>
+    <p class="l-p">当社は、必要と判断した場合には、ユーザーへの通知なくいつでも本規約を変更することができます。変更後の利用規約は、本サービス上に掲示した時点で効力を生じます。</p>
+
+    <h2 class="l-h2">第9条（個人情報の取扱い）</h2>
+    <p class="l-p">本サービスにおける個人情報の取扱いについては、別途定める「プライバシーポリシー」によります。</p>
+
+    <h2 class="l-h2">第10条（準拠法・裁判管轄）</h2>
+    <p class="l-p">本規約の解釈にあたっては、日本法を準拠法とします。本サービスに関して紛争が生じた場合には、当社の所在地を管轄する裁判所を専属的合意管轄とします。</p>
+
+    <p class="l-p" style="margin-top:32px">制定日：2026年3月19日<br>中川航輝</p>
+  </div>
+
+  <!-- ===== プライバシーポリシー ===== -->
+  <div id="section-privacy" class="legal-section">
+    <h1 class="legal-title">プライバシーポリシー</h1>
+    <p class="legal-updated">最終更新日：2026年3月19日</p>
+    <p class="legal-intro">中川航輝（以下「当社」）は、本サービス「あいぽ」におけるユーザーの個人情報の取扱いについて、以下のとおりプライバシーポリシーを定めます。</p>
+
+    <h2 class="l-h2">第1条（収集する情報）</h2>
+    <p class="l-p">当社は、本サービスの提供にあたり、以下の情報を収集することがあります。</p>
+    <ul class="l-ul">
+      <li><strong>アカウント情報：</strong>Googleアカウントを通じて取得するメールアドレス・表示名・プロフィール画像</li>
+      <li><strong>利用情報：</strong>投稿したアイデア・コメント・応援票の履歴</li>
+      <li><strong>アクセス情報：</strong>IPアドレス・ブラウザ情報・参照元URL・滞在時間（アナリティクス目的）</li>
+      <li><strong>決済情報：</strong>クレジットカード情報（Stripeが直接処理するため、当社はカード番号を保持しません）</li>
+    </ul>
+
+    <h2 class="l-h2">第2条（情報の利用目的）</h2>
+    <ul class="l-ul">
+      <li>本サービスの提供・運営・改善</li>
+      <li>ユーザーへのお問い合わせ対応</li>
+      <li>利用規約に違反したユーザーの特定・対応</li>
+      <li>サービスの利用状況の分析・改善（アナリティクス）</li>
+      <li>有料プランの決済処理</li>
+      <li>重要なお知らせの送信</li>
+    </ul>
+
+    <h2 class="l-h2">第3条（第三者への提供）</h2>
+    <p class="l-p">当社は、以下の場合を除き、ユーザーの個人情報を第三者に提供しません。</p>
+    <ul class="l-ul">
+      <li>ユーザーご本人の同意がある場合</li>
+      <li>法令に基づく開示が求められる場合</li>
+      <li>人の生命・身体または財産の保護のために必要な場合</li>
+    </ul>
+
+    <h2 class="l-h2">第4条（業務委託先）</h2>
+    <p class="l-p">当社は、サービス提供のために以下の事業者にデータ処理を委託しています。</p>
+    <ul class="l-ul">
+      <li><strong>Supabase Inc.（米国）：</strong>データベース・認証基盤</li>
+      <li><strong>Vercel Inc.（米国）：</strong>Webホスティング</li>
+      <li><strong>Stripe, Inc.（米国）：</strong>決済処理</li>
+      <li><strong>Anthropic, PBC（米国）：</strong>AI機能（将来的な機能追加時）</li>
+    </ul>
+    <p class="l-p">これらの事業者は各自のプライバシーポリシーに従い、適切にデータを管理します。</p>
+
+    <h2 class="l-h2">第5条（Cookieの使用）</h2>
+    <p class="l-p">本サービスでは、ログイン状態の維持・サービス改善のためにCookieおよびローカルストレージを使用しています。ブラウザの設定でCookieを無効にすることができますが、その場合、一部の機能が使用できなくなる場合があります。</p>
+
+    <h2 class="l-h2">第6条（個人情報の開示・訂正・削除）</h2>
+    <p class="l-p">ユーザーご本人は、当社が保有する自身の個人情報について、開示・訂正・削除を請求することができます。ご請求は以下のメールアドレスまでお問い合わせください。</p>
+    <p class="l-p"><strong>team.shikakeru@gmail.com</strong></p>
+    <p class="l-p">なお、アカウントの削除をご希望の場合も、上記メールアドレスにてご連絡ください。</p>
+
+    <h2 class="l-h2">第7条（セキュリティ）</h2>
+    <p class="l-p">当社は、個人情報への不正アクセス・漏洩・改ざん等を防止するため、適切なセキュリティ措置を講じます。ただし、インターネット上の通信において完全なセキュリティを保証することはできません。</p>
+
+    <h2 class="l-h2">第8条（プライバシーポリシーの変更）</h2>
+    <p class="l-p">当社は、必要に応じて本プライバシーポリシーを改定することがあります。重要な変更がある場合には、本サービス上でお知らせします。</p>
+
+    <h2 class="l-h2">第9条（お問い合わせ）</h2>
+    <p class="l-p">本プライバシーポリシーに関するお問い合わせは、以下のメールアドレスまでご連絡ください。</p>
+    <p class="l-p"><strong>team.shikakeru@gmail.com</strong></p>
+
+    <p class="l-p" style="margin-top:32px">制定日：2026年3月19日<br>中川航輝</p>
+  </div>
+
+</div>
+
+<div class="legal-footer">© 2026 あいぽ</div>
+
+<script>
+function showSection(id, el) {
+  document.querySelectorAll('.legal-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.legal-nav a').forEach(a => a.classList.remove('active'));
+  document.getElementById('section-' + id).classList.add('active');
+  el.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// URLハッシュで直接遷移
+const hash = location.hash.replace('#','');
+if (hash && document.getElementById('section-' + hash)) {
+  document.querySelectorAll('.legal-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.legal-nav a').forEach(a => a.classList.remove('active'));
+  document.getElementById('section-' + hash).classList.add('active');
+  document.querySelector(`a[href="#${hash}"]`)?.classList.add('active');
+}
+</script>
+</body>
+</html>
