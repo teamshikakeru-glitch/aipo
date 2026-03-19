@@ -799,9 +799,9 @@ function timeAgo(dateStr) { return fmtAgo(dateStr); }
 const tabLoaded = {};
 
 function showTab(name) {
-  ['home','lp','overview','ideas','users','pdca'].forEach(t => {
-    document.getElementById('tab-content-'+t).style.display = t===name ? '' : 'none';
-    document.getElementById('tab-'+t).classList.toggle('active', t===name);
+  ['home','lp','overview','ideas','pdca'].forEach(t => {
+    const c=document.getElementById('tab-content-'+t); if(c) c.style.display = t===name ? '' : 'none';
+    const b=document.getElementById('tab-'+t); if(b) b.classList.toggle('active', t===name);
   });
   // 未ロードのタブだけ読み込む
   if (!tabLoaded[name]) {
