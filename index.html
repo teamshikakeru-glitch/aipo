@@ -49,7 +49,7 @@ html { overflow-x: hidden; }
 body { background: var(--bg); color: var(--text); font-family: var(--sans); overscroll-behavior: none; overflow-x: hidden !important; width: 100%; touch-action: pan-y pinch-zoom; }
 .app { max-width: 390px; margin: 0 auto; min-height: 100vh; overflow: hidden; width: 100%; }
 .screen { display: none; min-height: 100vh; padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)); overflow-x: hidden; width: 100%; }
-.screen.active { display: block; }
+.screen.active { display: block; background: var(--surface); }
 .header { background: var(--surface); padding: 16px 18px 0; position: sticky; top: 0; z-index: 20; }
 .hd-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 .logo-wrap { display: flex; align-items: center; gap: 10px; }
@@ -1088,14 +1088,18 @@ let favIdeas = new Set();
 let viewMode = localStorage.getItem('aipo-view') || 'compact';
 
 function goTo(s) {
-  document.querySelectorAll('.screen').forEach(x => x.classList.remove('active'));
-  document.getElementById('screen-' + s).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
-  if (s === 'feed') { document.getElementById('nav-feed').classList.add('active'); renderFeed(); }
-  if (s === 'portfolio') { document.getElementById('nav-portfolio').classList.add('active'); renderPortfolio(); }
-  if (s === 'hiroba') { document.getElementById('nav-hiroba').classList.add('active'); loadHirobaList(); }
-  if (s === 'post') { document.getElementById('nav-post-tab').classList.add('active'); resetPost(); }
-  window.scrollTo(0,0);
+  try {
+    document.querySelectorAll('.screen').forEach(x => x.classList.remove('active'));
+    const screenEl = document.getElementById('screen-' + s);
+    if (!screenEl) { console.error('screen not found:', s); return; }
+    screenEl.classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+    if (s === 'feed') { const el = document.getElementById('nav-feed'); if(el) el.classList.add('active'); renderFeed(); }
+    if (s === 'portfolio') { const el = document.getElementById('nav-portfolio'); if(el) el.classList.add('active'); renderPortfolio(); }
+    if (s === 'hiroba') { const el = document.getElementById('nav-hiroba'); if(el) el.classList.add('active'); loadHirobaList(); }
+    if (s === 'post') { const el = document.getElementById('nav-post-tab'); if(el) el.classList.add('active'); resetPost(); }
+    window.scrollTo(0,0);
+  } catch(e) { console.error('goTo error:', s, e); }
 }
 
 function renderPortfolio() {
