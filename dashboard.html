@@ -411,10 +411,9 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
 
   <div class="tab-wrap">
     <button class="tab-btn active" onclick="showTab('home')" id="tab-home">ホーム</button>
-    <button class="tab-btn" onclick="showTab('lp')" id="tab-lp">LP分析</button>
+    <button class="tab-btn" onclick="showTab('analytics')" id="tab-analytics">分析・改善</button>
     <button class="tab-btn" onclick="showTab('overview')" id="tab-overview">概要</button>
     <button class="tab-btn" onclick="showTab('ideas')" id="tab-ideas">アイデア</button>
-    <button class="tab-btn" onclick="showTab('pdca')" id="tab-pdca">PDCA</button>
   </div>
 
   <!-- ===== HOME TAB ===== -->
@@ -519,7 +518,102 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
   </div>
 
   <!-- ===== LP TAB ===== -->
-  <div id="tab-content-lp" class="main" style="display:none">
+  <div id="tab-content-analytics" class="main" style="display:none">
+
+    <!-- ===== セクション1: 状況分析 ===== -->
+    <div class="sec" style="font-size:12px;font-weight:700;color:var(--ink);letter-spacing:0;text-transform:none;margin-bottom:12px">📊 今日の状況と次のアクション</div>
+
+
+    <!-- 状況分析 -->
+    <div class="sec">今日の状況と次のアクション</div>
+    <div id="pdca-analysis" style="margin-bottom:14px">
+      <div class="skel" style="height:180px;margin-bottom:8px"></div>
+      <div class="skel" style="height:80px"></div>
+    </div>
+
+    <!-- 自動インサイト -->
+    <div style="font-size:12px;color:var(--ink3);margin-bottom:6px;line-height:1.7;padding:0 2px">
+      AIが過去データを分析して、注目すべき変化や改善ポイントを自動で表示します。
+    </div>
+    <div id="pdca-insights-pdca-wrap"></div>
+
+    <!-- 先週比サマリー -->
+    <div class="sec">今週 vs 先週</div>
+    <div style="font-size:12px;color:var(--ink3);margin-bottom:10px;line-height:1.7;padding:0 2px">
+      今週（月〜日）と先週を比較したサマリーです。ユーザー数・アイデア上場数・投票数の増減を確認できます。<br>
+      <span style="color:var(--green);font-weight:700">緑</span>は先週より増加、<span style="color:var(--red);font-weight:700">赤</span>は減少です。
+    </div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-head"><div class="card-title">WEEKLY COMPARISON</div><div class="card-meta" id="pdca-week-label"></div></div>
+      <div class="card-body" id="weekly-compare-body"><div class="skel"></div></div>
+    </div>
+
+    <!-- アクション × 流入グラフ -->
+    <div class="sec">アクションと流入の相関（14日間）</div>
+    <div style="font-size:12px;color:var(--ink3);margin-bottom:10px;line-height:1.7;padding:0 2px">
+      過去14日間のLP流入数（棒グラフ）と、あなたが実施した施策の日（●）を重ね合わせたグラフです。<br>
+      施策（Xへの投稿・機能追加など）を行った翌日以降に流入が増えているかを確認できます。<br>
+      <span style="color:var(--amber);font-weight:700">棒が高い日</span>＝その日にLPを訪れた人が多い日です。
+    </div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-head"><div class="card-title">ACTION × TRAFFIC</div><div class="card-meta">●＝アクション実施日</div></div>
+      <div class="card-body">
+        <div id="pdca-chart" style="position:relative;height:100px;margin-bottom:8px"></div>
+        <div id="pdca-chart-labels" style="display:flex;margin-bottom:10px"></div>
+        <div style="display:flex;gap:16px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:5px"><div style="width:12px;height:4px;background:var(--amber-bright);border-radius:2px"></div><span style="font-size:10px;color:var(--ink3)">LP流入数</span></div>
+          <div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:10px;background:var(--ink);border-radius:50%"></div><span style="font-size:10px;color:var(--ink3)">アクション実施日</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- やったこと記録 -->
+    <div class="sec">D — やったことを記録する</div>
+    <div style="font-size:12px;color:var(--ink3);margin-bottom:10px;line-height:1.7;padding:0 2px">
+      今日実施した施策をここに記録します。上のグラフと照らし合わせることで、どの施策が流入増加につながったか分析できます。<br>
+      カテゴリを選んで内容を入力し「記録」を押してください。
+    </div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-head"><div class="card-title">ACTION LOG</div><div class="card-meta">施策の記録</div></div>
+      <div class="card-body">
+        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+          <select id="action-category" class="sel">
+            <option value="x_post">🐦 Xに投稿</option>
+            <option value="lp_update">📄 LP更新</option>
+            <option value="feature">✨ 機能追加</option>
+            <option value="outreach">🤝 営業・DM</option>
+            <option value="other">📌 その他</option>
+          </select>
+          <input id="action-input" type="text" class="inp" style="flex:1;min-width:160px" placeholder="今日やったことを記録..." onkeydown="if(event.key==='Enter'&&!event.isComposing)addAction()">
+          <button class="btn-log" onclick="addAction()">記録</button>
+        </div>
+        <div id="action-log-list"></div>
+      </div>
+    </div>
+
+    <!-- 今週の目標 -->
+    <div class="sec">P — 今週の目標</div>
+    <div style="font-size:12px;color:var(--ink3);margin-bottom:10px;line-height:1.7;padding:0 2px">
+      今週達成したい目標を登録します（例：ユーザー5人、上場10件）。<br>
+      毎週月曜にリセットされます。目標を決めてから施策を打つことで、PDCAが回しやすくなります。
+    </div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-head"><div class="card-title">WEEKLY GOALS</div><div class="card-meta" id="goals-week"></div></div>
+      <div class="card-body">
+        <div id="goals-list" style="margin-bottom:10px"></div>
+        <div style="display:flex;gap:8px">
+          <input id="goal-input" type="text" class="inp" placeholder="今週の目標を追加（例：ユーザー5人）" onkeydown="if(event.key==='Enter'&&!event.isComposing)addGoal()">
+          <button class="btn-add" onclick="addGoal()">追加</button>
+        </div>
+      </div>
+    </div>
+
+
+    <div style="height:24px;border-top:1px solid var(--border);margin:20px 0 20px"></div>
+
+    <!-- ===== セクション2: LP分析 ===== -->
+    <div class="sec" style="font-size:12px;font-weight:700;color:var(--ink);letter-spacing:0;text-transform:none;margin-bottom:12px">🔍 LP（紹介ページ）の分析</div>
+
 
     <div id="pdca-insights-wrap" style="margin-bottom:4px"></div>
     <div id="lp-insight-wrap"></div>
@@ -584,7 +678,9 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
       <div class="card-body" id="lp-timeline-body"><div class="skel"></div></div>
     </div>
 
+
   </div>
+
 
   <!-- ===== OVERVIEW TAB ===== -->
   <div id="tab-content-overview" class="main" style="display:none">
@@ -672,116 +768,8 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
   </div>
 
   <!-- ===== USERS TAB ===== -->
-  <div id="tab-content-users" class="main" style="display:none">
-    <div class="sec">登録ユーザー名簿</div>
-    <div class="card">
-      <div class="card-head">
-        <div class="card-title">USER DIRECTORY</div>
-        <div class="card-meta" id="users-meta">—人</div>
-      </div>
-      <!-- 検索 + フィルタ -->
-      <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-        <input id="user-search" type="text" placeholder="名前で検索..." oninput="filterUsers()"
-          style="flex:1;min-width:140px;padding:8px 12px;border:1px solid var(--border);border-radius:var(--rs);font-size:13px;font-family:var(--sans);background:var(--bg);color:var(--ink);outline:none">
-        <div style="display:flex;gap:6px">
-          <button onclick="setUserFilter('all')" id="uf-all" style="font-family:var(--mono);font-size:9px;padding:4px 10px;border-radius:20px;border:1px solid var(--amber);background:var(--amber-light);color:var(--amber);cursor:pointer;white-space:nowrap">全員</button>
-          <button onclick="setUserFilter('founder')" id="uf-founder" style="font-family:var(--mono);font-size:9px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--ink3);cursor:pointer;white-space:nowrap">👑 創設</button>
-          <button onclick="setUserFilter('pro')" id="uf-pro" style="font-family:var(--mono);font-size:9px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--ink3);cursor:pointer;white-space:nowrap">PRO</button>
-          <button onclick="setUserFilter('free')" id="uf-free" style="font-family:var(--mono);font-size:9px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--ink3);cursor:pointer;white-space:nowrap">FREE</button>
-        </div>
-      </div>
-      <div class="card-body" id="users-body"><div class="skel"></div></div>
-    </div>
-  </div>
 
-  <!-- ===== PDCA TAB ===== -->
-  <div id="tab-content-pdca" class="main" style="display:none">
 
-    <!-- 状況分析 -->
-    <div class="sec">今日の状況と次のアクション</div>
-    <div id="pdca-analysis" style="margin-bottom:14px">
-      <div class="skel" style="height:180px;margin-bottom:8px"></div>
-      <div class="skel" style="height:80px"></div>
-    </div>
-
-    <!-- 自動インサイト -->
-    <div style="font-size:12px;color:var(--ink3);margin-bottom:6px;line-height:1.7;padding:0 2px">
-      AIが過去データを分析して、注目すべき変化や改善ポイントを自動で表示します。
-    </div>
-    <div id="pdca-insights-pdca-wrap"></div>
-
-    <!-- 先週比サマリー -->
-    <div class="sec">今週 vs 先週</div>
-    <div style="font-size:12px;color:var(--ink3);margin-bottom:10px;line-height:1.7;padding:0 2px">
-      今週（月〜日）と先週を比較したサマリーです。ユーザー数・アイデア上場数・投票数の増減を確認できます。<br>
-      <span style="color:var(--green);font-weight:700">緑</span>は先週より増加、<span style="color:var(--red);font-weight:700">赤</span>は減少です。
-    </div>
-    <div class="card" style="margin-bottom:14px">
-      <div class="card-head"><div class="card-title">WEEKLY COMPARISON</div><div class="card-meta" id="pdca-week-label"></div></div>
-      <div class="card-body" id="weekly-compare-body"><div class="skel"></div></div>
-    </div>
-
-    <!-- アクション × 流入グラフ -->
-    <div class="sec">アクションと流入の相関（14日間）</div>
-    <div style="font-size:12px;color:var(--ink3);margin-bottom:10px;line-height:1.7;padding:0 2px">
-      過去14日間のLP流入数（棒グラフ）と、あなたが実施した施策の日（●）を重ね合わせたグラフです。<br>
-      施策（Xへの投稿・機能追加など）を行った翌日以降に流入が増えているかを確認できます。<br>
-      <span style="color:var(--amber);font-weight:700">棒が高い日</span>＝その日にLPを訪れた人が多い日です。
-    </div>
-    <div class="card" style="margin-bottom:14px">
-      <div class="card-head"><div class="card-title">ACTION × TRAFFIC</div><div class="card-meta">●＝アクション実施日</div></div>
-      <div class="card-body">
-        <div id="pdca-chart" style="position:relative;height:100px;margin-bottom:8px"></div>
-        <div id="pdca-chart-labels" style="display:flex;margin-bottom:10px"></div>
-        <div style="display:flex;gap:16px;flex-wrap:wrap">
-          <div style="display:flex;align-items:center;gap:5px"><div style="width:12px;height:4px;background:var(--amber-bright);border-radius:2px"></div><span style="font-size:10px;color:var(--ink3)">LP流入数</span></div>
-          <div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:10px;background:var(--ink);border-radius:50%"></div><span style="font-size:10px;color:var(--ink3)">アクション実施日</span></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- やったこと記録 -->
-    <div class="sec">D — やったことを記録する</div>
-    <div style="font-size:12px;color:var(--ink3);margin-bottom:10px;line-height:1.7;padding:0 2px">
-      今日実施した施策をここに記録します。上のグラフと照らし合わせることで、どの施策が流入増加につながったか分析できます。<br>
-      カテゴリを選んで内容を入力し「記録」を押してください。
-    </div>
-    <div class="card" style="margin-bottom:14px">
-      <div class="card-head"><div class="card-title">ACTION LOG</div><div class="card-meta">施策の記録</div></div>
-      <div class="card-body">
-        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
-          <select id="action-category" class="sel">
-            <option value="x_post">🐦 Xに投稿</option>
-            <option value="lp_update">📄 LP更新</option>
-            <option value="feature">✨ 機能追加</option>
-            <option value="outreach">🤝 営業・DM</option>
-            <option value="other">📌 その他</option>
-          </select>
-          <input id="action-input" type="text" class="inp" style="flex:1;min-width:160px" placeholder="今日やったことを記録..." onkeydown="if(event.key==='Enter'&&!event.isComposing)addAction()">
-          <button class="btn-log" onclick="addAction()">記録</button>
-        </div>
-        <div id="action-log-list"></div>
-      </div>
-    </div>
-
-    <!-- 今週の目標 -->
-    <div class="sec">P — 今週の目標</div>
-    <div style="font-size:12px;color:var(--ink3);margin-bottom:10px;line-height:1.7;padding:0 2px">
-      今週達成したい目標を登録します（例：ユーザー5人、上場10件）。<br>
-      毎週月曜にリセットされます。目標を決めてから施策を打つことで、PDCAが回しやすくなります。
-    </div>
-    <div class="card" style="margin-bottom:14px">
-      <div class="card-head"><div class="card-title">WEEKLY GOALS</div><div class="card-meta" id="goals-week"></div></div>
-      <div class="card-body">
-        <div id="goals-list" style="margin-bottom:10px"></div>
-        <div style="display:flex;gap:8px">
-          <input id="goal-input" type="text" class="inp" placeholder="今週の目標を追加（例：ユーザー5人）" onkeydown="if(event.key==='Enter'&&!event.isComposing)addGoal()">
-          <button class="btn-add" onclick="addGoal()">追加</button>
-        </div>
-      </div>
-    </div>
-
-  </div>
 
 </div>
 <script>
@@ -839,7 +827,7 @@ function timeAgo(dateStr) { return fmtAgo(dateStr); }
 const tabLoaded = {};
 
 function showTab(name) {
-  ['home','lp','overview','ideas','pdca'].forEach(t => {
+  ['home','analytics','overview','ideas'].forEach(t => {
     const c=document.getElementById('tab-content-'+t); if(c) c.style.display = t===name ? '' : 'none';
     const b=document.getElementById('tab-'+t); if(b) b.classList.toggle('active', t===name);
   });
@@ -856,16 +844,12 @@ async function loadTab(name) {
   try {
     if (name === 'home') {
       await Promise.allSettled([loadHomeTab(), loadRevenue()]);
-    } else if (name === 'lp') {
-      await Promise.allSettled([loadLPAnalytics(), loadFunnel(), loadTimeAnalysis()]);
+    } else if (name === 'analytics') {
+      await Promise.allSettled([loadHomeTab(), loadPDCA(), loadLPAnalytics(), loadFunnel(), loadTimeAnalysis()]);
     } else if (name === 'overview') {
       await Promise.allSettled([loadKPI(), loadHourly(), loadRecent()]);
     } else if (name === 'ideas') {
       await loadIdeas();
-    } else if (name === 'users') {
-      await Promise.allSettled([loadUserDirectory(), loadActivityFeed()]);
-    } else if (name === 'pdca') {
-      await Promise.allSettled([loadPDCA(), loadHomeTab()]);
     }
   } finally {
     icon.classList.remove('spinning');
@@ -1865,7 +1849,7 @@ ${recentWork}
   const cat = document.getElementById('action-category').value;
   const text = input.value.trim();
   if (!text) return;
-  const btn = document.querySelector('#tab-content-pdca button[onclick="addAction()"]');
+  const btn = document.querySelector('#tab-content-analytics button[onclick="addAction()"]');
   if (btn) { btn.textContent = '保存中...'; btn.disabled = true; }
   try {
     await sb.from('action_logs').insert({ content: text, category: cat });
@@ -2504,17 +2488,17 @@ function startRealtime() {
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'ideas' }, () => {
       if (tabLoaded['home']) loadHomeTab();
       if (tabLoaded['overview']) loadKPI();
-      if (tabLoaded['users']) loadActivityFeed();
+      
       ['kpi-ideas','kpi-ideas-today','act-ideas-today','top-ideas-today'].forEach(id => flash(id, 'var(--green)'));
     })
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'votes' }, () => {
       if (tabLoaded['home']) loadHomeTab();
       if (tabLoaded['overview']) loadKPI();
-      if (tabLoaded['users']) loadActivityFeed();
+      
       ['kpi-votes-today','act-votes-today','top-votes-today'].forEach(id => flash(id, 'var(--amber)'));
     })
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'user_events' }, () => {
-      if (tabLoaded['lp']) loadLPAnalytics();
+      if (tabLoaded['analytics']) loadLPAnalytics();
     })
     .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
       // ユーザー登録・創設メンバー購入などを即時反映
