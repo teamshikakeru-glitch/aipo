@@ -373,8 +373,74 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
     <button class="tab-btn" onclick="showTab('pdca')" id="tab-pdca">PDCA</button>
   </div>
 
+  <!-- ===== HOME TAB ===== -->
+  <div id="tab-content-home" class="main">
+
+    <!-- 売上 -->
+    <div class="rev-hero">
+      <div class="rev-glow"></div>
+      <div class="rev-eyebrow">REVENUE — 売上合計（概算）</div>
+      <div style="display:flex;align-items:baseline;gap:2px;margin-bottom:4px">
+        <div class="rev-amount" id="revenue-total">—</div>
+        <div class="rev-amount" style="font-size:22px;color:rgba(255,255,255,.5)">円</div>
+      </div>
+      <div class="rev-sub">創設メンバー × ¥980（買い切り）+ Pro × ¥300/月</div>
+      <div class="rev-breakdown">
+        <div class="rev-item">
+          <div class="rev-item-lbl">👑 創設メンバー</div>
+          <div class="rev-item-val" id="revenue-founder">—</div>
+          <div class="rev-item-detail"><span id="founder-count-rev">—</span>人 × ¥980</div>
+        </div>
+        <div class="rev-item">
+          <div class="rev-item-lbl">🥃 Pro（月額）</div>
+          <div class="rev-item-val" id="revenue-pro">—</div>
+          <div class="rev-item-detail"><span id="pro-count-rev">—</span>人 × ¥300/月</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 今日のKPI -->
+    <div class="kpi-grid" style="margin-bottom:10px">
+      <div class="kpi amber">
+        <div class="kpi-lbl">累計ユーザー数</div>
+        <div class="kpi-num amber" id="top-users-total">—</div>
+        <div class="kpi-detail">あいぽに登録した人</div>
+      </div>
+      <div class="kpi green">
+        <div class="kpi-lbl">今日の新規ユーザー</div>
+        <div class="kpi-num green" id="top-users-today">—</div>
+        <div class="kpi-detail">今日登録した新しい人</div>
+      </div>
+      <div class="kpi green">
+        <div class="kpi-lbl">今日の上場数</div>
+        <div class="kpi-num green" id="top-ideas-today">—</div>
+        <div class="kpi-detail">今日追加されたアイデア</div>
+      </div>
+      <div class="kpi amber">
+        <div class="kpi-lbl">今日の投票数</div>
+        <div class="kpi-num amber" id="top-votes-today">—</div>
+        <div class="kpi-detail">今日投じられた応援票</div>
+      </div>
+    </div>
+
+    <!-- 今日上場したアイデア -->
+    <div class="sec">今日 上場されたアイデア</div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-head"><div class="card-title">TODAY'S LISTINGS</div><div class="card-meta" id="home-listings-meta">—</div></div>
+      <div class="card-body" id="home-listings-body"><div class="skel"></div></div>
+    </div>
+
+    <!-- 今日票が入ったアイデア -->
+    <div class="sec">今日 応援されたアイデア</div>
+    <div class="card">
+      <div class="card-head"><div class="card-title">TODAY'S VOTES</div><div class="card-meta" id="home-voted-meta">—</div></div>
+      <div class="card-body" id="home-voted-body"><div class="skel"></div></div>
+    </div>
+
+  </div>
+
   <!-- ===== LP TAB ===== -->
-  <div id="tab-content-lp" class="main">
+  <div id="tab-content-lp" class="main" style="display:none">
 
     <div id="pdca-insights-wrap" style="margin-bottom:4px"></div>
     <div id="lp-insight-wrap"></div>
