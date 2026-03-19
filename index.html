@@ -1352,6 +1352,8 @@ function startRealtime() {
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'ideas' }, (payload) => { const newIdea = payload.new; if (newIdea.user_id === currentUser?.id) return; showIPOBanner(newIdea); })
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'comments' }, async (payload) => {
       const c = payload.new; const idea = ideas.find(i=>i.id===c.idea_id); if (!idea) return;
+      // 自分が投稿したコメントはローカルで既に追加済みなのでスキップ
+      if (c.user_id === currentUser?.id) return;
       const { data } = await sb.from('profiles').select('x_username').eq('id', c.user_id).single();
       idea.commentList.unshift({ name:'@'+(data?.x_username||'ユーザー'), text:c.text, time:'たった今', tag: null }); idea.score = calcScore(idea);
       if (document.getElementById('screen-detail').classList.contains('active')) { const list = document.getElementById('comment-list-'+c.idea_id); if (list) { list.innerHTML = `<div style="padding:10px 0;border-bottom:0.5px solid var(--border);animation:fu .5s ease-out"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px"><div style="display:flex;align-items:center;gap:6px"><span style="font-size:12px;font-weight:700;color:var(--text)">@${data?.x_username||'ユーザー'}</span></div><span style="font-size:10px;color:var(--text3)">たった今</span></div><div style="font-size:13px;color:var(--text);line-height:1.6">${c.text}</div></div>` + list.innerHTML; } }
