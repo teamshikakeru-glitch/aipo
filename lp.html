@@ -62,7 +62,34 @@ body{background:var(--white);color:var(--ink);font-family:var(--sans);-webkit-fo
 .nav-a:hover{color:var(--ink)}
 .nav-cta{background:var(--navy);color:#fff;font-weight:700;font-size:13px;padding:8px 22px;border-radius:100px;text-decoration:none;transition:opacity .15s}
 .nav-cta:hover{opacity:.84}
-@media(max-width:640px){.nav-div{display:none}.nav-tag{display:none}.nav-links{gap:2px}.nav-a{font-size:10px;padding:5px 7px;color:var(--ink3)}.nav-cta{font-size:11px;padding:7px 14px}}
+@media(max-width:640px){
+  .nav-div{display:none}
+  .nav-tag{display:none}
+  .nav-links .nav-a{display:none}
+  .nav-cta{font-size:12px;padding:7px 16px}
+  .nav-ham{display:flex}
+  .nav-logo-name{font-size:16px}
+}
+.nav-ham{
+  display:none;flex-direction:column;gap:4px;
+  cursor:pointer;padding:8px;margin-left:4px;
+  background:none;border:none;
+}
+.nav-ham span{width:18px;height:2px;background:var(--navy);border-radius:1px;display:block;transition:all .2s}
+/* モバイルドロワー */
+.nav-drawer{
+  display:none;position:fixed;top:54px;left:0;right:0;
+  background:var(--white);border-bottom:1px solid var(--border);
+  padding:12px 5vw 16px;z-index:99;
+  box-shadow:0 4px 20px rgba(12,26,50,.1);
+}
+.nav-drawer.open{display:block}
+.nav-drawer a{
+  display:block;font-size:14px;font-weight:600;color:var(--ink);
+  text-decoration:none;padding:12px 0;
+  border-bottom:1px solid var(--border);
+}
+.nav-drawer a:last-child{border-bottom:none}
 
 /* ─── REVEAL ─── */
 .r{opacity:0;transform:translateY(20px);transition:opacity .7s cubic-bezier(.4,0,.2,1),transform .7s cubic-bezier(.4,0,.2,1)}
@@ -381,6 +408,29 @@ body{background:var(--white);color:var(--ink);font-family:var(--sans);-webkit-fo
 #main-content{opacity:0;transition:opacity .5s ease}
 #main-content.visible{opacity:1}
 
+
+/* ─── SNS SHARE ─── */
+.sns-section{background:var(--off);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:56px 5vw}
+.sns-inner{max-width:700px;margin:0 auto;text-align:center}
+.sns-eyebrow{font-family:var(--mono);font-size:9px;color:var(--gold);letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px;display:block}
+.sns-h{font-family:var(--serif);font-size:clamp(20px,3.5vw,32px);font-weight:900;color:var(--navy);margin-bottom:10px}
+.sns-body{font-size:13px;color:var(--ink3);line-height:1.7;margin-bottom:28px}
+.sns-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.sns-btn-x{
+  display:inline-flex;align-items:center;gap:8px;
+  background:#000;color:#fff;font-weight:700;font-size:14px;
+  padding:12px 28px;border-radius:100px;text-decoration:none;
+  transition:opacity .15s;
+}
+.sns-btn-x:hover{opacity:.82}
+.sns-btn-copy{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--white);color:var(--navy);font-weight:700;font-size:14px;
+  padding:12px 28px;border-radius:100px;text-decoration:none;
+  border:1.5px solid var(--border);transition:border-color .15s;cursor:pointer;font-family:var(--sans);
+}
+.sns-btn-copy:hover{border-color:var(--navy)}
+
 /* ─── MOBILE FIXES ─── */
 @media(max-width:480px){
   .hero{padding:72px 4vw 52px}
@@ -476,8 +526,17 @@ body{background:var(--white);color:var(--ink);font-family:var(--sans);-webkit-fo
     <a href="#pricing" class="nav-a">料金</a>
     <a href="#investor" class="nav-a">投資家の方へ</a>
     <a href="https://aipo-tau.vercel.app/?utm_source=lp&utm_medium=nav&utm_campaign=open_app" class="nav-cta">アプリを開く</a>
+  <button class="nav-ham" onclick="toggleDrawer()" aria-label="メニュー">
+    <span></span><span></span><span></span>
+  </button>
   </div>
 </nav>
+<div class="nav-drawer" id="nav-drawer">
+  <a href="#full-market" onclick="toggleDrawer()">マーケット</a>
+  <a href="#pricing" onclick="toggleDrawer()">料金</a>
+  <a href="#investor" onclick="toggleDrawer()">投資家の方へ</a>
+  <a href="https://aipo-tau.vercel.app/?utm_source=lp&utm_medium=nav_drawer&utm_campaign=open_app" onclick="toggleDrawer()">アプリを開く</a>
+</div>
 
 <!-- HERO -->
 <section class="hero">
@@ -938,6 +997,36 @@ async function load(){
   }catch(e){console.warn(e);}
 }
 load();setInterval(load,60000);
+
+// ドロワー
+function toggleDrawer(){
+  document.getElementById('nav-drawer').classList.toggle('open');
+}
+// ドロワー外クリックで閉じる
+document.addEventListener('click', function(e){
+  const drawer = document.getElementById('nav-drawer');
+  const ham = document.querySelector('.nav-ham');
+  if(drawer && !drawer.contains(e.target) && ham && !ham.contains(e.target)){
+    drawer.classList.remove('open');
+  }
+});
+
+// URLコピー
+function copyLPUrl(btn) {
+  navigator.clipboard.writeText('https://aipo-tau.vercel.app/lp.html').then(() => {
+    const orig = btn.innerHTML;
+    btn.innerHTML = '✓ コピーしました';
+    btn.style.background = 'var(--green-bg, #f0fdf4)';
+    btn.style.borderColor = 'var(--green2)';
+    btn.style.color = 'var(--green2)';
+    setTimeout(() => {
+      btn.innerHTML = orig;
+      btn.style.background = '';
+      btn.style.borderColor = '';
+      btn.style.color = '';
+    }, 2000);
+  });
+}
 
 // 滞在時間計測
 (async function(){
