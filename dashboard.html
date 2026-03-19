@@ -489,12 +489,6 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
       </div>
     </div>
 
-    <!-- 分析カード -->
-    <div id="kpi-analysis" style="margin-bottom:14px">
-      <div class="skel" style="height:160px;margin-bottom:8px"></div>
-      <div class="skel" style="height:80px"></div>
-    </div>
-
     <!-- 広場管理 -->
     <div class="sec" style="margin-top:4px">広場 — 受信メッセージ管理</div>
     <div class="card" style="margin-bottom:14px">
@@ -703,6 +697,13 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
   <!-- ===== PDCA TAB ===== -->
   <div id="tab-content-pdca" class="main" style="display:none">
 
+    <!-- 状況分析 -->
+    <div class="sec">今日の状況と次のアクション</div>
+    <div id="pdca-analysis" style="margin-bottom:14px">
+      <div class="skel" style="height:180px;margin-bottom:8px"></div>
+      <div class="skel" style="height:80px"></div>
+    </div>
+
     <!-- 自動インサイト -->
     <div style="font-size:12px;color:var(--ink3);margin-bottom:6px;line-height:1.7;padding:0 2px">
       AIが過去データを分析して、注目すべき変化や改善ポイントを自動で表示します。
@@ -864,7 +865,7 @@ async function loadTab(name) {
     } else if (name === 'users') {
       await Promise.allSettled([loadUserDirectory(), loadActivityFeed()]);
     } else if (name === 'pdca') {
-      await loadPDCA();
+      await Promise.allSettled([loadPDCA(), loadHomeTab()]);
     }
   } finally {
     icon.classList.remove('spinning');
@@ -1772,10 +1773,94 @@ function deleteGoal(i) {
 }
 
 // ===== ACTION LOG (Supabase) =====
-const CAT_ICONS = { x_post:'🐦', lp_update:'📄', feature:'✨', outreach:'🤝', other:'📌' };
-const CAT_LABELS = { x_post:'Xに投稿', lp_update:'LP更新', feature:'機能追加', outreach:'営業・DM', other:'その他' };
+const CAT_ICONS = { 'auto': '🤖', x_post:'🐦', lp_update:'📄', feature:'✨', outreach:'🤝', other:'📌' };
+const CAT_LABELS = { 'auto': 'AI自動記録', x_post:'Xに投稿', lp_update:'LP更新', feature:'機能追加', outreach:'営業・DM', other:'その他' };
 
 async function addAction() {
+
+// ===== AI自動ログ生成 =====
+async function generateAutoLog() {
+  const btn = document.getElementById('auto-log-btn');
+  if(btn){ btn.textContent = 'AIが記録中...'; btn.disabled = true; }
+
+  try {
+    // 今日と昨日のデータを比較取得
+    const today = new Date().toISOString().slice(0,10);
+    const yday = new Date(Date.now()-86400000).toISOString().slice(0,10);
+
+    const [r0,r1,r2,r3,r4,r5] = await Promise.allSettled([
+      sb.from('profiles').select('id',{count:'exact',head:true}),
+      sb.from('profiles').select('id',{count:'exact',head:true}).gte('created_at', today+'T00:00:00Z'),
+      sb.from('idea_votes').select('id',{count:'exact',head:true}).gte('created_at', today+'T00:00:00Z'),
+      sb.from('ideas').select('id',{count:'exact',head:true}).gte('created_at', today+'T00:00:00Z'),
+      sb.from('profiles').select('id',{count:'exact',head:true}).gte('created_at', yday+'T00:00:00Z').lt('created_at', today+'T00:00:00Z'),
+      sb.from('idea_votes').select('id',{count:'exact',head:true}).gte('created_at', yday+'T00:00:00Z').lt('created_at', today+'T00:00:00Z'),
+    ]);
+
+    const totalUsers = r0.value?.count ?? 0;
+    const newUsersToday = r1.value?.count ?? 0;
+    const votesToday = r2.value?.count ?? 0;
+    const ideasToday = r3.value?.count ?? 0;
+    const newUsersYday = r4.value?.count ?? 0;
+    const votesYday = r5.value?.count ?? 0;
+
+    // 最近のaction_logsを取得（前回からの変化把握）
+    const { data: recentLogs } = await sb.from('action_logs')
+      .select('content,logged_at')
+      .order('logged_at', { ascending: false })
+      .limit(3);
+
+    const recentWork = recentLogs?.map(l => l.content).join('、') || '（初回記録）';
+
+    // AIに文章生成を依頼
+    const prompt = `あいぽというアイデアIPO市場SNSの運営者です。
+今日（${today}）の状況と昨日からの変化を、運営者が「自分の日記」として後で見返せるよう、わかりやすい日本語で2〜4文にまとめてください。
+
+【今日のデータ】
+- 累計ユーザー数: ${totalUsers}人
+- 今日の新規ユーザー: ${newUsersToday}人（昨日: ${newUsersYday}人）
+- 今日の投票数: ${votesToday}票（昨日: ${votesYday}票）
+- 今日の上場数: ${ideasToday}件
+
+【最近やったこと】
+${recentWork}
+
+【注意】
+- 難しい専門用語は使わない
+- 「今日は〜でした。〜が増えた/減った。」のような自然な文体で
+- 良い点も改善点も正直に書く
+- 数字を具体的に入れる`;
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const aiText = data.content?.[0]?.text || '';
+
+    if (!aiText) throw new Error('AI応答なし');
+
+    // Supabaseに保存
+    await sb.from('action_logs').insert({
+      content: aiText,
+      category: 'auto',
+    });
+
+    await loadActionLog();
+    if(btn){ btn.textContent = '✓ 記録しました'; }
+    setTimeout(() => { if(btn){ btn.textContent = '今日の変化をAIが自動記録'; btn.disabled = false; } }, 2000);
+
+  } catch(e) {
+    console.error(e);
+    if(btn){ btn.textContent = 'エラー: ' + e.message; btn.disabled = false; }
+  }
+}
+
   const input = document.getElementById('action-input');
   const cat = document.getElementById('action-category').value;
   const text = input.value.trim();
@@ -1798,15 +1883,18 @@ async function loadActionLog() {
     document.getElementById('action-log-list').innerHTML = '<div style="font-size:12px;color:var(--ink3);padding:8px 0">まだ記録がありません。やったことを記録していきましょう。</div>';
     return;
   }
-  document.getElementById('action-log-list').innerHTML = data.map(a => `
-    <div class="al-item">
+  document.getElementById('action-log-list').innerHTML = data.map(a => {
+    const logDate = a.logged_at ? a.logged_at.slice(0,10) : '';
+    const isAuto = a.category === 'auto';
+    return `<div class="al-item" style="${isAuto ? 'background:var(--bg2);border-radius:var(--rs);padding:10px 12px;margin-bottom:4px' : ''}">
       <div class="al-cat">${CAT_ICONS[a.category]||'📌'}</div>
       <div class="al-info">
-        <div class="al-text">${a.content}</div>
-        <div class="al-date">${a.logged_at} · ${CAT_LABELS[a.category]||a.category}</div>
+        <div class="al-text" style="${isAuto ? 'color:var(--ink);font-size:13px;line-height:1.7' : ''}">${a.content}</div>
+        <div class="al-date" style="margin-top:4px">${logDate} · ${CAT_LABELS[a.category]||a.category}</div>
       </div>
       <button class="al-del" onclick="deleteAction('${a.id}')">×</button>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 async function deleteAction(id) {
@@ -2282,7 +2370,7 @@ async function loadHomeTab() {
   const t2 = trend(usersToday, usersYday);
   const t4 = trend(votesToday.length, votesYday);
 
-  const analysisEl = document.getElementById('kpi-analysis');
+  const analysisEl = document.getElementById('pdca-analysis');
   if (analysisEl) {
     analysisEl.innerHTML = `
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
