@@ -1410,21 +1410,26 @@ async function shareCertificate(ideaId, encodedName, ticker) {
   const btn = document.getElementById('cert-share-btn'); if (btn) { btn.innerHTML = '生成中...'; btn.disabled = true; }
   try {
     const ideaName = decodeURIComponent(encodedName);
-    const certHTML = _lastCertHTML;
+    // cert-innerがDOMにあれば直接使う、なければbuildCertHTMLで再構築
+    let certHTML = _lastCertHTML;
+    if (!certHTML) {
+      const idea = ideas.find(i => i.id === ideaId);
+      if (idea) certHTML = buildCertHTML(idea, idea.votes || 0);
+    }
     if (!certHTML) { showToast('株券データがありません'); if(btn){btn.innerHTML='Xでシェアする';btn.disabled=false;} return; }
 
-    // オフスクリーンでcert-wrapを正確に再現
+    // オフスクリーンで正確に再現
     const wrap = document.createElement('div');
     wrap.className = 'cert-wrap';
     wrap.style.cssText = [
       'position:fixed','left:-9999px','top:0','z-index:-1',
       'width:580px','background:#f5f1ea',
       'border-radius:12px','border:1px solid #e0d8cc',
-      'display:flex','overflow:visible'
+      'display:flex','overflow:visible','margin:0'
     ].join(';');
     wrap.innerHTML = certHTML;
     document.body.appendChild(wrap);
-    await new Promise(r => setTimeout(r, 200));
+    await new Promise(r => setTimeout(r, 250));
 
     const certCanvas = await html2canvas(wrap, {
       scale: 3,
