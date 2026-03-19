@@ -442,19 +442,6 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
       </div>
     </div>
 
-    <!-- 広場管理 -->
-    <div class="sec">広場 — 受信メッセージ管理</div>
-    <div class="card" style="margin-bottom:14px">
-      <div class="card-head">
-        <div class="card-title">VOICE INBOX</div>
-        <div style="display:flex;gap:6px;align-items:center">
-          <div id="hiroba-urgent-badge" style="display:none;background:#e53e3e;color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;font-family:var(--mono)">緊急あり</div>
-          <div class="card-meta" id="hiroba-inbox-meta">読込中...</div>
-        </div>
-      </div>
-      <div id="hiroba-inbox-body" style="padding:8px 0"><div class="skel"></div><div class="skel" style="margin-top:6px"></div></div>
-    </div>
-
     <!-- 売上 -->
     <div class="rev-hero">
       <div class="rev-glow"></div>
@@ -500,6 +487,19 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
         <div class="kpi-num amber" id="top-votes-today">—</div>
         <div class="kpi-detail">今日投じられた応援票</div>
       </div>
+    </div>
+
+    <!-- 広場管理 -->
+    <div class="sec" style="margin-top:4px">広場 — 受信メッセージ管理</div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-head">
+        <div class="card-title">VOICE INBOX</div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <div id="hiroba-urgent-badge" style="display:none;background:#e53e3e;color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;font-family:var(--mono)">緊急あり</div>
+          <div class="card-meta" id="hiroba-inbox-meta">読込中...</div>
+        </div>
+      </div>
+      <div id="hiroba-inbox-body" style="padding:8px 0"><div class="skel"></div><div class="skel" style="margin-top:6px"></div></div>
     </div>
 
     <!-- 今日上場したアイデア -->
@@ -627,6 +627,19 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
         <div class="kpi-num amber" id="ideas-kpi-votes-today">—</div>
         <div class="kpi-detail">本日の総投票数</div>
       </div>
+    </div>
+
+    <!-- 広場管理 -->
+    <div class="sec" style="margin-top:4px">広場 — 受信メッセージ管理</div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-head">
+        <div class="card-title">VOICE INBOX</div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <div id="hiroba-urgent-badge" style="display:none;background:#e53e3e;color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;font-family:var(--mono)">緊急あり</div>
+          <div class="card-meta" id="hiroba-inbox-meta">読込中...</div>
+        </div>
+      </div>
+      <div id="hiroba-inbox-body" style="padding:8px 0"><div class="skel"></div><div class="skel" style="margin-top:6px"></div></div>
     </div>
 
     <!-- 今日上場したアイデア -->
@@ -2335,19 +2348,49 @@ async function showKpiModal(type) {
   const todayISO = today.toISOString();
   try {
     if (type === 'all-users') {
-      const { data } = await sb.from('user_profiles_view').select('*').order('created_at', { ascending: false });
-      body.innerHTML = (data||[]).map(u => `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)"><div style="font-size:13px;font-weight:700;color:var(--ink)">${u.display_name||u.email||'—'}</div><div style="font-size:10px;color:var(--ink3);margin-left:auto">${u.created_at ? new Date(u.created_at).toLocaleDateString('ja-JP') : '—'}</div>${u.is_founder ? '<div style="font-size:9px;padding:1px 6px;background:#fef3c7;border:1px solid #fde68a;border-radius:4px;color:#854f0b;font-weight:700">創設</div>' : ''}</div>`).join('') || 'ユーザーはいません';
+      // profilesテーブルから直接取得
+      const { data } = await sb.from('profiles').select('id,x_username,display_name,is_founder,created_at').order('created_at', { ascending: false });
+      body.innerHTML = (data&&data.length) ? data.map(u => `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+        <div style="font-size:13px;font-weight:700;color:var(--ink)">${u.display_name||u.x_username||u.id.slice(0,8)}</div>
+        <div style="font-size:10px;color:var(--ink3);margin-left:auto">${u.created_at ? new Date(u.created_at).toLocaleDateString('ja-JP') : '—'}</div>
+        ${u.is_founder ? '<div style="font-size:9px;padding:1px 6px;background:#fef3c7;border:1px solid #fde68a;border-radius:4px;color:#854f0b;font-weight:700">創設</div>' : ''}
+      </div>`).join('') : '<div style="padding:20px;text-align:center;font-size:12px;color:var(--ink3)">ユーザーはいません</div>';
+
     } else if (type === 'new-users') {
-      const { data } = await sb.from('user_profiles_view').select('*').gte('created_at', todayISO).order('created_at', { ascending: false });
-      body.innerHTML = (data||[]).map(u => `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)"><div style="font-size:13px;font-weight:700;color:var(--ink)">${u.display_name||u.email||'—'}</div><div style="font-size:10px;color:var(--ink3);margin-left:auto">${u.created_at ? new Date(u.created_at).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}) : '—'}</div></div>`).join('') || '今日の新規ユーザーはいません';
+      const { data } = await sb.from('profiles').select('id,x_username,display_name,created_at').gte('created_at', todayISO).order('created_at', { ascending: false });
+      body.innerHTML = (data&&data.length) ? data.map(u => `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+        <div style="font-size:13px;font-weight:700;color:var(--ink)">${u.display_name||u.x_username||u.id.slice(0,8)}</div>
+        <div style="font-size:10px;color:var(--ink3);margin-left:auto">${u.created_at ? new Date(u.created_at).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}) : '—'}</div>
+      </div>`).join('') : '<div style="padding:20px;text-align:center;font-size:12px;color:var(--ink3)">今日の新規ユーザーはいません</div>';
+
     } else if (type === 'today-ideas') {
-      const { data } = await sb.from('ideas').select('*').gte('created_at', todayISO).order('created_at', { ascending: false });
-      body.innerHTML = (data||[]).map(i => `<div style="padding:10px 0;border-bottom:1px solid var(--border)"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-family:var(--mono);font-size:9px;font-weight:700;color:var(--amber)">${i.ticker||'—'}</span><div style="font-size:13px;font-weight:700;color:var(--ink);flex:1">${i.name}</div><div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--green)">${parseFloat(i.score||50).toFixed(1)}</div></div><div style="font-size:10px;color:var(--ink3)">${i.genre||'—'} · ${i.votes||0}票 · ${i.created_at ? new Date(i.created_at).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}) : '—'}</div></div>`).join('') || '今日の上場はありません';
+      const { data } = await sb.from('ideas').select('id,name,ticker,genre,score,votes,created_at').gte('created_at', todayISO).order('created_at', { ascending: false });
+      body.innerHTML = (data&&data.length) ? data.map(i => `<div style="padding:10px 0;border-bottom:1px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+          <span style="font-family:var(--mono);font-size:9px;font-weight:700;color:var(--amber)">${i.ticker||'—'}</span>
+          <div style="font-size:13px;font-weight:700;color:var(--ink);flex:1">${i.name}</div>
+          <div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--green)">${parseFloat(i.score||50).toFixed(1)}</div>
+        </div>
+        <div style="font-size:10px;color:var(--ink3)">${i.genre||'—'} · ${i.votes||0}票 · ${i.created_at ? new Date(i.created_at).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}) : '—'}</div>
+      </div>`).join('') : '<div style="padding:20px;text-align:center;font-size:12px;color:var(--ink3)">今日の上場はありません</div>';
+
     } else if (type === 'today-votes') {
-      const { data } = await sb.from('idea_votes').select('*, ideas(name,ticker), profiles(display_name)').gte('created_at', todayISO).order('created_at', { ascending: false }).catch(() => ({ data: [] }));
-      body.innerHTML = (data||[]).map(v => `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)"><div style="font-size:12px;font-weight:700;color:var(--ink)">${v.profiles?.display_name||'匿名'}</div><div style="font-size:10px;color:var(--ink3)">→</div><div style="font-size:12px;color:var(--ink);flex:1">「${(v.ideas?.name||'—').slice(0,20)}」</div><div style="font-size:9px;color:var(--ink3)">${v.created_at ? new Date(v.created_at).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}) : '—'}</div></div>`).join('') || '今日の投票はありません';
+      // idea_votesとideasを別々に取得してマージ
+      const [vRes, iRes] = await Promise.allSettled([
+        sb.from('idea_votes').select('id,idea_id,user_id,created_at').gte('created_at', todayISO).order('created_at', { ascending: false }),
+        sb.from('ideas').select('id,name,ticker')
+      ]);
+      const votes = vRes.value?.data || [];
+      const ideas = iRes.value?.data || [];
+      const ideaMap = {};
+      ideas.forEach(i => ideaMap[i.id] = i);
+      body.innerHTML = votes.length ? votes.map(v => `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+        <span style="font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:4px;padding:1px 6px">${ideaMap[v.idea_id]?.ticker||'—'}</span>
+        <div style="font-size:12px;color:var(--ink);flex:1">「${(ideaMap[v.idea_id]?.name||'不明').slice(0,22)}」</div>
+        <div style="font-size:9px;color:var(--ink3)">${v.created_at ? new Date(v.created_at).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}) : '—'}</div>
+      </div>`).join('') : '<div style="padding:20px;text-align:center;font-size:12px;color:var(--ink3)">今日の投票はありません</div>';
     }
-  } catch(e) { body.innerHTML = '<div style="color:#e53e3e;font-size:12px">読み込み失敗: ' + e.message + '</div>'; }
+  } catch(e) { body.innerHTML = '<div style="color:#e53e3e;font-size:12px;padding:12px">読み込み失敗: ' + e.message + '</div>'; console.error(e); }
 }
 
 // ===== HIROBA INBOX =====
