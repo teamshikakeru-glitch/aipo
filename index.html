@@ -48,9 +48,9 @@ html, body { overflow-x: hidden !important; width: 100%; max-width: 100vw; posit
 html { overflow-x: hidden; }
 body { background: var(--bg); color: var(--text); font-family: var(--sans); overscroll-behavior: none; overflow-x: hidden !important; width: 100%; touch-action: pan-y pinch-zoom; }
 .app { max-width: 390px; margin: 0 auto; min-height: 100vh; overflow: hidden; width: 100%; }
-.screen { display: none; flex-direction: column; height: 100vh; overflow: hidden; width: 100%; }
-.screen.active { display: flex; }
-.header { background: var(--surface); padding: 16px 18px 0; flex-shrink: 0; z-index: 20; }
+.screen { display: none; min-height: 100vh; padding-bottom: 90px; overflow-x: hidden; width: 100%; }
+.screen.active { display: block; }
+.header { background: var(--surface); padding: 16px 18px 0; position: sticky; top: 0; z-index: 20; }
 .hd-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 .logo-wrap { display: flex; align-items: center; gap: 10px; }
 .logo-name { font-size: 20px; font-weight: 700; color: var(--text); letter-spacing: -.03em; }
@@ -114,7 +114,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); over
 }
 .nav-post-btn-icon svg { width: 14px; height: 14px; color: #fff; }
 .nav-post-btn-text { font-size: 10px; font-weight: 700; color: var(--amber-mid); font-family: var(--sans); letter-spacing: .01em; }
-.sub-header { background: var(--surface); border-bottom: 0.5px solid var(--border); padding: 14px 18px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; z-index: 20; overflow: hidden; }
+.sub-header { background: var(--surface); border-bottom: 0.5px solid var(--border); padding: 14px 18px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 20; overflow: hidden; }
 .back-btn { cursor: pointer; color: var(--text2); display: flex; align-items: center; }
 .sub-title { font-size: 16px; font-weight: 700; }
 .detail-body { padding: 14px; }
@@ -360,7 +360,7 @@ input[type=file] { display: none; }
 }
 
 
-.screen-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; padding-bottom: 90px; }
+.screen-scroll { display: contents; }
 </style>
 </head>
 <body>
