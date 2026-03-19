@@ -770,6 +770,24 @@ async function loadLPAnalytics() {
   document.getElementById('lp-total').textContent = lpEvents.length;
   document.getElementById('lp-today').textContent = todayLp.length;
 
+  // トップKPI（サマリー）
+  const [
+    { count: usersTotal },
+    { count: usersToday },
+    { count: ideasToday2 },
+    { count: votesToday2 },
+  ] = await Promise.all([
+    sb.from('profiles').select('id',{count:'exact',head:true}).neq('id', ADMIN_ID),
+    sb.from('profiles').select('id',{count:'exact',head:true}).neq('id', ADMIN_ID).gte('created_at', today+'T00:00:00Z'),
+    sb.from('ideas').select('id',{count:'exact',head:true}).gte('updated_at', today+'T00:00:00Z'),
+    sb.from('votes').select('id',{count:'exact',head:true}).gte('created_at', today+'T00:00:00Z'),
+  ]);
+  const setKPI = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val ?? '0'; };
+  setKPI('top-users-total', usersTotal);
+  setKPI('top-users-today', usersToday);
+  setKPI('top-ideas-today', ideasToday2);
+  setKPI('top-votes-today', votesToday2);
+
   // LP開封数（lp.html自体を開いた回数）
   const { data: lpViews, count: lpViewTotal } = await sb.from('user_events')
     .select('created_at', { count: 'exact' })
