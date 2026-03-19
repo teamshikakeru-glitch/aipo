@@ -25,6 +25,7 @@
   --green-border:#a7f3d0;
   --red:#dc2626;
   --red-light:#fef2f2;
+  --red-border:rgba(220,38,38,.2);
   --border:#e8e4dc;
   --border2:#d4cec4;
   --shadow-sm:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
@@ -375,6 +376,9 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
 
   <!-- ===== HOME TAB ===== -->
   <div id="tab-content-home" class="main">
+
+    <!-- ヘルスチェックバナー -->
+    <div id="health-banner" style="margin-bottom:12px"></div>
 
     <!-- 売上 -->
     <div class="rev-hero">
@@ -1951,6 +1955,103 @@ function flash(id, color) {
   setTimeout(() => { el.style.color = ''; }, 1200);
 }
 
+// ===== HEALTH CHECK =====
+async function runHealthCheck() {
+  const checks = [];
+  const banner = document.getElementById('health-banner');
+  if (!banner) return;
+  banner.innerHTML = `<div style="font-family:var(--mono);font-size:10px;color:var(--ink3);padding:8px 0">🔍 システムチェック中...</div>`;
+
+  // 1. DB接続チェック
+  try {
+    const { error } = await sb.from('profiles').select('id', { count: 'exact', head: true });
+    checks.push({ label: 'DB接続', ok: !error, detail: error?.message });
+  } catch(e) {
+    checks.push({ label: 'DB接続', ok: false, detail: e.message });
+  }
+
+  // 2. 投票機能チェック（votesテーブルへの読み取り）
+  try {
+    const { error } = await sb.from('votes').select('id', { count: 'exact', head: true });
+    checks.push({ label: '投票テーブル', ok: !error, detail: error?.message });
+  } catch(e) {
+    checks.push({ label: '投票テーブル', ok: false, detail: e.message });
+  }
+
+  // 3. increment_idea_votes RPCの存在確認
+  try {
+    // ダミーUUIDで呼び出してエラー内容で判断
+    const { error } = await sb.rpc('increment_idea_votes', { idea_id: '00000000-0000-0000-0000-000000000000' });
+    // "No rows found"系のエラーはOK（関数は存在している）
+    const ok = !error || error.code === 'PGRST116' || error.message?.includes('found') || error.message?.includes('0 rows');
+    checks.push({ label: '投票RPC', ok, detail: ok ? null : error?.message });
+  } catch(e) {
+    checks.push({ label: '投票RPC', ok: false, detail: e.message });
+  }
+
+  // 4. update_idea_score RPCの存在確認
+  try {
+    const { error } = await sb.rpc('update_idea_score', { idea_id: '00000000-0000-0000-0000-000000000000', new_score: 0 });
+    const ok = !error || error.code === 'PGRST116' || error.message?.includes('found') || error.message?.includes('0 rows');
+    checks.push({ label: 'スコア更新RPC', ok, detail: ok ? null : error?.message });
+  } catch(e) {
+    checks.push({ label: 'スコア更新RPC', ok: false, detail: e.message });
+  }
+
+  // 5. user_profiles_view の存在確認
+  try {
+    const { error } = await sb.from('user_profiles_view').select('id').limit(1);
+    checks.push({ label: 'ユーザーView', ok: !error, detail: error?.message });
+  } catch(e) {
+    checks.push({ label: 'ユーザーView', ok: false, detail: e.message });
+  }
+
+  // 6. action_logsテーブル
+  try {
+    const { error } = await sb.from('action_logs').select('id', { count: 'exact', head: true });
+    checks.push({ label: 'アクションログ', ok: !error, detail: error?.message });
+  } catch(e) {
+    checks.push({ label: 'アクションログ', ok: false, detail: e.message });
+  }
+
+  const allOk = checks.every(c => c.ok);
+  const failedChecks = checks.filter(c => !c.ok);
+
+  if (allOk) {
+    banner.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--green-light);border:1px solid var(--green-border);border-radius:var(--r)">
+        <span style="font-size:16px">✅</span>
+        <div style="flex:1">
+          <div style="font-size:12px;font-weight:700;color:var(--green)">すべてのシステムが正常です</div>
+          <div style="font-family:var(--mono);font-size:9px;color:var(--green);opacity:.7;margin-top:2px">${checks.map(c=>'✓ '+c.label).join('  ·  ')}</div>
+        </div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--green);opacity:.6">${new Date().toLocaleTimeString('ja-JP')}</div>
+      </div>`;
+  } else {
+    banner.innerHTML = `
+      <div style="background:var(--red-light);border:1px solid rgba(220,38,38,.2);border-radius:var(--r);overflow:hidden">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(220,38,38,.15)">
+          <span style="font-size:16px">⚠️</span>
+          <div style="flex:1">
+            <div style="font-size:12px;font-weight:700;color:var(--red)">${failedChecks.length}件の異常を検知しました</div>
+            <div style="font-size:10px;color:var(--red);opacity:.8;margin-top:2px">機能が正常に動作していない可能性があります</div>
+          </div>
+          <div style="font-family:var(--mono);font-size:9px;color:var(--red);opacity:.6">${new Date().toLocaleTimeString('ja-JP')}</div>
+        </div>
+        <div style="padding:10px 14px">
+          ${checks.map(c => `
+            <div style="display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid rgba(220,38,38,.08)">
+              <span style="font-family:var(--mono);font-size:10px;flex-shrink:0;margin-top:1px">${c.ok?'✅':'❌'}</span>
+              <div style="flex:1">
+                <span style="font-size:11px;font-weight:700;color:${c.ok?'var(--green)':'var(--red)'}">${c.label}</span>
+                ${!c.ok && c.detail ? `<div style="font-family:var(--mono);font-size:9px;color:var(--red);opacity:.7;margin-top:2px">${c.detail}</div>` : ''}
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>`;
+  }
+}
+
 async function loadHomeTab() {
   const today = new Date().toISOString().slice(0,10);
 
@@ -2048,8 +2149,8 @@ async function loadHomeTab() {
     }
   }
 
-  // LP分析のKPIも更新（loadLPAnalyticsが後で呼ばれるが先に0埋めしておく）
-  ['top-users-total','top-users-today','top-ideas-today','top-votes-today'].forEach(id=>{});
+  // ヘルスチェックを非同期で実行（UIをブロックしない）
+  runHealthCheck();
 }
 
 function startRealtime() {
