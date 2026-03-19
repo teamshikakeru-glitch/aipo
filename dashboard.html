@@ -489,6 +489,12 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
       </div>
     </div>
 
+    <!-- 分析カード -->
+    <div id="kpi-analysis" style="margin-bottom:14px">
+      <div class="skel" style="height:160px;margin-bottom:8px"></div>
+      <div class="skel" style="height:80px"></div>
+    </div>
+
     <!-- 広場管理 -->
     <div class="sec" style="margin-top:4px">広場 — 受信メッセージ管理</div>
     <div class="card" style="margin-bottom:14px">
@@ -698,10 +704,17 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
   <div id="tab-content-pdca" class="main" style="display:none">
 
     <!-- 自動インサイト -->
+    <div style="font-size:12px;color:var(--ink3);margin-bottom:6px;line-height:1.7;padding:0 2px">
+      AIが過去データを分析して、注目すべき変化や改善ポイントを自動で表示します。
+    </div>
     <div id="pdca-insights-pdca-wrap"></div>
 
     <!-- 先週比サマリー -->
     <div class="sec">今週 vs 先週</div>
+    <div style="font-size:12px;color:var(--ink3);margin-bottom:10px;line-height:1.7;padding:0 2px">
+      今週（月〜日）と先週を比較したサマリーです。ユーザー数・アイデア上場数・投票数の増減を確認できます。<br>
+      <span style="color:var(--green);font-weight:700">緑</span>は先週より増加、<span style="color:var(--red);font-weight:700">赤</span>は減少です。
+    </div>
     <div class="card" style="margin-bottom:14px">
       <div class="card-head"><div class="card-title">WEEKLY COMPARISON</div><div class="card-meta" id="pdca-week-label"></div></div>
       <div class="card-body" id="weekly-compare-body"><div class="skel"></div></div>
@@ -709,6 +722,11 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
 
     <!-- アクション × 流入グラフ -->
     <div class="sec">アクションと流入の相関（14日間）</div>
+    <div style="font-size:12px;color:var(--ink3);margin-bottom:10px;line-height:1.7;padding:0 2px">
+      過去14日間のLP流入数（棒グラフ）と、あなたが実施した施策の日（●）を重ね合わせたグラフです。<br>
+      施策（Xへの投稿・機能追加など）を行った翌日以降に流入が増えているかを確認できます。<br>
+      <span style="color:var(--amber);font-weight:700">棒が高い日</span>＝その日にLPを訪れた人が多い日です。
+    </div>
     <div class="card" style="margin-bottom:14px">
       <div class="card-head"><div class="card-title">ACTION × TRAFFIC</div><div class="card-meta">●＝アクション実施日</div></div>
       <div class="card-body">
@@ -723,6 +741,10 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
 
     <!-- やったこと記録 -->
     <div class="sec">D — やったことを記録する</div>
+    <div style="font-size:12px;color:var(--ink3);margin-bottom:10px;line-height:1.7;padding:0 2px">
+      今日実施した施策をここに記録します。上のグラフと照らし合わせることで、どの施策が流入増加につながったか分析できます。<br>
+      カテゴリを選んで内容を入力し「記録」を押してください。
+    </div>
     <div class="card" style="margin-bottom:14px">
       <div class="card-head"><div class="card-title">ACTION LOG</div><div class="card-meta">施策の記録</div></div>
       <div class="card-body">
@@ -743,6 +765,10 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
 
     <!-- 今週の目標 -->
     <div class="sec">P — 今週の目標</div>
+    <div style="font-size:12px;color:var(--ink3);margin-bottom:10px;line-height:1.7;padding:0 2px">
+      今週達成したい目標を登録します（例：ユーザー5人、上場10件）。<br>
+      毎週月曜にリセットされます。目標を決めてから施策を打つことで、PDCAが回しやすくなります。
+    </div>
     <div class="card" style="margin-bottom:14px">
       <div class="card-head"><div class="card-title">WEEKLY GOALS</div><div class="card-meta" id="goals-week"></div></div>
       <div class="card-body">
@@ -2179,25 +2205,131 @@ async function runHealthCheck() {
 async function loadHomeTab() {
   const today = new Date().toISOString().slice(0,10);
 
-  const [r0, r1, r2, r3] = await Promise.allSettled([
+  const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1);
+  const yday = yesterday.toISOString().slice(0,10);
+
+  const [r0, r1, r2, r3, r4, r5, r6] = await Promise.allSettled([
     sb.from('profiles').select('id',{count:'exact',head:true}),
     sb.from('profiles').select('id',{count:'exact',head:true}).gte('created_at', today+'T00:00:00Z'),
-    sb.from('ideas').select('id,ticker,name,description,genre,score,votes,updated_at,user_id').order('updated_at',{ascending:false}),
+    sb.from('ideas').select('id,ticker,name,description,genre,score,votes,updated_at,created_at,user_id').order('score',{ascending:false}),
     sb.from('idea_votes').select('idea_id,created_at').gte('created_at', today+'T00:00:00Z'),
+    sb.from('profiles').select('id',{count:'exact',head:true}).gte('created_at', yday+'T00:00:00Z').lt('created_at', today+'T00:00:00Z'),
+    sb.from('idea_votes').select('idea_id,created_at').gte('created_at', yday+'T00:00:00Z').lt('created_at', today+'T00:00:00Z'),
+    sb.from('ideas').select('id',{count:'exact',head:true}).gte('created_at', yday+'T00:00:00Z').lt('created_at', today+'T00:00:00Z'),
   ]);
   const usersTotal = r0.value?.count ?? 0;
   const usersToday = r1.value?.count ?? 0;
   const ideasAll = r2.value?.data ?? [];
   const votesToday = r3.value?.data ?? [];
+  const usersYday = r4.value?.count ?? 0;
+  const votesYday = r5.value?.data?.length ?? 0;
+  const ideasYday = r6.value?.count ?? 0;
 
   // KPI
   const set = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val ?? '0'; };
   set('top-users-total', usersTotal);
   set('top-users-today', usersToday);
 
-  const ideasToday = (ideasAll||[]).filter(i => i.updated_at && i.updated_at.slice(0,10) === today);
+  const ideasToday = (ideasAll||[]).filter(i => i.created_at && i.created_at.slice(0,10) === today);
   set('top-ideas-today', ideasToday.length);
-  set('top-votes-today', (votesToday||[]).length);
+  set('top-votes-today', votesToday.length);
+
+  // ============================
+  // 分析カード生成
+  // ============================
+  const votesRateToday = usersTotal > 0 ? Math.round((votesToday.length / usersTotal) * 100) : 0;
+  const ideasPerUser = usersTotal > 0 ? (ideasAll.length / usersTotal).toFixed(1) : 0;
+  const avgScore = ideasAll.length > 0 ? (ideasAll.reduce((s,i)=>s+parseFloat(i.score||50),0)/ideasAll.length).toFixed(1) : 0;
+  const topIdea = ideasAll[0];
+
+  function trend(today, yday) {
+    if (yday === 0) return { icon:'—', color:'var(--ink3)', text:'前日比データなし' };
+    const diff = today - yday;
+    const pct = Math.round(diff/yday*100);
+    if (diff > 0) return { icon:'↑', color:'var(--green)', text:'昨日より+'+diff+'人（+'+pct+'%）' };
+    if (diff < 0) return { icon:'↓', color:'var(--red)', text:'昨日より'+diff+'人（'+pct+'%）' };
+    return { icon:'→', color:'var(--ink3)', text:'昨日と同じ' };
+  }
+
+  function advice(type, val, compare) {
+    if (type === 'new-users') {
+      if (val === 0) return { mark:'⚠', color:'var(--red)', text:'今日はまだ誰も来ていません。LPをシェアすると効果的です。' };
+      if (val >= 3) return { mark:'✓', color:'var(--green)', text:'好調です！新規ユーザーが増えています。' };
+      return { mark:'→', color:'var(--amber)', text:'少しずつ増えています。Xでシェアを増やしましょう。' };
+    }
+    if (type === 'votes') {
+      if (val === 0) return { mark:'⚠', color:'var(--red)', text:'今日はまだ投票がありません。ユーザーへの声かけが必要かもしれません。' };
+      const rate = usersTotal > 0 ? Math.round(val/usersTotal*100) : 0;
+      if (rate >= 30) return { mark:'✓', color:'var(--green)', text:'投票率'+rate+'%！ユーザーがアクティブに使ってくれています。' };
+      return { mark:'→', color:'var(--amber)', text:'投票率'+rate+'%。広場でユーザーを巻き込むと増える可能性があります。' };
+    }
+    if (type === 'ideas') {
+      if (val === 0) return { mark:'⚠', color:'var(--amber)', text:'今日の上場はまだ0件。上場ボタンをより目立たせるといいかもしれません。' };
+      if (val >= 3) return { mark:'✓', color:'var(--green)', text:'アイデアが活発に上場されています！' };
+      return { mark:'→', color:'var(--amber)', text:'上場数はまずまず。新規ユーザーに上場を促しましょう。' };
+    }
+    if (type === 'total') {
+      if (val >= 20) return { mark:'✓', color:'var(--green)', text:'ユーザーが着実に増えています。このペースを維持しましょう。' };
+      if (val >= 5) return { mark:'→', color:'var(--amber)', text:'まだ少ないですが、成長中です。クチコミとSNS拡散が鍵です。' };
+      return { mark:'⚠', color:'var(--red)', text:'まだ初期段階です。まずは10人を目標に、知人への声かけから始めましょう。' };
+    }
+  }
+
+  const a1 = advice('total', usersTotal);
+  const a2 = advice('new-users', usersToday, usersYday);
+  const a3 = advice('ideas', ideasToday.length, ideasYday);
+  const a4 = advice('votes', votesToday.length, votesYday);
+  const t2 = trend(usersToday, usersYday);
+  const t4 = trend(votesToday.length, votesYday);
+
+  const analysisEl = document.getElementById('kpi-analysis');
+  if (analysisEl) {
+    analysisEl.innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        <div style="background:var(--bg2);border-radius:var(--r);padding:14px;border:1px solid var(--border)">
+          <div style="font-size:10px;font-weight:700;color:var(--ink3);margin-bottom:6px">👥 累計ユーザー</div>
+          <div style="font-size:22px;font-weight:700;color:var(--amber);font-family:var(--mono);margin-bottom:4px">${usersTotal}<span style="font-size:11px;color:var(--ink3);font-family:var(--sans);margin-left:4px">人</span></div>
+          <div style="font-size:11px;color:${a1.color};font-weight:600">${a1.mark} ${a1.text}</div>
+        </div>
+        <div style="background:var(--bg2);border-radius:var(--r);padding:14px;border:1px solid var(--border)">
+          <div style="font-size:10px;font-weight:700;color:var(--ink3);margin-bottom:6px">🆕 今日の新規</div>
+          <div style="font-size:22px;font-weight:700;color:var(--green);font-family:var(--mono);margin-bottom:4px">${usersToday}<span style="font-size:11px;color:var(--ink3);font-family:var(--sans);margin-left:4px">人</span></div>
+          <div style="font-size:11px;color:${t2.color};margin-bottom:4px">${t2.icon} ${t2.text}</div>
+          <div style="font-size:11px;color:${a2.color};font-weight:600">${a2.mark} ${a2.text}</div>
+        </div>
+        <div style="background:var(--bg2);border-radius:var(--r);padding:14px;border:1px solid var(--border)">
+          <div style="font-size:10px;font-weight:700;color:var(--ink3);margin-bottom:6px">💡 今日の上場数</div>
+          <div style="font-size:22px;font-weight:700;color:var(--green);font-family:var(--mono);margin-bottom:4px">${ideasToday.length}<span style="font-size:11px;color:var(--ink3);font-family:var(--sans);margin-left:4px">件</span></div>
+          <div style="font-size:11px;color:var(--ink3);margin-bottom:4px">昨日 ${ideasYday}件</div>
+          <div style="font-size:11px;color:${a3.color};font-weight:600">${a3.mark} ${a3.text}</div>
+        </div>
+        <div style="background:var(--bg2);border-radius:var(--r);padding:14px;border:1px solid var(--border)">
+          <div style="font-size:10px;font-weight:700;color:var(--ink3);margin-bottom:6px">🗳 今日の投票数</div>
+          <div style="font-size:22px;font-weight:700;color:var(--amber);font-family:var(--mono);margin-bottom:4px">${votesToday.length}<span style="font-size:11px;color:var(--ink3);font-family:var(--sans);margin-left:4px">票</span></div>
+          <div style="font-size:11px;color:${t4.color};margin-bottom:4px">${t4.icon} ${t4.text}</div>
+          <div style="font-size:11px;color:${a4.color};font-weight:600">${a4.mark} ${a4.text}</div>
+        </div>
+      </div>
+      <div style="background:var(--bg2);border-radius:var(--r);padding:14px;border:1px solid var(--border)">
+        <div style="font-size:10px;font-weight:700;color:var(--ink3);margin-bottom:8px">📊 全体の状況</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+          <div style="text-align:center">
+            <div style="font-size:18px;font-weight:700;color:var(--amber);font-family:var(--mono)">${ideasAll.length}</div>
+            <div style="font-size:10px;color:var(--ink3)">総上場数</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:18px;font-weight:700;color:var(--green);font-family:var(--mono)">${avgScore}</div>
+            <div style="font-size:10px;color:var(--ink3)">平均スコア</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:18px;font-weight:700;color:var(--amber);font-family:var(--mono)">${ideasPerUser}</div>
+            <div style="font-size:10px;color:var(--ink3)">1人あたり上場数</div>
+          </div>
+        </div>
+        ${topIdea ? `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:11px;color:var(--ink3)">🏆 最高スコア: <strong style="color:var(--ink)">${topIdea.name?.slice(0,25)}</strong> — <span style="font-family:var(--mono);color:var(--green)">${parseFloat(topIdea.score).toFixed(1)}pt</span></div>` : ''}
+      </div>
+    `;
+  }
 
   // ユーザー名（Googleの表示名を優先）
   const {data: profiles} = await sb.from('user_profiles_view').select('id,display_name,x_username');
