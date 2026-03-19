@@ -2568,41 +2568,70 @@ async function showKpiModal(type) {
       </div>`).join('') : '<div style="padding:20px;text-align:center;font-size:12px;color:var(--ink3)">ユーザーはいません（RLSポリシーを確認してください）</div>';
 
     } else if (type === 'new-users') {
-      // JSTの今日0時をUTCで計算（JST = UTC+9）
-      const jstToday = new Date(); jstToday.setHours(0,0,0,0);
-      const utcStart = new Date(jstToday.getTime() - 9*60*60*1000).toISOString();
-      const { data, error: e2 } = await sb.from('profiles').select('id,display_name,x_username,email,created_at,is_founder').gte('created_at', utcStart).order('created_at', { ascending: false });
-      body.innerHTML = (data&&data.length) ? data.map(u => `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
-        <div style="font-size:13px;font-weight:700;color:var(--ink)">${u.display_name||u.x_username||u.email||'—'}</div>
-        <div style="font-size:10px;color:var(--ink3);margin-left:auto">${u.created_at ? new Date(u.created_at).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}) : '本日登録'}</div>
-      </div>`).join('') : '<div style="padding:20px;text-align:center;font-size:12px;color:var(--ink3)">今日の新規ユーザーはいません</div>';
+      // 全件取得してJS側でフィルタ（タイムゾーン問題を回避）
+      const { data: allProfiles, error: e2 } = await sb.from('user_profiles_view').select('*');
+      const jstNow = new Date();
+      const jstStr = jstNow.getFullYear()+'-'+String(jstNow.getMonth()+1).padStart(2,'0')+'-'+String(jstNow.getDate()).padStart(2,'0');
+      const data2 = (allProfiles||[]).filter(u => {
+        if (!u.created_at) return false;
+        // UTCからJSTに変換して日付比較
+        const d = new Date(u.created_at);
+        const jst = new Date(d.getTime() + 9*60*60*1000);
+        const ds = jst.getUTCFullYear()+'-'+String(jst.getUTCMonth()+1).padStart(2,'0')+'-'+String(jst.getUTCDate()).padStart(2,'0');
+        return ds === jstStr;
+      });
+      body.innerHTML = '<div style="font-size:10px;color:var(--ink3);padding:4px 0 8px">検索日: ' + jstStr + ' / 全ユーザー数: ' + (allProfiles||[]).length + ' / 今日: ' + data2.length + '</div>';
+      body.innerHTML += data2.length ? data2.map(u => `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+        <div style="font-size:13px;font-weight:700;color:var(--ink)">${u.display_name||u.email||'—'}</div>
+        <div style="font-size:10px;color:var(--ink3);margin-left:auto">本日登録</div>
+      </div>`).join('') : '<div style="padding:12px;text-align:center;font-size:12px;color:var(--ink3)">今日の新規ユーザーはいません</div>';
 
     } else if (type === 'today-ideas') {
-      const { data } = await sb.from('ideas').select('id,name,ticker,genre,score,votes,created_at').gte('created_at', todayISO).order('created_at', { ascending: false });
-      body.innerHTML = (data&&data.length) ? data.map(i => `<div style="padding:10px 0;border-bottom:1px solid var(--border)">
+      // 全件取得してJS側でフィルタ
+      const { data: allIdeas, error: e3 } = await sb.from('ideas').select('id,name,ticker,genre,score,votes,created_at').order('created_at', { ascending: false });
+      const jstNow2 = new Date();
+      const jstStr2 = jstNow2.getFullYear()+'-'+String(jstNow2.getMonth()+1).padStart(2,'0')+'-'+String(jstNow2.getDate()).padStart(2,'0');
+      const data3 = (allIdeas||[]).filter(i => {
+        if (!i.created_at) return false;
+        const d = new Date(i.created_at);
+        const jst = new Date(d.getTime() + 9*60*60*1000);
+        const ds = jst.getUTCFullYear()+'-'+String(jst.getUTCMonth()+1).padStart(2,'0')+'-'+String(jst.getUTCDate()).padStart(2,'0');
+        return ds === jstStr2;
+      });
+      body.innerHTML = '<div style="font-size:10px;color:var(--ink3);padding:4px 0 8px">検索日: ' + jstStr2 + ' / 全アイデア: ' + (allIdeas||[]).length + ' / 今日: ' + data3.length + '</div>';
+      body.innerHTML += data3.length ? data3.map(i => `<div style="padding:10px 0;border-bottom:1px solid var(--border)">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
           <span style="font-family:var(--mono);font-size:9px;font-weight:700;color:var(--amber)">${i.ticker||'—'}</span>
           <div style="font-size:13px;font-weight:700;color:var(--ink);flex:1">${i.name}</div>
           <div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--green)">${parseFloat(i.score||50).toFixed(1)}</div>
         </div>
-        <div style="font-size:10px;color:var(--ink3)">${i.genre||'—'} · ${i.votes||0}票 · ${i.created_at ? new Date(i.created_at).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}) : '—'}</div>
-      </div>`).join('') : '<div style="padding:20px;text-align:center;font-size:12px;color:var(--ink3)">今日の上場はありません</div>';
+        <div style="font-size:10px;color:var(--ink3)">${i.genre||'—'} · ${i.votes||0}票 · ${i.created_at}</div>
+      </div>`).join('') : '<div style="padding:12px;text-align:center;font-size:12px;color:var(--ink3)">今日の上場はありません</div>';
 
     } else if (type === 'today-votes') {
-      // idea_votesとideasを別々に取得してマージ
+      const jstNow3 = new Date();
+      const jstStr3 = jstNow3.getFullYear()+'-'+String(jstNow3.getMonth()+1).padStart(2,'0')+'-'+String(jstNow3.getDate()).padStart(2,'0');
       const [vRes, iRes] = await Promise.allSettled([
-        sb.from('idea_votes').select('id,idea_id,user_id,created_at').gte('created_at', todayISO).order('created_at', { ascending: false }),
+        sb.from('idea_votes').select('id,idea_id,user_id,created_at').order('created_at', { ascending: false }),
         sb.from('ideas').select('id,name,ticker')
       ]);
-      const votes = vRes.value?.data || [];
-      const ideas = iRes.value?.data || [];
+      const allVotes = vRes.value?.data || [];
+      const ideas2 = iRes.value?.data || [];
+      const votes = allVotes.filter(v => {
+        if (!v.created_at) return false;
+        const d = new Date(v.created_at);
+        const jst = new Date(d.getTime() + 9*60*60*1000);
+        const ds = jst.getUTCFullYear()+'-'+String(jst.getUTCMonth()+1).padStart(2,'0')+'-'+String(jst.getUTCDate()).padStart(2,'0');
+        return ds === jstStr3;
+      });
       const ideaMap = {};
-      ideas.forEach(i => ideaMap[i.id] = i);
-      body.innerHTML = votes.length ? votes.map(v => `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+      ideas2.forEach(i => ideaMap[i.id] = i);
+      body.innerHTML = '<div style="font-size:10px;color:var(--ink3);padding:4px 0 8px">検索日: ' + jstStr3 + ' / 全投票: ' + allVotes.length + ' / 今日: ' + votes.length + '</div>';
+      body.innerHTML += votes.length ? votes.map(v => `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
         <span style="font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:4px;padding:1px 6px">${ideaMap[v.idea_id]?.ticker||'—'}</span>
         <div style="font-size:12px;color:var(--ink);flex:1">「${(ideaMap[v.idea_id]?.name||'不明').slice(0,22)}」</div>
-        <div style="font-size:9px;color:var(--ink3)">${v.created_at ? new Date(v.created_at).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}) : '—'}</div>
-      </div>`).join('') : '<div style="padding:20px;text-align:center;font-size:12px;color:var(--ink3)">今日の投票はありません</div>';
+        <div style="font-size:9px;color:var(--ink3)">${v.created_at}</div>
+      </div>`).join('') : '<div style="padding:12px;text-align:center;font-size:12px;color:var(--ink3)">今日の投票はありません</div>';
     }
   } catch(e) { body.innerHTML = '<div style="color:#e53e3e;font-size:12px;padding:12px">読み込み失敗: ' + e.message + '</div>'; console.error(e); }
 }
