@@ -1904,7 +1904,61 @@ function checkChargeSuccess() {
   if (params.get('charge') === 'success') { showToast('チャージが完了しました！🎉'); window.history.replaceState({}, '', '/'); setTimeout(() => loadBalance(), 1000); }
   else if (params.get('charge') === 'cancel') { showToast('チャージをキャンセルしました'); window.history.replaceState({}, '', '/'); }
 }
+async function loadHirobaList() {
+  const el = document.getElementById('hiroba-list');
+  if (!el) return;
+  try {
+    const { data, error } = await sb.from('hiroba_posts')
+      .select('*, profiles(x_username)')
+      .order('created_at', { ascending: false })
+      .limit(20);
+    if (error || !data || data.length === 0) {
+      el.innerHTML = '<div style="padding:20px;text-align:center;font-size:12px;color:var(--text3)">まだ投稿がありません</div>';
+      return;
+    }
+    el.innerHTML = data.map(post => {
+      const name = post.user_id ? ('@' + (post.profiles?.x_username || 'ユーザー')) : '匿名';
+      const initial = name[1]?.toUpperCase() || '?';
+      return `<div class="hiroba-comment">
+        <div class="hiroba-comment-meta">
+          <div class="hiroba-avatar">${initial}</div>
+          <span class="hiroba-comment-name">${name}</span>
+          <span class="hiroba-comment-tag">${post.tag || 'その他'}</span>
+          <span class="hiroba-comment-time">${timeAgo(post.created_at)}</span>
+        </div>
+        <div class="hiroba-comment-text">${post.text}</div>
+        ${post.ai_reply ? `<div class="hiroba-ai-reply"><span class="hiroba-ai-reply-label">AI</span><span class="hiroba-ai-reply-text">${post.ai_reply}</span></div>` : ''}
+      </div>`;
+    }).join('');
+  } catch(e) {
+    el.innerHTML = '<div style="padding:20px;text-align:center;font-size:12px;color:var(--text3)">読み込みに失敗しました</div>';
+  }
+}
 
+let hirobaTag = '機能要望';
+function selHirobaTag(el) {
+  document.querySelectorAll('.hiroba-tag').forEach(x => x.classList.remove('sel'));
+  el.classList.add('sel');
+  hirobaTag = el.dataset.tag;
+}
+
+async function sendHiroba() {
+  const text = document.getElementById('hiroba-input')?.value?.trim();
+  if (!text) { showToast('内容を入力してください'); return; }
+  const anon = document.getElementById('hiroba-anon-check')?.checked;
+  const userId = anon ? null : currentUser?.id;
+  const { error } = await sb.from('hiroba_posts').insert({ user_id: userId, text, tag: hirobaTag });
+  if (error) { showToast('送信に失敗しました'); return; }
+  document.getElementById('hiroba-input').value = '';
+  const overlay = document.getElementById('postbox-overlay');
+  if (overlay) {
+    overlay.classList.add('show');
+    const sub = document.getElementById('postbox-sub');
+    if (sub) sub.style.opacity = '1';
+    setTimeout(() => overlay.classList.remove('show'), 2200);
+  }
+  setTimeout(() => loadHirobaList(), 500);
+}
 async function init() {
   const splash = document.getElementById('splash');
   const hasSession = await checkSession();
