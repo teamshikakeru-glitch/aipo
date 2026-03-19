@@ -2166,17 +2166,16 @@ async function runHealthCheck() {
 async function loadHomeTab() {
   const today = new Date().toISOString().slice(0,10);
 
-  const [
-    { count: usersTotal },
-    { count: usersToday },
-    { data: ideasAll },
-    { data: votesToday },
-  ] = await Promise.all([
+  const [r0, r1, r2, r3] = await Promise.allSettled([
     sb.from('profiles').select('id',{count:'exact',head:true}),
     sb.from('profiles').select('id',{count:'exact',head:true}).gte('created_at', today+'T00:00:00Z'),
     sb.from('ideas').select('id,ticker,name,description,genre,score,votes,updated_at,user_id').order('updated_at',{ascending:false}),
-    sb.from('votes').select('idea_id,created_at').gte('created_at', today+'T00:00:00Z'),
+    sb.from('idea_votes').select('idea_id,created_at').gte('created_at', today+'T00:00:00Z'),
   ]);
+  const usersTotal = r0.value?.count ?? 0;
+  const usersToday = r1.value?.count ?? 0;
+  const ideasAll = r2.value?.data ?? [];
+  const votesToday = r3.value?.data ?? [];
 
   // KPI
   const set = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val ?? '0'; };
@@ -2260,6 +2259,8 @@ async function loadHomeTab() {
     }
   }
 
+  // 広場インボックスを読み込む
+  loadHirobaInbox();
   // ヘルスチェックを非同期で実行（UIをブロックしない）
   runHealthCheck();
 }
