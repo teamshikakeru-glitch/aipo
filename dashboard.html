@@ -1201,33 +1201,26 @@ function renderUserDirectory(users) {
 }
 
 async function loadUserDirectory() {
-  const { data: profiles } = await sb.from('profiles')
-    .select('id, x_username, is_pro, is_founder, founder_number')
+  const { data: users } = await sb.from('user_profiles_view')
+    .select('id, email, display_name, x_username, is_pro, is_founder, founder_number')
     .neq('id', ADMIN_ID)
     .order('is_founder', { ascending: false });
 
-  if (!profiles) return;
+  if (!users) return;
 
   const metaEl = document.getElementById('users-meta');
-  if (metaEl) metaEl.textContent = profiles.length + '人';
+  if (metaEl) metaEl.textContent = users.length + '人';
 
-  // メールアドレスはanon keyで直接取得不可のため
-  // user_eventsテーブルに保存されたGoogleアカウントメールを使う
-  // → auth.usersはservice roleのみアクセス可能
-  // 暫定：x_usernameをメインで表示、メールはAPIで別途取得
-  allUsersData = profiles.map(p => ({
-    id: p.id,
-    name: p.x_username || '（Xアカウント未設定）',
-    email: null, // anon keyでは取得不可
-    is_founder: p.is_founder,
-    is_pro: p.is_pro,
-    founder_number: p.founder_number,
+  allUsersData = users.map(u => ({
+    id: u.id,
+    name: u.display_name || u.x_username || '（名前未設定）',
+    email: u.email || null,
+    is_founder: u.is_founder,
+    is_pro: u.is_pro,
+    founder_number: u.founder_number,
   }));
 
   renderUserDirectory(allUsersData);
-
-  // メールを取得するためのAPI呼び出し（Service Role Key必要）
-  // → dashboard用のAPIエンドポイントが必要。現状はSupabase管理画面で確認
 }
 
 let allFeedItems = [];
