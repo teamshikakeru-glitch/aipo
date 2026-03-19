@@ -99,9 +99,19 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); over
 .nav-item.active { color: var(--amber-mid); }
 .nav-item svg { width: 22px; height: 22px; }
 .nav-post-wrap { flex: 1; display: flex; align-items: center; justify-content: center; padding: 6px 0 12px; }
-.nav-post-btn { width: 48px; height: 48px; border-radius: 50%; background: var(--amber-mid); display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; box-shadow: 0 3px 12px rgba(232,133,10,.4); transition: transform .1s; }
-.nav-post-btn:active { transform: scale(.94); }
-.nav-post-btn svg { width: 22px; height: 22px; color: #fff; }
+.nav-post-btn {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 3px; background: none; border: none; cursor: pointer;
+  padding: 0; min-width: 48px;
+}
+.nav-post-btn:active { opacity: .7; }
+.nav-post-btn-icon {
+  width: 26px; height: 26px; border-radius: 8px;
+  background: var(--amber-mid);
+  display: flex; align-items: center; justify-content: center;
+}
+.nav-post-btn-icon svg { width: 14px; height: 14px; color: #fff; }
+.nav-post-btn-text { font-size: 10px; font-weight: 700; color: var(--amber-mid); font-family: var(--sans); letter-spacing: .01em; }
 .sub-header { background: var(--surface); border-bottom: 0.5px solid var(--border); padding: 14px 18px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 20; overflow: hidden; }
 .back-btn { cursor: pointer; color: var(--text2); display: flex; align-items: center; }
 .sub-title { font-size: 16px; font-weight: 700; }
@@ -266,6 +276,29 @@ input[type=file] { display: none; }
 .cert-mini{width:130px;flex-shrink:0;background:#f9f7f3;border:1px solid #e0d8cc;border-radius:10px;padding:10px;cursor:pointer;transition:all .2s;position:relative;overflow:visible}
 .cert-mini:hover{border-color:rgba(232,133,10,.4);transform:translateY(-2px)}
 .cert-mini.gold{border-color:#f5d68a;background:#fffdf5}
+
+/* ─── POST PREVIEW ─── */
+.preview-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .2s ease}
+.preview-box{background:var(--surface);border-radius:24px 24px 0 0;padding:20px 16px 40px;width:100%;max-width:420px;animation:slideUp .35s cubic-bezier(.16,1,.3,1)}
+.preview-handle{width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px}
+.preview-title{font-size:14px;font-weight:700;color:var(--text);text-align:center;margin-bottom:4px}
+.preview-sub{font-size:11px;color:var(--text3);text-align:center;margin-bottom:16px}
+.preview-card{background:var(--surface2);border-radius:16px;padding:0;overflow:hidden;margin-bottom:16px;border:1px solid var(--border)}
+.preview-card-inner{padding:14px;display:flex;align-items:center;gap:10px;border-bottom:0.5px solid var(--border)}
+.preview-score-col{min-width:52px;text-align:left;flex-shrink:0}
+.preview-score-num{font-family:var(--mono);font-size:22px;font-weight:700;line-height:1}
+.preview-score-lbl{font-family:var(--mono);font-size:8px;color:var(--text3);margin-top:2px}
+.preview-info{flex:1;min-width:0}
+.preview-ticker-row{display:flex;align-items:center;gap:5px;margin-bottom:3px}
+.preview-ticker{font-family:var(--mono);font-size:9px;font-weight:700;color:var(--text3);letter-spacing:.04em}
+.preview-name{font-size:13px;font-weight:700;color:var(--text);line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:3px}
+.preview-meta{font-size:10px;color:var(--text3)}
+.preview-vote-btn{background:rgba(34,168,95,.1);color:var(--green);border:none;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:default}
+.preview-hint{background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:10px;padding:10px 12px;margin-bottom:16px;font-size:11px;color:var(--amber);line-height:1.6}
+.preview-actions{display:flex;gap:8px}
+.preview-cancel{flex:1;padding:13px;background:var(--surface2);border:1px solid var(--border);border-radius:100px;font-size:14px;font-weight:600;color:var(--text2);cursor:pointer;font-family:var(--sans)}
+.preview-confirm{flex:2;padding:13px;background:var(--amber-mid);border:none;border-radius:100px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans);box-shadow:0 3px 12px rgba(232,133,10,.35)}
+
 </style>
 </head>
 <body>
@@ -415,7 +448,7 @@ input[type=file] { display: none; }
     <div class="field-wrap"><div class="field-lbl">詳しく説明する <span class="field-opt">任意・後から追加可</span></div><textarea class="inp inp-sm" id="inp-desc" rows="3" placeholder="どんな問題を解決するか、誰に使ってほしいか、など自由に。書くほどスコアが上がります。"></textarea></div>
     <div class="field-wrap"><div class="field-lbl">作る技術 <span class="field-opt">任意</span></div><input class="inp inp-sm" id="inp-tech" type="text" placeholder="例：React Native、Python、Webアプリ"></div>
     <div class="post-notice">情報を追加するほどスコアが上がります。まずはアイデア名とジャンルだけでも上場できます。</div>
-    <button class="primary-btn" onclick="doPost()">マーケットに上場する →</button>
+    <button class="primary-btn" onclick="showPostPreview()">プレビューを確認して上場する →</button>
   </div>
 </div>
 
@@ -460,7 +493,10 @@ input[type=file] { display: none; }
   </div>
   <div class="nav-post-wrap">
     <button class="nav-post-btn" onclick="goTo('post')">
-      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M10 4v12M4 10h12"/></svg>
+      <div class="nav-post-btn-icon">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 15V5M5 9l5-5 5 5"/></svg>
+      </div>
+      <span class="nav-post-btn-text">上場</span>
     </button>
   </div>
   <div class="nav-item" id="nav-portfolio" onclick="goTo('portfolio')">
@@ -1229,6 +1265,62 @@ function resetPost() {
   selectedEmoji='💡'; selectedGenre='';
   document.querySelectorAll('.ep').forEach(x=>x.classList.remove('sel')); document.querySelector('[data-e="💡"]')?.classList.add('sel');
   document.querySelectorAll('.genre-item').forEach(x=>x.classList.remove('selected'));
+}
+
+function showPostPreview() {
+  const title = document.getElementById('inp-title')?.value?.trim();
+  const desc = document.getElementById('inp-desc')?.value?.trim();
+  const tech = document.getElementById('inp-tech')?.value?.trim();
+  const rawTicker = document.getElementById('inp-ticker')?.value?.trim().toUpperCase();
+  if (!title) { showToast('アイデア名を入力してください'); return; }
+  if (!selectedGenre) { showToast('ジャンルを選んでください'); return; }
+
+  const ticker = rawTicker || (title.replace(/[^A-Za-zぁ-ん一-龯]/g,'').slice(0,5).toUpperCase() || 'IDEA');
+  const score = calcScore({votes:0,views:0,commentList:[],progress:0,progressStep:0,postedDaysAgo:0,daysSinceLastVote:0,desc,tech,supporters:0,genre:selectedGenre,id:'_'});
+  const scoreColor = score >= 70 ? 'var(--green)' : score >= 50 ? 'var(--amber-mid)' : 'var(--text3)';
+  const displayName = title.length > 24 ? title.slice(0, 24) + '…' : title;
+
+  // 既存のプレビューを削除
+  document.getElementById('post-preview-modal')?.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'post-preview-modal';
+  overlay.className = 'preview-overlay';
+  overlay.innerHTML = `
+    <div class="preview-box">
+      <div class="preview-handle"></div>
+      <div class="preview-title">マーケットでの表示プレビュー</div>
+      <div class="preview-sub">このように表示されます</div>
+      <div class="preview-card">
+        <div class="preview-card-inner">
+          <div class="preview-score-col">
+            <div class="preview-score-num" style="color:${scoreColor}">${score.toFixed(1)}</div>
+            <div class="preview-score-lbl">スコア</div>
+          </div>
+          <div class="preview-info">
+            <div class="preview-ticker-row">
+              <span class="preview-ticker">${ticker}</span>
+              <span style="font-size:9px;color:var(--text3)">· ${selectedGenre || 'その他'}</span>
+            </div>
+            <div class="preview-name">${displayName}</div>
+            <div class="preview-meta">0票 · たった今</div>
+          </div>
+          <div class="preview-vote-btn">
+            <svg width="11" height="11" viewBox="0 0 20 20" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="var(--green)" stroke-width="2.2" stroke-linecap="round"/></svg>
+          </div>
+        </div>
+      </div>
+      <div class="preview-hint">
+        初期スコアは <strong>${score.toFixed(1)}</strong> です。説明・技術・ジャンルを追記するほどスコアが上がります。
+      </div>
+      <div class="preview-actions">
+        <button class="preview-cancel" onclick="document.getElementById('post-preview-modal').remove()">修正する</button>
+        <button class="preview-confirm" onclick="document.getElementById('post-preview-modal').remove();doPost()">上場する →</button>
+      </div>
+    </div>
+  `;
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
 }
 
 function doPost() {
