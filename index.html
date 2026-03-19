@@ -1408,48 +1408,56 @@ async function shareCertificate(ideaId, encodedName, ticker) {
   const btn = document.getElementById('cert-share-btn'); if (btn) { btn.innerHTML = '生成中...'; btn.disabled = true; }
   try {
     const ideaName = decodeURIComponent(encodedName);
-    const certInner = document.getElementById('cert-inner');
-    const certContent = certInner ? certInner.innerHTML
-      : buildCertHTML(ideas.find(function(i){return i.id===ideaId;}) || {id:ideaId,ticker:ticker,name:ideaName,score:50,votes:1,emoji:'💡'}, 0);
 
-    // 外側ラッパー（チケット券面のような背景 + 余白）
-    const outer = document.createElement('div');
-    outer.style.cssText = [
-      'position:fixed','left:-9999px','top:0','z-index:-1',
-      'width:760px',
-      'background:#ede8df',
-      'padding:52px 48px',
-      'display:flex',
-      'flex-direction:column',
-      'align-items:center',
-      'gap:18px'
-    ].join(';');
+    // すでにモーダルに表示されているcert-wrapを直接キャプチャ
+    const certWrap = document.querySelector('#cert-inner .cert-wrap');
+    if (!certWrap) { showToast('株券が見つかりません'); return; }
 
-    // チケット本体ラッパー
-    const inner = document.createElement('div');
-    inner.className = 'cert-wrap';
-    inner.style.cssText = 'width:100%;overflow:visible;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,.13),0 2px 8px rgba(0,0,0,.07)';
-    inner.innerHTML = certContent;
-
-    // フッター
-    const foot = document.createElement('div');
-    foot.style.cssText = "font-family:'DM Mono',monospace;font-size:9px;color:rgba(26,20,0,.3);letter-spacing:.14em;text-align:center";
-    foot.textContent = 'AIPO — IDEA IPO MARKET · aipo-tau.vercel.app';
-
-    outer.appendChild(inner);
-    outer.appendChild(foot);
-    document.body.appendChild(outer);
-    await new Promise(r => setTimeout(r, 200));
-
-    const canvas = await html2canvas(outer, {
+    // cert-wrapをそのまま高解像度でキャプチャ
+    const certCanvas = await html2canvas(certWrap, {
       scale: 3,
-      backgroundColor: '#ede8df',
+      backgroundColor: '#f5f1ea',
       useCORS: true,
       allowTaint: true,
       logging: false,
-      windowWidth: 760,
     });
-    document.body.removeChild(outer);
+
+    // 余白付きの最終Canvasを生成
+    const PAD = 80;    // 上下左右の余白px（scale:3後のpx）
+    const FOOT = 48;   // フッター領域の高さ
+    const BG = '#ede8df';
+    const fw = certCanvas.width + PAD * 2;
+    const fh = certCanvas.height + PAD * 2 + FOOT;
+
+    const final = document.createElement('canvas');
+    final.width = fw;
+    final.height = fh;
+    const ctx = final.getContext('2d');
+
+    // 背景
+    ctx.fillStyle = BG;
+    ctx.fillRect(0, 0, fw, fh);
+
+    // シャドウ
+    ctx.shadowColor = 'rgba(0,0,0,0.13)';
+    ctx.shadowBlur = 36;
+    ctx.shadowOffsetY = 8;
+    ctx.fillStyle = '#f5f1ea';
+    ctx.roundRect(PAD - 4, PAD - 4, certCanvas.width + 8, certCanvas.height + 8, 24);
+    ctx.fill();
+    ctx.shadowColor = 'transparent';
+
+    // 株券を貼り付け
+    ctx.drawImage(certCanvas, PAD, PAD);
+
+    // フッターテキスト
+    ctx.fillStyle = 'rgba(26,20,0,0.28)';
+    ctx.font = '500 ' + (9 * 3) + 'px "DM Mono",monospace';
+    ctx.letterSpacing = '3px';
+    ctx.textAlign = 'center';
+    ctx.fillText('AIPO — IDEA IPO MARKET  ·  aipo-tau.vercel.app', fw / 2, PAD * 2 + certCanvas.height + 24);
+
+    const canvas = final;
     const shareUrl = 'https://aipo-tau.vercel.app/?idea=' + ideaId;
     const tweetText = encodeURIComponent('「' + ideaName + '」に早期投資しました\n\nあいぽで株券をもらいました👇\n' + shareUrl + '\n\n#あいぽ #アイデアIPO');
     const xUrl = 'https://twitter.com/intent/tweet?text=' + tweetText;
