@@ -1020,7 +1020,7 @@ async function loadIdeas() {
     {data: votesToday},
   ] = await Promise.all([
     sb.from('idea_views').select('idea_id'),
-    sb.from('ideas').select('id,ticker,name,genre,votes,score,updated_at,user_id').order('score',{ascending:false}),
+    sb.from('ideas').select('id,ticker,name,description,genre,votes,score,updated_at,user_id').order('score',{ascending:false}),
     sb.from('votes').select('idea_id,created_at').gte('created_at', today+'T00:00:00Z'),
   ]);
 
@@ -1052,23 +1052,47 @@ async function loadIdeas() {
   const vmEl=document.getElementById('ideas-voted-meta'); if(vmEl) vmEl.textContent=Object.keys(votedTodayMap).length+'件のアイデアに投票';
   const amEl=document.getElementById('all-ideas-meta'); if(amEl) amEl.textContent=ideas.length+'件';
 
-  // ヘルパー: アイデア行を生成
-  function ideaCard(idea, extra='') {
+  // ヘルパー: アイデア行を生成（タップで詳細展開）
+  function ideaCard(idea, extra='', detailSuffix='') {
     const score = parseFloat(idea.score||0).toFixed(1);
     const scoreColor = score>=70?'var(--green)':score>=50?'var(--amber)':'var(--ink3)';
     const poster = userMap[idea.user_id]||'—';
-    return `<div style="display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border)">
-      <span style="font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:4px;padding:2px 7px;flex-shrink:0">${idea.ticker||'—'}</span>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:3px">${idea.name}</div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <span style="font-size:10px;color:var(--ink3)">by ${poster}</span>
-          ${extra}
+    const detailId = 'idea-detail-' + idea.id + (detailSuffix||'');
+    const genre = idea.genre || '';
+    const desc = idea.description || idea.desc || '';
+    return `<div style="border-bottom:1px solid var(--border)">
+      <div style="display:flex;align-items:center;gap:10px;padding:12px 0;cursor:pointer" onclick="document.getElementById('${detailId}').classList.toggle('open')">
+        <span style="font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:4px;padding:2px 7px;flex-shrink:0">${idea.ticker||'—'}</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:3px">${idea.name}</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <span style="font-size:10px;color:var(--ink3)">by ${poster}</span>
+            ${extra}
+          </div>
         </div>
+        <div style="text-align:right;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+          <div style="font-family:var(--mono);font-size:15px;font-weight:700;color:${scoreColor}">${score}</div>
+          <div style="font-family:var(--mono);font-size:9px;color:var(--ink3)">${idea.votes}票</div>
+        </div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--ink3);margin-left:4px">▼</div>
       </div>
-      <div style="text-align:right;flex-shrink:0">
-        <div style="font-family:var(--mono);font-size:15px;font-weight:700;color:${scoreColor}">${score}</div>
-        <div style="font-family:var(--mono);font-size:9px;color:var(--ink3)">${idea.votes}票</div>
+      <div id="${detailId}" class="ua-detail">
+        ${genre ? `<span style="font-size:10px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:4px;padding:2px 8px;display:inline-block;margin-bottom:8px">${genre}</span>` : ''}
+        ${desc ? `<div style="font-size:12px;color:var(--ink2);line-height:1.7;margin-bottom:10px">${desc}</div>` : '<div style="font-size:12px;color:var(--ink3);margin-bottom:10px">説明なし</div>'}
+        <div style="display:flex;gap:16px;flex-wrap:wrap">
+          <div style="text-align:center">
+            <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:${scoreColor}">${score}</div>
+            <div style="font-size:9px;color:var(--ink3)">スコア</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--amber)">${idea.votes}</div>
+            <div style="font-size:9px;color:var(--ink3)">応援票</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--ink)">${poster}</div>
+            <div style="font-size:9px;color:var(--ink3)">上場者</div>
+          </div>
+        </div>
       </div>
     </div>`;
   }
@@ -1101,16 +1125,32 @@ async function loadIdeas() {
   document.getElementById('most-viewed-body').innerHTML = byViews.slice(0,10).map((idea,idx)=>{
     const cnt = vm[idea.id]||0;
     const pct = Math.round(cnt/maxV*100);
-    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
-      <div style="font-family:var(--mono);font-size:11px;color:var(--ink3);min-width:22px;font-weight:500">${String(idx+1).padStart(2,'0')}</div>
-      <span style="font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:4px;padding:2px 6px;flex-shrink:0">${idea.ticker||'—'}</span>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:12px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:4px">${idea.name}</div>
-        <div style="height:4px;background:var(--bg);border:1px solid var(--border);border-radius:2px;overflow:hidden">
-          <div style="height:100%;width:${pct}%;background:var(--amber-bright);border-radius:2px;transition:width .8s"></div>
+    const score = parseFloat(idea.score||0).toFixed(1);
+    const scoreColor = score>=70?'var(--green)':score>=50?'var(--amber)':'var(--ink3)';
+    const poster = userMap[idea.user_id]||'—';
+    const detailId = 'mv-detail-' + idea.id;
+    return `<div style="border-bottom:1px solid var(--border)">
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 0;cursor:pointer" onclick="document.getElementById('${detailId}').classList.toggle('open')">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--ink3);min-width:22px;font-weight:500">${String(idx+1).padStart(2,'0')}</div>
+        <span style="font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:4px;padding:2px 6px;flex-shrink:0">${idea.ticker||'—'}</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:4px">${idea.name}</div>
+          <div style="height:4px;background:var(--bg);border:1px solid var(--border);border-radius:2px;overflow:hidden">
+            <div style="height:100%;width:${pct}%;background:var(--amber-bright);border-radius:2px;transition:width .8s"></div>
+          </div>
+        </div>
+        <div style="font-family:var(--mono);font-size:14px;font-weight:500;color:var(--ink);flex-shrink:0;min-width:36px;text-align:right">${cnt}<span style="font-size:9px;color:var(--ink3)">閲</span></div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--ink3)">▼</div>
+      </div>
+      <div id="${detailId}" class="ua-detail">
+        ${idea.genre ? `<span style="font-size:10px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:4px;padding:2px 8px;display:inline-block;margin-bottom:8px">${idea.genre}</span>` : ''}
+        ${idea.description ? `<div style="font-size:12px;color:var(--ink2);line-height:1.7;margin-bottom:10px">${idea.description}</div>` : ''}
+        <div style="display:flex;gap:16px;flex-wrap:wrap">
+          <div style="text-align:center"><div style="font-family:var(--mono);font-size:18px;font-weight:700;color:${scoreColor}">${score}</div><div style="font-size:9px;color:var(--ink3)">スコア</div></div>
+          <div style="text-align:center"><div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--amber)">${cnt}</div><div style="font-size:9px;color:var(--ink3)">閲覧数</div></div>
+          <div style="text-align:center"><div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--ink)">${poster}</div><div style="font-size:9px;color:var(--ink3)">上場者</div></div>
         </div>
       </div>
-      <div style="font-family:var(--mono);font-size:14px;font-weight:500;color:var(--ink);flex-shrink:0;min-width:36px;text-align:right">${cnt}<span style="font-size:9px;color:var(--ink3)">閲</span></div>
     </div>`;
   }).join('');
 
@@ -1944,7 +1984,7 @@ async function loadHomeTab() {
   ] = await Promise.all([
     sb.from('profiles').select('id',{count:'exact',head:true}).neq('id', ADMIN_ID),
     sb.from('profiles').select('id',{count:'exact',head:true}).neq('id', ADMIN_ID).gte('created_at', today+'T00:00:00Z'),
-    sb.from('ideas').select('id,ticker,name,score,votes,updated_at,user_id').order('updated_at',{ascending:false}),
+    sb.from('ideas').select('id,ticker,name,description,genre,score,votes,updated_at,user_id').order('updated_at',{ascending:false}),
     sb.from('votes').select('idea_id,created_at').gte('created_at', today+'T00:00:00Z'),
   ]);
 
@@ -1961,22 +2001,37 @@ async function loadHomeTab() {
   const {data: profiles} = await sb.from('profiles').select('id,x_username');
   const userMap = {}; if(profiles) profiles.forEach(p=>userMap[p.id]=p.x_username||'匿名');
 
-  // アイデアカード（ホーム用）
+  // アイデアカード（ホーム用・タップで詳細展開）
   function homeIdeaRow(idea, badge='') {
     const score = parseFloat(idea.score||0).toFixed(1);
     const scoreColor = score>=70?'var(--green)':score>=50?'var(--amber)':'var(--ink3)';
-    return `<div style="display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border)">
-      <span style="font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:4px;padding:2px 7px;flex-shrink:0">${idea.ticker||'—'}</span>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:3px">${idea.name}</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-          <span style="font-size:10px;color:var(--ink3)">by ${userMap[idea.user_id]||'—'}</span>
-          ${badge}
+    const poster = userMap[idea.user_id]||'—';
+    const desc = idea.description || idea.desc || '';
+    const detailId = 'home-idea-detail-' + idea.id;
+    return `<div style="border-bottom:1px solid var(--border)">
+      <div style="display:flex;align-items:center;gap:10px;padding:12px 0;cursor:pointer" onclick="document.getElementById('${detailId}').classList.toggle('open')">
+        <span style="font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:4px;padding:2px 7px;flex-shrink:0">${idea.ticker||'—'}</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:3px">${idea.name}</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <span style="font-size:10px;color:var(--ink3)">by ${poster}</span>
+            ${badge}
+          </div>
         </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-family:var(--mono);font-size:16px;font-weight:700;color:${scoreColor}">${score}</div>
+          <div style="font-family:var(--mono);font-size:9px;color:var(--ink3)">${idea.votes}票</div>
+        </div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--ink3);margin-left:4px">▼</div>
       </div>
-      <div style="text-align:right;flex-shrink:0">
-        <div style="font-family:var(--mono);font-size:16px;font-weight:700;color:${scoreColor}">${score}</div>
-        <div style="font-family:var(--mono);font-size:9px;color:var(--ink3)">${idea.votes}票</div>
+      <div id="${detailId}" class="ua-detail">
+        ${idea.genre ? `<span style="font-size:10px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:4px;padding:2px 8px;display:inline-block;margin-bottom:8px">${idea.genre}</span>` : ''}
+        ${desc ? `<div style="font-size:12px;color:var(--ink2);line-height:1.7;margin-bottom:10px">${desc}</div>` : '<div style="font-size:12px;color:var(--ink3);margin-bottom:10px">説明なし</div>'}
+        <div style="display:flex;gap:16px;flex-wrap:wrap">
+          <div style="text-align:center"><div style="font-family:var(--mono);font-size:18px;font-weight:700;color:${scoreColor}">${score}</div><div style="font-size:9px;color:var(--ink3)">スコア</div></div>
+          <div style="text-align:center"><div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--amber)">${idea.votes}</div><div style="font-size:9px;color:var(--ink3)">応援票</div></div>
+          <div style="text-align:center"><div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--ink)">${poster}</div><div style="font-size:9px;color:var(--ink3)">上場者</div></div>
+        </div>
       </div>
     </div>`;
   }
