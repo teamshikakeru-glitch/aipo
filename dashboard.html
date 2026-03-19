@@ -491,14 +491,46 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
 
   <!-- ===== IDEAS TAB ===== -->
   <div id="tab-content-ideas" class="main" style="display:none">
-    <div class="sec">閲覧数ランキング</div>
-    <div class="card">
+
+    <!-- 今日の数字 -->
+    <div class="kpi-grid" style="margin-bottom:14px">
+      <div class="kpi green">
+        <div class="kpi-lbl">今日 上場されたアイデア</div>
+        <div class="kpi-num green" id="ideas-kpi-today">—</div>
+        <div class="kpi-detail">本日の新規上場数</div>
+      </div>
+      <div class="kpi amber">
+        <div class="kpi-lbl">今日 投じられた応援票</div>
+        <div class="kpi-num amber" id="ideas-kpi-votes-today">—</div>
+        <div class="kpi-detail">本日の総投票数</div>
+      </div>
+    </div>
+
+    <!-- 今日上場したアイデア -->
+    <div class="sec">今日 上場されたアイデア</div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-head"><div class="card-title">TODAY'S LISTINGS</div><div class="card-meta" id="ideas-today-meta">—</div></div>
+      <div class="card-body" id="ideas-today-body"><div class="skel"></div></div>
+    </div>
+
+    <!-- 今日票が入ったアイデア -->
+    <div class="sec">今日 応援されたアイデア</div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-head"><div class="card-title">TODAY'S VOTES</div><div class="card-meta" id="ideas-voted-meta">—</div></div>
+      <div class="card-body" id="ideas-voted-body"><div class="skel"></div></div>
+    </div>
+
+    <!-- 閲覧数ランキング -->
+    <div class="sec">累計 閲覧数ランキング</div>
+    <div class="card" style="margin-bottom:14px">
       <div class="card-head"><div class="card-title">MOST VIEWED</div><div class="card-meta">idea_views</div></div>
       <div class="card-body" id="most-viewed-body"><div class="skel"></div></div>
     </div>
-    <div class="sec">スコア順</div>
+
+    <!-- 全アイデア -->
+    <div class="sec">全アイデア（スコア順）</div>
     <div class="card">
-      <div class="card-head"><div class="card-title">ALL IDEAS</div></div>
+      <div class="card-head"><div class="card-title">ALL IDEAS</div><div class="card-meta" id="all-ideas-meta">—件</div></div>
       <div class="card-body" id="all-ideas-body"><div class="skel"></div></div>
     </div>
   </div>
@@ -944,18 +976,122 @@ async function loadRecent() {
 
 // ===== IDEAS =====
 async function loadIdeas() {
-  const {data:views} = await sb.from('idea_views').select('idea_id');
+  const today = new Date().toISOString().slice(0,10);
+
+  // 並列取得
+  const [
+    {data: views},
+    {data: ideas},
+    {data: votesToday},
+  ] = await Promise.all([
+    sb.from('idea_views').select('idea_id'),
+    sb.from('ideas').select('id,ticker,name,genre,votes,score,updated_at,user_id').order('score',{ascending:false}),
+    sb.from('votes').select('idea_id,created_at').gte('created_at', today+'T00:00:00Z'),
+  ]);
+
+  if (!ideas||ideas.length===0) {
+    ['most-viewed-body','all-ideas-body','ideas-today-body','ideas-voted-body'].forEach(id=>{
+      document.getElementById(id).innerHTML='<div class="empty"><div class="empty-ico">💡</div><div class="empty-txt">アイデアなし</div></div>';
+    });
+    return;
+  }
+
+  // ユーザー名取得
+  const {data: profiles} = await sb.from('profiles').select('id,x_username');
+  const userMap = {}; if(profiles) profiles.forEach(p=>userMap[p.id]=p.x_username||'匿名');
+
+  // 閲覧数マップ
   const vm={}; if(views) views.forEach(v=>{vm[v.idea_id]=(vm[v.idea_id]||0)+1;});
-  const {data:ideas} = await sb.from('ideas').select('id,ticker,name,genre,votes,score').order('score',{ascending:false});
-  if (!ideas||ideas.length===0) { document.getElementById('most-viewed-body').innerHTML='<div class="empty"><div class="empty-ico">💡</div><div class="empty-txt">アイデアなし</div></div>'; return; }
+
+  // 今日の票数マップ
+  const votedTodayMap={};
+  if(votesToday) votesToday.forEach(v=>{votedTodayMap[v.idea_id]=(votedTodayMap[v.idea_id]||0)+1;});
+
+  // 今日の上場アイデア（updated_atがtoday）
+  const ideasToday = ideas.filter(i=>i.updated_at&&i.updated_at.slice(0,10)===today);
+
+  // KPI更新
+  const itEl=document.getElementById('ideas-kpi-today'); if(itEl) itEl.textContent=ideasToday.length;
+  const vtEl=document.getElementById('ideas-kpi-votes-today'); if(vtEl) vtEl.textContent=(votesToday||[]).length;
+  const tmEl=document.getElementById('ideas-today-meta'); if(tmEl) tmEl.textContent=ideasToday.length+'件';
+  const vmEl=document.getElementById('ideas-voted-meta'); if(vmEl) vmEl.textContent=Object.keys(votedTodayMap).length+'件のアイデアに投票';
+  const amEl=document.getElementById('all-ideas-meta'); if(amEl) amEl.textContent=ideas.length+'件';
+
+  // ヘルパー: アイデア行を生成
+  function ideaCard(idea, extra='') {
+    const score = parseFloat(idea.score||0).toFixed(1);
+    const scoreColor = score>=70?'var(--green)':score>=50?'var(--amber)':'var(--ink3)';
+    const poster = userMap[idea.user_id]||'—';
+    return `<div style="display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border)">
+      <span style="font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:4px;padding:2px 7px;flex-shrink:0">${idea.ticker||'—'}</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:3px">${idea.name}</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <span style="font-size:10px;color:var(--ink3)">by ${poster}</span>
+          ${extra}
+        </div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-family:var(--mono);font-size:15px;font-weight:700;color:${scoreColor}">${score}</div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--ink3)">${idea.votes}票</div>
+      </div>
+    </div>`;
+  }
+
+  // 今日の上場
+  if(ideasToday.length===0){
+    document.getElementById('ideas-today-body').innerHTML='<div class="empty"><div class="empty-ico">💡</div><div class="empty-txt">今日はまだ上場なし</div></div>';
+  } else {
+    document.getElementById('ideas-today-body').innerHTML = ideasToday.map(idea=>{
+      const t = fmtAgo(idea.updated_at);
+      return ideaCard(idea, `<span style="font-family:var(--mono);font-size:9px;color:var(--green);background:var(--green-light);border:1px solid var(--green-border);border-radius:3px;padding:1px 6px">NEW · ${t}</span>`);
+    }).join('');
+  }
+
+  // 今日票が入ったアイデア
+  const votedIdeaIds = Object.keys(votedTodayMap);
+  if(votedIdeaIds.length===0){
+    document.getElementById('ideas-voted-body').innerHTML='<div class="empty"><div class="empty-ico">🗳</div><div class="empty-txt">今日はまだ投票なし</div></div>';
+  } else {
+    const votedIdeas = ideas.filter(i=>votedTodayMap[i.id]).sort((a,b)=>(votedTodayMap[b.id]||0)-(votedTodayMap[a.id]||0));
+    document.getElementById('ideas-voted-body').innerHTML = votedIdeas.map(idea=>{
+      const cnt = votedTodayMap[idea.id]||0;
+      return ideaCard(idea, `<span style="font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:3px;padding:1px 6px">+${cnt}票 今日</span>`);
+    }).join('');
+  }
+
+  // 閲覧数ランキング
   const byViews = [...ideas].sort((a,b)=>(vm[b.id]||0)-(vm[a.id]||0));
   const maxV = Math.max(...byViews.map(i=>vm[i.id]||0),1);
-  document.getElementById('most-viewed-body').innerHTML = byViews.slice(0,8).map((idea,idx) => {
+  document.getElementById('most-viewed-body').innerHTML = byViews.slice(0,10).map((idea,idx)=>{
     const cnt = vm[idea.id]||0;
-    return `<div class="idea-row"><div class="idea-rank">${String(idx+1).padStart(2,'0')}</div><div class="idea-ticker">${idea.ticker||'—'}</div><div class="idea-name">${idea.name}</div><div class="idea-views">${cnt}閲</div></div>`;
+    const pct = Math.round(cnt/maxV*100);
+    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+      <div style="font-family:var(--mono);font-size:11px;color:var(--ink3);min-width:22px;font-weight:500">${String(idx+1).padStart(2,'0')}</div>
+      <span style="font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:4px;padding:2px 6px;flex-shrink:0">${idea.ticker||'—'}</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:4px">${idea.name}</div>
+        <div style="height:4px;background:var(--bg);border:1px solid var(--border);border-radius:2px;overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:var(--amber-bright);border-radius:2px;transition:width .8s"></div>
+        </div>
+      </div>
+      <div style="font-family:var(--mono);font-size:14px;font-weight:500;color:var(--ink);flex-shrink:0;min-width:36px;text-align:right">${cnt}<span style="font-size:9px;color:var(--ink3)">閲</span></div>
+    </div>`;
   }).join('');
-  document.getElementById('all-ideas-body').innerHTML = ideas.map((idea,idx) => `
-    <div class="idea-row"><div class="idea-rank">${String(idx+1).padStart(2,'0')}</div><div class="idea-ticker">${idea.ticker||'—'}</div><div class="idea-name">${idea.name}</div><div class="idea-views">${idea.votes}票</div><div class="idea-score">${parseFloat(idea.score||0).toFixed(1)}</div></div>`).join('');
+
+  // 全アイデア
+  document.getElementById('all-ideas-body').innerHTML = ideas.map((idea,idx)=>{
+    const score = parseFloat(idea.score||0).toFixed(1);
+    const scoreColor = score>=70?'var(--green)':score>=50?'var(--amber)':'var(--ink3)';
+    const isNew = idea.updated_at&&idea.updated_at.slice(0,10)===today;
+    return `<div style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--border)">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--ink3);min-width:22px">${String(idx+1).padStart(2,'0')}</div>
+      <span style="font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:4px;padding:2px 6px;flex-shrink:0">${idea.ticker||'—'}</span>
+      <div style="flex:1;font-size:12px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0">${idea.name}${isNew?'<span style="font-family:var(--mono);font-size:8px;color:var(--green);background:var(--green-light);border:1px solid var(--green-border);border-radius:3px;padding:1px 5px;margin-left:6px">NEW</span>':''}</div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--ink3);flex-shrink:0">${idea.votes}票</div>
+      <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:${scoreColor};flex-shrink:0;min-width:36px;text-align:right">${score}</div>
+    </div>`;
+  }).join('');
 }
 
 // loadUsers は loadUserActivity に統合
