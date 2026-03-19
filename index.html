@@ -48,9 +48,9 @@ html, body { overflow-x: hidden !important; width: 100%; max-width: 100vw; posit
 html { overflow-x: hidden; }
 body { background: var(--bg); color: var(--text); font-family: var(--sans); overscroll-behavior: none; overflow-x: hidden !important; width: 100%; touch-action: pan-y pinch-zoom; }
 .app { max-width: 390px; margin: 0 auto; min-height: 100vh; overflow: hidden; width: 100%; }
-.screen { display: none; min-height: 100vh; padding-bottom: 90px; overflow-x: hidden; width: 100%; }
-.screen.active { display: block; }
-.header { background: var(--surface); padding: 16px 18px 0; position: sticky; top: 0; z-index: 20; }
+.screen { display: none; flex-direction: column; height: 100vh; overflow: hidden; width: 100%; }
+.screen.active { display: flex; }
+.header { background: var(--surface); padding: 16px 18px 0; flex-shrink: 0; z-index: 20; }
 .hd-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 .logo-wrap { display: flex; align-items: center; gap: 10px; }
 .logo-name { font-size: 20px; font-weight: 700; color: var(--text); letter-spacing: -.03em; }
@@ -114,7 +114,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); over
 }
 .nav-post-btn-icon svg { width: 14px; height: 14px; color: #fff; }
 .nav-post-btn-text { font-size: 10px; font-weight: 700; color: var(--amber-mid); font-family: var(--sans); letter-spacing: .01em; }
-.sub-header { background: var(--surface); border-bottom: 0.5px solid var(--border); padding: 14px 18px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 20; overflow: hidden; }
+.sub-header { background: var(--surface); border-bottom: 0.5px solid var(--border); padding: 14px 18px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; z-index: 20; overflow: hidden; }
 .back-btn { cursor: pointer; color: var(--text2); display: flex; align-items: center; }
 .sub-title { font-size: 16px; font-weight: 700; }
 .detail-body { padding: 14px; }
@@ -359,6 +359,8 @@ input[type=file] { display: none; }
   80%{transform:rotate(1deg)}
 }
 
+
+.screen-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; padding-bottom: 90px; }
 </style>
 </head>
 <body>
@@ -484,6 +486,7 @@ input[type=file] { display: none; }
       <div class="xb-row"><div class="xb-left"><div class="xb-label">コメントした</div><div class="xb-sub">スクショを貼るだけでOK</div></div><div style="display:flex;align-items:center;gap:8px"><div class="xb-badge" id="xb-badge-comment">+1票</div><button class="upload-btn" id="xb-btn-comment" onclick="triggerUpload('comment')">スクショを貼る</button></div></div>
     </div>
   </div>
+</div><!-- /screen-scroll -->
 </div>
 
 <div class="screen" id="screen-detail" style="padding-bottom:90px">
@@ -501,7 +504,7 @@ input[type=file] { display: none; }
   </div>
   <div class="post-body">
     <div class="step-lbl">NEW LISTING — IPO申請</div>
-    <div class="field-wrap"><div class="field-lbl">アイコンを選ぶ</div><div class="emoji-row" id="emoji-row"><div class="ep sel" data-e="💡" onclick="selEmoji(this)"></div><div class="ep" data-e="🚀" onclick="selEmoji(this)"></div><div class="ep" data-e="🛠" onclick="selEmoji(this)"></div><div class="ep" data-e="📱" onclick="selEmoji(this)"></div><div class="ep" data-e="🤖" onclick="selEmoji(this)"></div><div class="ep" data-e="💰" onclick="selEmoji(this)"></div><div class="ep" data-e="🌱" onclick="selEmoji(this)"></div><div class="ep" data-e="❤️" onclick="selEmoji(this)"></div></div></div>
+    <!-- emoji selector removed -->
     <div class="field-wrap"><div class="field-lbl">アイデア名 <span class="field-req">必須</span></div><input class="inp" id="inp-title" type="text" placeholder="例：習い事スケジュール管理アプリ" maxlength="40"><div class="hint">「こんなのあったら面白そう」という一言でもOKです。</div></div>
     <div class="field-wrap"><div class="field-lbl">ジャンル <span class="field-req">必須</span></div><div class="genre-grid" id="genre-grid"><div class="genre-item" onclick="selGenre(this)" style="grid-column:1/-1">起業家・スタートアップ</div><div class="genre-item" onclick="selGenre(this)">副業・フリーランス</div><div class="genre-item" onclick="selGenre(this)">業務効率</div><div class="genre-item" onclick="selGenre(this)">社会課題</div><div class="genre-item" onclick="selGenre(this)">テクノロジー</div></div></div>
     <div class="field-wrap"><div class="field-lbl">ティッカー <span class="field-opt">任意・英大文字5字以内</span></div><input class="inp inp-sm" id="inp-ticker" type="text" placeholder="例：HABIT" maxlength="5" style="text-transform:uppercase"><div class="hint">空欄だとアイデア名から自動生成します。</div></div>
@@ -518,6 +521,7 @@ input[type=file] { display: none; }
     <div class="sub-title">広場</div>
     <div style="font-size:10px;font-weight:700;color:#4ade80;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);border-radius:100px;padding:3px 10px;margin-left:auto">AI監視中</div>
   </div>
+  <div class="screen-scroll">
   <div style="padding:0 14px 4px;font-size:12px;color:var(--text3)">あなたの声が、あいぽの未来を作る。</div>
   <div class="hiroba-body">
     <!-- AIバー -->
@@ -594,6 +598,7 @@ input[type=file] { display: none; }
 </div>
 
 <div class="screen" id="screen-portfolio">
+  <div class="screen-scroll">
   <div class="header" style="padding:0">
     <div style="background:var(--surface);padding:14px 16px 14px;border-bottom:0.5px solid var(--border)">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
