@@ -1408,48 +1408,48 @@ async function shareCertificate(ideaId, encodedName, ticker) {
   const btn = document.getElementById('cert-share-btn'); if (btn) { btn.innerHTML = '生成中...'; btn.disabled = true; }
   try {
     const ideaName = decodeURIComponent(encodedName);
-    // cert-wrapを直接キャプチャ（背景余白なし・横長そのまま）
     const certInner = document.getElementById('cert-inner');
-    const certContent = certInner ? certInner.innerHTML : buildCertHTML(ideas.find(function(i){return i.id===ideaId;}) || {id:ideaId,ticker:ticker,name:ideaName,score:50,votes:1,emoji:'💡'}, 0);
+    const certContent = certInner ? certInner.innerHTML
+      : buildCertHTML(ideas.find(function(i){return i.id===ideaId;}) || {id:ideaId,ticker:ticker,name:ideaName,score:50,votes:1,emoji:'💡'}, 0);
 
-    // SNS映え・コレクション向けの余白付きカード
-    const offscreen = document.createElement('div');
-    offscreen.style.cssText = `
-      position:fixed;left:-9999px;top:0;z-index:-1;
-      width:760px;
-      background:linear-gradient(135deg,#f0ebe0 0%,#e8dfd0 50%,#ede5d8 100%);
-      padding:48px 44px;
-      border-radius:0;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:20px;
-    `;
-    // ロゴ＋株券＋フッターの3層構成
-    offscreen.innerHTML = `
-      <div style="display:flex;align-items:center;gap:8px;align-self:flex-start">
-        <div style="width:22px;height:22px;background:#1a1400;border-radius:5px;display:flex;align-items:center;justify-content:center">
-          <svg width="11" height="11" viewBox="0 0 20 20" fill="none"><polyline points="2,14 7,8 11,11 18,4" stroke="#e8850a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <span style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:#1a1400;letter-spacing:.06em">あいぽ</span>
-      </div>
-      <div class="cert-wrap" style="width:100%;overflow:visible;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.12),0 2px 8px rgba(0,0,0,.08)">\${certContent}</div>
-      <div style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(26,20,0,.35);letter-spacing:.12em;text-align:center">
-        AIPO — IDEA IPO MARKET &nbsp;·&nbsp; aipo-tau.vercel.app
-      </div>
-    `;
-    document.body.appendChild(offscreen);
-    await new Promise(r => setTimeout(r, 180));
+    // 外側ラッパー（チケット券面のような背景 + 余白）
+    const outer = document.createElement('div');
+    outer.style.cssText = [
+      'position:fixed','left:-9999px','top:0','z-index:-1',
+      'width:760px',
+      'background:#ede8df',
+      'padding:52px 48px',
+      'display:flex',
+      'flex-direction:column',
+      'align-items:center',
+      'gap:18px'
+    ].join(';');
 
-    const canvas = await html2canvas(offscreen, {
+    // チケット本体ラッパー
+    const inner = document.createElement('div');
+    inner.className = 'cert-wrap';
+    inner.style.cssText = 'width:100%;overflow:visible;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,.13),0 2px 8px rgba(0,0,0,.07)';
+    inner.innerHTML = certContent;
+
+    // フッター
+    const foot = document.createElement('div');
+    foot.style.cssText = "font-family:'DM Mono',monospace;font-size:9px;color:rgba(26,20,0,.3);letter-spacing:.14em;text-align:center";
+    foot.textContent = 'AIPO — IDEA IPO MARKET · aipo-tau.vercel.app';
+
+    outer.appendChild(inner);
+    outer.appendChild(foot);
+    document.body.appendChild(outer);
+    await new Promise(r => setTimeout(r, 200));
+
+    const canvas = await html2canvas(outer, {
       scale: 3,
-      backgroundColor: null,
+      backgroundColor: '#ede8df',
       useCORS: true,
       allowTaint: true,
       logging: false,
       windowWidth: 760,
     });
-    document.body.removeChild(offscreen);
+    document.body.removeChild(outer);
     const shareUrl = 'https://aipo-tau.vercel.app/?idea=' + ideaId;
     const tweetText = encodeURIComponent('「' + ideaName + '」に早期投資しました\n\nあいぽで株券をもらいました👇\n' + shareUrl + '\n\n#あいぽ #アイデアIPO');
     const xUrl = 'https://twitter.com/intent/tweet?text=' + tweetText;
