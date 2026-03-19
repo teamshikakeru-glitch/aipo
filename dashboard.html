@@ -331,6 +331,50 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
 .empty-txt{font-size:11px;color:var(--ink3);line-height:1.7}
 .skel{background:linear-gradient(90deg,var(--bg) 25%,var(--border) 50%,var(--bg) 75%);background-size:200% 100%;animation:sh 1.3s infinite;border-radius:4px;height:12px;margin-bottom:8px}
 @keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ─── BROADCAST ─── */
+.broadcast-form{background:#fff;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-top:0}
+.broadcast-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border)}
+.broadcast-title{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--ink);letter-spacing:.1em}
+.broadcast-badge{font-family:var(--mono);font-size:8px;color:#fff;background:#e53e3e;border-radius:4px;padding:2px 8px;letter-spacing:.06em}
+.broadcast-body{padding:14px 16px}
+.broadcast-textarea{width:100%;border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;font-size:13px;font-family:var(--sans);color:var(--ink);resize:none;outline:none;line-height:1.6;transition:border-color .15s;background:var(--bg)}
+.broadcast-textarea:focus{border-color:var(--amber)}
+.broadcast-actions{display:flex;gap:8px;margin-top:10px;align-items:center}
+.broadcast-btn{padding:10px 20px;background:var(--ink);border:none;border-radius:100px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans);display:flex;align-items:center;gap:6px;transition:opacity .15s}
+.broadcast-btn:hover{opacity:.84}
+.broadcast-btn:disabled{opacity:.5;cursor:not-allowed}
+.broadcast-note{font-size:11px;color:var(--ink3);margin-left:4px}
+
+
+.kpi-clickable { cursor:pointer; transition:transform .12s,box-shadow .12s; }
+.kpi-clickable:hover { transform:translateY(-2px); box-shadow:0 4px 16px rgba(0,0,0,.08); }
+.kpi-clickable:active { transform:scale(.97); }
+
+/* KPI / Hiroba モーダル */
+.dash-modal-overlay { position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:flex-end;justify-content:center; }
+.dash-modal-box { background:var(--bg);border-radius:18px 18px 0 0;padding:20px 20px 40px;width:100%;max-width:720px;max-height:80vh;overflow-y:auto; }
+.dash-modal-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:16px; }
+.dash-modal-title { font-size:14px;font-weight:700;color:var(--ink); }
+.dash-modal-close { width:28px;height:28px;border-radius:50%;background:var(--bg2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px; }
+
+/* 広場inbox */
+.voice-card { border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px;background:var(--bg2);position:relative; }
+.voice-card.urgent { border-color:#e53e3e;background:#fff8f8; }
+.voice-card-meta { display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap; }
+.voice-card-name { font-size:12px;font-weight:700;color:var(--ink); }
+.voice-card-tag { font-size:9px;padding:2px 7px;border-radius:4px;background:var(--bg);border:1px solid var(--border);color:var(--ink2);font-family:var(--mono); }
+.voice-card-time { font-size:10px;color:var(--ink3);margin-left:auto; }
+.voice-card-text { font-size:13px;color:var(--ink);line-height:1.65;margin-bottom:8px; }
+.voice-reply-box { background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin-top:6px;display:flex;gap:6px;align-items:center; }
+.voice-reply-box.sent { background:#f0fff4;border-color:#9ae6b4; }
+.voice-reply-inp { flex:1;border:none;outline:none;font-size:12px;background:transparent;font-family:var(--sans);color:var(--ink); }
+.voice-reply-send { padding:5px 12px;background:var(--ink);color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans);white-space:nowrap; }
+.voice-actions { display:flex;gap:6px;flex-wrap:wrap;margin-top:6px; }
+.voice-action-btn { padding:4px 10px;border-radius:6px;border:1px solid var(--border);font-size:10px;font-weight:700;cursor:pointer;background:var(--bg);color:var(--ink2);font-family:var(--sans); }
+.voice-action-btn.urgent-btn { border-color:#e53e3e;color:#e53e3e; }
+.voice-action-btn.link-btn { border-color:var(--amber);color:var(--amber); }
+
 </style>
 </head>
 <body>
@@ -370,7 +414,6 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
     <button class="tab-btn" onclick="showTab('lp')" id="tab-lp">LP分析</button>
     <button class="tab-btn" onclick="showTab('overview')" id="tab-overview">概要</button>
     <button class="tab-btn" onclick="showTab('ideas')" id="tab-ideas">アイデア</button>
-    <button class="tab-btn" onclick="showTab('users')" id="tab-users">ユーザー</button>
     <button class="tab-btn" onclick="showTab('pdca')" id="tab-pdca">PDCA</button>
   </div>
 
@@ -379,6 +422,38 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
 
     <!-- ヘルスチェックバナー -->
     <div id="health-banner" style="margin-bottom:12px"></div>
+
+    <!-- 一斉通知 -->
+    <div class="sec">広場への一斉通知</div>
+    <div class="broadcast-form">
+      <div class="broadcast-head">
+        <div class="broadcast-title">BROADCAST TO USERS</div>
+        <div class="broadcast-badge">ADMIN ONLY</div>
+      </div>
+      <div class="broadcast-body">
+        <textarea class="broadcast-textarea" id="broadcast-text" rows="3" placeholder="ユーザーへのお知らせを入力...&#10;例: 明日13:00〜メンテナンスがあります"></textarea>
+        <div class="broadcast-actions">
+          <button class="broadcast-btn" id="broadcast-btn" onclick="sendBroadcast()">
+            <svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2"><path d="M3 10l14-7-7 14-2-6z"/></svg>
+            広場に送信
+          </button>
+          <span class="broadcast-note" id="broadcast-status">全ユーザーの広場に表示されます</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 広場管理 -->
+    <div class="sec">広場 — 受信メッセージ管理</div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-head">
+        <div class="card-title">VOICE INBOX</div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <div id="hiroba-urgent-badge" style="display:none;background:#e53e3e;color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;font-family:var(--mono)">緊急あり</div>
+          <div class="card-meta" id="hiroba-inbox-meta">読込中...</div>
+        </div>
+      </div>
+      <div id="hiroba-inbox-body" style="padding:8px 0"><div class="skel"></div><div class="skel" style="margin-top:6px"></div></div>
+    </div>
 
     <!-- 売上 -->
     <div class="rev-hero">
@@ -405,23 +480,23 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
 
     <!-- 今日のKPI -->
     <div class="kpi-grid" style="margin-bottom:10px">
-      <div class="kpi amber">
-        <div class="kpi-lbl">累計ユーザー数</div>
+      <div class="kpi amber kpi-clickable" onclick="showKpiModal('all-users')" title="クリックで一覧表示">
+        <div class="kpi-lbl">累計ユーザー数 <span style="font-size:9px;opacity:.5">▶</span></div>
         <div class="kpi-num amber" id="top-users-total">—</div>
         <div class="kpi-detail">あいぽに登録した人</div>
       </div>
-      <div class="kpi green">
-        <div class="kpi-lbl">今日の新規ユーザー</div>
+      <div class="kpi green kpi-clickable" onclick="showKpiModal('new-users')" title="クリックで一覧表示">
+        <div class="kpi-lbl">今日の新規ユーザー <span style="font-size:9px;opacity:.5">▶</span></div>
         <div class="kpi-num green" id="top-users-today">—</div>
         <div class="kpi-detail">今日登録した新しい人</div>
       </div>
-      <div class="kpi green">
-        <div class="kpi-lbl">今日の上場数</div>
+      <div class="kpi green kpi-clickable" onclick="showKpiModal('today-ideas')" title="クリックで一覧表示">
+        <div class="kpi-lbl">今日の上場数 <span style="font-size:9px;opacity:.5">▶</span></div>
         <div class="kpi-num green" id="top-ideas-today">—</div>
         <div class="kpi-detail">今日追加されたアイデア</div>
       </div>
-      <div class="kpi amber">
-        <div class="kpi-lbl">今日の投票数</div>
+      <div class="kpi amber kpi-clickable" onclick="showKpiModal('today-votes')" title="クリックで一覧表示">
+        <div class="kpi-lbl">今日の投票数 <span style="font-size:9px;opacity:.5">▶</span></div>
         <div class="kpi-num amber" id="top-votes-today">—</div>
         <div class="kpi-detail">今日投じられた応援票</div>
       </div>
@@ -1955,6 +2030,42 @@ function flash(id, color) {
   setTimeout(() => { el.style.color = ''; }, 1200);
 }
 
+// ===== BROADCAST =====
+const ADMIN_UUID = '7f3162ec-c281-435f-8e8e-3b6d65b8b1c9';
+
+async function sendBroadcast() {
+  const text = document.getElementById('broadcast-text')?.value?.trim();
+  if (!text) { alert('内容を入力してください'); return; }
+  const btn = document.getElementById('broadcast-btn');
+  const status = document.getElementById('broadcast-status');
+  btn.disabled = true;
+  status.textContent = '送信中...';
+
+  try {
+    const { error } = await sb.from('hiroba_voices').insert({
+      user_id: ADMIN_UUID,
+      user_name: 'あいぽ運営',
+      text: text,
+      tag: 'お知らせ',
+      ai_reply: null,
+      is_announcement: true,
+    });
+    if (error) throw error;
+    document.getElementById('broadcast-text').value = '';
+    status.textContent = '✓ 送信しました！広場に表示されています';
+    status.style.color = 'var(--green)';
+    setTimeout(() => {
+      status.textContent = '全ユーザーの広場に表示されます';
+      status.style.color = '';
+    }, 4000);
+  } catch(e) {
+    status.textContent = 'エラー: ' + e.message;
+    status.style.color = 'var(--red)';
+    console.error(e);
+  }
+  btn.disabled = false;
+}
+
 // ===== HEALTH CHECK =====
 async function runHealthCheck() {
   const checks = [];
@@ -2207,6 +2318,90 @@ async function init() {
       document.getElementById('lg-err').style.display = 'block';
     }
   }
+}
+
+
+// ===== KPI MODAL =====
+async function showKpiModal(type) {
+  const overlay = document.createElement('div');
+  overlay.className = 'dash-modal-overlay';
+  overlay.onclick = e => { if(e.target===overlay) overlay.remove(); };
+  const titles = {'all-users':'累計ユーザー一覧','new-users':'今日の新規ユーザー','today-ideas':'今日の上場アイデア','today-votes':'今日の投票履歴'};
+  overlay.innerHTML = `<div class="dash-modal-box"><div class="dash-modal-header"><div class="dash-modal-title">${titles[type]}</div><div class="dash-modal-close" onclick="this.closest('.dash-modal-overlay').remove()">✕</div></div><div id="kpi-modal-body">読み込み中...</div></div>`;
+  document.body.appendChild(overlay);
+  const body = document.getElementById('kpi-modal-body');
+  const today = new Date(); today.setHours(0,0,0,0);
+  const todayISO = today.toISOString();
+  try {
+    if (type === 'all-users') {
+      const { data } = await sb.from('user_profiles_view').select('*').order('created_at', { ascending: false });
+      body.innerHTML = (data||[]).map(u => `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)"><div style="font-size:13px;font-weight:700;color:var(--ink)">${u.display_name||u.email||'—'}</div><div style="font-size:10px;color:var(--ink3);margin-left:auto">${u.created_at ? new Date(u.created_at).toLocaleDateString('ja-JP') : '—'}</div>${u.is_founder ? '<div style="font-size:9px;padding:1px 6px;background:#fef3c7;border:1px solid #fde68a;border-radius:4px;color:#854f0b;font-weight:700">創設</div>' : ''}</div>`).join('') || 'ユーザーはいません';
+    } else if (type === 'new-users') {
+      const { data } = await sb.from('user_profiles_view').select('*').gte('created_at', todayISO).order('created_at', { ascending: false });
+      body.innerHTML = (data||[]).map(u => `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)"><div style="font-size:13px;font-weight:700;color:var(--ink)">${u.display_name||u.email||'—'}</div><div style="font-size:10px;color:var(--ink3);margin-left:auto">${u.created_at ? new Date(u.created_at).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}) : '—'}</div></div>`).join('') || '今日の新規ユーザーはいません';
+    } else if (type === 'today-ideas') {
+      const { data } = await sb.from('ideas').select('*').gte('created_at', todayISO).order('created_at', { ascending: false });
+      body.innerHTML = (data||[]).map(i => `<div style="padding:10px 0;border-bottom:1px solid var(--border)"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-family:var(--mono);font-size:9px;font-weight:700;color:var(--amber)">${i.ticker||'—'}</span><div style="font-size:13px;font-weight:700;color:var(--ink);flex:1">${i.name}</div><div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--green)">${parseFloat(i.score||50).toFixed(1)}</div></div><div style="font-size:10px;color:var(--ink3)">${i.genre||'—'} · ${i.votes||0}票 · ${i.created_at ? new Date(i.created_at).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}) : '—'}</div></div>`).join('') || '今日の上場はありません';
+    } else if (type === 'today-votes') {
+      const { data } = await sb.from('idea_votes').select('*, ideas(name,ticker), profiles(display_name)').gte('created_at', todayISO).order('created_at', { ascending: false }).catch(() => ({ data: [] }));
+      body.innerHTML = (data||[]).map(v => `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)"><div style="font-size:12px;font-weight:700;color:var(--ink)">${v.profiles?.display_name||'匿名'}</div><div style="font-size:10px;color:var(--ink3)">→</div><div style="font-size:12px;color:var(--ink);flex:1">「${(v.ideas?.name||'—').slice(0,20)}」</div><div style="font-size:9px;color:var(--ink3)">${v.created_at ? new Date(v.created_at).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}) : '—'}</div></div>`).join('') || '今日の投票はありません';
+    }
+  } catch(e) { body.innerHTML = '<div style="color:#e53e3e;font-size:12px">読み込み失敗: ' + e.message + '</div>'; }
+}
+
+// ===== HIROBA INBOX =====
+async function loadHirobaInbox() {
+  const body = document.getElementById('hiroba-inbox-body');
+  const meta = document.getElementById('hiroba-inbox-meta');
+  const urgentBadge = document.getElementById('hiroba-urgent-badge');
+  if (!body) return;
+  try {
+    const { data } = await sb.from('hiroba_voices').select('*').eq('is_announcement', false).order('created_at', { ascending: false }).limit(30);
+    if (!data || data.length === 0) { body.innerHTML = '<div style="padding:12px;font-size:12px;color:var(--ink3);text-align:center">メッセージはありません</div>'; if(meta) meta.textContent = '0件'; return; }
+    if(meta) meta.textContent = data.length + '件';
+    const urgent = data.filter(v => v.tag === 'バグ報告' && !v.ai_reply);
+    if(urgentBadge) urgentBadge.style.display = urgent.length ? 'block' : 'none';
+    body.innerHTML = data.map(v => {
+      const isUrgent = v.tag === 'バグ報告' && !v.ai_reply;
+      const time = v.created_at ? new Date(v.created_at).toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
+      const safeId = v.id.replace(/-/g,'_');
+      return `<div class="voice-card ${isUrgent ? 'urgent' : ''}" id="vcard-${v.id}">${isUrgent ? '<div style="font-size:9px;font-weight:700;color:#e53e3e;margin-bottom:4px;font-family:var(--mono)">⚠ 未返信のバグ報告</div>' : ''}<div class="voice-card-meta"><div class="voice-card-name">${v.user_name||'匿名'}</div><div class="voice-card-tag">${v.tag||'その他'}</div><div class="voice-card-time">${time}</div></div><div class="voice-card-text">${v.text}</div>${v.ai_reply ? `<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:6px 10px;font-size:11px;color:#854f0b;margin-bottom:6px"><span style="font-family:var(--mono);font-size:8px;margin-right:4px">返信済</span>${v.ai_reply}</div>` : ''}<div class="voice-actions"><button class="voice-action-btn link-btn" onclick="sendLinkToVoice('${v.id}','${(v.user_name||'').replace(/'/g,"\'")}')">🔗 リンク送信</button><button class="voice-action-btn urgent-btn" onclick="markUrgent('${v.id}')">⚠ 緊急</button><button class="voice-action-btn" onclick="deleteVoice('${v.id}')">🗑 削除</button></div><div class="voice-reply-box" id="reply-box-${v.id}"><input class="voice-reply-inp" id="reply-inp-${v.id}" type="text" placeholder="運営として返信...（Enterで送信）" onkeydown="if(event.key===\'Enter\'&&!event.isComposing)sendAdminReply(\'${v.id}\')"><button class="voice-reply-send" onclick="sendAdminReply(\'${v.id}\')">送信</button></div></div>`;
+    }).join('');
+  } catch(e) { if(body) body.innerHTML = '<div style="font-size:12px;color:#e53e3e">読み込み失敗: ' + e.message + '</div>'; }
+}
+
+async function sendAdminReply(id) {
+  const inp = document.getElementById('reply-inp-' + id);
+  const text = inp?.value?.trim();
+  if (!text) return;
+  try {
+    await sb.from('hiroba_voices').update({ ai_reply: '【運営】' + text }).eq('id', id);
+    const box = document.getElementById('reply-box-' + id);
+    if(box) { box.classList.add('sent'); if(inp){inp.value='';inp.placeholder='返信済み';inp.disabled=true;} }
+    showToast('返信を送信しました');
+  } catch(e) { alert('エラー: ' + e.message); }
+}
+
+async function sendLinkToVoice(id, userName) {
+  const url = prompt(userName + ' へ送るURLを入力:', 'https://aipo-tau.vercel.app/');
+  if (!url) return;
+  await sb.from('hiroba_voices').update({ ai_reply: '【運営リンク】' + url }).eq('id', id);
+  loadHirobaInbox();
+  showToast('リンクを送信しました');
+}
+
+function markUrgent(id) {
+  const card = document.getElementById('vcard-' + id);
+  if(card) card.classList.add('urgent');
+  showToast('緊急マークをつけました');
+}
+
+async function deleteVoice(id) {
+  if (!confirm('このメッセージを削除しますか？')) return;
+  await sb.from('hiroba_voices').delete().eq('id', id);
+  const card = document.getElementById('vcard-' + id);
+  if(card) card.remove();
+  showToast('削除しました');
 }
 
 init();
