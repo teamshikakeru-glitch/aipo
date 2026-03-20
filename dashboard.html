@@ -176,6 +176,11 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
 .act-type-view{background:var(--bg);color:var(--ink3);border:1px solid var(--border)}
 .act-type-vote{background:var(--amber-light);color:var(--amber);border:1px solid var(--amber-border)}
 .act-type-list{background:var(--green-light);color:var(--green);border:1px solid var(--green-border)}
+.sec{cursor:pointer;user-select:none}
+.sec:hover{opacity:.75}
+.sec-arrow{font-family:var(--mono);font-size:10px;color:var(--ink3);transition:transform .2s;flex-shrink:0;margin-left:4px}
+.sec-arrow.collapsed{transform:rotate(-90deg)}
+.sec-body.collapsed{display:none}
 .btn-label{flex:1;min-width:0}
 .btn-campaign{font-family:var(--mono);font-size:9px;color:var(--ink3);margin-top:2px}
 .btn-bar-wrap{flex:1;min-width:0}
@@ -386,12 +391,12 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
   <div id="tab-content-overview" class="main" style="display:none">
     <div class="sec">サマリー</div>
     <div class="kpi-grid">
-      <div class="kpi amber"><div class="kpi-lbl">登録ユーザー数</div><div class="kpi-num amber" id="kpi-users">—</div><div class="kpi-detail">あいぽにログインした人</div></div>
-      <div class="kpi amber"><div class="kpi-lbl">上場中のアイデア数</div><div class="kpi-num amber" id="kpi-ideas">—</div><div class="kpi-detail">マーケットにあるアイデア</div></div>
-      <div class="kpi green"><div class="kpi-lbl">今日の新規上場</div><div class="kpi-num green" id="kpi-ideas-today">—</div><div class="kpi-detail">今日追加されたアイデア</div></div>
-      <div class="kpi green"><div class="kpi-lbl">今日の応援票</div><div class="kpi-num green" id="kpi-votes-today">—</div><div class="kpi-detail">今日投じられた票数</div></div>
-      <div class="kpi dim"><div class="kpi-lbl">今日の閲覧数</div><div class="kpi-num" id="kpi-views">—</div><div class="kpi-detail">アイデアを開いた回数</div></div>
-      <div class="kpi dim"><div class="kpi-lbl">創設メンバー数</div><div class="kpi-num" id="kpi-founders">—</div><div class="kpi-detail" id="kpi-founders-sub">¥980を払った人</div></div>
+      <div class="kpi amber kpi-clickable" onclick="showKpiModal('all-users')"><div class="kpi-lbl">登録ユーザー数 <span style="font-size:9px;opacity:.5">▶</span></div><div class="kpi-num amber" id="kpi-users">—</div><div class="kpi-detail">あいぽにログインした人</div></div>
+      <div class="kpi amber kpi-clickable" onclick="showKpiModal('all-ideas')"><div class="kpi-lbl">上場中のアイデア数 <span style="font-size:9px;opacity:.5">▶</span></div><div class="kpi-num amber" id="kpi-ideas">—</div><div class="kpi-detail">マーケットにあるアイデア</div></div>
+      <div class="kpi green kpi-clickable" onclick="showKpiModal('today-ideas')"><div class="kpi-lbl">今日の新規上場 <span style="font-size:9px;opacity:.5">▶</span></div><div class="kpi-num green" id="kpi-ideas-today">—</div><div class="kpi-detail">今日追加されたアイデア</div></div>
+      <div class="kpi green kpi-clickable" onclick="showKpiModal('today-votes')"><div class="kpi-lbl">今日の応援票 <span style="font-size:9px;opacity:.5">▶</span></div><div class="kpi-num green" id="kpi-votes-today">—</div><div class="kpi-detail">今日投じられた票数</div></div>
+      <div class="kpi dim kpi-clickable" onclick="showKpiModal('today-views')"><div class="kpi-lbl">今日の閲覧数 <span style="font-size:9px;opacity:.5">▶</span></div><div class="kpi-num" id="kpi-views">—</div><div class="kpi-detail">アイデアを開いた回数</div></div>
+      <div class="kpi dim kpi-clickable" onclick="showKpiModal('all-founders')"><div class="kpi-lbl">創設メンバー数 <span style="font-size:9px;opacity:.5">▶</span></div><div class="kpi-num" id="kpi-founders">—</div><div class="kpi-detail" id="kpi-founders-sub">¥980を払った人</div></div>
     </div>
     <div class="sec">本日の時間別閲覧</div>
     <div class="card"><div class="card-body"><div class="hour-wrap" id="hourly-chart"></div><div class="hour-lbls" id="hourly-labels"></div></div></div>
@@ -996,7 +1001,7 @@ async function loadHomeTab(){
 // ===== LP ANALYTICS =====
 async function loadLPAnalytics(){
   const today=new Date().toISOString().slice(0,10);
-  const {data:all}=await sb.from('user_events').select('utm_source,utm_medium,utm_campaign,referrer,created_at').order('created_at',{ascending:false});
+  const {data:all}=await sb.from('user_events').select('utm_source,utm_medium,utm_campaign,referrer,created_at,user_id').order('created_at',{ascending:false});
   if(!all||all.length===0){
     ['lp-total','lp-today','lp-open-total','lp-open-today'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='0';});
     ['lp-buttons-body','other-sources-body','lp-timeline-body'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='<div class="empty"><div class="empty-ico">📊</div><div class="empty-txt">データなし</div></div>';});
@@ -1029,6 +1034,13 @@ async function loadLPAnalytics(){
   document.getElementById('other-total-meta').textContent=otherEvents.length+'件';
   document.getElementById('other-sources-body').innerHTML=otherSorted.length===0?'<div class="empty"><div class="empty-ico">—</div><div class="empty-txt">LP以外からの流入なし</div></div>':otherSorted.map(([label,cnt])=>{ const {icon}=normalize(label==='direct'?'direct':'https://'+label); return `<div class="src-row"><div class="src-icon">${icon}</div><div class="src-info"><div class="src-name">${label}</div><div class="src-bar"><div class="src-bar-fill" style="width:${Math.round(cnt/maxOther*100)}%"></div></div></div><div><div style="font-family:var(--mono);font-size:18px;font-weight:500;color:var(--ink)">${cnt}</div><div style="font-family:var(--mono);font-size:9px;color:var(--ink3)">${Math.round(cnt/otherEvents.length*100)}%</div></div></div>`; }).join('');
   const tlEvents=all.filter(e=>e.utm_source!=='lp_pageview');
+  // ユーザー名マップを取得
+  const tlUserIds=[...new Set(tlEvents.map(e=>e.user_id).filter(Boolean))];
+  const tlUserMap={};
+  if(tlUserIds.length>0){
+    const {data:tlProfiles}=await sb.from('profiles').select('id,x_username,is_founder').in('id',tlUserIds);
+    if(tlProfiles) tlProfiles.forEach(p=>tlUserMap[p.id]={name:p.x_username||'匿名',isFounder:p.is_founder});
+  }
   document.getElementById('lp-timeline-body').innerHTML=tlEvents.slice(0,30).map((e,idx)=>{
     const isLp=e.utm_source==='lp', btnInfo=isLp&&e.utm_campaign?(LP_BUTTONS[e.utm_campaign]||{name:e.utm_campaign,icon:'🔗'}):null;
     const {label,icon}=normalize(e.referrer);
@@ -1036,7 +1048,9 @@ async function loadLPAnalytics(){
     const summary=isLp&&btnInfo?`${btnInfo.icon} LP「${btnInfo.name}」から`:`${icon} ${label}から`;
     const detail=isLp?`LP経由 · campaign=${e.utm_campaign||'—'}`:` 直接流入 · referrer: ${e.referrer||'direct'}`;
     const dotColor=isLp?'border-color:var(--amber-bright);background:var(--amber-light)':'border-color:var(--border2);background:var(--bg)';
-    return `<div style="border-bottom:1px solid var(--border);cursor:pointer" onclick="document.getElementById('${did}').classList.toggle('open')"><div style="display:flex;gap:10px;align-items:center;padding:8px 0"><div style="width:7px;height:7px;border-radius:50%;border:1.5px solid;flex-shrink:0;margin-top:1px;${dotColor}"></div><div style="flex-shrink:0;min-width:90px"><div style="font-family:var(--mono);font-size:10px;color:var(--ink2);font-weight:500">${fmtDate(e.created_at)}</div><div style="font-family:var(--mono);font-size:8px;color:var(--ink3);margin-top:1px">${fmtAgo(e.created_at)}</div></div><div style="flex:1;font-size:12px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${summary}</div><div style="font-family:var(--mono);font-size:9px;color:var(--ink3);flex-shrink:0">▼</div></div><div id="${did}" class="ua-detail" style="margin-bottom:4px"><div style="font-family:var(--mono);font-size:10px;color:var(--ink3);line-height:1.7">${detail}</div></div></div>`;
+    const userProfile=e.user_id?tlUserMap[e.user_id]:null;
+    const userBadge=userProfile?`<span style="font-family:var(--mono);font-size:9px;padding:1px 6px;border-radius:3px;background:${userProfile.isFounder?'var(--amber-light)':'var(--green-light)'};color:${userProfile.isFounder?'var(--amber)':'var(--green)'};border:1px solid ${userProfile.isFounder?'var(--amber-border)':'var(--green-border)'};">${userProfile.isFounder?'👑 ':''}${userProfile.name}</span>`:'<span style="font-family:var(--mono);font-size:9px;color:var(--ink3)">未ログイン</span>';
+    return `<div style="border-bottom:1px solid var(--border);cursor:pointer" onclick="document.getElementById('${did}').classList.toggle('open')"><div style="display:flex;gap:10px;align-items:center;padding:8px 0"><div style="width:7px;height:7px;border-radius:50%;border:1.5px solid;flex-shrink:0;margin-top:1px;${dotColor}"></div><div style="flex-shrink:0;min-width:90px"><div style="font-family:var(--mono);font-size:10px;color:var(--ink2);font-weight:500">${fmtDate(e.created_at)}</div><div style="font-family:var(--mono);font-size:8px;color:var(--ink3);margin-top:1px">${fmtAgo(e.created_at)}</div></div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${summary}</div><div style="margin-top:2px">${userBadge}</div></div><div style="font-family:var(--mono);font-size:9px;color:var(--ink3);flex-shrink:0">▼</div></div><div id="${did}" class="ua-detail" style="margin-bottom:4px"><div style="font-family:var(--mono);font-size:10px;color:var(--ink3);line-height:1.7">${detail}</div></div></div>`;
   }).join('')||'<div class="empty"><div class="empty-ico">📭</div><div class="empty-txt">流入データなし</div></div>';
 }
 
@@ -1106,7 +1120,7 @@ async function sendBroadcast(){
 async function showKpiModal(type){
   const overlay=document.createElement('div'); overlay.className='dash-modal-overlay';
   overlay.onclick=e=>{ if(e.target===overlay) overlay.remove(); };
-  const titles={'all-users':'累計ユーザー一覧','new-users':'今日の新規ユーザー','today-ideas':'今日の上場アイデア','today-votes':'今日の投票履歴'};
+  const titles={'all-users':'累計ユーザー一覧','new-users':'今日の新規ユーザー','today-ideas':'今日の上場アイデア','today-votes':'今日の投票履歴','all-ideas':'全アイデア一覧','today-views':'今日の閲覧履歴','all-founders':'創設メンバー一覧'};
   overlay.innerHTML=`<div class="dash-modal-box"><div class="dash-modal-header"><div class="dash-modal-title">${titles[type]}</div><div class="dash-modal-close" onclick="this.closest('.dash-modal-overlay').remove()">✕</div></div><div id="kpi-modal-body">読み込み中...</div></div>`;
   document.body.appendChild(overlay);
   const body=document.getElementById('kpi-modal-body');
@@ -1141,6 +1155,60 @@ async function showKpiModal(type){
       body.innerHTML+=votes.length?votes.map(v=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)"><span style="font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:4px;padding:1px 6px">${ideaMap[v.idea_id]?.ticker||'—'}</span><div style="font-size:12px;color:var(--ink);flex:1">「${(ideaMap[v.idea_id]?.name||'不明').slice(0,22)}」</div><div style="font-size:9px;color:var(--ink3)">${fmtDate(v.created_at)}</div></div>`).join(''):'<div style="padding:12px;text-align:center;font-size:12px;color:var(--ink3)">今日の投票はありません</div>';
     }
   }catch(e){ body.innerHTML='<div style="color:#e53e3e;font-size:12px;padding:12px">読み込み失敗: '+e.message+'</div>'; }
+
+  // 追加モーダルタイプ
+  try {
+    if(type==='all-ideas'){
+      const {data:ideas}=await sb.from('ideas').select('id,ticker,name,genre,score,votes,user_id').order('score',{ascending:false});
+      const {data:profiles}=await sb.from('profiles').select('id,x_username');
+      const pm={}; if(profiles) profiles.forEach(p=>pm[p.id]=p.x_username||'匿名');
+      body.innerHTML=`<div style="font-size:10px;color:var(--ink3);padding:4px 0 10px">全 <strong style="color:var(--amber)">${(ideas||[]).length}件</strong></div>`;
+      body.innerHTML+=(ideas||[]).map((idea,idx)=>{
+        const score=parseFloat(idea.score||0).toFixed(1);
+        const sc=score>=70?'var(--green)':score>=50?'var(--amber)':'var(--ink3)';
+        return `<div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--border)">
+          <div style="font-family:var(--mono);font-size:10px;color:var(--ink3);min-width:22px">${String(idx+1).padStart(2,'0')}</div>
+          <span style="font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:4px;padding:2px 6px;flex-shrink:0">${idea.ticker||'—'}</span>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${idea.name}</div>
+            <div style="font-size:10px;color:var(--ink3)">by ${pm[idea.user_id]||'—'} · ${idea.votes||0}票</div>
+          </div>
+          <div style="font-family:var(--mono);font-size:14px;font-weight:700;color:${sc}">${score}</div>
+        </div>`;
+      }).join('')||'<div style="padding:12px;text-align:center;font-size:12px;color:var(--ink3)">アイデアなし</div>';
+
+    } else if(type==='today-views'){
+      const today=new Date();
+      const jstStr=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+      const {data:views}=await sb.from('idea_views').select('idea_id,user_id,viewed_at').gte('viewed_at',jstStr+'T00:00:00Z').order('viewed_at',{ascending:false});
+      const {data:ideas}=await sb.from('ideas').select('id,name,ticker');
+      const {data:profiles}=await sb.from('profiles').select('id,x_username,is_founder');
+      const im={}; if(ideas) ideas.forEach(i=>im[i.id]=i);
+      const pm={}; if(profiles) profiles.forEach(p=>pm[p.id]={name:p.x_username||'匿名',isFounder:p.is_founder});
+      body.innerHTML=`<div style="font-size:10px;color:var(--ink3);padding:4px 0 10px">今日の閲覧: <strong style="color:var(--ink)">${(views||[]).length}件</strong></div>`;
+      body.innerHTML+=(views||[]).map(v=>{
+        const idea=im[v.idea_id];
+        const profile=v.user_id?pm[v.user_id]:null;
+        const userLabel=profile?`${profile.isFounder?'👑 ':''}${profile.name}`:'未ログイン';
+        const userColor=profile?(profile.isFounder?'var(--amber)':'var(--green)'):'var(--ink3)';
+        return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+          <div style="flex-shrink:0;min-width:70px;font-family:var(--mono);font-size:10px;color:var(--ink3)">${fmtDate(v.viewed_at)}</div>
+          ${idea?`<span style="font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:4px;padding:1px 6px;flex-shrink:0">${idea.ticker||'—'}</span>`:''}
+          <div style="flex:1;font-size:12px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${idea?.name||'—'}</div>
+          <div style="font-size:10px;color:${userColor};flex-shrink:0;font-weight:600">${userLabel}</div>
+        </div>`;
+      }).join('')||'<div style="padding:12px;text-align:center;font-size:12px;color:var(--ink3)">今日の閲覧なし</div>';
+
+    } else if(type==='all-founders'){
+      const {data:founders}=await sb.from('profiles').select('id,x_username,founder_number,is_pro').eq('is_founder',true).neq('id',ADMIN_ID).order('founder_number',{ascending:true});
+      body.innerHTML=`<div style="font-size:10px;color:var(--ink3);padding:4px 0 10px">創設メンバー: <strong style="color:var(--amber)">${(founders||[]).length}人</strong> / 残り${Math.max(0,100-(founders||[]).length)}枠</div>`;
+      body.innerHTML+=(founders||[]).map(f=>`<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+        <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--amber);min-width:40px">#${String(f.founder_number||0).padStart(2,'0')}</div>
+        <div style="flex:1;font-size:13px;font-weight:700;color:var(--ink)">${f.x_username||'（未設定）'}</div>
+        <span style="font-size:9px;padding:2px 8px;background:var(--amber-light);border:1px solid var(--amber-border);border-radius:4px;color:var(--amber);font-weight:700">👑 創設</span>
+      </div>`).join('')||'<div style="padding:12px;text-align:center;font-size:12px;color:var(--ink3)">創設メンバーなし</div>';
+    }
+  }catch(e2){ if(type==='all-ideas'||type==='today-views'||type==='all-founders') body.innerHTML='<div style="color:#e53e3e;font-size:12px;padding:12px">読み込み失敗: '+e2.message+'</div>'; }
 }
 
 function flash(id,color){ const el=document.getElementById(id); if(!el) return; el.style.transition='color .2s'; el.style.color=color; setTimeout(()=>{ el.style.color=''; },1200); }
@@ -1162,11 +1230,70 @@ async function loadAll(){
   finally{ icon.classList.remove('spinning'); }
 }
 
+
+// ===== COLLAPSIBLE SECTIONS =====
+const SEC_STORAGE_KEY = 'aipo-dash-collapsed';
+
+function getCollapsed() {
+  try { return JSON.parse(localStorage.getItem(SEC_STORAGE_KEY) || '{}'); } catch(e) { return {}; }
+}
+function saveCollapsed(state) {
+  localStorage.setItem(SEC_STORAGE_KEY, JSON.stringify(state));
+}
+
+function initCollapsible() {
+  // 全タブの .sec 要素を走査して折りたたみ対応にする
+  document.querySelectorAll('.sec').forEach((sec, i) => {
+    const label = sec.textContent.trim();
+    const key = 'sec_' + i + '_' + label.slice(0, 10);
+
+    // 矢印アイコンを追加
+    const arrow = document.createElement('span');
+    arrow.className = 'sec-arrow';
+    arrow.textContent = '▼';
+    sec.appendChild(arrow);
+
+    // 直後の兄弟要素を全部wrapする
+    const siblings = [];
+    let next = sec.nextElementSibling;
+    while (next && !next.classList.contains('sec')) {
+      siblings.push(next);
+      next = next.nextElementSibling;
+    }
+
+    if (siblings.length === 0) return;
+
+    // wrapperを作成
+    const wrapper = document.createElement('div');
+    wrapper.className = 'sec-body';
+    wrapper.dataset.key = key;
+    sec.parentNode.insertBefore(wrapper, siblings[0]);
+    siblings.forEach(s => wrapper.appendChild(s));
+
+    // 保存状態を復元
+    const collapsed = getCollapsed();
+    if (collapsed[key]) {
+      wrapper.classList.add('collapsed');
+      arrow.classList.add('collapsed');
+    }
+
+    // クリックでトグル
+    sec.addEventListener('click', () => {
+      const isCollapsed = wrapper.classList.toggle('collapsed');
+      arrow.classList.toggle('collapsed', isCollapsed);
+      const state = getCollapsed();
+      if (isCollapsed) state[key] = true;
+      else delete state[key];
+      saveCollapsed(state);
+    });
+  });
+}
+
 async function init(){
   if(window.location.hash&&window.location.hash.includes('access_token')){ await new Promise(r=>setTimeout(r,800)); window.history.replaceState({}, '', window.location.pathname); }
   const {data:{session}}=await sb.auth.getSession();
   if(session){
-    if(session.user.id===ADMIN_ID){ document.getElementById('login-gate').style.display='none'; document.getElementById('dashboard').style.display='block'; showTab('home'); startRealtime(); }
+    if(session.user.id===ADMIN_ID){ document.getElementById('login-gate').style.display='none'; document.getElementById('dashboard').style.display='block'; showTab('home'); startRealtime(); setTimeout(initCollapsible, 100); }
     else{ document.getElementById('lg-err').style.display='block'; }
   }
 }
