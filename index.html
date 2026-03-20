@@ -164,7 +164,7 @@ input[type=file] { display: none; }
 .cert-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:400;display:flex;align-items:flex-end;justify-content:center}
 .cert-modal-box{background:var(--surface);border-radius:24px 24px 0 0;padding:24px 20px 44px;width:100%;max-width:390px;animation:slideUp .35s cubic-bezier(.16,1,.3,1)}
 @keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
-.cert-wrap{background:#f5f1ea;border-radius:12px;overflow:visible;border:1px solid #e0d8cc;display:flex;margin-bottom:16px;position:relative}
+.cert-wrap{background:#fffef8;border-radius:12px;overflow:hidden;border:2px solid #e8c84a;display:flex;margin-bottom:16px;position:relative;box-shadow:0 4px 20px rgba(232,133,10,.12)}
 .cert-notch-t{position:absolute;left:calc(100% - 101px);top:-10px;width:20px;height:20px;background:#e8dfd0;border-radius:50%;border:1px solid #d4c9b8;z-index:2}
 .cert-notch-b{position:absolute;left:calc(100% - 101px);bottom:-10px;width:20px;height:20px;background:#e8dfd0;border-radius:50%;border:1px solid #d4c9b8;z-index:2}
 .cert-left{flex:1;padding:18px 16px;min-width:0}
@@ -450,8 +450,30 @@ input[type=file] { display: none; }
       <label class="hiroba-anon"><input type="checkbox" id="hiroba-anon-check" style="width:16px;height:16px;accent-color:var(--amber-mid)">匿名で投稿する</label>
       <button class="hiroba-send" onclick="sendHiroba()"><svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2"><path d="M3 10l14-7-7 14-2-6z"/></svg>送信する</button>
     </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+      <a href="https://x.com/aideaipo" target="_blank" rel="noopener" style="text-decoration:none;background:var(--surface);border-radius:14px;border:0.5px solid var(--border2);padding:14px;display:flex;flex-direction:column;gap:8px;">
+        <div style="width:28px;height:28px;background:var(--ink,#1a1400);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+          <svg width="13" height="13" viewBox="0 0 20 20" fill="#fff"><path d="M2 2l7.5 8.5L2 18h2l6.3-7.1L16 18h4L12 9.2 18.5 2h-2L10.6 8.6 5 2H2z"/></svg>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--text);">公式X</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:1px;">最新情報をフォロー</div>
+        </div>
+        <div style="font-size:11px;font-weight:700;color:var(--text);padding:6px;background:var(--bg);border-radius:8px;text-align:center;border:0.5px solid var(--border2);">@aideaipo →</div>
+      </a>
+      <a href="/cdn-cgi/l/email-protection#2f5b4a4e42015c4746444e444a5d5a6f48424e4643014c4042" style="text-decoration:none;background:var(--surface);border-radius:14px;border:0.5px solid var(--border2);padding:14px;display:flex;flex-direction:column;gap:8px;">
+        <div style="width:28px;height:28px;background:var(--amber-bg);border-radius:8px;display:flex;align-items:center;justify-content:center;border:1px solid var(--amber-border);">
+          <svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="var(--amber-mid)" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="5" width="16" height="12" rx="2"/><path d="M2 7l8 6 8-6"/></svg>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--text);">開発依頼</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:1px;">システム構築のご相談</div>
+        </div>
+        <div style="font-size:11px;font-weight:700;color:var(--amber);padding:6px;background:var(--amber-bg);border-radius:8px;text-align:center;border:0.5px solid var(--amber-border);">相談する →</div>
+      </a>
+    </div>
     <div class="hiroba-section-title">RECENT VOICES</div>
-    <div id="hiroba-list"><div class="empty"><div class="empty-ico">📭</div><div class="empty-txt">まだ投稿がありません</div></div></div>
+    <div id="hiroba-list" style="background:var(--surface);border-radius:14px;border:0.5px solid var(--border2);overflow:hidden;"><div class="empty"><div class="empty-ico">📭</div><div class="empty-txt">まだ投稿がありません</div></div></div>
   </div>
 </div>
 
@@ -496,7 +518,7 @@ input[type=file] { display: none; }
     <a href="/legal.html#tokusho" target="_blank" style="font-family:var(--mono);font-size:10px;color:var(--text3);text-decoration:none;letter-spacing:.04em">特定商取引法</a>
     <a href="/legal.html#terms" target="_blank" style="font-family:var(--mono);font-size:10px;color:var(--text3);text-decoration:none;letter-spacing:.04em">利用規約</a>
     <a href="/legal.html#privacy" target="_blank" style="font-family:var(--mono);font-size:10px;color:var(--text3);text-decoration:none;letter-spacing:.04em">プライバシーポリシー</a>
-    <a href="mailto:team.shikakeru@gmail.com" style="font-family:var(--mono);font-size:10px;color:var(--text3);text-decoration:none;letter-spacing:.04em">お問い合わせ</a>
+    <a href="/cdn-cgi/l/email-protection#ed99888c80c39e8584868c86889f98ad8a808c8481c38e8280" style="font-family:var(--mono);font-size:10px;color:var(--text3);text-decoration:none;letter-spacing:.04em">お問い合わせ</a>
   </div>
   <div style="font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:.04em">© 2026 あいぽ · 中川航輝</div>
 </div>
@@ -504,7 +526,7 @@ input[type=file] { display: none; }
 <input type="file" id="file-input" accept="image/*">
 <div class="toast" id="toast"></div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 const SUPABASE_URL = 'https://qjffvspnnxyykoyhnazm.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqZmZ2c3Bubnh5eWtveWhuYXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzMTIxMzMsImV4cCI6MjA4Njg4ODEzM30.OqeeMZs73RjKY5POW-naf0dB8sFWfZDUKaKvE99EiBo';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -1421,7 +1443,9 @@ function buildCertHTML(idea, votesAtTime) {
   const serial = 'AI-' + String(today.getMonth()+1).padStart(2,'0') + String(today.getDate()).padStart(2,'0');
   const userName = currentUser?.x_username ? '@' + currentUser.x_username : '@ユーザー';
   const voteLabel = (votesAtTime + 1) + '票目'; const ideaName = idea.name.length > 16 ? idea.name.slice(0, 16) + '…' : idea.name;
-  return `<div class="cert-notch-t"></div><div class="cert-notch-b"></div><div class="cert-left"><div class="cert-brand"><div class="cert-brand-ico"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="7,14 10,10 12,11.5 15,7 18,4" stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="18" cy="4" r="2" fill="#f59e0b"/></svg></div><span class="cert-brand-name">あいぽ</span></div><div class="cert-divider"><div class="cert-divider-line"></div><span class="cert-divider-txt">INVESTMENT CERTIFICATE</span><div class="cert-divider-line"></div></div><div style="display:grid;grid-template-columns:auto 1fr;gap:10px;margin-bottom:10px"><div><div class="cert-field-lbl">DATE</div><div class="cert-field-val" style="font-size:11px">${dateStr}</div><div style="font-family:var(--mono);font-size:9px;color:#a09080">${timeStr}</div></div><div><div class="cert-field-lbl">IDEA</div><div class="cert-field-val">${ideaName}</div></div></div><div style="display:flex;align-items:flex-start;gap:6px;flex-wrap:wrap"><div><div class="cert-field-lbl">TICKER</div><div class="cert-mono">${idea.ticker}</div></div><div style="width:.5px;height:28px;background:#d4c9b8;margin-top:10px"></div><div><div class="cert-field-lbl">HOLDER</div><div class="cert-mono">${userName}</div></div><div style="width:.5px;height:28px;background:#d4c9b8;margin-top:10px"></div><div><div class="cert-field-lbl">VOTES AT TIME</div><div class="cert-mono">${voteLabel}</div></div></div><div class="cert-early"><div class="cert-early-dot"></div><span class="cert-early-txt">EARLY INVESTOR</span></div></div><div class="cert-right"><div style="text-align:center"><div style="font-family:var(--mono);font-size:7px;color:#a09080;letter-spacing:.08em;margin-bottom:4px">SERIAL</div><div style="font-family:var(--mono);font-size:9px;color:#1a1400;background:#e5ddd0;border-radius:3px;padding:2px 6px;letter-spacing:.03em">${serial}</div></div><div class="cert-stamp"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#c0392b" stroke-width="2" stroke-linecap="round"/></svg><span class="cert-stamp-txt">INVESTED</span></div><div style="text-align:center"><div style="display:flex;gap:1.5px;align-items:flex-end;margin-bottom:3px"><div style="width:2px;height:26px;background:#1a1400;border-radius:.5px"></div><div style="width:1px;height:22px;background:#1a1400;border-radius:.5px"></div><div style="width:3px;height:26px;background:#1a1400;border-radius:.5px"></div><div style="width:1px;height:18px;background:#1a1400;border-radius:.5px"></div><div style="width:2px;height:26px;background:#1a1400;border-radius:.5px"></div></div><div style="font-family:var(--mono);font-size:7px;color:#a09080;letter-spacing:.08em">あいぽ</div></div></div>`;
+  const isEarly = votesAtTime < 5;
+  const earlyBadge = isEarly ? `<div style="display:inline-flex;align-items:center;gap:4px;background:#fef9f0;border:1.5px solid #e8c84a;border-radius:20px;padding:3px 10px;margin-bottom:10px"><div style="width:5px;height:5px;border-radius:50%;background:#d97706"></div><span style="font-family:var(--mono);font-size:8px;color:#854f0b;font-weight:700;letter-spacing:.08em">EARLY INVESTOR</span></div>` : '';
+  return `<div class="cert-left"><div class="cert-brand" style="display:none"></div>${earlyBadge}<div class="cert-divider"><div class="cert-divider-line"></div><span class="cert-divider-txt">INVESTMENT CERTIFICATE</span><div class="cert-divider-line"></div></div><div style="display:grid;grid-template-columns:auto 1fr;gap:10px;margin-bottom:10px"><div><div class="cert-field-lbl">DATE</div><div class="cert-field-val" style="font-size:11px">${dateStr}</div><div style="font-family:var(--mono);font-size:9px;color:#a09080">${timeStr}</div></div><div><div class="cert-field-lbl">IDEA</div><div class="cert-field-val">${ideaName}</div></div></div><div style="display:flex;align-items:flex-start;gap:6px;flex-wrap:wrap"><div><div class="cert-field-lbl">TICKER</div><div class="cert-mono">${idea.ticker}</div></div><div style="width:.5px;height:28px;background:#d4c9b8;margin-top:10px"></div><div><div class="cert-field-lbl">HOLDER</div><div class="cert-mono">${userName}</div></div><div style="width:.5px;height:28px;background:#d4c9b8;margin-top:10px"></div><div><div class="cert-field-lbl">VOTES AT TIME</div><div class="cert-mono">${voteLabel}</div></div></div></div><div class="cert-right"><div style="text-align:center"><div style="font-family:var(--mono);font-size:7px;color:#a09080;letter-spacing:.08em;margin-bottom:4px">SERIAL</div><div style="font-family:var(--mono);font-size:9px;color:#1a1400;background:#e5ddd0;border-radius:3px;padding:2px 6px;letter-spacing:.03em">${serial}</div></div><div class="cert-stamp"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#c0392b" stroke-width="2" stroke-linecap="round"/></svg><span class="cert-stamp-txt">DONE</span></div><div style="text-align:center"><div style="display:flex;gap:1.5px;align-items:flex-end;margin-bottom:3px"><div style="width:2px;height:26px;background:#1a1400;border-radius:.5px"></div><div style="width:1px;height:22px;background:#1a1400;border-radius:.5px"></div><div style="width:3px;height:26px;background:#1a1400;border-radius:.5px"></div><div style="width:1px;height:18px;background:#1a1400;border-radius:.5px"></div><div style="width:2px;height:26px;background:#1a1400;border-radius:.5px"></div></div><div style="font-family:var(--mono);font-size:7px;color:#a09080;letter-spacing:.08em">あいぽ</div></div></div>`;
 }
 
 function showCertificate(idea, votesAtTime) {
@@ -1753,16 +1777,16 @@ async function loadHirobaList(){
       const isA=v.user_id===ADMIN||v.is_announcement;
       const mins=Math.floor((Date.now()-new Date(v.created_at).getTime())/60000);
       const t=mins<1?'たった今':mins<60?mins+'分前':Math.floor(mins/60)+'時間前';
-      return '<div class="hiroba-comment" style="'+(isA?'border:1.5px solid var(--amber-border);background:var(--amber-bg)':'')+'">'+
-        '<div class="hiroba-comment-meta">'+
-        '<div class="hiroba-avatar" style="'+(isA?'background:var(--amber-mid);color:#fff;font-size:9px':'')+'">'+
-        (isA?'運営':(v.user_name||'匿').slice(0,1))+'</div>'+
-        '<div class="hiroba-comment-name">'+(isA?'あいぽ運営':(v.user_name||'匿名'))+'</div>'+
-        '<div class="hiroba-comment-tag">'+(isA?'お知らせ':(v.tag||'その他'))+'</div>'+
-        '<div class="hiroba-comment-time">'+t+'</div></div>'+
-        '<div class="hiroba-comment-text">'+v.text+'</div>'+
-        (v.ai_reply?'<div class="hiroba-ai-reply"><div class="hiroba-ai-reply-label">AI</div><div class="hiroba-ai-reply-text">'+v.ai_reply+'</div></div>':'')+
-        '</div>';
+            return '<div style="display:flex;gap:8px;align-items:flex-start;padding:10px 14px;border-bottom:0.5px solid var(--border);'+(isA?'background:var(--amber-bg)':'')+'">'+ 
+        '<div style="width:24px;height:24px;border-radius:50%;background:'+(isA?'var(--amber-mid)':'var(--bg)')+';border:0.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:'+(isA?'#fff':'var(--text2)')+';flex-shrink:0;">'+(isA?'運':(v.user_name||'匿').slice(0,1))+'</div>'+
+        '<div style="min-width:0;flex:1;">'+
+        '<div style="display:flex;align-items:center;gap:5px;margin-bottom:2px;">'+
+        '<span style="font-size:11px;font-weight:700;color:var(--text);">'+(isA?'あいぽ運営':(v.user_name||'匿名'))+'</span>'+
+        '<span style="font-size:9px;padding:1px 6px;border-radius:3px;background:var(--bg);color:var(--text3);border:0.5px solid var(--border2);">'+(isA?'お知らせ':(v.tag||'その他'))+'</span>'+
+        '<span style="font-size:9px;color:var(--text3);margin-left:auto;">'+t+'</span></div>'+
+        '<div style="font-size:12px;color:var(--text2);line-height:1.55;">'+v.text+'</div>'+
+        (v.ai_reply?'<div style="background:var(--amber-bg);border:0.5px solid var(--amber-border);border-radius:6px;padding:6px 8px;margin-top:5px;display:flex;gap:5px;"><span style="font-family:var(--mono);font-size:8px;color:var(--amber);font-weight:700;white-space:nowrap;">AI</span><span style="font-size:11px;color:var(--amber);line-height:1.5;">'+v.ai_reply+'</span></div>':'')+
+        '</div></div>';
     }).join('');
   }catch(e){list.innerHTML='<div class="empty"><div class="empty-txt">読み込みに失敗しました</div></div>';}
 }
@@ -1809,7 +1833,7 @@ async function _renderProfileContent() {
   else { planBadge = `<span style="display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;background:var(--bg);color:var(--text3);border:1px solid var(--border);margin-bottom:18px">FREE</span>`; }
   const avatarHtml = avatarUrl ? `<img class="profile-avatar" src="${avatarUrl}" alt="avatar" referrerpolicy="no-referrer">` : `<div class="profile-avatar-placeholder">${(currentX||googleName||'U').slice(0,2).toUpperCase()}</div>`;
   const planDetail = isFounder ? `<div style="font-size:13px;font-weight:700;color:var(--text)">👑 創設メンバー #${founderNum===0?'00':String(founderNum||0).padStart(2,'0')}</div><div style="font-size:11px;color:var(--text3);margin-top:3px">応援票 4票/日 ・ コメント無制限 ・ 永久バッジ</div>` : profile?.is_pro ? `<div style="font-size:13px;font-weight:700;color:var(--text)">⭐ あいぽ Pro</div><div style="font-size:11px;color:var(--text3);margin-top:3px">応援票 4票/日 ・ コメント無制限</div>` : `<div style="font-size:13px;font-weight:700;color:var(--text)">Free プラン</div><div style="font-size:11px;color:var(--text3);margin-top:3px">応援票 3票/日</div>`;
-  content.innerHTML = `<div class="profile-avatar-wrap">${avatarHtml}</div>${planBadge}<div style="width:100%"><div class="profile-field"><div class="profile-label">Google アカウント名</div><input class="profile-input" readonly value="${_escAttr(googleName)}" placeholder="（Google名）"></div><div class="profile-field"><div class="profile-label">あいぽでの表示名（X / ニックネーム）</div><input class="profile-input" id="profile-x-input" value="${_escAttr(currentX)}" placeholder="例: morulabo" maxlength="30" style="font-family:'Space Mono',monospace"><div style="font-size:11px;color:var(--text3);margin-top:5px;line-height:1.6">アプリ内でこの名前が表示されます。@は不要です。</div></div><div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:16px"><div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--text3);letter-spacing:.1em;margin-bottom:8px">PLAN</div>${planDetail}</div><button class="profile-save-btn" id="profile-save-btn" onclick="_saveProfile()">保存する</button><div class="profile-status" id="profile-status"></div><button class="profile-close-btn" onclick="document.getElementById('profile-overlay').remove()">閉じる</button></div>`;
+  content.innerHTML = `<div class="profile-avatar-wrap">${avatarHtml}</div>${planBadge}<div style="width:100%"><div class="profile-field"><div class="profile-label">Google アカウント名</div><input class="profile-input" readonly value="${_escAttr(googleName)}" placeholder="（Google名）"></div><div class="profile-field"><div class="profile-label">あいぽでの表示名（X / ニックネーム）</div><input class="profile-input" id="profile-x-input" value="${_escAttr(currentX)}" placeholder="例: morulabo" maxlength="30" style="font-family:'Space Mono',monospace"><div style="font-size:11px;color:var(--text3);margin-top:5px;line-height:1.6">アプリ内でこの名前が表示されます。@は不要です。</div></div><div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:16px"><div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--text3);letter-spacing:.1em;margin-bottom:8px">PLAN</div>${planDetail}</div><button class="profile-save-btn" id="profile-save-btn" onclick="_saveProfile()">保存する</button><div class="profile-status" id="profile-status"></div><a href="https://x.com/aideaipo" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:12px;background:var(--ink);border-radius:12px;font-size:13px;font-weight:700;color:#fff;margin-top:12px;text-decoration:none;font-family:var(--sans)">𝕏 公式Xをフォローする (@aideaipo)</a><button class="profile-close-btn" onclick="document.getElementById('profile-overlay').remove()">閉じる</button></div>`;
 }
 
 async function _saveProfile() {
@@ -1857,11 +1881,24 @@ async function init() {
   initEmojiPicker(); setViewMode(viewMode); checkUpgradeSuccess(); checkChargeSuccess();
   await fetchIdeas(); startRealtime(); updatePlanBadge();
   if (hasSession) { const founderEl = document.getElementById('founder-remaining'); if (founderEl) loadFounderCount(); }
-  // ログイン後にプロフィールボタンのアバターを更新
-  if (hasSession) { setTimeout(() => _updateProfileBtnAvatar(), 1200); }
+  if (hasSession) { loadInsightScore(); }
 }
 
 init();
+
+// URLパラメータ ?id=xxx で直接銘柄を開く
+(function(){
+  const params = new URLSearchParams(window.location.search);
+  const ideaId = params.get('id') || params.get('idea');
+  if (!ideaId) return;
+  const tryOpen = (n) => {
+    if (n > 20) return;
+    const idea = (window.ideas||[]).find(i => i.id === ideaId);
+    if (idea) { showDetail(ideaId); }
+    else { setTimeout(() => tryOpen(n+1), 300); }
+  };
+  setTimeout(() => tryOpen(0), 800);
+})();
 </script>
 </body>
 </html>
