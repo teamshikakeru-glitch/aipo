@@ -1352,7 +1352,7 @@ function openShareSheetCert(ideaId, name, ticker) {
   const idea = ideas.find(i=>i.id===ideaId);
   const score = idea ? parseFloat(idea.score||50).toFixed(1) : '—';
   _shareAppUrl = `https://aipo-tau.vercel.app/?id=${ideaId}`;
-  _shareOgUrl  = `https://aipo-tau.vercel.app/api/share?id=${ideaId}`;
+  _shareOgUrl  = `https://aipo-tau.vercel.app/api/share?id=${ideaId}&cert=1`;
   _shareText   = `「${name}」${ticker}\n📊 スコア ${score}pt\n\n#あいぽ #アイデアIPO`;
   const nameShort = name.length > 18 ? name.slice(0,18)+'…' : name;
   _openShareSheetUI(nameShort, ticker, score, '');
@@ -1361,7 +1361,7 @@ function openShareSheetCert(ideaId, name, ticker) {
 function _openShareSheetUI(nameShort, ticker, score, votes) {
   const overlay = document.createElement('div');
   overlay.id = 'share-sheet-overlay';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:999;display:flex;align-items:flex-end;justify-content:center';
+  overlay.style.cssText = 'position:fixed;left:0;right:0;top:0;bottom:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:flex-end;justify-content:center;-webkit-overflow-scrolling:touch';
   overlay.onclick = e => { if(e.target===overlay) overlay.remove(); };
   overlay.innerHTML = `<div style="width:100%;max-width:390px;background:var(--surface);border-radius:22px 22px 0 0;padding:0 0 calc(24px + env(safe-area-inset-bottom,0px));animation:slideUp .3s cubic-bezier(.16,1,.3,1)">
     <div style="width:36px;height:4px;background:var(--border2);border-radius:2px;margin:12px auto 0"></div>
@@ -1407,8 +1407,8 @@ function _openShareSheetUI(nameShort, ticker, score, votes) {
   document.body.appendChild(overlay);
 }
 
-function _shareX()    { window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(_shareText)+'&url='+encodeURIComponent(_shareOgUrl),'_blank','noopener,width=600,height=500'); }
-function _shareFb()   { window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(_shareOgUrl),'_blank','noopener,width=600,height=500'); }
+function _shareX()    { const u='https://twitter.com/intent/tweet?text='+encodeURIComponent(_shareText)+'&url='+encodeURIComponent(_shareOgUrl); document.getElementById('share-sheet-overlay')?.remove(); window.location.href=u; }
+function _shareFb()   { const u='https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(_shareOgUrl); document.getElementById('share-sheet-overlay')?.remove(); window.location.href=u; }
 function _shareCopy() { navigator.clipboard.writeText(_shareAppUrl).then(()=>showToast('URLをコピーしました')).catch(()=>showToast('コピーできませんでした')); }
 
 
