@@ -89,6 +89,7 @@ nav{
   border-radius:100px;
   padding:5px 14px;
   margin-bottom:32px;
+  width:fit-content;
 }
 .live-dot{
   width:6px;height:6px;border-radius:50%;
@@ -603,6 +604,7 @@ footer{
   :root{--max:600px}
   nav{padding:0 40px}
   .s-hero{padding:100px 40px 60px}
+  .hero-h{font-size:clamp(40px,5vw,64px)}
   .hero-cta{flex-direction:row}
   .btn-primary,.btn-sub{width:auto;flex:1}
   .s-head{padding:60px 40px 0}
@@ -1113,7 +1115,8 @@ let sb;
 try{sb=supabase.createClient(SB,KEY);}catch(e){console.warn('supabase not ready')}
 
 function cnt(el,to){
-  if(!el||!to)return;
+  if(!el)return;
+  if(!to||to===0){el.textContent='0';return;}
   let s=null;const d=900;
   (function f(ts){
     if(!s)s=ts;const p=Math.min((ts-s)/d,1);
@@ -1187,19 +1190,19 @@ async function load(){
       sb.from('profiles').select('id',{count:'exact',head:true}).eq('is_founder',true),
       sb.from('ideas').select('id,ticker,name,score,votes,genre').order('score',{ascending:false}).limit(5)
     ]);
-    cnt(document.getElementById('hero-users'),uc||0);
-    cnt(document.getElementById('hero-ideas'),ic||0);
-    cnt(document.getElementById('stat-u'),uc||0);
-    cnt(document.getElementById('stat-i'),ic||0);
+    cnt(document.getElementById('hero-users'),uc??0);
+    cnt(document.getElementById('hero-ideas'),ic??0);
+    cnt(document.getElementById('stat-u'),uc??0);
+    cnt(document.getElementById('stat-i'),ic??0);
     const hic=document.getElementById('hero-idea-cnt');
-    if(hic&&ic)hic.textContent=ic;
+    if(hic)hic.textContent=ic??'—';
     const rem=Math.max(0,100-(fc||0));
     const rel=document.getElementById('founder-rem2');
     if(rel)rel.textContent=rem;
     const sf=document.getElementById('slot-fill2');
     if(sf)setTimeout(()=>sf.style.width=Math.max(2,fc||0)+'%',600);
     if(ideas&&ideas.length){liveRows=ideas;renderMarket(ideas);}
-  }catch(e){console.warn(e)}
+  }catch(e){console.warn(e);['hero-users','hero-ideas','stat-u','stat-i'].forEach(id=>{const el=document.getElementById(id);if(el&&el.textContent==='—')el.textContent='0';});}
 }
 
 // supabase読み込み待ち
