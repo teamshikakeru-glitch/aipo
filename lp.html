@@ -1866,7 +1866,14 @@ let _lastCertHTML = ''; // シェア用に保存
 function loadCerts() {
   try {
     const all = JSON.parse(localStorage.getItem(COLL_KEY) || '[]');
-    const seen = new Set(); const deduped = all.filter(c => { if (seen.has(c.ideaId)) return false; seen.add(c.ideaId); return true; });
+    const seen = new Set();
+    // ideaIdで最初の1枚だけ残す（重複を完全排除）
+    const deduped = all.filter(c => {
+      const key = c.ideaId || c.id;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
     if (deduped.length !== all.length) localStorage.setItem(COLL_KEY, JSON.stringify(deduped));
     return deduped;
   } catch(e) { return []; }
