@@ -346,7 +346,6 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
 .broadcast-btn:disabled{opacity:.5;cursor:not-allowed}
 .broadcast-note{font-size:11px;color:var(--ink3);margin-left:4px}
 
-
 .kpi-clickable { cursor:pointer; transition:transform .12s,box-shadow .12s; }
 .kpi-clickable:hover { transform:translateY(-2px); box-shadow:0 4px 16px rgba(0,0,0,.08); }
 .kpi-clickable:active { transform:scale(.97); }
@@ -374,6 +373,15 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
 .voice-action-btn { padding:4px 10px;border-radius:6px;border:1px solid var(--border);font-size:10px;font-weight:700;cursor:pointer;background:var(--bg);color:var(--ink2);font-family:var(--sans); }
 .voice-action-btn.urgent-btn { border-color:#e53e3e;color:#e53e3e; }
 .voice-action-btn.link-btn { border-color:var(--amber);color:var(--amber); }
+
+/* ===== 最新アクティビティ TYPE BADGE ===== */
+.act-type-badge {
+  font-family:var(--mono);font-size:9px;font-weight:700;
+  padding:2px 7px;border-radius:4px;flex-shrink:0;
+}
+.act-type-view  { background:var(--bg);color:var(--ink3);border:1px solid var(--border); }
+.act-type-vote  { background:var(--amber-light);color:var(--amber);border:1px solid var(--amber-border); }
+.act-type-list  { background:var(--green-light);color:var(--green);border:1px solid var(--green-border); }
 
 </style>
 </head>
@@ -422,26 +430,8 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
     <!-- ヘルスチェックバナー -->
     <div id="health-banner" style="margin-bottom:12px"></div>
 
-    <!-- 一斉通知 -->
-    <div class="sec">広場への一斉通知</div>
-    <div class="broadcast-form">
-      <div class="broadcast-head">
-        <div class="broadcast-title">BROADCAST TO USERS</div>
-        <div class="broadcast-badge">ADMIN ONLY</div>
-      </div>
-      <div class="broadcast-body">
-        <textarea class="broadcast-textarea" id="broadcast-text" rows="3" placeholder="ユーザーへのお知らせを入力...&#10;例: 明日13:00〜メンテナンスがあります"></textarea>
-        <div class="broadcast-actions">
-          <button class="broadcast-btn" id="broadcast-btn" onclick="sendBroadcast()">
-            <svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2"><path d="M3 10l14-7-7 14-2-6z"/></svg>
-            広場に送信
-          </button>
-          <span class="broadcast-note" id="broadcast-status">全ユーザーの広場に表示されます</span>
-        </div>
-      </div>
-    </div>
-
     <!-- 売上 -->
+    <div class="sec">売上</div>
     <div class="rev-hero">
       <div class="rev-glow"></div>
       <div class="rev-eyebrow">REVENUE — 売上合計（概算）</div>
@@ -515,29 +505,43 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
       <div class="card-body" id="home-voted-body"><div class="skel"></div></div>
     </div>
 
+    <!-- 一斉通知（ホーム下部に移動） -->
+    <div class="sec" style="margin-top:20px">広場への一斉通知</div>
+    <div class="broadcast-form">
+      <div class="broadcast-head">
+        <div class="broadcast-title">BROADCAST TO USERS</div>
+        <div class="broadcast-badge">ADMIN ONLY</div>
+      </div>
+      <div class="broadcast-body">
+        <textarea class="broadcast-textarea" id="broadcast-text" rows="3" placeholder="ユーザーへのお知らせを入力...&#10;例: 明日13:00〜メンテナンスがあります"></textarea>
+        <div class="broadcast-actions">
+          <button class="broadcast-btn" id="broadcast-btn" onclick="sendBroadcast()">
+            <svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2"><path d="M3 10l14-7-7 14-2-6z"/></svg>
+            広場に送信
+          </button>
+          <span class="broadcast-note" id="broadcast-status">全ユーザーの広場に表示されます</span>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <!-- ===== LP TAB ===== -->
   <div id="tab-content-analytics" class="main" style="display:none">
 
-    <!-- ===== セクション1: 状況分析 ===== -->
     <div class="sec" style="font-size:12px;font-weight:700;color:var(--ink);letter-spacing:0;text-transform:none;margin-bottom:12px">📊 今日の状況と次のアクション</div>
 
-
-    <!-- 状況分析 -->
     <div class="sec">今日の状況と次のアクション</div>
     <div id="pdca-analysis" style="margin-bottom:14px">
       <div class="skel" style="height:180px;margin-bottom:8px"></div>
       <div class="skel" style="height:80px"></div>
     </div>
 
-    <!-- 自動インサイト -->
     <div style="font-size:12px;color:var(--ink3);margin-bottom:6px;line-height:1.7;padding:0 2px">
       AIが過去データを分析して、注目すべき変化や改善ポイントを自動で表示します。
     </div>
     <div id="pdca-insights-pdca-wrap"></div>
 
-    <!-- 先週比サマリー -->
     <div class="sec">今週 vs 先週</div>
     <div style="font-size:12px;color:var(--ink3);margin-bottom:10px;line-height:1.7;padding:0 2px">
       今週（月〜日）と先週を比較したサマリーです。ユーザー数・アイデア上場数・投票数の増減を確認できます。<br>
@@ -548,12 +552,9 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
       <div class="card-body" id="weekly-compare-body"><div class="skel"></div></div>
     </div>
 
-    <!-- アクション × 流入グラフ -->
     <div class="sec">アクションと流入の相関（14日間）</div>
     <div style="font-size:12px;color:var(--ink3);margin-bottom:10px;line-height:1.7;padding:0 2px">
-      過去14日間のLP流入数（棒グラフ）と、あなたが実施した施策の日（●）を重ね合わせたグラフです。<br>
-      施策（Xへの投稿・機能追加など）を行った翌日以降に流入が増えているかを確認できます。<br>
-      <span style="color:var(--amber);font-weight:700">棒が高い日</span>＝その日にLPを訪れた人が多い日です。
+      過去14日間のLP流入数（棒グラフ）と、あなたが実施した施策の日（●）を重ね合わせたグラフです。
     </div>
     <div class="card" style="margin-bottom:14px">
       <div class="card-head"><div class="card-title">ACTION × TRAFFIC</div><div class="card-meta">●＝アクション実施日</div></div>
@@ -567,11 +568,9 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
       </div>
     </div>
 
-    <!-- やったこと記録 -->
     <div class="sec">D — やったことを記録する</div>
     <div style="font-size:12px;color:var(--ink3);margin-bottom:10px;line-height:1.7;padding:0 2px">
-      今日実施した施策をここに記録します。上のグラフと照らし合わせることで、どの施策が流入増加につながったか分析できます。<br>
-      カテゴリを選んで内容を入力し「記録」を押してください。
+      今日実施した施策をここに記録します。上のグラフと照らし合わせることで、どの施策が流入増加につながったか分析できます。
     </div>
     <div class="card" style="margin-bottom:14px">
       <div class="card-head"><div class="card-title">ACTION LOG</div><div class="card-meta">施策の記録</div></div>
@@ -591,12 +590,7 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
       </div>
     </div>
 
-    <!-- 今週の目標 -->
     <div class="sec">P — 今週の目標</div>
-    <div style="font-size:12px;color:var(--ink3);margin-bottom:10px;line-height:1.7;padding:0 2px">
-      今週達成したい目標を登録します（例：ユーザー5人、上場10件）。<br>
-      毎週月曜にリセットされます。目標を決めてから施策を打つことで、PDCAが回しやすくなります。
-    </div>
     <div class="card" style="margin-bottom:14px">
       <div class="card-head"><div class="card-title">WEEKLY GOALS</div><div class="card-meta" id="goals-week"></div></div>
       <div class="card-body">
@@ -608,16 +602,13 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
       </div>
     </div>
 
-
     <div style="height:24px;border-top:1px solid var(--border);margin:20px 0 20px"></div>
 
-    <!-- ===== セクション2: LP分析 ===== -->
     <div class="sec" style="font-size:12px;font-weight:700;color:var(--ink);letter-spacing:0;text-transform:none;margin-bottom:12px">🔍 LP（紹介ページ）の分析</div>
-
 
     <div id="pdca-insights-wrap" style="margin-bottom:4px"></div>
     <div id="lp-insight-wrap"></div>
-    <!-- LP KPI 4枚 -->
+
     <div class="kpi-grid">
       <div class="kpi dim">
         <div class="kpi-lbl">LPを開いた人<br>（累計）</div>
@@ -643,44 +634,37 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
       </div>
     </div>
 
-    <!-- ファネル -->
     <div class="sec">どこで人が落ちているか</div>
     <div class="card">
       <div class="card-head"><div class="card-title">CONVERSION FUNNEL</div><div class="card-meta">LP → 登録の流れ</div></div>
       <div class="card-body" id="funnel-body"><div class="skel"></div><div class="skel" style="width:70%"></div></div>
     </div>
 
-    <!-- 滞在時間 -->
     <div class="sec">LPでの滞在時間</div>
     <div class="card">
       <div class="card-head"><div class="card-title">TIME ON PAGE</div><div class="card-meta">何秒で離脱したか</div></div>
       <div class="card-body" id="time-analysis-body"><div class="skel"></div><div class="skel" style="width:60%"></div></div>
     </div>
 
-    <!-- ボタン別 -->
     <div class="sec">どのボタンを押してきたか</div>
     <div class="card">
       <div class="card-head"><div class="card-title">BUTTON PERFORMANCE</div><div class="card-meta" id="lp-btn-total-meta"></div></div>
       <div class="card-body" id="lp-buttons-body"><div class="skel"></div><div class="skel" style="width:70%"></div></div>
     </div>
 
-    <!-- その他流入 -->
     <div class="sec">LP以外からの流入</div>
     <div class="card">
       <div class="card-head"><div class="card-title">OTHER SOURCES</div><div class="card-meta" id="other-total-meta"></div></div>
       <div class="card-body" id="other-sources-body"><div class="skel"></div></div>
     </div>
 
-    <!-- タイムライン -->
     <div class="sec">直近の流入タイムライン</div>
     <div class="card">
       <div class="card-head"><div class="card-title">RECENT EVENTS</div><div class="card-meta">直近20件</div></div>
       <div class="card-body" id="lp-timeline-body"><div class="skel"></div></div>
     </div>
 
-
   </div>
-
 
   <!-- ===== OVERVIEW TAB ===== -->
   <div id="tab-content-overview" class="main" style="display:none">
@@ -702,8 +686,17 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
       </div>
     </div>
 
+    <!-- ★修正: 最新アクティビティ — 閲覧・投票・上場を混合表示 -->
     <div class="sec">最新アクティビティ</div>
     <div class="card">
+      <div class="card-head">
+        <div class="card-title">RECENT ACTIVITY</div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <span style="font-size:9px;background:var(--green-light);color:var(--green);border:1px solid var(--green-border);border-radius:3px;padding:1px 6px;font-family:var(--mono);font-weight:700">💡上場</span>
+          <span style="font-size:9px;background:var(--amber-light);color:var(--amber);border:1px solid var(--amber-border);border-radius:3px;padding:1px 6px;font-family:var(--mono);font-weight:700">🗳応援</span>
+          <span style="font-size:9px;background:var(--bg);color:var(--ink3);border:1px solid var(--border);border-radius:3px;padding:1px 6px;font-family:var(--mono);font-weight:700">👁閲覧</span>
+        </div>
+      </div>
       <div class="card-body" id="recent-body"><div class="skel"></div><div class="skel" style="width:70%"></div></div>
     </div>
   </div>
@@ -711,7 +704,6 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
   <!-- ===== IDEAS TAB ===== -->
   <div id="tab-content-ideas" class="main" style="display:none">
 
-    <!-- 今日の数字 -->
     <div class="kpi-grid" style="margin-bottom:14px">
       <div class="kpi green">
         <div class="kpi-lbl">今日 上場されたアイデア</div>
@@ -725,51 +717,42 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-heig
       </div>
     </div>
 
-    <!-- 広場管理 -->
     <div class="sec" style="margin-top:4px">広場 — 受信メッセージ管理</div>
     <div class="card" style="margin-bottom:14px">
       <div class="card-head">
         <div class="card-title">VOICE INBOX</div>
         <div style="display:flex;gap:6px;align-items:center">
-          <div id="hiroba-urgent-badge" style="display:none;background:#e53e3e;color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;font-family:var(--mono)">緊急あり</div>
-          <div class="card-meta" id="hiroba-inbox-meta">読込中...</div>
+          <div id="hiroba-urgent-badge2" style="display:none;background:#e53e3e;color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;font-family:var(--mono)">緊急あり</div>
+          <div class="card-meta" id="hiroba-inbox-meta2">読込中...</div>
         </div>
       </div>
-      <div id="hiroba-inbox-body" style="padding:8px 0"><div class="skel"></div><div class="skel" style="margin-top:6px"></div></div>
+      <div id="hiroba-inbox-body2" style="padding:8px 0"><div class="skel"></div><div class="skel" style="margin-top:6px"></div></div>
     </div>
 
-    <!-- 今日上場したアイデア -->
     <div class="sec">今日 上場されたアイデア</div>
     <div class="card" style="margin-bottom:14px">
       <div class="card-head"><div class="card-title">TODAY'S LISTINGS</div><div class="card-meta" id="ideas-today-meta">—</div></div>
       <div class="card-body" id="ideas-today-body"><div class="skel"></div></div>
     </div>
 
-    <!-- 今日票が入ったアイデア -->
     <div class="sec">今日 応援されたアイデア</div>
     <div class="card" style="margin-bottom:14px">
       <div class="card-head"><div class="card-title">TODAY'S VOTES</div><div class="card-meta" id="ideas-voted-meta">—</div></div>
       <div class="card-body" id="ideas-voted-body"><div class="skel"></div></div>
     </div>
 
-    <!-- 閲覧数ランキング -->
     <div class="sec">累計 閲覧数ランキング</div>
     <div class="card" style="margin-bottom:14px">
       <div class="card-head"><div class="card-title">MOST VIEWED</div><div class="card-meta">idea_views</div></div>
       <div class="card-body" id="most-viewed-body"><div class="skel"></div></div>
     </div>
 
-    <!-- 全アイデア -->
     <div class="sec">全アイデア（スコア順）</div>
     <div class="card">
       <div class="card-head"><div class="card-title">ALL IDEAS</div><div class="card-meta" id="all-ideas-meta">—件</div></div>
       <div class="card-body" id="all-ideas-body"><div class="skel"></div></div>
     </div>
   </div>
-
-  <!-- ===== USERS TAB ===== -->
-
-
 
 </div>
 <script>
@@ -779,7 +762,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const ADMIN_ID = '7f3162ec-c281-435f-8e8e-3b6d65b8b1c9';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// LPボタンの定義（campaign → 表示名）
 const LP_BUTTONS = {
   'start_free':  { name: 'ヒーロー「無料ではじめる」', icon: '🚀', medium: 'hero' },
   'list_idea':   { name: 'マーケット「アイデアを上場する」', icon: '📈', medium: 'market' },
@@ -791,10 +773,9 @@ const LP_BUTTONS = {
 
 function parseDate(dateStr) {
   if (!dateStr) return null;
-  // Supabase形式: "2026-03-18 11:23:00+00" or "2026-03-18T11:23:00Z" など
   let s = String(dateStr).trim();
-  s = s.replace(' ', 'T');          // スペース→T
-  s = s.replace(/\+00(:00)?$/, 'Z'); // +00 or +00:00 → Z
+  s = s.replace(' ', 'T');
+  s = s.replace(/\+00(:00)?$/, 'Z');
   if (!s.endsWith('Z')) s += 'Z';
   const d = new Date(s);
   return isNaN(d.getTime()) ? null : d;
@@ -803,7 +784,6 @@ function parseDate(dateStr) {
 function fmtDate(dateStr) {
   const d = parseDate(dateStr);
   if (!d) return '—';
-  // JST = UTC+9
   const jst = new Date(d.getTime() + 9*60*60*1000);
   const mo = String(jst.getUTCMonth()+1).padStart(2,'0');
   const dd = String(jst.getUTCDate()).padStart(2,'0');
@@ -831,11 +811,18 @@ function showTab(name) {
     const c=document.getElementById('tab-content-'+t); if(c) c.style.display = t===name ? '' : 'none';
     const b=document.getElementById('tab-'+t); if(b) b.classList.toggle('active', t===name);
   });
-  // 未ロードのタブだけ読み込む
   if (!tabLoaded[name]) {
     tabLoaded[name] = true;
     loadTab(name);
   }
+}
+
+function getCurrentTab() {
+  const tabs = ['home','analytics','overview','ideas'];
+  return tabs.find(t => {
+    const el = document.getElementById('tab-content-'+t);
+    return el && el.style.display !== 'none';
+  }) || 'home';
 }
 
 async function loadTab(name) {
@@ -864,7 +851,7 @@ async function doAdminLogin() {
   if (error) alert('ログイン失敗: '+error.message);
 }
 
-// ===== LP ANALYTICS（メイン機能）=====
+// ===== LP ANALYTICS =====
 async function loadLPAnalytics() {
   const today = new Date().toISOString().slice(0,10);
   const { data: all } = await sb.from('user_events').select('utm_source, utm_medium, utm_campaign, referrer, created_at').order('created_at', { ascending: false });
@@ -872,13 +859,12 @@ async function loadLPAnalytics() {
   if (!all || all.length === 0) {
     document.getElementById('lp-total').textContent = '0';
     document.getElementById('lp-today').textContent = '0';
-    document.getElementById('lp-buttons-body').innerHTML = '<div class="empty"><div class="empty-ico">📊</div><div class="empty-txt">まだLP経由のデータがありません<br>lp.htmlをGitHubにアップすると計測開始</div></div>';
+    document.getElementById('lp-buttons-body').innerHTML = '<div class="empty"><div class="empty-ico">📊</div><div class="empty-txt">まだLP経由のデータがありません</div></div>';
     document.getElementById('other-sources-body').innerHTML = '<div class="empty"><div class="empty-icon">—</div><div class="empty-txt">データなし</div></div>';
     document.getElementById('lp-timeline-body').innerHTML = '<div class="empty"><div class="empty-ico">—</div><div class="empty-txt">データなし</div></div>';
     return;
   }
 
-  // LP経由（utm_source=lp）とそれ以外を分離
   const lpEvents = all.filter(e => e.utm_source === 'lp');
   const otherEvents = all.filter(e => e.utm_source !== 'lp');
   const todayLp = lpEvents.filter(e => e.created_at.slice(0,10) === today);
@@ -886,9 +872,6 @@ async function loadLPAnalytics() {
   document.getElementById('lp-total').textContent = lpEvents.length;
   document.getElementById('lp-today').textContent = todayLp.length;
 
-
-
-  // LP開封数（lp.html自体を開いた回数）
   const { data: lpViews, count: lpViewTotal } = await sb.from('user_events')
     .select('created_at', { count: 'exact' })
     .eq('utm_source', 'lp_pageview');
@@ -897,7 +880,6 @@ async function loadLPAnalytics() {
   document.getElementById('lp-open-today').textContent = lpViewToday;
   document.getElementById('lp-btn-total-meta').textContent = `LP経由 累計${lpEvents.length}件`;
 
-  // ===== LP ボタン別集計 =====
   const btnCounts = {};
   lpEvents.forEach(e => {
     const key = e.utm_campaign || 'unknown';
@@ -933,24 +915,15 @@ async function loadLPAnalytics() {
     }).join('');
   }
 
-  // ===== インサイト自動生成 =====
   const insights = [];
   if (btnSorted.length > 0) {
     const topBtn = LP_BUTTONS[btnSorted[0][0]] || { name: btnSorted[0][0] };
     insights.push(`一番効いているボタンは「${topBtn.name}」（${btnSorted[0][1]}件）`);
   }
   if (lpEvents.length > 0 && all.length > 0) {
-    const lpPct = Math.round(lpEvents.length / all.length * 100);
-    insights.push(`全流入の${lpPct}%がLPからです`);
+    insights.push(`全流入の${Math.round(lpEvents.length / all.length * 100)}%がLPからです`);
   }
-  if (todayLp.length > 0) {
-    insights.push(`今日は${todayLp.length}人がLPから来ました`);
-  }
-  if (btnSorted.length >= 2) {
-    const last = btnSorted[btnSorted.length-1];
-    const lastInfo = LP_BUTTONS[last[0]] || { name: last[0] };
-    insights.push(`「${lastInfo.name}」は${last[1]}件と少ない — ボタンの改善余地あり`);
-  }
+  if (todayLp.length > 0) insights.push(`今日は${todayLp.length}人がLPから来ました`);
 
   document.getElementById('lp-insight-wrap').innerHTML = insights.length > 0
     ? `<div class="insight-card">
@@ -965,7 +938,6 @@ async function loadLPAnalytics() {
       </div>`
     : '';
 
-  // ===== その他流入元 =====
   const normalize = (ref) => {
     if (!ref || ref === 'direct') return { label:'direct', icon:'🔗' };
     try {
@@ -1005,11 +977,6 @@ async function loadLPAnalytics() {
         </div>`;
       }).join('');
 
-  // ===== タイムライン =====
-  const { data: ideas } = await sb.from('ideas').select('id,name,ticker');
-  const im = {}; if(ideas) ideas.forEach(i=>im[i.id]=i);
-
-  // lp_pageview（LP開封）は除外して流入イベントのみ表示（重複を避ける）
   const tlEvents = all.filter(e => e.utm_source !== 'lp_pageview');
   document.getElementById('lp-timeline-body').innerHTML = tlEvents.slice(0,30).map((e, idx) => {
     const isLp = e.utm_source === 'lp';
@@ -1043,9 +1010,6 @@ async function loadLPAnalytics() {
 // ===== OVERVIEW =====
 async function loadKPI() {
   const today = new Date().toISOString().slice(0,10);
-  const weekStart = new Date(); weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1);
-  const weekStr = weekStart.toISOString().slice(0,10);
-
   const [uR, fR, iR, vR, ideasTodayR, votesTodayR] = await Promise.all([
     sb.from('profiles').select('id',{count:'exact',head:true}),
     sb.from('profiles').select('id',{count:'exact',head:true}).eq('is_founder',true),
@@ -1078,14 +1042,63 @@ async function loadHourly() {
   document.getElementById('hourly-labels').innerHTML = hours.map((_,h) => `<div class="hour-lbl">${h%6===0?h+'h':''}</div>`).join('');
 }
 
+// ★ 修正: 最新アクティビティ — 閲覧・投票・上場を混合して種別アイコン付きで表示
 async function loadRecent() {
-  const {data:views} = await sb.from('idea_views').select('idea_id,viewed_at').order('viewed_at',{ascending:false}).limit(15);
-  if (!views||views.length===0) { document.getElementById('recent-body').innerHTML='<div class="empty"><div class="empty-ico">👁</div><div class="empty-txt">まだ閲覧データがありません</div></div>'; return; }
-  const {data:ideas} = await sb.from('ideas').select('id,name,ticker');
-  const im={}; if(ideas) ideas.forEach(i=>im[i.id]=i);
-  document.getElementById('recent-body').innerHTML = views.map(v => {
-    const idea = im[v.idea_id];
-    return `<div class="tl-row"><div class="tl-dot"></div><div class="tl-time" style="min-width:80px"><div>${fmtDate(v.viewed_at)}</div><div style="color:var(--ink4);font-size:8px;margin-top:1px">${fmtAgo(v.viewed_at)}</div></div><div><div class="tl-text">${idea?idea.name:'不明'}</div><div class="tl-sub">${idea?idea.ticker:'—'}</div></div></div>`;
+  const [
+    {data: views},
+    {data: votes},
+    {data: ideas},
+  ] = await Promise.all([
+    sb.from('idea_views').select('idea_id,viewed_at').order('viewed_at',{ascending:false}).limit(15),
+    sb.from('votes').select('idea_id,user_id,created_at').order('created_at',{ascending:false}).limit(15),
+    sb.from('ideas').select('id,name,ticker,created_at,user_id').order('created_at',{ascending:false}).limit(10),
+  ]);
+
+  // アイデア名・ユーザー名のマップ
+  const {data: ideaData} = await sb.from('ideas').select('id,name,ticker');
+  const {data: profileData} = await sb.from('profiles').select('id,x_username');
+  const im = {}; if(ideaData) ideaData.forEach(i => im[i.id] = i);
+  const pm = {}; if(profileData) profileData.forEach(p => pm[p.id] = p.x_username || '匿名');
+
+  // 3種類をマージしてソート
+  const items = [
+    ...(views||[]).map(v => ({ type:'view',  at: v.viewed_at,   ideaId: v.idea_id })),
+    ...(votes||[]).map(v => ({ type:'vote',  at: v.created_at,  ideaId: v.idea_id, userId: v.user_id })),
+    ...(ideas||[]).map(i => ({ type:'list',  at: i.created_at,  ideaId: i.id,      userId: i.user_id })),
+  ].sort((a, b) => {
+    const da = parseDate(a.at), db = parseDate(b.at);
+    if (!da || !db) return 0;
+    return db.getTime() - da.getTime();
+  }).slice(0, 25);
+
+  if (items.length === 0) {
+    document.getElementById('recent-body').innerHTML = '<div class="empty"><div class="empty-ico">📭</div><div class="empty-txt">まだアクティビティがありません</div></div>';
+    return;
+  }
+
+  const typeConfig = {
+    view: { icon: '👁', label: '閲覧', badgeClass: 'act-type-view' },
+    vote: { icon: '🗳', label: '応援', badgeClass: 'act-type-vote' },
+    list: { icon: '💡', label: '上場', badgeClass: 'act-type-list' },
+  };
+
+  document.getElementById('recent-body').innerHTML = items.map(item => {
+    const cfg = typeConfig[item.type];
+    const idea = im[item.ideaId];
+    const user = item.userId ? (pm[item.userId] || '匿名') : null;
+    const ticker = idea?.ticker ? `<span style="font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:3px;padding:1px 5px;margin-right:4px">${idea.ticker}</span>` : '';
+    const userLine = user ? `<div style="font-size:10px;color:var(--ink3);margin-top:1px">by ${user}</div>` : '';
+    return `<div style="display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">
+      <span class="act-type-badge ${cfg.badgeClass}" style="margin-top:2px">${cfg.icon} ${cfg.label}</span>
+      <div style="flex-shrink:0;min-width:76px">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--ink2);font-weight:500">${fmtDate(item.at)}</div>
+        <div style="font-family:var(--mono);font-size:8px;color:var(--ink3);margin-top:1px">${fmtAgo(item.at)}</div>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ticker}${idea?.name || '—'}</div>
+        ${userLine}
+      </div>
+    </div>`;
   }).join('');
 }
 
@@ -1093,7 +1106,6 @@ async function loadRecent() {
 async function loadIdeas() {
   const today = new Date().toISOString().slice(0,10);
 
-  // 並列取得
   const [
     {data: views},
     {data: ideas},
@@ -1111,36 +1123,29 @@ async function loadIdeas() {
     return;
   }
 
-  // ユーザー名取得
   const {data: profiles} = await sb.from('user_profiles_view').select('id,display_name,x_username');
   const userMap = {};
   if(profiles) profiles.forEach(p=>userMap[p.id]=p.display_name||p.x_username||'匿名');
 
-  // 閲覧数マップ
   const vm={}; if(views) views.forEach(v=>{vm[v.idea_id]=(vm[v.idea_id]||0)+1;});
 
-  // 今日の票数マップ
   const votedTodayMap={};
   if(votesToday) votesToday.forEach(v=>{votedTodayMap[v.idea_id]=(votedTodayMap[v.idea_id]||0)+1;});
 
-  // 今日の上場アイデア（updated_atがtoday）
   const ideasToday = ideas.filter(i=>i.updated_at&&i.updated_at.slice(0,10)===today);
 
-  // KPI更新
   const itEl=document.getElementById('ideas-kpi-today'); if(itEl) itEl.textContent=ideasToday.length;
   const vtEl=document.getElementById('ideas-kpi-votes-today'); if(vtEl) vtEl.textContent=(votesToday||[]).length;
   const tmEl=document.getElementById('ideas-today-meta'); if(tmEl) tmEl.textContent=ideasToday.length+'件';
   const vmEl=document.getElementById('ideas-voted-meta'); if(vmEl) vmEl.textContent=Object.keys(votedTodayMap).length+'件のアイデアに投票';
   const amEl=document.getElementById('all-ideas-meta'); if(amEl) amEl.textContent=ideas.length+'件';
 
-  // ヘルパー: アイデア行を生成（タップで詳細展開）
   function ideaCard(idea, extra='', detailSuffix='') {
     const score = parseFloat(idea.score||0).toFixed(1);
     const scoreColor = score>=70?'var(--green)':score>=50?'var(--amber)':'var(--ink3)';
     const poster = userMap[idea.user_id]||'—';
     const detailId = 'idea-detail-' + idea.id + (detailSuffix||'');
-    const genre = idea.genre || '';
-    const desc = idea.description || idea.desc || '';
+    const desc = idea.description || '';
     return `<div style="border-bottom:1px solid var(--border)">
       <div style="display:flex;align-items:center;gap:10px;padding:12px 0;cursor:pointer" onclick="document.getElementById('${detailId}').classList.toggle('open')">
         <span style="font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:4px;padding:2px 7px;flex-shrink:0">${idea.ticker||'—'}</span>
@@ -1158,27 +1163,17 @@ async function loadIdeas() {
         <div style="font-family:var(--mono);font-size:10px;color:var(--ink3);margin-left:4px">▼</div>
       </div>
       <div id="${detailId}" class="ua-detail">
-        ${genre ? `<span style="font-size:10px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:4px;padding:2px 8px;display:inline-block;margin-bottom:8px">${genre}</span>` : ''}
+        ${idea.genre ? `<span style="font-size:10px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:4px;padding:2px 8px;display:inline-block;margin-bottom:8px">${idea.genre}</span>` : ''}
         ${desc ? `<div style="font-size:12px;color:var(--ink2);line-height:1.7;margin-bottom:10px">${desc}</div>` : '<div style="font-size:12px;color:var(--ink3);margin-bottom:10px">説明なし</div>'}
         <div style="display:flex;gap:16px;flex-wrap:wrap">
-          <div style="text-align:center">
-            <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:${scoreColor}">${score}</div>
-            <div style="font-size:9px;color:var(--ink3)">スコア</div>
-          </div>
-          <div style="text-align:center">
-            <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--amber)">${idea.votes}</div>
-            <div style="font-size:9px;color:var(--ink3)">応援票</div>
-          </div>
-          <div style="text-align:center">
-            <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--ink)">${poster}</div>
-            <div style="font-size:9px;color:var(--ink3)">上場者</div>
-          </div>
+          <div style="text-align:center"><div style="font-family:var(--mono);font-size:18px;font-weight:700;color:${scoreColor}">${score}</div><div style="font-size:9px;color:var(--ink3)">スコア</div></div>
+          <div style="text-align:center"><div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--amber)">${idea.votes}</div><div style="font-size:9px;color:var(--ink3)">応援票</div></div>
+          <div style="text-align:center"><div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--ink)">${poster}</div><div style="font-size:9px;color:var(--ink3)">上場者</div></div>
         </div>
       </div>
     </div>`;
   }
 
-  // 今日の上場
   if(ideasToday.length===0){
     document.getElementById('ideas-today-body').innerHTML='<div class="empty"><div class="empty-ico">💡</div><div class="empty-txt">今日はまだ上場なし</div></div>';
   } else {
@@ -1188,7 +1183,6 @@ async function loadIdeas() {
     }).join('');
   }
 
-  // 今日票が入ったアイデア
   const votedIdeaIds = Object.keys(votedTodayMap);
   if(votedIdeaIds.length===0){
     document.getElementById('ideas-voted-body').innerHTML='<div class="empty"><div class="empty-ico">🗳</div><div class="empty-txt">今日はまだ投票なし</div></div>';
@@ -1200,7 +1194,6 @@ async function loadIdeas() {
     }).join('');
   }
 
-  // 閲覧数ランキング
   const byViews = [...ideas].sort((a,b)=>(vm[b.id]||0)-(vm[a.id]||0));
   const maxV = Math.max(...byViews.map(i=>vm[i.id]||0),1);
   document.getElementById('most-viewed-body').innerHTML = byViews.slice(0,10).map((idea,idx)=>{
@@ -1224,7 +1217,6 @@ async function loadIdeas() {
         <div style="font-family:var(--mono);font-size:10px;color:var(--ink3)">▼</div>
       </div>
       <div id="${detailId}" class="ua-detail">
-        ${idea.genre ? `<span style="font-size:10px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:4px;padding:2px 8px;display:inline-block;margin-bottom:8px">${idea.genre}</span>` : ''}
         ${idea.description ? `<div style="font-size:12px;color:var(--ink2);line-height:1.7;margin-bottom:10px">${idea.description}</div>` : ''}
         <div style="display:flex;gap:16px;flex-wrap:wrap">
           <div style="text-align:center"><div style="font-family:var(--mono);font-size:18px;font-weight:700;color:${scoreColor}">${score}</div><div style="font-size:9px;color:var(--ink3)">スコア</div></div>
@@ -1235,7 +1227,6 @@ async function loadIdeas() {
     </div>`;
   }).join('');
 
-  // 全アイデア
   document.getElementById('all-ideas-body').innerHTML = ideas.map((idea,idx)=>{
     const score = parseFloat(idea.score||0).toFixed(1);
     const scoreColor = score>=70?'var(--green)':score>=50?'var(--amber)':'var(--ink3)';
@@ -1250,462 +1241,8 @@ async function loadIdeas() {
   }).join('');
 }
 
-// ===== USER DIRECTORY =====
-let allUsersData = [];
-let currentUserFilter = 'all';
-
-function setUserFilter(type) {
-  currentUserFilter = type;
-  ['all','founder','pro','free'].forEach(t => {
-    const btn = document.getElementById('uf-'+t);
-    if (!btn) return;
-    if (t === type) {
-      btn.style.background = 'var(--amber-light)'; btn.style.borderColor = 'var(--amber)'; btn.style.color = 'var(--amber)';
-    } else {
-      btn.style.background = 'transparent'; btn.style.borderColor = 'var(--border)'; btn.style.color = 'var(--ink3)';
-    }
-  });
-  filterUsers();
-}
-
-function filterUsers() {
-  const q = (document.getElementById('user-search')?.value||'').toLowerCase();
-  let filtered = allUsersData;
-  if (currentUserFilter === 'founder') filtered = filtered.filter(u => u.is_founder);
-  else if (currentUserFilter === 'pro') filtered = filtered.filter(u => u.is_pro && !u.is_founder);
-  else if (currentUserFilter === 'free') filtered = filtered.filter(u => !u.is_pro && !u.is_founder);
-  if (q) filtered = filtered.filter(u => (u.name||'').toLowerCase().includes(q));
-  renderUserDirectory(filtered);
-}
-
-function copyEmail(email, btn) {
-  navigator.clipboard.writeText(email).then(() => {
-    const orig = btn.textContent;
-    btn.textContent = '✓';
-    btn.style.background = 'var(--green-light)';
-    btn.style.borderColor = 'var(--green-border)';
-    btn.style.color = 'var(--green)';
-    setTimeout(() => {
-      btn.textContent = orig;
-      btn.style.background = '';
-      btn.style.borderColor = '';
-      btn.style.color = '';
-    }, 1500);
-  });
-}
-
-function renderUserDirectory(users) {
-  const body = document.getElementById('users-body');
-  if (!body) return;
-  if (users.length === 0) {
-    body.innerHTML = '<div class="empty"><div class="empty-ico">🔍</div><div class="empty-txt">該当するユーザーがいません</div></div>';
-    return;
-  }
-  body.innerHTML = users.map((u, idx) => {
-    const badge = u.is_founder
-      ? `<span class="badge founder">👑 創設 #${u.founder_number===0?'00':String(u.founder_number||0).padStart(2,'0')}</span>`
-      : u.is_pro ? `<span class="badge pro">PRO</span>` : `<span class="badge free">FREE</span>`;
-    const initials = (u.name||u.email||'U').replace(/[^a-zA-Zぁ-ん亜-熙]/g,'').slice(0,2).toUpperCase() || 'U';
-    const emailDisplay = u.email && u.email.includes('@')
-      ? `<button onclick="copyEmail('${u.email}',this)" style="font-family:var(--mono);font-size:10px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:4px;padding:2px 8px;cursor:pointer;transition:all .15s">${u.email}</button>`
-      : `<span style="font-family:var(--mono);font-size:10px;color:var(--ink3)">UUID: ${u.id.slice(0,12)}...</span>`;
-    return `<div style="display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border)">
-      <div style="font-family:var(--mono);font-size:10px;color:var(--ink3);min-width:22px;text-align:center">${String(idx+1).padStart(2,'0')}</div>
-      <div style="width:34px;height:34px;border-radius:50%;background:${u.is_founder?'var(--amber-light)':u.is_pro?'var(--green-light)':'var(--bg)'};border:1.5px solid ${u.is_founder?'var(--amber-border)':u.is_pro?'var(--green-border)':'var(--border)'};display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:700;color:${u.is_founder?'var(--amber)':u.is_pro?'var(--green)':'var(--ink3)'};flex-shrink:0">${initials}</div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px">${u.name}</div>
-        ${emailDisplay}
-      </div>
-      ${badge}
-    </div>`;
-  }).join('');
-}
-
-async function loadUserDirectory() {
-  const { data: users } = await sb.from('user_profiles_view')
-    .select('id, email, display_name, x_username, is_pro, is_founder, founder_number')
-    .neq('id', ADMIN_ID)
-    .order('is_founder', { ascending: false });
-
-  if (!users) return;
-
-  const metaEl = document.getElementById('users-meta');
-  if (metaEl) metaEl.textContent = users.length + '人';
-
-  allUsersData = users.map(u => ({
-    id: u.id,
-    name: u.display_name || u.x_username || '（名前未設定）',
-    email: u.email || null,
-    is_founder: u.is_founder,
-    is_pro: u.is_pro,
-    founder_number: u.founder_number,
-  }));
-
-  renderUserDirectory(allUsersData);
-}
-
-let allFeedItems = [];
-let currentFeedFilter = 'all';
-
-function filterFeed(type) {
-  currentFeedFilter = type;
-  ['all','post','vote'].forEach(t => {
-    const btn = document.getElementById('feed-'+t);
-    if (!btn) return;
-    if (t === type) {
-      btn.style.background = 'var(--amber-light)';
-      btn.style.borderColor = 'var(--amber)';
-      btn.style.color = 'var(--amber)';
-    } else {
-      btn.style.background = 'transparent';
-      btn.style.borderColor = 'var(--border)';
-      btn.style.color = 'var(--ink3)';
-    }
-  });
-  renderFeed();
-}
-
-function renderFeed() {
-  const items = currentFeedFilter === 'all'
-    ? allFeedItems
-    : allFeedItems.filter(i => i.type === currentFeedFilter);
-
-  if (items.length === 0) {
-    document.getElementById('activity-feed-body').innerHTML =
-      '<div class="empty"><div class="empty-ico">📭</div><div class="empty-txt">データがありません</div></div>';
-    return;
-  }
-
-  document.getElementById('activity-feed-body').innerHTML = items.slice(0,30).map(item => {
-    const dotColor = item.type === 'post'
-      ? 'border-color:var(--green);background:var(--green-light)'
-      : 'border-color:var(--amber-bright);background:var(--amber-light)';
-    const icon = item.type === 'post' ? '📈' : '🗳';
-    const action = item.type === 'post' ? '上場した' : '応援した';
-    const ideaText = item.ideaName
-      ? `<span style="font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:3px;padding:1px 5px;margin-right:4px">${item.ideaTicker||'—'}</span>${item.ideaName.length>20?item.ideaName.slice(0,20)+'…':item.ideaName}`
-      : '—';
-
-    return `<div style="display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--border)">
-      <div style="width:7px;height:7px;border-radius:50%;border:1.5px solid;flex-shrink:0;margin-top:4px;${dotColor}"></div>
-      <div style="flex-shrink:0;min-width:82px">
-        <div style="font-family:var(--mono);font-size:10px;color:var(--ink2);font-weight:500">${fmtDate(item.at)}</div>
-        <div style="font-family:var(--mono);font-size:8px;color:var(--ink3);margin-top:1px">${fmtAgo(item.at)}</div>
-      </div>
-      <div style="flex:1;min-width:0">
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
-          <span style="font-size:13px">${icon}</span>
-          <span style="font-size:12px;font-weight:700;color:var(--ink)">${item.userName}</span>
-          <span style="font-size:11px;color:var(--ink3)">が${action}</span>
-        </div>
-        <div style="font-size:11px;color:var(--ink2)">${ideaText}</div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-async function loadActivityFeed() {
-  const today = new Date().toISOString().slice(0,10);
-  const weekStart = new Date(); weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1);
-  const weekStr = weekStart.toISOString().slice(0,10);
-
-  // アイデアデータ取得
-  const { data: ideasAll } = await sb.from('ideas')
-    .select('id,name,ticker,user_id,created_at')
-    .order('updated_at', { ascending: false });
-
-  const { data: votesAll } = await sb.from('votes')
-    .select('user_id,idea_id,idea_votes_at_time,created_at')
-    .order('created_at', { ascending: false })
-    .limit(100);
-
-  const { data: profiles } = await sb.from('profiles')
-    .select('id,x_username');
-
-  const ideaMap = {};
-  if (ideasAll) ideasAll.forEach(i => ideaMap[i.id] = i);
-
-  const userMap = {};
-  if (profiles) profiles.forEach(p => userMap[p.id] = p.x_username || '匿名');
-
-  // 今日・今週の上場数・票数
-  const ideasToday = (ideasAll||[]).filter(i => i.updated_at && i.updated_at.slice(0,10) === today);
-  const ideasWeek = (ideasAll||[]).filter(i => i.updated_at && i.updated_at.slice(0,10) >= weekStr);
-  const votesToday = (votesAll||[]).filter(v => v.created_at && v.created_at.slice(0,10) === today);
-  const votesWeek = (votesAll||[]).filter(v => v.created_at && v.created_at.slice(0,10) >= weekStr);
-
-  const atEl = document.getElementById('act-ideas-today');
-  const vtEl = document.getElementById('act-votes-today');
-  const awEl = document.getElementById('act-ideas-week');
-  const vwEl = document.getElementById('act-votes-week');
-  if (atEl) atEl.textContent = ideasToday.length;
-  if (vtEl) vtEl.textContent = votesToday.length;
-  if (awEl) awEl.textContent = ideasWeek.length;
-  if (vwEl) vwEl.textContent = votesWeek.length;
-
-  // 今日の上場アイデア一覧
-  const tlEl = document.getElementById('today-listings-meta');
-  if (tlEl) tlEl.textContent = `${ideasToday.length}件`;
-  const tlBody = document.getElementById('today-listings-body');
-  if (tlBody) {
-    if (ideasToday.length === 0) {
-      tlBody.innerHTML = '<div class="empty"><div class="empty-ico">💡</div><div class="empty-txt">今日はまだ上場なし</div></div>';
-    } else {
-      tlBody.innerHTML = ideasToday.map(idea => `
-        <div class="idea-row">
-          <span class="idea-ticker">${idea.ticker||'—'}</span>
-          <span class="idea-name">${idea.name}</span>
-          <span style="font-family:var(--mono);font-size:9px;color:var(--ink3);flex-shrink:0">${fmtAgo(idea.updated_at)}</span>
-          <span style="font-size:11px;color:var(--ink3);flex-shrink:0;margin-left:4px">by ${userMap[idea.user_id]||'—'}</span>
-        </div>`).join('');
-    }
-  }
-
-  // 活動フィードのデータ構築（上場 + 応援を混合）
-  const feedPosts = (ideasAll||[]).slice(0,50).map(i => ({
-    type: 'post',
-    at: i.updated_at,
-    userId: i.user_id,
-    userName: userMap[i.user_id] || '匿名',
-    ideaId: i.id,
-    ideaName: i.name,
-    ideaTicker: i.ticker,
-  }));
-
-  const feedVotes = (votesAll||[]).map(v => ({
-    type: 'vote',
-    at: v.created_at,
-    userId: v.user_id,
-    userName: userMap[v.user_id] || '匿名',
-    ideaId: v.idea_id,
-    ideaName: ideaMap[v.idea_id]?.name,
-    ideaTicker: ideaMap[v.idea_id]?.ticker,
-    votesAtTime: v.idea_votes_at_time,
-  }));
-
-  // 時系列でマージ
-  allFeedItems = [...feedPosts, ...feedVotes].sort((a,b) => {
-    const da = parseDate(a.at), db = parseDate(b.at);
-    if (!da || !db) return 0;
-    return db.getTime() - da.getTime();
-  });
-
-  renderFeed();
-}
-
-async function loadFunnel() {
-  const today = new Date().toISOString().slice(0,10);
-
-  // ステップ1: LPを開いた人（lp_pageview）
-  const { count: lpOpened } = await sb.from('user_events')
-    .select('id', { count: 'exact', head: true })
-    .eq('utm_source', 'lp_pageview');
-
-  // ステップ2: LPからあいぽを開いた人（utm_source=lp）
-  const { count: lpClicked } = await sb.from('user_events')
-    .select('id', { count: 'exact', head: true })
-    .eq('utm_source', 'lp');
-
-  // ステップ3: 登録ユーザー数（管理者除く）
-  const { count: registered } = await sb.from('profiles')
-    .select('id', { count: 'exact', head: true })
-    .neq('id', ADMIN_ID);
-
-  const steps = [
-    { label: 'LPを開いた', count: lpOpened || 0, color: '#e8850a', desc: 'lp.htmlにアクセスした人' },
-    { label: 'あいぽを開いた', count: lpClicked || 0, color: '#d97706', desc: 'LPのボタンを押した人' },
-    { label: '登録した', count: registered || 0, color: '#1a7a4a', desc: 'ログインして登録した人' },
-  ];
-
-  const maxCount = steps[0].count || 1;
-
-  document.getElementById('funnel-body').innerHTML = steps.map((step, i) => {
-    const pct = maxCount > 0 ? Math.round(step.count / maxCount * 100) : 0;
-    const prev = i > 0 ? steps[i-1].count : null;
-    const dropPct = prev && prev > 0 ? Math.round((1 - step.count/prev) * 100) : null;
-    const dropHTML = dropPct !== null
-      ? `<div class="funnel-drop ${dropPct > 70 ? 'bad' : 'ok'}">↑ ここで${dropPct}%が離脱</div>`
-      : '';
-    return `
-      ${i > 0 ? `<div style="padding:4px 0 0 6px;font-family:var(--mono);font-size:10px;color:${dropPct > 70 ? 'var(--red)' : 'var(--green)'};margin-bottom:-4px">${dropHTML}</div>` : ''}
-      <div class="funnel-step">
-        <div>
-          <div class="funnel-num">${step.count.toLocaleString()}</div>
-          <div style="font-family:var(--mono);font-size:8px;color:var(--ink3)">人</div>
-        </div>
-        <div class="funnel-info">
-          <div class="funnel-label">${['①','②','③'][i]} ${step.label}</div>
-          <div class="funnel-bar">
-            <div class="funnel-bar-fill" style="width:${pct}%;background:${step.color}"></div>
-          </div>
-          <div style="font-size:10px;color:var(--ink3)">${step.desc}</div>
-        </div>
-        <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--ink3)">${pct}%</div>
-      </div>`;
-  }).join('');
-}
-
-async function loadUserActivity() {
-  // 全ユーザーの投票数を集計
-  const { data: votes } = await sb.from('votes').select('user_id, idea_id, idea_votes_at_time');
-  const { data: profiles } = await sb.from('profiles').select('id, x_username, is_founder, is_pro').neq('id', ADMIN_ID);
-  const { data: ideas } = await sb.from('ideas').select('id, name, ticker');
-  const { data: events } = await sb.from('user_events').select('user_id, utm_source, referrer').not('user_id', 'is', null);
-
-  if (!profiles) return;
-
-  const ideaMap = {};
-  if (ideas) ideas.forEach(i => ideaMap[i.id] = i);
-
-  // ユーザーごとの投票集計
-  const voteMap = {};
-  const voteDetails = {};
-  if (votes) votes.forEach(v => {
-    if (!v.user_id) return;
-    voteMap[v.user_id] = (voteMap[v.user_id] || 0) + 1;
-    if (!voteDetails[v.user_id]) voteDetails[v.user_id] = [];
-    voteDetails[v.user_id].push(v);
-  });
-
-  // ユーザーごとの流入元
-  const sourceMap = {};
-  if (events) events.forEach(e => {
-    if (!e.user_id || sourceMap[e.user_id]) return;
-    if (e.utm_source === 'lp') sourceMap[e.user_id] = 'lp';
-    else if (e.referrer && (e.referrer.includes('t.co') || e.referrer.includes('twitter') || e.referrer.includes('x.com'))) sourceMap[e.user_id] = 'x';
-    else sourceMap[e.user_id] = 'direct';
-  });
-
-  // 投票数でソート
-  const sorted = [...profiles].sort((a, b) => (voteMap[b.id]||0) - (voteMap[a.id]||0));
-
-  // 熱量ランキング（上位）
-  document.getElementById('user-activity-body').innerHTML = sorted.slice(0, 8).map((p, idx) => {
-    const voteCount = voteMap[p.id] || 0;
-    const src = sourceMap[p.id] || 'direct';
-    const srcLabel = { lp: 'LP経由', x: 'X経由', direct: '直接' }[src];
-    const srcClass = src;
-    const initials = (p.x_username||'U').slice(0,2).toUpperCase();
-    const heat = voteCount >= 3 ? '🔥' : voteCount >= 1 ? '👍' : '💤';
-    return `<div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border)">
-      <div style="font-family:var(--mono);font-size:11px;color:var(--ink4);min-width:20px">${String(idx+1).padStart(2,'0')}</div>
-      <div class="ua-av">${initials}</div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:700;color:var(--ink)">${heat} ${p.x_username||'（未設定）'}</div>
-        <div style="font-size:10px;color:var(--ink3);margin-top:2px">投票 ${voteCount}回 · <span class="ua-from ${srcClass}" style="display:inline-block">${srcLabel}</span></div>
-      </div>
-      <div style="font-family:var(--mono);font-size:20px;font-weight:700;color:var(--amber)">${voteCount}<span style="font-size:10px;color:var(--ink3)">票</span></div>
-    </div>`;
-  }).join('') || '<div class="empty"><div class="empty-ico">🗳</div><div class="empty-txt">投票データなし</div></div>';
-
-  // 全ユーザー詳細（タップで展開）
-  document.getElementById('users-body').innerHTML = sorted.map(p => {
-    const voteCount = voteMap[p.id] || 0;
-    const userVotes = voteDetails[p.id] || [];
-    const src = sourceMap[p.id] || 'direct';
-    const srcLabel = { lp: 'LP経由', x: 'X経由', direct: '直接' }[src];
-    const badge = p.is_founder ? '👑 創設' : p.is_pro ? 'PRO' : 'FREE';
-    const initials = (p.x_username||'U').slice(0,2).toUpperCase();
-    const detailId = 'ua-detail-' + p.id.slice(0,8);
-
-    const votedIdeasHTML = userVotes.slice(0,5).map(v => {
-      const idea = ideaMap[v.idea_id];
-      return `<div class="ua-voted-idea">
-        <span style="font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:3px;padding:1px 5px">${idea?.ticker||'—'}</span>
-        <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${idea?.name||'不明'}</span>
-        <span style="font-family:var(--mono);font-size:9px;color:var(--ink3)">${v.idea_votes_at_time||'?'}票目</span>
-      </div>`;
-    }).join('');
-
-    return `<div class="ua-row" onclick="document.getElementById('${detailId}').classList.toggle('open')">
-      <div class="ua-header">
-        <div class="ua-av">${initials}</div>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:12px;font-weight:700;color:var(--ink)">${p.x_username||'（未設定）'}</div>
-          <div style="font-size:10px;color:var(--ink3);margin-top:1px">${badge} · ${srcLabel} · 投票${voteCount}回</div>
-        </div>
-        <div style="font-family:var(--mono);font-size:11px;color:var(--ink4)">▼</div>
-      </div>
-      <div class="ua-detail" id="${detailId}">
-        <div style="font-family:var(--mono);font-size:9px;color:var(--ink3);letter-spacing:.08em;margin-bottom:8px">応援したアイデア</div>
-        ${votedIdeasHTML || '<div style="font-size:11px;color:var(--ink3)">まだ投票なし</div>'}
-        ${userVotes.length > 5 ? `<div style="font-size:10px;color:var(--ink3);margin-top:6px">他${userVotes.length-5}件...</div>` : ''}
-      </div>
-    </div>`;
-  }).join('') || '<div class="empty"><div class="empty-ico">👤</div><div class="empty-txt">データなし</div></div>';
-}
-
-async function loadTimeAnalysis() {
-  const { data } = await sb.from('user_events')
-    .select('time_on_page, created_at')
-    .eq('utm_source', 'lp_pageview')
-    .not('time_on_page', 'is', null)
-    .order('created_at', { ascending: false });
-
-  if (!data || data.length === 0) {
-    document.getElementById('time-analysis-body').innerHTML =
-      '<div class="empty"><div class="empty-ico">⏱</div><div class="empty-txt">まだデータがありません<br>lp.htmlをアップすると計測開始</div></div>';
-    return;
-  }
-
-  const times = data.map(d => d.time_on_page).filter(t => t !== null);
-  const avg = Math.round(times.reduce((a,b) => a+b, 0) / times.length);
-  const bounced = times.filter(t => t < 10).length; // 10秒未満を直帰
-  const bounceRate = Math.round(bounced / times.length * 100);
-
-  // 滞在時間の分布
-  const buckets = [
-    { label: '0〜10秒', desc: 'ほぼ離脱', min: 0, max: 10, color: '#c0392b' },
-    { label: '10〜30秒', desc: '少し見た', min: 10, max: 30, color: '#e8850a' },
-    { label: '30秒〜1分', desc: '読んでいる', min: 30, max: 60, color: '#d97706' },
-    { label: '1〜3分', desc: 'かなり読んだ', min: 60, max: 180, color: '#1a7a4a' },
-    { label: '3分以上', desc: '熱心に読んだ', min: 180, max: Infinity, color: '#15803d' },
-  ];
-
-  const bucketCounts = buckets.map(b => ({
-    ...b,
-    count: times.filter(t => t >= b.min && t < b.max).length
-  }));
-  const maxCount = Math.max(...bucketCounts.map(b => b.count), 1);
-
-  // サマリーKPI
-  const fmtSec = s => s >= 60 ? Math.floor(s/60)+'分'+String(s%60).padStart(2,'0')+'秒' : s+'秒';
-
-  document.getElementById('time-analysis-body').innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px">
-      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:12px;text-align:center">
-        <div style="font-family:var(--mono);font-size:8px;color:var(--ink3);letter-spacing:.08em;margin-bottom:6px">平均滞在時間</div>
-        <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--ink)">${fmtSec(avg)}</div>
-      </div>
-      <div style="background:${bounceRate > 60 ? 'rgba(192,57,43,.06)' : 'var(--green-bg)'};border:1px solid ${bounceRate > 60 ? 'rgba(192,57,43,.2)' : 'var(--green-border)'};border-radius:var(--rs);padding:12px;text-align:center">
-        <div style="font-family:var(--mono);font-size:8px;color:var(--ink3);letter-spacing:.08em;margin-bottom:6px">直帰率（10秒未満）</div>
-        <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:${bounceRate > 60 ? 'var(--red)' : 'var(--green)'}">${bounceRate}%</div>
-      </div>
-      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:12px;text-align:center">
-        <div style="font-family:var(--mono);font-size:8px;color:var(--ink3);letter-spacing:.08em;margin-bottom:6px">計測サンプル数</div>
-        <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--ink)">${times.length}件</div>
-      </div>
-    </div>
-    <div style="margin-bottom:4px;font-family:var(--mono);font-size:9px;color:var(--ink3);letter-spacing:.08em">滞在時間の分布</div>
-    ${bucketCounts.map(b => `
-      <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
-        <div style="min-width:72px;font-size:11px;font-weight:700;color:var(--ink)">${b.label}</div>
-        <div style="flex:1">
-          <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:3px">
-            <div style="height:100%;width:${Math.round(b.count/maxCount*100)}%;background:${b.color};border-radius:3px;transition:width .8s"></div>
-          </div>
-          <div style="font-size:9px;color:var(--ink3)">${b.desc}</div>
-        </div>
-        <div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--ink);min-width:28px;text-align:right">${b.count}</div>
-        <div style="font-family:var(--mono);font-size:9px;color:var(--ink3);min-width:30px;text-align:right">${times.length > 0 ? Math.round(b.count/times.length*100) : 0}%</div>
-      </div>`).join('')}
-    <div style="margin-top:12px;padding:10px;background:var(--surface2);border-radius:var(--rs);font-size:11px;color:var(--ink3);line-height:1.7">
-      💡 直帰率${bounceRate}% ${bounceRate > 60 ? '— ファーストビューで離脱が多い。ヒーローコピーを見直す価値があります。' : bounceRate > 30 ? '— 標準的な数値です。' : '— LP内容が刺さっています。'}
-    </div>`;
-}
-
-// ===== GOALS (localStorageで管理) =====
-const GOALS_KEY = 'aipo-dash-goals-' + new Date().toISOString().slice(0,7); // 月ごとにリセット
+// ===== GOALS =====
+const GOALS_KEY = 'aipo-dash-goals-' + new Date().toISOString().slice(0,7);
 
 function loadGoals() {
   try { return JSON.parse(localStorage.getItem(GOALS_KEY) || '[]'); } catch(e) { return []; }
@@ -1756,95 +1293,11 @@ function deleteGoal(i) {
   renderGoals();
 }
 
-// ===== ACTION LOG (Supabase) =====
+// ===== ACTION LOG =====
 const CAT_ICONS = { 'auto': '🤖', x_post:'🐦', lp_update:'📄', feature:'✨', outreach:'🤝', other:'📌' };
 const CAT_LABELS = { 'auto': 'AI自動記録', x_post:'Xに投稿', lp_update:'LP更新', feature:'機能追加', outreach:'営業・DM', other:'その他' };
 
 async function addAction() {
-
-// ===== AI自動ログ生成 =====
-async function generateAutoLog() {
-  const btn = document.getElementById('auto-log-btn');
-  if(btn){ btn.textContent = 'AIが記録中...'; btn.disabled = true; }
-
-  try {
-    // 今日と昨日のデータを比較取得
-    const today = new Date().toISOString().slice(0,10);
-    const yday = new Date(Date.now()-86400000).toISOString().slice(0,10);
-
-    const [r0,r1,r2,r3,r4,r5] = await Promise.allSettled([
-      sb.from('profiles').select('id',{count:'exact',head:true}),
-      sb.from('profiles').select('id',{count:'exact',head:true}).gte('created_at', today+'T00:00:00Z'),
-      sb.from('idea_votes').select('id',{count:'exact',head:true}).gte('created_at', today+'T00:00:00Z'),
-      sb.from('ideas').select('id',{count:'exact',head:true}).gte('created_at', today+'T00:00:00Z'),
-      sb.from('profiles').select('id',{count:'exact',head:true}).gte('created_at', yday+'T00:00:00Z').lt('created_at', today+'T00:00:00Z'),
-      sb.from('idea_votes').select('id',{count:'exact',head:true}).gte('created_at', yday+'T00:00:00Z').lt('created_at', today+'T00:00:00Z'),
-    ]);
-
-    const totalUsers = r0.value?.count ?? 0;
-    const newUsersToday = r1.value?.count ?? 0;
-    const votesToday = r2.value?.count ?? 0;
-    const ideasToday = r3.value?.count ?? 0;
-    const newUsersYday = r4.value?.count ?? 0;
-    const votesYday = r5.value?.count ?? 0;
-
-    // 最近のaction_logsを取得（前回からの変化把握）
-    const { data: recentLogs } = await sb.from('action_logs')
-      .select('content,logged_at')
-      .order('logged_at', { ascending: false })
-      .limit(3);
-
-    const recentWork = recentLogs?.map(l => l.content).join('、') || '（初回記録）';
-
-    // AIに文章生成を依頼
-    const prompt = `あいぽというアイデアIPO市場SNSの運営者です。
-今日（${today}）の状況と昨日からの変化を、運営者が「自分の日記」として後で見返せるよう、わかりやすい日本語で2〜4文にまとめてください。
-
-【今日のデータ】
-- 累計ユーザー数: ${totalUsers}人
-- 今日の新規ユーザー: ${newUsersToday}人（昨日: ${newUsersYday}人）
-- 今日の投票数: ${votesToday}票（昨日: ${votesYday}票）
-- 今日の上場数: ${ideasToday}件
-
-【最近やったこと】
-${recentWork}
-
-【注意】
-- 難しい専門用語は使わない
-- 「今日は〜でした。〜が増えた/減った。」のような自然な文体で
-- 良い点も改善点も正直に書く
-- 数字を具体的に入れる`;
-
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    const data = await res.json();
-    const aiText = data.content?.[0]?.text || '';
-
-    if (!aiText) throw new Error('AI応答なし');
-
-    // Supabaseに保存
-    await sb.from('action_logs').insert({
-      content: aiText,
-      category: 'auto',
-    });
-
-    await loadActionLog();
-    if(btn){ btn.textContent = '✓ 記録しました'; }
-    setTimeout(() => { if(btn){ btn.textContent = '今日の変化をAIが自動記録'; btn.disabled = false; } }, 2000);
-
-  } catch(e) {
-    console.error(e);
-    if(btn){ btn.textContent = 'エラー: ' + e.message; btn.disabled = false; }
-  }
-}
-
   const input = document.getElementById('action-input');
   const cat = document.getElementById('action-category').value;
   const text = input.value.trim();
@@ -1856,7 +1309,7 @@ ${recentWork}
     input.value = '';
     await loadActionLog();
     await loadPDCAChart();
-    await loadWeeklySummary();
+    await loadWeeklyCompare();
   } catch(e) { alert('保存失敗: '+e.message); }
   finally { if (btn) { btn.textContent = '記録'; btn.disabled = false; } }
 }
@@ -1864,7 +1317,7 @@ ${recentWork}
 async function loadActionLog() {
   const { data } = await sb.from('action_logs').select('*').order('logged_at', { ascending: false }).limit(20);
   if (!data || data.length === 0) {
-    document.getElementById('action-log-list').innerHTML = '<div style="font-size:12px;color:var(--ink3);padding:8px 0">まだ記録がありません。やったことを記録していきましょう。</div>';
+    document.getElementById('action-log-list').innerHTML = '<div style="font-size:12px;color:var(--ink3);padding:8px 0">まだ記録がありません。</div>';
     return;
   }
   document.getElementById('action-log-list').innerHTML = data.map(a => {
@@ -1888,9 +1341,8 @@ async function deleteAction(id) {
   await loadPDCAChart();
 }
 
-// ===== PDCA CHART（アクション×流入の相関） =====
+// ===== PDCA CHART =====
 async function loadPDCAChart() {
-  // 直近14日間のデータ
   const days = Array.from({length:14}, (_,i) => {
     const d = new Date();
     d.setDate(d.getDate() - (13-i));
@@ -1903,7 +1355,6 @@ async function loadPDCAChart() {
     sb.from('action_logs').select('logged_at').gte('logged_at', startDate)
   ]);
 
-  // 日別LP流入数
   const trafficByDay = {};
   days.forEach(d => trafficByDay[d] = 0);
   if (events) events.forEach(e => {
@@ -1911,7 +1362,6 @@ async function loadPDCAChart() {
     if (trafficByDay[day] !== undefined) trafficByDay[day]++;
   });
 
-  // アクション実施日
   const actionDays = new Set();
   if (actions) actions.forEach(a => actionDays.add(a.logged_at));
 
@@ -1929,7 +1379,7 @@ async function loadPDCAChart() {
         const isAction = actionDays.has(day);
         const isToday = day === new Date().toISOString().slice(0,10);
         return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;position:relative">
-          ${isAction ? `<div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:10px;height:10px;background:var(--ink);border-radius:50%;z-index:2" title="アクション実施"></div>` : ''}
+          ${isAction ? `<div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:10px;height:10px;background:var(--ink);border-radius:50%;z-index:2"></div>` : ''}
           ${isAction ? `<div style="position:absolute;top:10px;left:50%;transform:translateX(-50%);width:1px;height:calc(100% - ${barH}px - 10px);background:rgba(28,20,9,.15)"></div>` : ''}
           <div style="width:100%;background:${isToday?'var(--green)':cnt>0?'var(--amber)':'var(--border)'};height:${barH}px;border-radius:2px 2px 0 0;position:relative;z-index:1">
             ${cnt > 0 ? `<div style="position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:8px;color:var(--amber);white-space:nowrap">${cnt}</div>` : ''}
@@ -1946,21 +1396,17 @@ async function loadPDCAChart() {
   }).join('');
 }
 
-// ===== WEEKLY SUMMARY =====
+// ===== WEEKLY COMPARE =====
 async function loadWeeklyCompare() {
   const now = new Date();
   const today = now.toISOString().slice(0,10);
-  
-  // 今週の月曜
   const thisMonday = new Date(now);
   thisMonday.setDate(now.getDate() - ((now.getDay()+6)%7));
   const thisMondayStr = thisMonday.toISOString().slice(0,10);
-  
-  // 先週の月曜〜日曜
   const lastMonday = new Date(thisMonday);
   lastMonday.setDate(thisMonday.getDate() - 7);
   const lastMondayStr = lastMonday.toISOString().slice(0,10);
-  
+
   const weekLabel = `${String(now.getMonth()+1)}/${String(thisMonday.getDate()).padStart(2,'0')}週`;
   const weekLabelEl = document.getElementById('pdca-week-label');
   if (weekLabelEl) weekLabelEl.textContent = weekLabel;
@@ -2020,89 +1466,14 @@ async function loadWeeklyCompare() {
   }
 }
 
-async function loadWeeklySummary() {
-  const weekStart = new Date();
-  weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1); // 月曜
-  const weekStartStr = weekStart.toISOString().slice(0,10);
-  const lastWeekStart = new Date(weekStart);
-  lastWeekStart.setDate(lastWeekStart.getDate() - 7);
-  const lastWeekStartStr = lastWeekStart.toISOString().slice(0,10);
-
-  const [
-    { count: usersTotal },
-    { count: lpThisWeek },
-    { count: lpLastWeek },
-    { count: actionsThisWeek },
-    { data: goals }
-  ] = await Promise.all([
-    sb.from('profiles').select('id',{count:'exact',head:true}).neq('id', ADMIN_ID),
-    sb.from('user_events').select('id',{count:'exact',head:true}).gte('created_at', weekStartStr+'T00:00:00Z'),
-    sb.from('user_events').select('id',{count:'exact',head:true}).gte('created_at', lastWeekStartStr+'T00:00:00Z').lt('created_at', weekStartStr+'T00:00:00Z'),
-    sb.from('action_logs').select('id',{count:'exact',head:true}).gte('logged_at', weekStartStr),
-    sb.from('action_logs').select('*').gte('logged_at', weekStartStr).order('logged_at', {ascending:false})
-  ]);
-
-  const localGoals = loadGoals();
-  const doneGoals = localGoals.filter(g => g.done).length;
-  const lpDiff = (lpThisWeek||0) - (lpLastWeek||0);
-  const lpTrend = lpDiff > 0 ? `▲${lpDiff}` : lpDiff < 0 ? `▼${Math.abs(lpDiff)}` : '±0';
-  const lpTrendColor = lpDiff > 0 ? 'var(--green)' : lpDiff < 0 ? 'var(--red)' : 'var(--ink3)';
-
-  document.getElementById('weekly-summary-body').innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
-      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:12px">
-        <div style="font-size:10px;color:var(--ink3);margin-bottom:6px">今週の流入</div>
-        <div style="font-family:var(--mono);font-size:24px;font-weight:700;color:var(--ink)">${lpThisWeek||0}<span style="font-size:11px;margin-left:4px;color:${lpTrendColor}">${lpTrend}</span></div>
-        <div style="font-size:10px;color:var(--ink3)">先週比</div>
-      </div>
-      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:12px">
-        <div style="font-size:10px;color:var(--ink3);margin-bottom:6px">今週のアクション数</div>
-        <div style="font-family:var(--mono);font-size:24px;font-weight:700;color:var(--ink)">${actionsThisWeek||0}件</div>
-        <div style="font-size:10px;color:var(--ink3)">施策を実行した回数</div>
-      </div>
-      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:12px">
-        <div style="font-size:10px;color:var(--ink3);margin-bottom:6px">目標達成</div>
-        <div style="font-family:var(--mono);font-size:24px;font-weight:700;color:${doneGoals>0?'var(--green)':'var(--ink)'}">${doneGoals}/${localGoals.length}</div>
-        <div style="font-size:10px;color:var(--ink3)">今週の目標</div>
-      </div>
-      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:12px">
-        <div style="font-size:10px;color:var(--ink3);margin-bottom:6px">累計ユーザー</div>
-        <div style="font-family:var(--mono);font-size:24px;font-weight:700;color:var(--ink)">${usersTotal||0}人</div>
-        <div style="font-size:10px;color:var(--ink3)">登録者の合計</div>
-      </div>
-    </div>
-    ${goals && goals.length > 0 ? `
-    <div style="font-family:var(--mono);font-size:9px;color:var(--ink3);letter-spacing:.08em;margin-bottom:8px">今週やったこと</div>
-    ${goals.map(a => `<div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;color:var(--ink)">${CAT_ICONS[a.category]||'📌'} ${a.content}</div>`).join('')}` : ''}`;
-
-  // 自動インサイト
-  const insights = [];
-  if (lpDiff > 0) insights.push({ type:'good', text:`先週より流入が${lpDiff}件増えました。${actionsThisWeek > 0 ? '今週の施策が効いているかもしれません。' : ''}` });
-  if (lpDiff < 0) insights.push({ type:'warn', text:`先週より流入が${Math.abs(lpDiff)}件減っています。アクションを増やしてみましょう。` });
-  if (actionsThisWeek === 0 && new Date().getDay() > 2) insights.push({ type:'warn', text:`今週はまだアクションが記録されていません。Xへの投稿など何か施策を打ちましょう。` });
-  if (doneGoals === localGoals.length && localGoals.length > 0) insights.push({ type:'good', text:`今週の目標を全て達成しています！🎉` });
-
-  document.getElementById('pdca-insights-wrap').innerHTML = insights.length > 0 ? `
-    <div style="margin-bottom:20px">
-      ${insights.map(ins => `
-        <div style="display:flex;gap:10px;align-items:flex-start;padding:12px 14px;margin-bottom:8px;background:${ins.type==='good'?'var(--green-bg)':'rgba(192,57,43,.06)'};border:1px solid ${ins.type==='good'?'var(--green-border)':'rgba(192,57,43,.2)'};border-radius:var(--rs)">
-          <div style="font-size:16px;flex-shrink:0">${ins.type==='good'?'✅':'⚠️'}</div>
-          <div style="font-size:12px;color:var(--ink);line-height:1.6">${ins.text}</div>
-        </div>`).join('')}
-    </div>` : '';
-}
-
-// ===== PDCA メインロード =====
 async function loadPDCA() {
   renderGoals();
   await Promise.all([loadActionLog(), loadPDCAChart(), loadWeeklyCompare()]);
 }
 
 async function loadRevenue() {
-  // founder_number=0 は中川さん本人なので除外
   const { data: profiles } = await sb.from('profiles').select('is_founder, is_pro, founder_number, id');
   if (!profiles) return;
-  // 中川さん本人(ADMIN_ID)だけ除外、他の創設メンバーは全員カウント
   const payingFounders = profiles.filter(p => p.is_founder && p.id !== ADMIN_ID);
   const payingPros = profiles.filter(p => p.is_pro && !p.is_founder && p.id !== ADMIN_ID);
   const founderRevenue = payingFounders.length * 980;
@@ -2120,13 +1491,10 @@ async function loadAll() {
   icon.classList.add('spinning');
   try {
     await Promise.allSettled([
-      loadPDCA(),
-      loadLPAnalytics(),
-      loadFunnel(),
-      loadTimeAnalysis(),
-      loadRevenue(),
+      loadHomeTab(), loadRevenue(),
+      loadPDCA(), loadLPAnalytics(), loadFunnel(), loadTimeAnalysis(),
       loadKPI(), loadHourly(), loadRecent(),
-      loadIdeas(), loadUserActivity()
+      loadIdeas()
     ]);
   } finally {
     icon.classList.remove('spinning');
@@ -2151,7 +1519,6 @@ async function sendBroadcast() {
   const status = document.getElementById('broadcast-status');
   btn.disabled = true;
   status.textContent = '送信中...';
-
   try {
     const { error } = await sb.from('hiroba_voices').insert({
       user_id: ADMIN_UUID,
@@ -2172,7 +1539,6 @@ async function sendBroadcast() {
   } catch(e) {
     status.textContent = 'エラー: ' + e.message;
     status.style.color = 'var(--red)';
-    console.error(e);
   }
   btn.disabled = false;
 }
@@ -2184,57 +1550,11 @@ async function runHealthCheck() {
   if (!banner) return;
   banner.innerHTML = `<div style="font-family:var(--mono);font-size:10px;color:var(--ink3);padding:8px 0">🔍 システムチェック中...</div>`;
 
-  // 1. DB接続チェック
-  try {
-    const { error } = await sb.from('profiles').select('id', { count: 'exact', head: true });
-    checks.push({ label: 'DB接続', ok: !error, detail: error?.message });
-  } catch(e) {
-    checks.push({ label: 'DB接続', ok: false, detail: e.message });
-  }
-
-  // 2. 投票機能チェック（votesテーブルへの読み取り）
-  try {
-    const { error } = await sb.from('votes').select('id', { count: 'exact', head: true });
-    checks.push({ label: '投票テーブル', ok: !error, detail: error?.message });
-  } catch(e) {
-    checks.push({ label: '投票テーブル', ok: false, detail: e.message });
-  }
-
-  // 3. increment_idea_votes RPCの存在確認
-  try {
-    // ダミーUUIDで呼び出してエラー内容で判断
-    const { error } = await sb.rpc('increment_idea_votes', { idea_id: '00000000-0000-0000-0000-000000000000' });
-    // "No rows found"系のエラーはOK（関数は存在している）
-    const ok = !error || error.code === 'PGRST116' || error.message?.includes('found') || error.message?.includes('0 rows');
-    checks.push({ label: '投票RPC', ok, detail: ok ? null : error?.message });
-  } catch(e) {
-    checks.push({ label: '投票RPC', ok: false, detail: e.message });
-  }
-
-  // 4. update_idea_score RPCの存在確認
-  try {
-    const { error } = await sb.rpc('update_idea_score', { idea_id: '00000000-0000-0000-0000-000000000000', new_score: 0 });
-    const ok = !error || error.code === 'PGRST116' || error.message?.includes('found') || error.message?.includes('0 rows');
-    checks.push({ label: 'スコア更新RPC', ok, detail: ok ? null : error?.message });
-  } catch(e) {
-    checks.push({ label: 'スコア更新RPC', ok: false, detail: e.message });
-  }
-
-  // 5. user_profiles_view の存在確認
-  try {
-    const { error } = await sb.from('user_profiles_view').select('id').limit(1);
-    checks.push({ label: 'ユーザーView', ok: !error, detail: error?.message });
-  } catch(e) {
-    checks.push({ label: 'ユーザーView', ok: false, detail: e.message });
-  }
-
-  // 6. action_logsテーブル
-  try {
-    const { error } = await sb.from('action_logs').select('id', { count: 'exact', head: true });
-    checks.push({ label: 'アクションログ', ok: !error, detail: error?.message });
-  } catch(e) {
-    checks.push({ label: 'アクションログ', ok: false, detail: e.message });
-  }
+  try { const { error } = await sb.from('profiles').select('id', { count: 'exact', head: true }); checks.push({ label: 'DB接続', ok: !error, detail: error?.message }); } catch(e) { checks.push({ label: 'DB接続', ok: false, detail: e.message }); }
+  try { const { error } = await sb.from('votes').select('id', { count: 'exact', head: true }); checks.push({ label: '投票テーブル', ok: !error, detail: error?.message }); } catch(e) { checks.push({ label: '投票テーブル', ok: false, detail: e.message }); }
+  try { const { error } = await sb.rpc('increment_idea_votes', { idea_id: '00000000-0000-0000-0000-000000000000' }); const ok = !error || error.code === 'PGRST116' || error.message?.includes('found') || error.message?.includes('0 rows'); checks.push({ label: '投票RPC', ok, detail: ok ? null : error?.message }); } catch(e) { checks.push({ label: '投票RPC', ok: false, detail: e.message }); }
+  try { const { error } = await sb.from('user_profiles_view').select('id').limit(1); checks.push({ label: 'ユーザーView', ok: !error, detail: error?.message }); } catch(e) { checks.push({ label: 'ユーザーView', ok: false, detail: e.message }); }
+  try { const { error } = await sb.from('action_logs').select('id', { count: 'exact', head: true }); checks.push({ label: 'アクションログ', ok: !error, detail: error?.message }); } catch(e) { checks.push({ label: 'アクションログ', ok: false, detail: e.message }); }
 
   const allOk = checks.every(c => c.ok);
   const failedChecks = checks.filter(c => !c.ok);
@@ -2254,39 +1574,30 @@ async function runHealthCheck() {
       <div style="background:var(--red-light);border:1px solid rgba(220,38,38,.2);border-radius:var(--r);overflow:hidden">
         <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(220,38,38,.15)">
           <span style="font-size:16px">⚠️</span>
-          <div style="flex:1">
-            <div style="font-size:12px;font-weight:700;color:var(--red)">${failedChecks.length}件の異常を検知しました</div>
-            <div style="font-size:10px;color:var(--red);opacity:.8;margin-top:2px">機能が正常に動作していない可能性があります</div>
-          </div>
+          <div style="flex:1"><div style="font-size:12px;font-weight:700;color:var(--red)">${failedChecks.length}件の異常を検知</div><div style="font-size:10px;color:var(--red);opacity:.8;margin-top:2px">機能が正常に動作していない可能性があります</div></div>
           <div style="font-family:var(--mono);font-size:9px;color:var(--red);opacity:.6">${new Date().toLocaleTimeString('ja-JP')}</div>
         </div>
         <div style="padding:10px 14px">
-          ${checks.map(c => `
-            <div style="display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid rgba(220,38,38,.08)">
-              <span style="font-family:var(--mono);font-size:10px;flex-shrink:0;margin-top:1px">${c.ok?'✅':'❌'}</span>
-              <div style="flex:1">
-                <span style="font-size:11px;font-weight:700;color:${c.ok?'var(--green)':'var(--red)'}">${c.label}</span>
-                ${!c.ok && c.detail ? `<div style="font-family:var(--mono);font-size:9px;color:var(--red);opacity:.7;margin-top:2px">${c.detail}</div>` : ''}
-              </div>
-            </div>`).join('')}
+          ${checks.map(c => `<div style="display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid rgba(220,38,38,.08)"><span style="font-family:var(--mono);font-size:10px;flex-shrink:0;margin-top:1px">${c.ok?'✅':'❌'}</span><div style="flex:1"><span style="font-size:11px;font-weight:700;color:${c.ok?'var(--green)':'var(--red)'}">${c.label}</span>${!c.ok && c.detail ? `<div style="font-family:var(--mono);font-size:9px;color:var(--red);opacity:.7;margin-top:2px">${c.detail}</div>` : ''}</div></div>`).join('')}
         </div>
       </div>`;
   }
 }
 
+// ===== HOME TAB =====
 async function loadHomeTab() {
   const today = new Date().toISOString().slice(0,10);
-
   const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1);
   const yday = yesterday.toISOString().slice(0,10);
 
+  // ★ 修正: idea_votes → votes
   const [r0, r1, r2, r3, r4, r5, r6] = await Promise.allSettled([
     sb.from('profiles').select('id',{count:'exact',head:true}),
     sb.from('profiles').select('id',{count:'exact',head:true}).gte('created_at', today+'T00:00:00Z'),
     sb.from('ideas').select('id,ticker,name,description,genre,score,votes,updated_at,created_at,user_id').order('score',{ascending:false}),
-    sb.from('idea_votes').select('idea_id,created_at').gte('created_at', today+'T00:00:00Z'),
+    sb.from('votes').select('idea_id,created_at').gte('created_at', today+'T00:00:00Z'),
     sb.from('profiles').select('id',{count:'exact',head:true}).gte('created_at', yday+'T00:00:00Z').lt('created_at', today+'T00:00:00Z'),
-    sb.from('idea_votes').select('idea_id,created_at').gte('created_at', yday+'T00:00:00Z').lt('created_at', today+'T00:00:00Z'),
+    sb.from('votes').select('idea_id,created_at').gte('created_at', yday+'T00:00:00Z').lt('created_at', today+'T00:00:00Z'),
     sb.from('ideas').select('id',{count:'exact',head:true}).gte('created_at', yday+'T00:00:00Z').lt('created_at', today+'T00:00:00Z'),
   ]);
   const usersTotal = r0.value?.count ?? 0;
@@ -2297,7 +1608,6 @@ async function loadHomeTab() {
   const votesYday = r5.value?.data?.length ?? 0;
   const ideasYday = r6.value?.count ?? 0;
 
-  // KPI
   const set = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val ?? '0'; };
   set('top-users-total', usersTotal);
   set('top-users-today', usersToday);
@@ -2306,13 +1616,9 @@ async function loadHomeTab() {
   set('top-ideas-today', ideasToday.length);
   set('top-votes-today', votesToday.length);
 
-  // ============================
-  // 分析カード生成
-  // ============================
-  const votesRateToday = usersTotal > 0 ? Math.round((votesToday.length / usersTotal) * 100) : 0;
-  const ideasPerUser = usersTotal > 0 ? (ideasAll.length / usersTotal).toFixed(1) : 0;
   const avgScore = ideasAll.length > 0 ? (ideasAll.reduce((s,i)=>s+parseFloat(i.score||50),0)/ideasAll.length).toFixed(1) : 0;
   const topIdea = ideasAll[0];
+  const ideasPerUser = usersTotal > 0 ? (ideasAll.length / usersTotal).toFixed(1) : 0;
 
   function trend(today, yday) {
     if (yday === 0) return { icon:'—', color:'var(--ink3)', text:'前日比データなし' };
@@ -2323,34 +1629,34 @@ async function loadHomeTab() {
     return { icon:'→', color:'var(--ink3)', text:'昨日と同じ' };
   }
 
-  function advice(type, val, compare) {
+  function advice(type, val) {
     if (type === 'new-users') {
       if (val === 0) return { mark:'⚠', color:'var(--red)', text:'今日はまだ誰も来ていません。LPをシェアすると効果的です。' };
       if (val >= 3) return { mark:'✓', color:'var(--green)', text:'好調です！新規ユーザーが増えています。' };
       return { mark:'→', color:'var(--amber)', text:'少しずつ増えています。Xでシェアを増やしましょう。' };
     }
     if (type === 'votes') {
-      if (val === 0) return { mark:'⚠', color:'var(--red)', text:'今日はまだ投票がありません。ユーザーへの声かけが必要かもしれません。' };
+      if (val === 0) return { mark:'⚠', color:'var(--red)', text:'今日はまだ投票がありません。' };
       const rate = usersTotal > 0 ? Math.round(val/usersTotal*100) : 0;
-      if (rate >= 30) return { mark:'✓', color:'var(--green)', text:'投票率'+rate+'%！ユーザーがアクティブに使ってくれています。' };
-      return { mark:'→', color:'var(--amber)', text:'投票率'+rate+'%。広場でユーザーを巻き込むと増える可能性があります。' };
+      if (rate >= 30) return { mark:'✓', color:'var(--green)', text:'投票率'+rate+'%！アクティブです。' };
+      return { mark:'→', color:'var(--amber)', text:'投票率'+rate+'%。広場で巻き込みましょう。' };
     }
     if (type === 'ideas') {
-      if (val === 0) return { mark:'⚠', color:'var(--amber)', text:'今日の上場はまだ0件。上場ボタンをより目立たせるといいかもしれません。' };
+      if (val === 0) return { mark:'⚠', color:'var(--amber)', text:'今日の上場はまだ0件。' };
       if (val >= 3) return { mark:'✓', color:'var(--green)', text:'アイデアが活発に上場されています！' };
-      return { mark:'→', color:'var(--amber)', text:'上場数はまずまず。新規ユーザーに上場を促しましょう。' };
+      return { mark:'→', color:'var(--amber)', text:'新規ユーザーに上場を促しましょう。' };
     }
     if (type === 'total') {
-      if (val >= 20) return { mark:'✓', color:'var(--green)', text:'ユーザーが着実に増えています。このペースを維持しましょう。' };
-      if (val >= 5) return { mark:'→', color:'var(--amber)', text:'まだ少ないですが、成長中です。クチコミとSNS拡散が鍵です。' };
-      return { mark:'⚠', color:'var(--red)', text:'まだ初期段階です。まずは10人を目標に、知人への声かけから始めましょう。' };
+      if (val >= 20) return { mark:'✓', color:'var(--green)', text:'ユーザーが着実に増えています。' };
+      if (val >= 5) return { mark:'→', color:'var(--amber)', text:'成長中。SNS拡散が鍵です。' };
+      return { mark:'⚠', color:'var(--red)', text:'まず10人を目標に、知人への声かけから。' };
     }
   }
 
   const a1 = advice('total', usersTotal);
-  const a2 = advice('new-users', usersToday, usersYday);
-  const a3 = advice('ideas', ideasToday.length, ideasYday);
-  const a4 = advice('votes', votesToday.length, votesYday);
+  const a2 = advice('new-users', usersToday);
+  const a3 = advice('ideas', ideasToday.length);
+  const a4 = advice('votes', votesToday.length);
   const t2 = trend(usersToday, usersYday);
   const t4 = trend(votesToday.length, votesYday);
 
@@ -2358,62 +1664,51 @@ async function loadHomeTab() {
   if (analysisEl) {
     analysisEl.innerHTML = `
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-        <div style="background:var(--bg2);border-radius:var(--r);padding:14px;border:1px solid var(--border)">
+        <div style="background:var(--bg);border-radius:var(--r);padding:14px;border:1px solid var(--border)">
           <div style="font-size:10px;font-weight:700;color:var(--ink3);margin-bottom:6px">👥 累計ユーザー</div>
           <div style="font-size:22px;font-weight:700;color:var(--amber);font-family:var(--mono);margin-bottom:4px">${usersTotal}<span style="font-size:11px;color:var(--ink3);font-family:var(--sans);margin-left:4px">人</span></div>
           <div style="font-size:11px;color:${a1.color};font-weight:600">${a1.mark} ${a1.text}</div>
         </div>
-        <div style="background:var(--bg2);border-radius:var(--r);padding:14px;border:1px solid var(--border)">
+        <div style="background:var(--bg);border-radius:var(--r);padding:14px;border:1px solid var(--border)">
           <div style="font-size:10px;font-weight:700;color:var(--ink3);margin-bottom:6px">🆕 今日の新規</div>
           <div style="font-size:22px;font-weight:700;color:var(--green);font-family:var(--mono);margin-bottom:4px">${usersToday}<span style="font-size:11px;color:var(--ink3);font-family:var(--sans);margin-left:4px">人</span></div>
           <div style="font-size:11px;color:${t2.color};margin-bottom:4px">${t2.icon} ${t2.text}</div>
           <div style="font-size:11px;color:${a2.color};font-weight:600">${a2.mark} ${a2.text}</div>
         </div>
-        <div style="background:var(--bg2);border-radius:var(--r);padding:14px;border:1px solid var(--border)">
+        <div style="background:var(--bg);border-radius:var(--r);padding:14px;border:1px solid var(--border)">
           <div style="font-size:10px;font-weight:700;color:var(--ink3);margin-bottom:6px">💡 今日の上場数</div>
           <div style="font-size:22px;font-weight:700;color:var(--green);font-family:var(--mono);margin-bottom:4px">${ideasToday.length}<span style="font-size:11px;color:var(--ink3);font-family:var(--sans);margin-left:4px">件</span></div>
           <div style="font-size:11px;color:var(--ink3);margin-bottom:4px">昨日 ${ideasYday}件</div>
           <div style="font-size:11px;color:${a3.color};font-weight:600">${a3.mark} ${a3.text}</div>
         </div>
-        <div style="background:var(--bg2);border-radius:var(--r);padding:14px;border:1px solid var(--border)">
+        <div style="background:var(--bg);border-radius:var(--r);padding:14px;border:1px solid var(--border)">
           <div style="font-size:10px;font-weight:700;color:var(--ink3);margin-bottom:6px">🗳 今日の投票数</div>
           <div style="font-size:22px;font-weight:700;color:var(--amber);font-family:var(--mono);margin-bottom:4px">${votesToday.length}<span style="font-size:11px;color:var(--ink3);font-family:var(--sans);margin-left:4px">票</span></div>
           <div style="font-size:11px;color:${t4.color};margin-bottom:4px">${t4.icon} ${t4.text}</div>
           <div style="font-size:11px;color:${a4.color};font-weight:600">${a4.mark} ${a4.text}</div>
         </div>
       </div>
-      <div style="background:var(--bg2);border-radius:var(--r);padding:14px;border:1px solid var(--border)">
+      <div style="background:var(--bg);border-radius:var(--r);padding:14px;border:1px solid var(--border)">
         <div style="font-size:10px;font-weight:700;color:var(--ink3);margin-bottom:8px">📊 全体の状況</div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
-          <div style="text-align:center">
-            <div style="font-size:18px;font-weight:700;color:var(--amber);font-family:var(--mono)">${ideasAll.length}</div>
-            <div style="font-size:10px;color:var(--ink3)">総上場数</div>
-          </div>
-          <div style="text-align:center">
-            <div style="font-size:18px;font-weight:700;color:var(--green);font-family:var(--mono)">${avgScore}</div>
-            <div style="font-size:10px;color:var(--ink3)">平均スコア</div>
-          </div>
-          <div style="text-align:center">
-            <div style="font-size:18px;font-weight:700;color:var(--amber);font-family:var(--mono)">${ideasPerUser}</div>
-            <div style="font-size:10px;color:var(--ink3)">1人あたり上場数</div>
-          </div>
+          <div style="text-align:center"><div style="font-size:18px;font-weight:700;color:var(--amber);font-family:var(--mono)">${ideasAll.length}</div><div style="font-size:10px;color:var(--ink3)">総上場数</div></div>
+          <div style="text-align:center"><div style="font-size:18px;font-weight:700;color:var(--green);font-family:var(--mono)">${avgScore}</div><div style="font-size:10px;color:var(--ink3)">平均スコア</div></div>
+          <div style="text-align:center"><div style="font-size:18px;font-weight:700;color:var(--amber);font-family:var(--mono)">${ideasPerUser}</div><div style="font-size:10px;color:var(--ink3)">1人あたり上場</div></div>
         </div>
         ${topIdea ? `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:11px;color:var(--ink3)">🏆 最高スコア: <strong style="color:var(--ink)">${topIdea.name?.slice(0,25)}</strong> — <span style="font-family:var(--mono);color:var(--green)">${parseFloat(topIdea.score).toFixed(1)}pt</span></div>` : ''}
       </div>
     `;
   }
 
-  // ユーザー名（Googleの表示名を優先）
   const {data: profiles} = await sb.from('user_profiles_view').select('id,display_name,x_username');
   const userMap = {};
   if(profiles) profiles.forEach(p=>userMap[p.id]=p.display_name||p.x_username||'匿名');
 
-  // アイデアカード（ホーム用・タップで詳細展開）
   function homeIdeaRow(idea, badge='') {
     const score = parseFloat(idea.score||0).toFixed(1);
     const scoreColor = score>=70?'var(--green)':score>=50?'var(--amber)':'var(--ink3)';
     const poster = userMap[idea.user_id]||'—';
-    const desc = idea.description || idea.desc || '';
+    const desc = idea.description || '';
     const detailId = 'home-idea-detail-' + idea.id;
     return `<div style="border-bottom:1px solid var(--border)">
       <div style="display:flex;align-items:center;gap:10px;padding:12px 0;cursor:pointer" onclick="document.getElementById('${detailId}').classList.toggle('open')">
@@ -2443,7 +1738,6 @@ async function loadHomeTab() {
     </div>`;
   }
 
-  // 今日の上場
   const hmEl = document.getElementById('home-listings-meta');
   if(hmEl) hmEl.textContent = ideasToday.length + '件';
   const hlEl = document.getElementById('home-listings-body');
@@ -2457,7 +1751,6 @@ async function loadHomeTab() {
     }
   }
 
-  // 今日票が入ったアイデア
   const votedMap = {};
   if(votesToday) votesToday.forEach(v=>{ votedMap[v.idea_id]=(votedMap[v.idea_id]||0)+1; });
   const ideaMap = {}; if(ideasAll) ideasAll.forEach(i=>ideaMap[i.id]=i);
@@ -2476,40 +1769,134 @@ async function loadHomeTab() {
     }
   }
 
-  // 広場インボックスを読み込む
   loadHirobaInbox();
-  // ヘルスチェックを非同期で実行（UIをブロックしない）
   runHealthCheck();
 }
 
+async function loadFunnel() {
+  const [
+    { count: lpOpened },
+    { count: lpClicked },
+    { count: registered },
+  ] = await Promise.all([
+    sb.from('user_events').select('id', { count: 'exact', head: true }).eq('utm_source', 'lp_pageview'),
+    sb.from('user_events').select('id', { count: 'exact', head: true }).eq('utm_source', 'lp'),
+    sb.from('profiles').select('id', { count: 'exact', head: true }).neq('id', ADMIN_ID),
+  ]);
+
+  const steps = [
+    { label: 'LPを開いた', count: lpOpened || 0, color: '#e8850a', desc: 'lp.htmlにアクセスした人' },
+    { label: 'あいぽを開いた', count: lpClicked || 0, color: '#d97706', desc: 'LPのボタンを押した人' },
+    { label: '登録した', count: registered || 0, color: '#1a7a4a', desc: 'ログインして登録した人' },
+  ];
+
+  const maxCount = steps[0].count || 1;
+  document.getElementById('funnel-body').innerHTML = steps.map((step, i) => {
+    const pct = maxCount > 0 ? Math.round(step.count / maxCount * 100) : 0;
+    const prev = i > 0 ? steps[i-1].count : null;
+    const dropPct = prev && prev > 0 ? Math.round((1 - step.count/prev) * 100) : null;
+    const dropHTML = dropPct !== null
+      ? `<div style="padding:4px 0 0 6px;font-family:var(--mono);font-size:10px;color:${dropPct > 70 ? 'var(--red)' : 'var(--green)'}">ここで${dropPct}%が離脱</div>`
+      : '';
+    return `
+      ${i > 0 ? dropHTML : ''}
+      <div class="funnel-step">
+        <div>
+          <div class="funnel-num">${step.count.toLocaleString()}</div>
+          <div style="font-family:var(--mono);font-size:8px;color:var(--ink3)">人</div>
+        </div>
+        <div class="funnel-info">
+          <div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px">${['①','②','③'][i]} ${step.label}</div>
+          <div class="funnel-bar">
+            <div class="funnel-bar-fill" style="width:${pct}%;background:${step.color}"></div>
+          </div>
+          <div style="font-size:10px;color:var(--ink3)">${step.desc}</div>
+        </div>
+        <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--ink3)">${pct}%</div>
+      </div>`;
+  }).join('');
+}
+
+async function loadTimeAnalysis() {
+  const { data } = await sb.from('user_events')
+    .select('time_on_page, created_at')
+    .eq('utm_source', 'lp_pageview')
+    .not('time_on_page', 'is', null)
+    .order('created_at', { ascending: false });
+
+  if (!data || data.length === 0) {
+    document.getElementById('time-analysis-body').innerHTML =
+      '<div class="empty"><div class="empty-ico">⏱</div><div class="empty-txt">まだデータがありません</div></div>';
+    return;
+  }
+
+  const times = data.map(d => d.time_on_page).filter(t => t !== null);
+  const avg = Math.round(times.reduce((a,b) => a+b, 0) / times.length);
+  const bounced = times.filter(t => t < 10).length;
+  const bounceRate = Math.round(bounced / times.length * 100);
+
+  const buckets = [
+    { label: '0〜10秒', desc: 'ほぼ離脱', min: 0, max: 10, color: '#c0392b' },
+    { label: '10〜30秒', desc: '少し見た', min: 10, max: 30, color: '#e8850a' },
+    { label: '30秒〜1分', desc: '読んでいる', min: 30, max: 60, color: '#d97706' },
+    { label: '1〜3分', desc: 'かなり読んだ', min: 60, max: 180, color: '#1a7a4a' },
+    { label: '3分以上', desc: '熱心に読んだ', min: 180, max: Infinity, color: '#15803d' },
+  ];
+  const bucketCounts = buckets.map(b => ({ ...b, count: times.filter(t => t >= b.min && t < b.max).length }));
+  const maxCount = Math.max(...bucketCounts.map(b => b.count), 1);
+  const fmtSec = s => s >= 60 ? Math.floor(s/60)+'分'+String(s%60).padStart(2,'0')+'秒' : s+'秒';
+
+  document.getElementById('time-analysis-body').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px">
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);padding:12px;text-align:center">
+        <div style="font-family:var(--mono);font-size:8px;color:var(--ink3);letter-spacing:.08em;margin-bottom:6px">平均滞在時間</div>
+        <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--ink)">${fmtSec(avg)}</div>
+      </div>
+      <div style="background:${bounceRate > 60 ? 'rgba(192,57,43,.06)' : 'var(--green-light)'};border:1px solid ${bounceRate > 60 ? 'rgba(192,57,43,.2)' : 'var(--green-border)'};border-radius:var(--rs);padding:12px;text-align:center">
+        <div style="font-family:var(--mono);font-size:8px;color:var(--ink3);letter-spacing:.08em;margin-bottom:6px">直帰率（10秒未満）</div>
+        <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:${bounceRate > 60 ? 'var(--red)' : 'var(--green)'}">${bounceRate}%</div>
+      </div>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);padding:12px;text-align:center">
+        <div style="font-family:var(--mono);font-size:8px;color:var(--ink3);letter-spacing:.08em;margin-bottom:6px">計測サンプル数</div>
+        <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--ink)">${times.length}件</div>
+      </div>
+    </div>
+    ${bucketCounts.map(b => `
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+        <div style="min-width:72px;font-size:11px;font-weight:700;color:var(--ink)">${b.label}</div>
+        <div style="flex:1">
+          <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:3px">
+            <div style="height:100%;width:${Math.round(b.count/maxCount*100)}%;background:${b.color};border-radius:3px;transition:width .8s"></div>
+          </div>
+          <div style="font-size:9px;color:var(--ink3)">${b.desc}</div>
+        </div>
+        <div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--ink);min-width:28px;text-align:right">${b.count}</div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--ink3);min-width:30px;text-align:right">${times.length > 0 ? Math.round(b.count/times.length*100) : 0}%</div>
+      </div>`).join('')}`;
+}
+
 function startRealtime() {
-  // ideasが追加されたらKPIを更新
   sb.channel('dashboard-realtime')
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'ideas' }, () => {
       if (tabLoaded['home']) loadHomeTab();
       if (tabLoaded['overview']) loadKPI();
-      
-      ['kpi-ideas','kpi-ideas-today','act-ideas-today','top-ideas-today'].forEach(id => flash(id, 'var(--green)'));
+      ['kpi-ideas','kpi-ideas-today','top-ideas-today'].forEach(id => flash(id, 'var(--green)'));
     })
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'votes' }, () => {
       if (tabLoaded['home']) loadHomeTab();
-      if (tabLoaded['overview']) loadKPI();
-      
-      ['kpi-votes-today','act-votes-today','top-votes-today'].forEach(id => flash(id, 'var(--amber)'));
+      if (tabLoaded['overview']) { loadKPI(); loadRecent(); }
+      ['kpi-votes-today','top-votes-today'].forEach(id => flash(id, 'var(--amber)'));
     })
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'user_events' }, () => {
       if (tabLoaded['analytics']) loadLPAnalytics();
     })
     .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
-      // ユーザー登録・創設メンバー購入などを即時反映
       if (tabLoaded['overview']) loadKPI();
-      if (tabLoaded['lp']) loadRevenue();
-      if (tabLoaded['users']) loadUserActivity();
+      if (tabLoaded['home']) loadRevenue();
       ['kpi-users','revenue-total','revenue-founder','kpi-founders'].forEach(id => flash(id, 'var(--green)'));
     })
     .subscribe();
 
-  // 現在タブだけ3分ごとに更新（5分→3分、かつ現在タブのみ）
   setInterval(() => {
     const currentTab = getCurrentTab();
     tabLoaded[currentTab] = true;
@@ -2527,17 +1914,13 @@ async function init() {
     if (session.user.id === ADMIN_ID) {
       document.getElementById('login-gate').style.display = 'none';
       document.getElementById('dashboard').style.display = 'block';
-      // 最初はLPタブだけ読み込む
       showTab('home');
-      
-      // Supabase Realtimeで主要カウンターをリアルタイム更新
       startRealtime();
     } else {
       document.getElementById('lg-err').style.display = 'block';
     }
   }
 }
-
 
 // ===== KPI MODAL =====
 async function showKpiModal(type) {
@@ -2548,47 +1931,55 @@ async function showKpiModal(type) {
   overlay.innerHTML = `<div class="dash-modal-box"><div class="dash-modal-header"><div class="dash-modal-title">${titles[type]}</div><div class="dash-modal-close" onclick="this.closest('.dash-modal-overlay').remove()">✕</div></div><div id="kpi-modal-body">読み込み中...</div></div>`;
   document.body.appendChild(overlay);
   const body = document.getElementById('kpi-modal-body');
-  // JSTの今日0時をUTCで計算
-  const jstMidnight = new Date(); jstMidnight.setHours(0,0,0,0);
-  const todayISO = new Date(jstMidnight.getTime() - 9*60*60*1000).toISOString();
+
   try {
     if (type === 'all-users') {
-      // profilesテーブルから直接取得
-      const { data, error: e1 } = await sb.from('user_profiles_view').select('*');
-      if(e1) throw e1;
-      body.innerHTML = (data&&data.length) ? data.map(u => `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
-        <div>
-          <div style="font-size:13px;font-weight:700;color:var(--ink)">${u.display_name||u.email||u.id?.slice(0,8)||'—'}</div>
-          <div style="font-size:10px;color:var(--ink3)">${u.email||''}</div>
-        </div>
-        <div style="margin-left:auto;text-align:right">
-          <div style="font-size:10px;color:var(--ink3)">${u.email||''}</div>
-          ${u.is_founder ? '<div style="font-size:9px;padding:1px 6px;background:#fef3c7;border:1px solid #fde68a;border-radius:4px;color:#854f0b;font-weight:700;display:inline-block;margin-top:2px">創設</div>' : ''}
-        </div>
-      </div>`).join('') : '<div style="padding:20px;text-align:center;font-size:12px;color:var(--ink3)">ユーザーはいません（RLSポリシーを確認してください）</div>';
+      // ★ user_profiles_view が取れない場合のフォールバックあり
+      const { data, error } = await sb.from('user_profiles_view').select('*');
+      if (error || !data || data.length === 0) {
+        // profiles から直接取得
+        const { data: pdata } = await sb.from('profiles').select('id, x_username, is_founder, is_pro, founder_number');
+        body.innerHTML = (pdata && pdata.length)
+          ? pdata.map(u => `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:700;color:var(--ink)">${u.x_username || '（未設定）'}</div>
+                <div style="font-size:10px;color:var(--ink3)">ID: ${u.id.slice(0,12)}...</div>
+              </div>
+              ${u.is_founder ? '<span style="font-size:9px;padding:2px 8px;background:#fef3c7;border:1px solid #fde68a;border-radius:4px;color:#854f0b;font-weight:700">👑 創設</span>' : ''}
+            </div>`).join('')
+          : '<div style="padding:20px;text-align:center;font-size:12px;color:var(--ink3)">ユーザーがいません</div>';
+      } else {
+        body.innerHTML = data.map(u => `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:700;color:var(--ink)">${u.display_name || u.x_username || '（未設定）'}</div>
+            <div style="font-size:10px;color:var(--ink3)">${u.email || 'メールなし'}</div>
+          </div>
+          ${u.is_founder ? '<span style="font-size:9px;padding:2px 8px;background:#fef3c7;border:1px solid #fde68a;border-radius:4px;color:#854f0b;font-weight:700">👑 創設</span>' : ''}
+        </div>`).join('');
+      }
 
     } else if (type === 'new-users') {
-      // 全件取得してJS側でフィルタ（タイムゾーン問題を回避）
-      const { data: allProfiles, error: e2 } = await sb.from('user_profiles_view').select('*');
+      // ★ 修正: profiles から直接取得（created_at が確実にある）
+      const { data: allProfiles } = await sb.from('profiles').select('id, x_username, is_founder, created_at');
       const jstNow = new Date();
       const jstStr = jstNow.getFullYear()+'-'+String(jstNow.getMonth()+1).padStart(2,'0')+'-'+String(jstNow.getDate()).padStart(2,'0');
       const data2 = (allProfiles||[]).filter(u => {
         if (!u.created_at) return false;
-        // UTCからJSTに変換して日付比較
         const d = new Date(u.created_at);
         const jst = new Date(d.getTime() + 9*60*60*1000);
         const ds = jst.getUTCFullYear()+'-'+String(jst.getUTCMonth()+1).padStart(2,'0')+'-'+String(jst.getUTCDate()).padStart(2,'0');
         return ds === jstStr;
       });
-      body.innerHTML = '<div style="font-size:10px;color:var(--ink3);padding:4px 0 8px">検索日: ' + jstStr + ' / 全ユーザー数: ' + (allProfiles||[]).length + ' / 今日: ' + data2.length + '</div>';
-      body.innerHTML += data2.length ? data2.map(u => `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
-        <div style="font-size:13px;font-weight:700;color:var(--ink)">${u.display_name||u.email||'—'}</div>
-        <div style="font-size:10px;color:var(--ink3);margin-left:auto">本日登録</div>
-      </div>`).join('') : '<div style="padding:12px;text-align:center;font-size:12px;color:var(--ink3)">今日の新規ユーザーはいません</div>';
+      body.innerHTML = `<div style="font-size:10px;color:var(--ink3);padding:4px 0 10px">${jstStr} 登録 / 全${(allProfiles||[]).length}人中 / 今日: <strong style="color:var(--green)">${data2.length}人</strong></div>`;
+      body.innerHTML += data2.length
+        ? data2.map(u => `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+            <div style="font-size:13px;font-weight:700;color:var(--ink)">${u.x_username || '（未設定）'}</div>
+            <div style="font-size:10px;color:var(--green);margin-left:auto">本日登録</div>
+          </div>`).join('')
+        : '<div style="padding:12px;text-align:center;font-size:12px;color:var(--ink3)">今日の新規ユーザーはいません</div>';
 
     } else if (type === 'today-ideas') {
-      // 全件取得してJS側でフィルタ
-      const { data: allIdeas, error: e3 } = await sb.from('ideas').select('id,name,ticker,genre,score,votes,created_at').order('created_at', { ascending: false });
+      const { data: allIdeas } = await sb.from('ideas').select('id,name,ticker,genre,score,votes,created_at').order('created_at', { ascending: false });
       const jstNow2 = new Date();
       const jstStr2 = jstNow2.getFullYear()+'-'+String(jstNow2.getMonth()+1).padStart(2,'0')+'-'+String(jstNow2.getDate()).padStart(2,'0');
       const data3 = (allIdeas||[]).filter(i => {
@@ -2598,21 +1989,24 @@ async function showKpiModal(type) {
         const ds = jst.getUTCFullYear()+'-'+String(jst.getUTCMonth()+1).padStart(2,'0')+'-'+String(jst.getUTCDate()).padStart(2,'0');
         return ds === jstStr2;
       });
-      body.innerHTML = '<div style="font-size:10px;color:var(--ink3);padding:4px 0 8px">検索日: ' + jstStr2 + ' / 全アイデア: ' + (allIdeas||[]).length + ' / 今日: ' + data3.length + '</div>';
-      body.innerHTML += data3.length ? data3.map(i => `<div style="padding:10px 0;border-bottom:1px solid var(--border)">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-          <span style="font-family:var(--mono);font-size:9px;font-weight:700;color:var(--amber)">${i.ticker||'—'}</span>
-          <div style="font-size:13px;font-weight:700;color:var(--ink);flex:1">${i.name}</div>
-          <div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--green)">${parseFloat(i.score||50).toFixed(1)}</div>
-        </div>
-        <div style="font-size:10px;color:var(--ink3)">${i.genre||'—'} · ${i.votes||0}票 · ${i.created_at}</div>
-      </div>`).join('') : '<div style="padding:12px;text-align:center;font-size:12px;color:var(--ink3)">今日の上場はありません</div>';
+      body.innerHTML = `<div style="font-size:10px;color:var(--ink3);padding:4px 0 10px">${jstStr2} 上場 / 今日: <strong style="color:var(--green)">${data3.length}件</strong></div>`;
+      body.innerHTML += data3.length
+        ? data3.map(i => `<div style="padding:10px 0;border-bottom:1px solid var(--border)">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+              <span style="font-family:var(--mono);font-size:9px;font-weight:700;color:var(--amber)">${i.ticker||'—'}</span>
+              <div style="font-size:13px;font-weight:700;color:var(--ink);flex:1">${i.name}</div>
+              <div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--green)">${parseFloat(i.score||50).toFixed(1)}</div>
+            </div>
+            <div style="font-size:10px;color:var(--ink3)">${i.genre||'—'} · ${i.votes||0}票</div>
+          </div>`).join('')
+        : '<div style="padding:12px;text-align:center;font-size:12px;color:var(--ink3)">今日の上場はありません</div>';
 
     } else if (type === 'today-votes') {
+      // ★ 修正: idea_votes → votes
       const jstNow3 = new Date();
       const jstStr3 = jstNow3.getFullYear()+'-'+String(jstNow3.getMonth()+1).padStart(2,'0')+'-'+String(jstNow3.getDate()).padStart(2,'0');
       const [vRes, iRes] = await Promise.allSettled([
-        sb.from('idea_votes').select('id,idea_id,user_id,created_at').order('created_at', { ascending: false }),
+        sb.from('votes').select('id,idea_id,user_id,created_at').order('created_at', { ascending: false }),
         sb.from('ideas').select('id,name,ticker')
       ]);
       const allVotes = vRes.value?.data || [];
@@ -2626,17 +2020,30 @@ async function showKpiModal(type) {
       });
       const ideaMap = {};
       ideas2.forEach(i => ideaMap[i.id] = i);
-      body.innerHTML = '<div style="font-size:10px;color:var(--ink3);padding:4px 0 8px">検索日: ' + jstStr3 + ' / 全投票: ' + allVotes.length + ' / 今日: ' + votes.length + '</div>';
-      body.innerHTML += votes.length ? votes.map(v => `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
-        <span style="font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:4px;padding:1px 6px">${ideaMap[v.idea_id]?.ticker||'—'}</span>
-        <div style="font-size:12px;color:var(--ink);flex:1">「${(ideaMap[v.idea_id]?.name||'不明').slice(0,22)}」</div>
-        <div style="font-size:9px;color:var(--ink3)">${v.created_at}</div>
-      </div>`).join('') : '<div style="padding:12px;text-align:center;font-size:12px;color:var(--ink3)">今日の投票はありません</div>';
+      body.innerHTML = `<div style="font-size:10px;color:var(--ink3);padding:4px 0 10px">${jstStr3} 投票 / 今日: <strong style="color:var(--amber)">${votes.length}票</strong></div>`;
+      body.innerHTML += votes.length
+        ? votes.map(v => `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+            <span style="font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:4px;padding:1px 6px">${ideaMap[v.idea_id]?.ticker||'—'}</span>
+            <div style="font-size:12px;color:var(--ink);flex:1">「${(ideaMap[v.idea_id]?.name||'不明').slice(0,22)}」</div>
+            <div style="font-size:9px;color:var(--ink3)">${fmtDate(v.created_at)}</div>
+          </div>`).join('')
+        : '<div style="padding:12px;text-align:center;font-size:12px;color:var(--ink3)">今日の投票はありません</div>';
     }
-  } catch(e) { body.innerHTML = '<div style="color:#e53e3e;font-size:12px;padding:12px">読み込み失敗: ' + e.message + '</div>'; console.error(e); }
+  } catch(e) {
+    body.innerHTML = '<div style="color:#e53e3e;font-size:12px;padding:12px">読み込み失敗: ' + e.message + '</div>';
+    console.error(e);
+  }
 }
 
 // ===== HIROBA INBOX =====
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:12px;font-weight:600;padding:8px 18px;border-radius:20px;z-index:9999;font-family:var(--sans)';
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2500);
+}
+
 async function loadHirobaInbox() {
   const body = document.getElementById('hiroba-inbox-body');
   const meta = document.getElementById('hiroba-inbox-meta');
@@ -2651,8 +2058,7 @@ async function loadHirobaInbox() {
     body.innerHTML = data.map(v => {
       const isUrgent = v.tag === 'バグ報告' && !v.ai_reply;
       const time = v.created_at ? new Date(v.created_at).toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
-      const safeId = v.id.replace(/-/g,'_');
-      return `<div class="voice-card ${isUrgent ? 'urgent' : ''}" id="vcard-${v.id}">${isUrgent ? '<div style="font-size:9px;font-weight:700;color:#e53e3e;margin-bottom:4px;font-family:var(--mono)">⚠ 未返信のバグ報告</div>' : ''}<div class="voice-card-meta"><div class="voice-card-name">${v.user_name||'匿名'}</div><div class="voice-card-tag">${v.tag||'その他'}</div><div class="voice-card-time">${time}</div></div><div class="voice-card-text">${v.text}</div>${v.ai_reply ? `<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:6px 10px;font-size:11px;color:#854f0b;margin-bottom:6px"><span style="font-family:var(--mono);font-size:8px;margin-right:4px">返信済</span>${v.ai_reply}</div>` : ''}<div class="voice-actions"><button class="voice-action-btn link-btn" onclick="sendLinkToVoice('${v.id}','${(v.user_name||'').replace(/'/g,"\'")}')">🔗 リンク送信</button><button class="voice-action-btn urgent-btn" onclick="markUrgent('${v.id}')">⚠ 緊急</button><button class="voice-action-btn" onclick="deleteVoice('${v.id}')">🗑 削除</button></div><div class="voice-reply-box" id="reply-box-${v.id}"><input class="voice-reply-inp" id="reply-inp-${v.id}" type="text" placeholder="運営として返信...（Enterで送信）" onkeydown="if(event.key===\'Enter\'&&!event.isComposing)sendAdminReply(\'${v.id}\')"><button class="voice-reply-send" onclick="sendAdminReply(\'${v.id}\')">送信</button></div></div>`;
+      return `<div class="voice-card ${isUrgent ? 'urgent' : ''}" id="vcard-${v.id}">${isUrgent ? '<div style="font-size:9px;font-weight:700;color:#e53e3e;margin-bottom:4px;font-family:var(--mono)">⚠ 未返信のバグ報告</div>' : ''}<div class="voice-card-meta"><div class="voice-card-name">${v.user_name||'匿名'}</div><div class="voice-card-tag">${v.tag||'その他'}</div><div class="voice-card-time">${time}</div></div><div class="voice-card-text">${v.text}</div>${v.ai_reply ? `<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:6px 10px;font-size:11px;color:#854f0b;margin-bottom:6px"><span style="font-family:var(--mono);font-size:8px;margin-right:4px">返信済</span>${v.ai_reply}</div>` : ''}<div class="voice-actions"><button class="voice-action-btn link-btn" onclick="sendLinkToVoice('${v.id}','${(v.user_name||'').replace(/'/g,"\\'")}')">🔗 リンク送信</button><button class="voice-action-btn urgent-btn" onclick="markUrgent('${v.id}')">⚠ 緊急</button><button class="voice-action-btn" onclick="deleteVoice('${v.id}')">🗑 削除</button></div><div class="voice-reply-box" id="reply-box-${v.id}"><input class="voice-reply-inp" id="reply-inp-${v.id}" type="text" placeholder="運営として返信...（Enterで送信）" onkeydown="if(event.key==='Enter'&&!event.isComposing)sendAdminReply('${v.id}')"><button class="voice-reply-send" onclick="sendAdminReply('${v.id}')">送信</button></div></div>`;
     }).join('');
   } catch(e) { if(body) body.innerHTML = '<div style="font-size:12px;color:#e53e3e">読み込み失敗: ' + e.message + '</div>'; }
 }
@@ -2692,7 +2098,6 @@ async function deleteVoice(id) {
 }
 
 init();
-
 </script>
 </body>
 </html>
