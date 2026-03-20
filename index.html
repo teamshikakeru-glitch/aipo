@@ -431,15 +431,15 @@ input[type=file] { display: none; }
 </div>
 
 <div class="screen" id="screen-hiroba">
-  <div class="sub-header"><div class="back-btn" onclick="goTo('feed')"><svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 5l-5 5 5 5"/></svg></div><div class="sub-title">広場</div><div style="font-size:10px;font-weight:700;color:#4ade80;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);border-radius:100px;padding:3px 10px;margin-left:auto">AI監視中</div></div>
-  <div style="padding:0 14px 4px;font-size:12px;color:var(--text3)">あなたの声が、あいぽの未来を作る。</div>
-  <div class="hiroba-body">
-    <div class="hiroba-ai-bar"><div class="hiroba-ai-dot"></div><div><div class="hiroba-ai-label">AI AGENT MONITORING</div><div class="hiroba-ai-text">ここに書かれた意見はAIエージェントが読んでいます。なんでも書いてください。</div></div></div>
-    <div style="display:flex;justify-content:center;margin:8px 0 16px">
-      <svg id="hiroba-postbox" width="90" height="130" viewBox="0 0 80 120" fill="none"><rect x="15" y="50" width="50" height="65" rx="8" fill="#cc2222"/><rect x="18" y="52" width="18" height="28" rx="4" fill="rgba(255,255,255,.1)"/><rect x="22" y="68" width="36" height="6" rx="3" fill="#1a0000"/><rect x="23" y="69" width="34" height="4" rx="2" fill="#2a0000"/><ellipse cx="40" cy="82" rx="15" ry="15" fill="#bb1111"/><text x="40" y="79" text-anchor="middle" font-size="6" fill="white" font-weight="bold" font-family="serif">郵便</text><text x="40" y="87" text-anchor="middle" font-size="5" fill="white" font-family="sans-serif">POST</text><ellipse cx="40" cy="50" rx="26" ry="8" fill="#dd2222"/><rect x="14" y="44" width="52" height="8" rx="4" fill="#dd2222"/><ellipse cx="40" cy="44" rx="26" ry="8" fill="#ee3333"/><rect x="14" y="38" width="52" height="8" rx="3" fill="#ee3333"/><ellipse cx="40" cy="38" rx="26" ry="7" fill="#ff4444"/><ellipse cx="40" cy="34" rx="12" ry="5" fill="#dd2222"/><ellipse cx="40" cy="32" rx="8" ry="4" fill="#cc1111"/></svg>
-    </div>
-    <div class="hiroba-form">
-      <div class="hiroba-form-label">VOICE YOUR OPINION</div>
+  <div class="sub-header">
+    <div class="back-btn" onclick="goTo('feed')"><svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 5l-5 5 5 5"/></svg></div>
+    <div class="sub-title">メッセージ</div>
+    <div id="msg-unread-badge" style="display:none;font-size:10px;font-weight:700;color:#fff;background:var(--red);border-radius:100px;padding:3px 10px;margin-left:auto"></div>
+  </div>
+  <div style="padding:0 14px 100px;">
+    <!-- 投稿フォーム -->
+    <div style="background:var(--surface);border-radius:16px;border:0.5px solid var(--border2);padding:16px;margin:14px 0;">
+      <div style="font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:.1em;margin-bottom:10px;">VOICE YOUR OPINION</div>
       <textarea class="hiroba-textarea" id="hiroba-input" rows="2" placeholder="こんな機能が欲しい、ここが使いづらい、なんでも..."></textarea>
       <div class="hiroba-tags">
         <div class="hiroba-tag sel" onclick="selHirobaTag(this)" data-tag="機能要望">機能要望</div>
@@ -450,6 +450,7 @@ input[type=file] { display: none; }
       <label class="hiroba-anon"><input type="checkbox" id="hiroba-anon-check" style="width:16px;height:16px;accent-color:var(--amber-mid)">匿名で投稿する</label>
       <button class="hiroba-send" onclick="sendHiroba()"><svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2"><path d="M3 10l14-7-7 14-2-6z"/></svg>送信する</button>
     </div>
+    <!-- X・開発依頼 -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
       <a href="https://x.com/aideaipo" target="_blank" rel="noopener" style="text-decoration:none;background:var(--surface);border-radius:14px;border:0.5px solid var(--border2);padding:14px;display:flex;flex-direction:column;gap:8px;">
         <div style="width:28px;height:28px;background:var(--ink,#1a1400);border-radius:8px;display:flex;align-items:center;justify-content:center;">
@@ -461,7 +462,7 @@ input[type=file] { display: none; }
         </div>
         <div style="font-size:11px;font-weight:700;color:var(--text);padding:6px;background:var(--bg);border-radius:8px;text-align:center;border:0.5px solid var(--border2);">@aideaipo →</div>
       </a>
-      <a href="/cdn-cgi/l/email-protection#2f5b4a4e42015c4746444e444a5d5a6f48424e4643014c4042" style="text-decoration:none;background:var(--surface);border-radius:14px;border:0.5px solid var(--border2);padding:14px;display:flex;flex-direction:column;gap:8px;">
+      <a href="mailto:team.shikakeru@gmail.com" style="text-decoration:none;background:var(--surface);border-radius:14px;border:0.5px solid var(--border2);padding:14px;display:flex;flex-direction:column;gap:8px;">
         <div style="width:28px;height:28px;background:var(--amber-bg);border-radius:8px;display:flex;align-items:center;justify-content:center;border:1px solid var(--amber-border);">
           <svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="var(--amber-mid)" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="5" width="16" height="12" rx="2"/><path d="M2 7l8 6 8-6"/></svg>
         </div>
@@ -472,8 +473,17 @@ input[type=file] { display: none; }
         <div style="font-size:11px;font-weight:700;color:var(--amber);padding:6px;background:var(--amber-bg);border-radius:8px;text-align:center;border:0.5px solid var(--amber-border);">相談する →</div>
       </a>
     </div>
-    <div class="hiroba-section-title">RECENT VOICES</div>
-    <div id="hiroba-list" style="background:var(--surface);border-radius:14px;border:0.5px solid var(--border2);overflow:hidden;"><div class="empty"><div class="empty-ico">📭</div><div class="empty-txt">まだ投稿がありません</div></div></div>
+    <!-- メッセージ一覧 -->
+    <div style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:.08em;margin-bottom:10px;">MESSAGES</div>
+    <div id="msg-list" style="background:var(--surface);border-radius:14px;border:0.5px solid var(--border2);overflow:hidden;">
+      <div style="padding:24px;text-align:center;font-size:12px;color:var(--text3);">読み込み中...</div>
+    </div>
+    <!-- 返信フォーム（運営からのメッセージがある場合に表示） -->
+    <div id="msg-reply-form" style="display:none;background:var(--surface);border-radius:14px;border:0.5px solid var(--border2);padding:14px;margin-top:10px;">
+      <div style="font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:.1em;margin-bottom:8px;">REPLY TO 運営</div>
+      <textarea id="msg-reply-input" rows="2" style="width:100%;border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:14px;color:var(--text);background:var(--surface2);font-family:var(--sans);resize:none;outline:none;line-height:1.6;" placeholder="返信を書く..."></textarea>
+      <button onclick="sendMsgReply()" style="width:100%;margin-top:8px;padding:12px;background:var(--ink,#1a1400);border:none;border-radius:100px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans);">送信する</button>
+    </div>
   </div>
 </div>
 
@@ -502,7 +512,7 @@ input[type=file] { display: none; }
 <div class="bottom-nav">
   <div class="nav-item active" id="nav-feed" onclick="goTo('feed')"><div class="nav-icon-box"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="6" height="6" rx="1.5"/><rect x="11" y="3" width="6" height="6" rx="1.5"/><rect x="3" y="11" width="6" height="6" rx="1.5"/><rect x="11" y="11" width="6" height="6" rx="1.5"/></svg></div>マーケット</div>
   <div class="nav-item" id="nav-post-tab" onclick="goTo('post')"><div class="nav-icon-box" style="background:var(--amber-mid);border-color:var(--amber-mid);box-shadow:0 2px 8px rgba(232,133,10,.35)"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2.5"><path d="M10 15V5M5 9l5-5 5 5"/></svg></div>上場</div>
-  <div class="nav-item" id="nav-hiroba" onclick="goTo('hiroba')"><div class="nav-icon-box"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M2 5h16M2 10h10M2 15h7"/><circle cx="16" cy="15" r="2.5"/><path d="M16 13v-3"/></svg></div>広場</div>
+  <div class="nav-item" id="nav-hiroba-btn" onclick="goTo('hiroba')"><div class="nav-icon-box"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M2 5h16M2 10h10M2 15h7"/><circle cx="16" cy="15" r="2.5"/><path d="M16 13v-3"/></svg></div>広場</div>
   <div class="nav-item" id="nav-portfolio" onclick="goTo('portfolio')"><div class="nav-icon-box"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3L3 7v10h14V7L10 3z"/></svg></div>ホーム</div>
 </div>
 
@@ -538,7 +548,7 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     sessionStorage.setItem('aipo_utm_source', params.get('utm_source') || '');
     sessionStorage.setItem('aipo_utm_medium', params.get('utm_medium') || '');
     sessionStorage.setItem('aipo_utm_campaign', params.get('utm_campaign') || '');
-    sessionStorage.setItem('aipo_idea_id', params.get('idea') || '');
+    sessionStorage.setItem('aipo_idea_id', params.get('id') || params.get('idea') || '');
     sessionStorage.setItem('aipo_referrer_saved', '1');
   }
 })();
@@ -593,6 +603,15 @@ async function fetchIdeas() {
     }));
     if (currentUser) { ideas.forEach(idea => { if (idea.userId === currentUser.id) myIdeas.add(idea.id); }); }
     renderFeed();
+    // URLパラメータから銘柄を開く
+    const _sid = sessionStorage.getItem('aipo_idea_id');
+    if (_sid) {
+      sessionStorage.removeItem('aipo_idea_id');
+      setTimeout(() => {
+        const _idea = ideas.find(i => i.id === _sid);
+        if (_idea) showDetail(_sid);
+      }, 300);
+    }
   } catch (e) { console.error('fetchIdeas error:', e); renderFeed(); }
 }
 
@@ -967,7 +986,7 @@ function renderPortfolio() {
   else if (greetEl && currentUser) greetEl.textContent = 'おかえり';
   const subBadge = document.getElementById('portfolio-sub-badge');
   if (subBadge && currentUser?.isFounder) { const num = currentUser.founderNumber === 0 ? '00' : String(currentUser.founderNumber).padStart(2,'0'); subBadge.textContent = '創設メンバー #' + num; }
-  else if (subBadge) subBadge.textContent = 'あなたのアイデア活動';
+  else if (subBadge) subBadge.textContent = '応援銘柄';
   const votesDisp = document.getElementById('portfolio-votes-display'); if (votesDisp) votesDisp.textContent = votesLeft;
   const insightDisp = document.getElementById('portfolio-insight-score'); if (insightDisp) insightDisp.textContent = insightScore;
   const badgeEl = document.getElementById('portfolio-founder-badge');
@@ -988,7 +1007,7 @@ function renderPortfolio() {
   if (combined.length === 0) { el.innerHTML = `<div style="padding:32px 20px;text-align:center"><div style="font-size:28px;margin-bottom:10px">💡</div><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">まだ活動がありません</div><div style="font-size:11px;color:var(--text3);line-height:1.7">マーケットでアイデアを応援したり<br>「＋」から上場してみましょう</div></div>`; return; }
   const certs = loadCerts();
   const certIdeaIds = new Set(certs.map(c => c.ideaId));
-  el.innerHTML = `<div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.07em;margin-bottom:8px">アイデア活動</div><div style="background:var(--surface);border-radius:var(--r-xl);overflow:hidden;margin-bottom:12px">${combined.map(idea => {
+  el.innerHTML = `<div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.07em;margin-bottom:8px">応援銘柄</div><div style="background:var(--surface);border-radius:var(--r-xl);overflow:hidden;margin-bottom:12px">${combined.map(idea => {
     const delta = idea.score - idea.baseScore; const ds = (delta>=0?'+':'') + delta.toFixed(1); const sc = delta>0.3?'var(--green-light)':delta<-0.3?'var(--red)':'var(--text)';
     const isHot = idea.votes >= HOT_THRESHOLD; const isMine = myIdeas.has(idea.id); const hasCert = certIdeaIds.has(idea.id);
     return `<div onclick="showDetail('${idea.id}')" style="display:flex;align-items:center;padding:11px 14px;border-bottom:0.5px solid var(--border);gap:8px;cursor:pointer"><div style="min-width:40px"><div style="font-family:var(--mono);font-size:15px;font-weight:700;color:${sc};line-height:1">${idea.score.toFixed(1)}</div><div style="font-family:var(--mono);font-size:7px;color:var(--green-light);background:rgba(34,168,95,.1);padding:1px 3px;border-radius:2px;margin-top:2px;display:inline-block">${ds}</div></div><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:4px;margin-bottom:1px;flex-wrap:wrap"><span style="font-family:var(--mono);font-size:9px;color:var(--text3)">${idea.ticker}</span>${isMine?`<span style="font-size:8px;color:var(--text3);background:var(--surface2);border:1px solid var(--border2);border-radius:3px;padding:1px 4px">自分</span>`:''}${hasCert?`<span style="font-size:8px;color:#854f0b;background:#fef9f0;border:1px solid #fde68a;border-radius:3px;padding:1px 4px">🎫</span>`:''}${isHot?`<span style="font-size:8px;color:var(--amber);background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:3px;padding:1px 4px">注目</span>`:''}</div><div style="font-size:12px;font-weight:700;color:var(--text);overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${idea.name}</div><div style="font-size:9px;color:var(--text3);margin-top:1px">${idea.votes}票</div></div><svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="var(--border2)" stroke-width="2"><path d="M7 5l5 5-5 5"/></svg></div>`;
@@ -1874,6 +1893,90 @@ async function sendHiroba(){
     showToast('届きました！');
   },2000);
 }
+
+async function loadMessages() {
+  const list = document.getElementById('msg-list');
+  const badge = document.getElementById('msg-unread-badge');
+  if (!list) return;
+  if (!currentUser) {
+    list.innerHTML = '<div style="padding:20px;text-align:center;font-size:12px;color:var(--text3);">ログインするとメッセージが届きます</div>';
+    return;
+  }
+  try {
+    const { data } = await sb.from('messages')
+      .select('*')
+      .or(`to_id.eq.${currentUser.id},is_announcement.eq.true`)
+      .order('created_at', { ascending: false })
+      .limit(30);
+
+    if (!data || !data.length) {
+      list.innerHTML = '<div style="padding:24px;text-align:center;font-size:12px;color:var(--text3);">まだメッセージはありません</div>';
+      return;
+    }
+
+    const unread = data.filter(m => !m.is_read).length;
+    if (unread > 0) {
+      badge.textContent = unread + '件未読';
+      badge.style.display = 'block';
+      // 既読にする
+      await sb.from('messages').update({ is_read: true })
+        .or(`to_id.eq.${currentUser.id},is_announcement.eq.true`)
+        .eq('is_read', false);
+    } else {
+      badge.style.display = 'none';
+    }
+
+    // 返信フォーム表示（個別メッセージがあれば）
+    const hasPersonal = data.some(m => m.to_id === currentUser.id);
+    document.getElementById('msg-reply-form').style.display = hasPersonal ? 'block' : 'none';
+
+    list.innerHTML = data.map(m => {
+      const mins = Math.floor((Date.now() - new Date(m.created_at).getTime()) / 60000);
+      const t = mins < 1 ? 'たった今' : mins < 60 ? mins + '分前' : Math.floor(mins/60) + '時間前';
+      const isPersonal = m.to_id === currentUser.id;
+      const isUnread = !m.is_read;
+      return `<div style="display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-bottom:0.5px solid var(--border);${isUnread?'background:var(--amber-bg)':''}">
+        <div style="width:34px;height:34px;border-radius:50%;background:${isPersonal?'var(--amber-bg)':'var(--green-bg)'};border:0.5px solid ${isPersonal?'var(--amber-border)':'var(--green-border)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${isPersonal?'var(--amber-mid)':'var(--green-light)'}" stroke-width="1.8" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;">
+            <span style="font-size:12px;font-weight:700;color:var(--text);">あいぽ運営</span>
+            <span style="font-size:9px;padding:1px 6px;border-radius:3px;background:${isPersonal?'var(--amber-bg)':'var(--green-bg)'};color:${isPersonal?'var(--amber)':'var(--green)'};border:0.5px solid ${isPersonal?'var(--amber-border)':'var(--green-border)'};">${isPersonal?'個別':'全体'}</span>
+            <span style="font-size:10px;color:var(--text3);margin-left:auto;">${t}</span>
+            ${isUnread?'<div style="width:7px;height:7px;border-radius:50%;background:var(--amber-mid);"></div>':''}
+          </div>
+          <div style="font-size:13px;color:var(--text);line-height:1.65;">${m.body}</div>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    list.innerHTML = '<div style="padding:20px;text-align:center;font-size:12px;color:var(--text3);">読み込みに失敗しました</div>';
+  }
+}
+
+async function sendMsgReply() {
+  const input = document.getElementById('msg-reply-input');
+  if (!input || !input.value.trim()) return;
+  if (!currentUser) { showToast('ログインが必要です'); return; }
+  const body = input.value.trim();
+  const ADMIN_ID = '7f3162ec-c281-435f-8e8e-3b6d65b8b1c9';
+  try {
+    const { error } = await sb.from('messages').insert({
+      from_id: currentUser.id,
+      to_id: ADMIN_ID,
+      body,
+      is_announcement: false,
+      is_read: false,
+    });
+    if (error) throw error;
+    input.value = '';
+    showToast('送信しました');
+  } catch(e) {
+    showToast('送信に失敗しました');
+  }
+}
+
 async function loadHirobaList(){
   const list=document.getElementById('hiroba-list');
   if(!list)return;
@@ -2001,7 +2104,7 @@ init();
   if (!ideaId) return;
   const tryOpen = (n) => {
     if (n > 20) return;
-    const idea = (window.ideas||[]).find(i => i.id === ideaId);
+    const idea = (ideas||[]).find(i => i.id === ideaId);
     if (idea) { showDetail(ideaId); }
     else { setTimeout(() => tryOpen(n+1), 300); }
   };
