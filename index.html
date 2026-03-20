@@ -538,7 +538,7 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     sessionStorage.setItem('aipo_utm_source', params.get('utm_source') || '');
     sessionStorage.setItem('aipo_utm_medium', params.get('utm_medium') || '');
     sessionStorage.setItem('aipo_utm_campaign', params.get('utm_campaign') || '');
-    sessionStorage.setItem('aipo_idea_id', params.get('idea') || '');
+    sessionStorage.setItem('aipo_idea_id', params.get('id') || params.get('idea') || '');
     sessionStorage.setItem('aipo_referrer_saved', '1');
   }
 })();
@@ -593,6 +593,15 @@ async function fetchIdeas() {
     }));
     if (currentUser) { ideas.forEach(idea => { if (idea.userId === currentUser.id) myIdeas.add(idea.id); }); }
     renderFeed();
+    // URLパラメータから銘柄を開く
+    const _sid = sessionStorage.getItem('aipo_idea_id');
+    if (_sid) {
+      sessionStorage.removeItem('aipo_idea_id');
+      setTimeout(() => {
+        const _idea = ideas.find(i => i.id === _sid);
+        if (_idea) showDetail(_sid);
+      }, 300);
+    }
   } catch (e) { console.error('fetchIdeas error:', e); renderFeed(); }
 }
 
@@ -2001,7 +2010,7 @@ init();
   if (!ideaId) return;
   const tryOpen = (n) => {
     if (n > 20) return;
-    const idea = (window.ideas||[]).find(i => i.id === ideaId);
+    const idea = (ideas||[]).find(i => i.id === ideaId);
     if (idea) { showDetail(ideaId); }
     else { setTimeout(() => tryOpen(n+1), 300); }
   };
