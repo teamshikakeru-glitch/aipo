@@ -1863,6 +1863,24 @@ async function shareCertificate(ideaId, encodedName, ticker) {
 const COLL_KEY = 'aipo-certificates';
 let _lastCertHTML = ''; // シェア用に保存
 
+
+function cleanupDuplicateCerts() {
+  try {
+    const all = JSON.parse(localStorage.getItem('aipo-certificates') || '[]');
+    const seen = new Set();
+    const cleaned = all.filter(c => {
+      const key = c.ideaId || c.id;
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+    if (cleaned.length !== all.length) {
+      localStorage.setItem('aipo-certificates', JSON.stringify(cleaned));
+      console.log('Cleaned up', all.length - cleaned.length, 'duplicate certs');
+    }
+  } catch(e) {}
+}
+
 function loadCerts() {
   try {
     const all = JSON.parse(localStorage.getItem(COLL_KEY) || '[]');
@@ -2172,7 +2190,7 @@ async function init() {
     if (!gsDone) { document.getElementById('guide-screen').classList.add('active'); }
     else if (!hasSession) { document.getElementById('login-screen').classList.add('active'); }
   }, 800);
-  if (hasSession) { await checkProStatus(); await loadVotedIds(); syncCertsFromCloud(); await loadInsightScore(); await loadDividends(); }
+  cleanupDuplicateCerts(); if (hasSession) { await checkProStatus(); await loadVotedIds(); syncCertsFromCloud(); await loadInsightScore(); await loadDividends(); }
   initEmojiPicker(); setViewMode(viewMode); checkUpgradeSuccess(); checkChargeSuccess();
   await fetchIdeas(); startRealtime(); updatePlanBadge();
   if (hasSession) { const founderEl = document.getElementById('founder-remaining'); if (founderEl) loadFounderCount(); }
