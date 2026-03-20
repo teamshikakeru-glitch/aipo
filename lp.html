@@ -611,7 +611,57 @@ footer{
 }
 </style>
 </head>
+<style>
+#splash{
+  position:fixed;inset:0;
+  background:#fff;
+  z-index:9999;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:40px;
+  pointer-events:none;
+  transition:opacity .6s ease;
+}
+#splash.hide{opacity:0}
+.sp-copy{
+  font-family:'Noto Sans JP',sans-serif;
+  font-size:clamp(28px,8vw,48px);
+  font-weight:900;
+  line-height:1.25;
+  letter-spacing:-.025em;
+  color:#111;
+  text-align:center;
+  margin-bottom:32px;
+  opacity:0;
+  transform:translateY(10px);
+  animation:spIn .5s .1s cubic-bezier(.16,1,.3,1) forwards;
+}
+.sp-logo{
+  font-family:'Space Mono',monospace;
+  font-size:14px;
+  font-weight:700;
+  color:#111;
+  letter-spacing:.08em;
+  opacity:0;
+  animation:spIn .4s .45s ease forwards;
+}
+.sp-logo em{font-style:normal;color:#d97706}
+.sp-bar{
+  position:absolute;bottom:0;left:0;height:2px;
+  background:#111;width:0%;
+  animation:spProgress 1.8s .1s cubic-bezier(.4,0,.2,1) forwards;
+}
+@keyframes spIn{to{opacity:1;transform:translateY(0)}}
+@keyframes spProgress{from{width:0%}to{width:100%}}
+</style>
 <body>
+<div id="splash">
+  <div class="sp-copy">
+    あなたの<br>ひらめきを、<br>上場しろ。
+  </div>
+  <div class="sp-logo">あい<em>ぽ</em></div>
+  <div class="sp-bar"></div>
+</div>
 
 <!-- NAV -->
 <nav>
@@ -1002,6 +1052,19 @@ footer{
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+// ── スプラッシュ ──
+(function(){
+  var sp=document.getElementById('splash');
+  if(!sp)return;
+  // スクロール・タップで即スキップ可
+  function dismiss(){
+    sp.classList.add('hide');
+    setTimeout(function(){sp.style.display='none';},650);
+  }
+  setTimeout(dismiss, 2000);
+  sp.addEventListener('click',dismiss,{once:true});
+})();
+
 // ── フォールバック表示保証 ──
 setTimeout(()=>{
   document.querySelectorAll('.fade-up:not(.in)').forEach(el=>{
