@@ -1985,6 +1985,20 @@ async function loadHirobaList(){
   }catch(e){list.innerHTML='<div class="empty"><div class="empty-txt">読み込みに失敗しました</div></div>';}
 }
 
+
+// ===== PRICING SHEET =====
+function showPricingSheet() {
+  const existing = document.getElementById('pricing-sheet');
+  if (existing) { existing.remove(); return; }
+  const sheet = document.createElement('div');
+  sheet.id = 'pricing-sheet';
+  sheet.style.cssText = 'position:fixed;inset:0;z-index:500;display:flex;align-items:flex-end;justify-content:center';
+  const planLabel = currentUser?.isFounder ? '👑 創設メンバー' : (isPro ? 'PRO' : '無料プラン');
+  const isFounder = currentUser?.isFounder;
+  sheet.innerHTML = `<div style="position:absolute;inset:0;background:rgba(0,0,0,.45)" onclick="document.getElementById('pricing-sheet').remove()"></div><div style="position:relative;background:var(--surface);border-radius:24px 24px 0 0;padding:20px 20px 40px;width:100%;max-width:390px;max-height:88vh;overflow-y:auto"><div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px"></div><div style="font-family:var(--mono);font-size:10px;color:var(--amber-mid);letter-spacing:.1em;font-weight:700;margin-bottom:4px">現在のプラン</div><div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:16px">${planLabel}</div>${isFounder ? '<div style="background:var(--amber-bg);border:1.5px solid var(--amber-border);border-radius:14px;padding:14px 16px;margin-bottom:10px"><div style="font-size:11px;font-weight:700;color:var(--amber);margin-bottom:8px">👑 創設メンバー特典</div><div style="font-size:13px;color:var(--text2);line-height:1.8">✓ 上場・コメント無制限<br>✓ 1日4票<br>✓ 創設メンバーバッジ永久<br>✓ 番号付き称号</div></div>' : !isPro ? '<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:10px"><div style="background:var(--amber-bg);border:2px solid var(--amber-mid);border-radius:14px;padding:14px 16px;position:relative"><div style="position:absolute;top:-8px;left:14px;background:var(--amber-mid);color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:100px">おすすめ</div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:14px;font-weight:700;color:var(--text)">👑 創設メンバー</div><div style="font-size:18px;font-weight:700;color:var(--amber)">¥980</div></div><div style="font-size:12px;color:var(--text2);line-height:1.8;margin-bottom:10px">✓ 上場・コメント無制限<br>✓ 1日4票<br>✓ バッジ永久付与<br>✓ 買い切り・月額なし</div><button onclick="upgradeFounder()" style="width:100%;padding:12px;background:var(--amber-mid);border:none;border-radius:100px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">創設メンバーになる</button></div><div style="background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:14px 16px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:14px;font-weight:700;color:var(--text)">Pro</div><div style="font-size:16px;font-weight:700;color:var(--text)">¥300<span style="font-size:11px;font-weight:400;color:var(--text3)">/月</span></div></div><div style="font-size:12px;color:var(--text2);line-height:1.8;margin-bottom:10px">✓ 上場・コメント無制限<br>✓ 1日4票<br>✓ いつでも解約可</div><button onclick="upgradePro()" style="width:100%;padding:12px;background:var(--ink);border:none;border-radius:100px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">Proにアップグレード</button></div></div>' : '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:10px"><div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:8px">Pro 特典</div><div style="font-size:13px;color:var(--text2);line-height:1.8">✓ 上場・コメント無制限<br>✓ 1日4票</div></div>'}<div onclick="window.open('https://aipo-tau.vercel.app/pricing.html','_blank')" style="text-align:center;padding:12px;font-size:13px;color:var(--amber);cursor:pointer;font-weight:600">料金・ルール詳細を見る →</div></div>`;
+  document.body.appendChild(sheet);
+}
+
 init();
 </script>
 </body>
