@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>料金・ルール — あいぽ</title>
+<style>
+:root {
+  --surface: #ffffff;
+  --bg: #f7f4ef;
+  --ink: #1a1916;
+  --ink2: #4a4740;
+  --ink3: #9a9590;
+  --amber: #bf6d00;
+  --amber-mid: #e8850a;
+  --amber-bg: #fffbf5;
+  --amber-border: #fde8b8;
+  --green: #1a7a4a;
+  --green-bg: #f0faf5;
+  --border: #e8e3db;
+  --r: 16px;
+  --sans: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --mono: 'SF Mono', 'Fira Code', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); background: var(--bg); color: var(--ink); -webkit-font-smoothing: antialiased; }
+
+/* Nav */
+.nav { position: sticky; top: 0; z-index: 50; background: rgba(247,244,239,.9); backdrop-filter: blur(12px); border-bottom: 0.5px solid var(--border); padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; }
+.nav-logo { font-size: 16px; font-weight: 700; color: var(--ink); text-decoration: none; }
+.nav-back { font-size: 13px; color: var(--amber); text-decoration: none; font-weight: 600; }
+
+.wrap { max-width: 640px; margin: 0 auto; padding: 32px 20px 80px; }
+
+/* Hero */
+.hero { text-align: center; margin-bottom: 40px; }
+.hero-label { font-family: var(--mono); font-size: 10px; color: var(--amber); letter-spacing: .1em; font-weight: 700; margin-bottom: 10px; }
+.hero-title { font-size: 28px; font-weight: 700; color: var(--ink); line-height: 1.3; letter-spacing: -.02em; margin-bottom: 10px; }
+.hero-sub { font-size: 14px; color: var(--ink3); line-height: 1.7; }
+
+/* Section */
+.sec-title { font-family: var(--mono); font-size: 10px; color: var(--ink3); letter-spacing: .08em; font-weight: 700; margin: 32px 0 12px; text-transform: uppercase; }
+
+/* Plan cards */
+.plan-cards { display: flex; flex-direction: column; gap: 12px; margin-bottom: 8px; }
+.plan-card { background: var(--surface); border-radius: var(--r); border: 1px solid var(--border); padding: 20px; }
+.plan-card.founder { border: 2px solid var(--amber-mid); background: var(--amber-bg); }
+.plan-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.plan-name { font-size: 16px; font-weight: 700; color: var(--ink); }
+.plan-tag { font-family: var(--mono); font-size: 9px; font-weight: 700; padding: 3px 8px; border-radius: 100px; }
+.plan-tag.free { background: #f0f0f0; color: var(--ink3); }
+.plan-tag.pro { background: var(--amber-mid); color: #fff; }
+.plan-tag.founder { background: var(--amber); color: #fff; }
+.plan-price { font-size: 26px; font-weight: 700; color: var(--amber); letter-spacing: -.02em; margin-bottom: 4px; }
+.plan-price span { font-size: 12px; color: var(--ink3); font-weight: 400; }
+.plan-desc { font-size: 12px; color: var(--ink3); margin-bottom: 14px; line-height: 1.6; }
+.plan-feats { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+.plan-feat { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink2); }
+.plan-feat svg { width: 14px; height: 14px; flex-shrink: 0; }
+.plan-feat.ok svg { stroke: var(--green); }
+.plan-feat.no { color: var(--ink3); }
+.plan-feat.no svg { stroke: var(--ink3); }
+.plan-btn { display: block; text-align: center; margin-top: 16px; padding: 13px; border-radius: 100px; font-size: 14px; font-weight: 700; text-decoration: none; cursor: pointer; }
+.plan-btn.free { background: var(--bg); border: 1px solid var(--border); color: var(--ink); }
+.plan-btn.pro { background: var(--amber-mid); color: #fff; }
+.plan-btn.founder { background: var(--amber); color: #fff; }
+
+/* Compare table */
+.compare { background: var(--surface); border-radius: var(--r); border: 1px solid var(--border); overflow: hidden; margin-bottom: 8px; }
+.compare table { width: 100%; border-collapse: collapse; }
+.compare th { font-family: var(--mono); font-size: 9px; font-weight: 700; color: var(--ink3); letter-spacing: .06em; padding: 10px 12px; text-align: center; border-bottom: 1px solid var(--border); background: var(--bg); }
+.compare th:first-child { text-align: left; }
+.compare td { padding: 11px 12px; font-size: 13px; color: var(--ink2); text-align: center; border-bottom: 0.5px solid var(--border); }
+.compare td:first-child { text-align: left; font-weight: 600; color: var(--ink); }
+.compare tr:last-child td { border-bottom: none; }
+.compare .ok { color: var(--green); font-weight: 700; }
+.compare .no { color: var(--ink3); }
+.compare .hi { color: var(--amber); font-weight: 700; }
+
+/* Rules */
+.rule-card { background: var(--surface); border-radius: var(--r); border: 1px solid var(--border); padding: 20px; margin-bottom: 10px; }
+.rule-num { font-family: var(--mono); font-size: 9px; color: var(--amber); font-weight: 700; margin-bottom: 6px; }
+.rule-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
+.rule-body { font-size: 13px; color: var(--ink2); line-height: 1.8; }
+.rule-body strong { color: var(--ink); }
+
+/* Score */
+.score-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.score-chip { background: var(--amber-bg); border: 1px solid var(--amber-border); border-radius: 8px; padding: 8px 12px; text-align: center; flex: 1; min-width: 80px; }
+.score-chip-v { font-family: var(--mono); font-size: 16px; font-weight: 700; color: var(--amber); }
+.score-chip-l { font-size: 10px; color: var(--ink3); margin-top: 2px; }
+
+/* FAQ */
+.faq-item { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); margin-bottom: 8px; overflow: hidden; }
+.faq-q { padding: 16px 20px; font-size: 14px; font-weight: 700; color: var(--ink); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+.faq-q .ic { font-size: 18px; color: var(--ink3); transition: transform .2s; }
+.faq-item.open .faq-q .ic { transform: rotate(45deg); }
+.faq-a { display: none; padding: 0 20px 16px; font-size: 13px; color: var(--ink2); line-height: 1.8; }
+.faq-item.open .faq-a { display: block; }
+
+/* CTA */
+.cta { background: var(--amber-bg); border: 1.5px solid var(--amber-border); border-radius: var(--r); padding: 24px 20px; text-align: center; margin-top: 32px; }
+.cta-title { font-size: 18px; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+.cta-sub { font-size: 13px; color: var(--ink3); margin-bottom: 16px; line-height: 1.6; }
+.cta-btns { display: flex; flex-direction: column; gap: 10px; }
+.cta-btn { display: block; padding: 14px; border-radius: 100px; font-size: 14px; font-weight: 700; text-decoration: none; text-align: center; }
+.cta-btn.main { background: var(--amber-mid); color: #fff; }
+.cta-btn.sub { background: var(--surface); border: 1px solid var(--border); color: var(--ink); }
+
+/* Note */
+.note { font-size: 11px; color: var(--ink3); line-height: 1.7; padding: 12px 14px; background: var(--bg); border-radius: 8px; margin-top: 10px; }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-logo">あいぽ</a>
+  <a href="/" class="nav-back">← アプリに戻る</a>
+</nav>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="hero-label">PRICING & RULES</div>
+    <div class="hero-title">料金と、使い方のルール</div>
+    <div class="hero-sub">あいぽは無料から始められます。<br>気に入ったらアップグレードしてください。</div>
+  </div>
+
+  <!-- プラン -->
+  <div class="sec-title">プラン一覧</div>
+  <div class="plan-cards">
+
+    <div class="plan-card founder">
+      <div class="plan-top">
+        <div class="plan-name">👑 創設メンバー</div>
+        <div class="plan-tag founder">先着100名限定</div>
+      </div>
+      <div class="plan-price">¥980 <span>買い切り・永久</span></div>
+      <div class="plan-desc">一度支払えば月額なし。Pro機能が全て永久に使えます。<br>バッジと番号（#001〜）が永遠に残ります。</div>
+      <ul class="plan-feats">
+        <li class="plan-feat ok"><svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>アイデア上場 <strong style="margin-left:4px">無制限</strong></li>
+        <li class="plan-feat ok"><svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>応援票 1日<strong style="margin-left:4px">4票</strong>（+1）</li>
+        <li class="plan-feat ok"><svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>コメント<strong style="margin-left:4px">無制限</strong></li>
+        <li class="plan-feat ok"><svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>👑 創設メンバーバッジ（永久）</li>
+        <li class="plan-feat ok"><svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>#番号付き称号（#001〜#100）</li>
+        <li class="plan-feat ok"><svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>新機能の先行アクセス</li>
+      </ul>
+      <a href="https://buy.stripe.com/dRmfZj2T71I20Ew8bnfbq01" class="plan-btn founder">創設メンバーになる（¥980）</a>
+    </div>
+
+    <div class="plan-card">
+      <div class="plan-top">
+        <div class="plan-name">あいぽ Pro</div>
+        <div class="plan-tag pro">PRO</div>
+      </div>
+      <div class="plan-price">¥300 <span>/月 · いつでも解約可</span></div>
+      <div class="plan-desc">月額サブスク。解約すればすぐに無料プランに戻ります。</div>
+      <ul class="plan-feats">
+        <li class="plan-feat ok"><svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>アイデア上場 <strong style="margin-left:4px">無制限</strong></li>
+        <li class="plan-feat ok"><svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>応援票 1日<strong style="margin-left:4px">4票</strong>（+1）</li>
+        <li class="plan-feat ok"><svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>コメント<strong style="margin-left:4px">無制限</strong></li>
+        <li class="plan-feat no"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>創設メンバーバッジはなし</li>
+      </ul>
+      <a href="https://buy.stripe.com/aFacN7dxLbiCdrifDPfbq00" class="plan-btn pro">Proにアップグレード</a>
+    </div>
+
+    <div class="plan-card">
+      <div class="plan-top">
+        <div class="plan-name">無料プラン</div>
+        <div class="plan-tag free">FREE</div>
+      </div>
+      <div class="plan-price">¥0 <span>ずっと無料</span></div>
+      <div class="plan-desc">登録するだけで全機能を体験できます。まずは使ってみてください。</div>
+      <ul class="plan-feats">
+        <li class="plan-feat ok"><svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>アイデア上場 月<strong style="margin-left:4px">3件まで</strong></li>
+        <li class="plan-feat ok"><svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>応援票 1日<strong style="margin-left:4px">3票</strong></li>
+        <li class="plan-feat ok"><svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>コメント 月<strong style="margin-left:4px">3回まで</strong></li>
+        <li class="plan-feat ok"><svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>スコアのリアルタイム確認</li>
+      </ul>
+      <a href="https://aipo-tau.vercel.app" class="plan-btn free">無料で始める</a>
+    </div>
+
+  </div>
+
+  <!-- 比較表 -->
+  <div class="sec-title">プラン比較</div>
+  <div class="compare">
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align:left">機能</th>
+          <th>無料</th>
+          <th>Pro</th>
+          <th>創設</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>アイデア上場</td><td class="no">月3件</td><td class="ok">無制限</td><td class="hi">無制限</td></tr>
+        <tr><td>応援票</td><td>3票/日</td><td class="ok">4票/日</td><td class="hi">4票/日</td></tr>
+        <tr><td>コメント</td><td class="no">月3回</td><td class="ok">無制限</td><td class="hi">無制限</td></tr>
+        <tr><td>バッジ</td><td class="no">なし</td><td>PRO</td><td class="hi">👑永久</td></tr>
+        <tr><td>#番号称号</td><td class="no">—</td><td class="no">—</td><td class="hi">#001〜</td></tr>
+        <tr><td>新機能先行</td><td class="no">—</td><td class="no">—</td><td class="hi">✓</td></tr>
+        <tr><td>料金</td><td class="ok">¥0</td><td>¥300/月</td><td class="hi">¥980一回</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- スコアルール -->
+  <div class="sec-title">スコアの仕組み</div>
+  <div class="rule-card">
+    <div class="rule-title">スコアはどう決まるか</div>
+    <div class="rule-body">
+      アイデアのスコアは以下の要素で決まります。
+      毎日少しずつ下がるため、票を集め続けることが大切です。
+    </div>
+    <div class="score-row">
+      <div class="score-chip"><div class="score-chip-v">50</div><div class="score-chip-l">基本スコア</div></div>
+      <div class="score-chip"><div class="score-chip-v">×3</div><div class="score-chip-l">応援票</div></div>
+      <div class="score-chip"><div class="score-chip-v">+20</div><div class="score-chip-l">閲覧・コメント</div></div>
+      <div class="score-chip"><div class="score-chip-v">+30</div><div class="score-chip-l">進捗</div></div>
+      <div class="score-chip"><div class="score-chip-v">-1/日</div><div class="score-chip-l">自然減衰</div></div>
+    </div>
+  </div>
+
+  <!-- 利用ルール -->
+  <div class="sec-title">利用ルール</div>
+
+  <div class="rule-card">
+    <div class="rule-num">RULE 01</div>
+    <div class="rule-title">1つのアカウントで利用する</div>
+    <div class="rule-body">複数アカウントを使って自分のアイデアに票を入れることは禁止です。<br>発覚した場合は票の取り消し・アカウント停止を行います。</div>
+  </div>
+
+  <div class="rule-card">
+    <div class="rule-num">RULE 02</div>
+    <div class="rule-title">誹謗中傷・スパムの禁止</div>
+    <div class="rule-body">他のユーザーへの誹謗中傷、スパム行為、不適切なコンテンツの投稿は禁止です。<br>運営が判断した場合、予告なく削除・アカウント停止を行います。</div>
+  </div>
+
+  <div class="rule-card">
+    <div class="rule-num">RULE 03</div>
+    <div class="rule-title">アイデアの著作権について</div>
+    <div class="rule-body">上場したアイデアの権利は投稿者本人に帰属します。<br>あいぽはアイデアを評価・表示するプラットフォームであり、アイデアの権利を取得することはありません。</div>
+  </div>
+
+  <div class="rule-card">
+    <div class="rule-num">RULE 04</div>
+    <div class="rule-title">課金・返金について</div>
+    <div class="rule-body">
+      <strong>創設メンバー（¥980買い切り）</strong><br>
+      購入後の返金は原則として対応できません。<br>
+      ただし購入後バッジが付与されない等の不具合がある場合はご連絡ください。<br><br>
+      <strong>Pro（¥300/月）</strong><br>
+      いつでもStripeの管理画面からキャンセル可能です。<br>
+      キャンセル後は次回更新日まで引き続きご利用いただけます。<br>
+      返金は原則対応しておりません。
+    </div>
+  </div>
+
+  <div class="rule-card">
+    <div class="rule-num">RULE 05</div>
+    <div class="rule-title">Proのキャンセル方法</div>
+    <div class="rule-body">
+      Proのキャンセルは <strong>Stripe Customer Portal</strong> から行えます。<br>
+      または <a href="mailto:team.shikakeru@gmail.com" style="color:var(--amber)">team.shikakeru@gmail.com</a> にご連絡いただければ対応します。<br><br>
+      キャンセル後は月末まで引き続きProとして利用できます。
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="sec-title">よくある質問</div>
+
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">創設メンバーは何人まで？<span class="ic">+</span></div>
+    <div class="faq-a">先着100名です。枠が埋まり次第終了します。後から申し込むことはできません。</div>
+  </div>
+
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">購入後すぐにバッジが付きますか？<span class="ic">+</span></div>
+    <div class="faq-a">はい、Stripeでの決済完了後、自動的にバッジが付与されます。反映まで数分かかる場合があります。付かない場合はアプリを再読み込みしてください。</div>
+  </div>
+
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">創設メンバーはProより得ですか？<span class="ic">+</span></div>
+    <div class="faq-a">はい。創設メンバーは¥980の一度きりの支払いでProの全機能が永久に使えます。Proは月¥300なので、4ヶ月以上使うなら創設メンバーがお得です。</div>
+  </div>
+
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">無料プランでもアイデアを上場できますか？<span class="ic">+</span></div>
+    <div class="faq-a">はい、月3件まで上場できます。3件を超えると上場にはProか創設メンバーへのアップグレードが必要になります。</div>
+  </div>
+
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">応援票は毎日リセットされますか？<span class="ic">+</span></div>
+    <div class="faq-a">はい、毎日0時（JST）にリセットされます。無料なら3票、Pro・創設メンバーなら4票が配られます。</div>
+  </div>
+
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">お問い合わせ先は？<span class="ic">+</span></div>
+    <div class="faq-a">team.shikakeru@gmail.com または アプリ内の広場からご連絡ください。</div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta">
+    <div class="cta-title">まずは無料で始めよう</div>
+    <div class="cta-sub">登録30秒。Googleアカウントで今すぐ始められます。</div>
+    <div class="cta-btns">
+      <a href="https://buy.stripe.com/dRmfZj2T71I20Ew8bnfbq01" class="cta-btn main">👑 創設メンバーになる（¥980）</a>
+      <a href="https://aipo-tau.vercel.app" class="cta-btn sub">無料で始める</a>
+    </div>
+  </div>
+
+  <div class="note">
+    ※ 料金・内容は予告なく変更される場合があります。<br>
+    ※ 消費税は価格に含まれます。<br>
+    ※ 決済はStripeを使用しています。カード情報はあいぽには保存されません。
+  </div>
+
+</div>
+
+</body>
+</html>
