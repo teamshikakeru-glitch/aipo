@@ -1921,57 +1921,127 @@ function renderCertCollection() {
 }
 
 function openZukanBook() {
-  const certs = loadCerts(); const TOTAL = 32; const slots = Array.from({length:TOTAL}, (_,i) => i < certs.length ? certs[i] : null);
-  const pinnedId = localStorage.getItem('aipo-pinned-cert'); let currentPage = 0;
+  const certs = loadCerts();
+  const TOTAL = 32;
+  const slots = Array.from({length:TOTAL}, (_,i) => i < certs.length ? certs[i] : null);
+  const pinnedId = localStorage.getItem('aipo-pinned-cert');
+  let currentPage = 0;
+  const totalPages = Math.ceil(TOTAL / 5);
+
+  // ホームの株券と同じ横長カード（1枚あたりの高さは画面に5枚収まるサイズ）
   function slotHTML(cert, idx) {
     if (cert) {
       const isPinned = cert.id === pinnedId || (!pinnedId && idx === 0);
-      return `<div onclick="openZukanCert('${cert.id}')" style="position:relative;background:${cert.isEarly?'#fffdf5':'#faf8f4'};border:1.5px solid ${isPinned?'var(--amber-mid)':cert.isEarly?'#e8c84a':'#d4cbbe'};border-radius:7px;aspect-ratio:2/3;display:flex;flex-direction:column;justify-content:space-between;padding:5px;overflow:hidden;cursor:pointer"><div style="position:absolute;top:0;left:0;right:0;height:3px;${cert.isEarly?'':'background:transparent'}" ${cert.isEarly?'class="gold-shimmer-line"':''}></div><div style="margin-top:5px"><div style="font-family:var(--mono);font-size:5.5px;color:#b0a898;letter-spacing:.04em;margin-bottom:1px">AIPO</div><div style="font-family:var(--mono);font-size:9px;font-weight:700;color:#1a1400;line-height:1;margin-bottom:2px">${cert.ticker}</div><div style="font-size:6.5px;color:#3a3028;line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${cert.name}</div></div><div style="display:flex;align-items:center;justify-content:space-between"><div style="font-family:var(--mono);font-size:5px;color:#b0a898">${cert.serial}</div><div style="width:13px;height:13px;border-radius:50%;border:1.5px solid #c0392b;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="6" height="6" viewBox="0 0 20 20" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#c0392b" stroke-width="2.5" stroke-linecap="round"/></svg></div></div>${isPinned?'<div style="position:absolute;top:4px;right:4px;width:6px;height:6px;border-radius:50%;background:var(--amber-mid)"></div>':''}</div>`;
+      const earlyBar = cert.isEarly ? '<div style="position:absolute;top:0;left:0;right:0;height:2px;border-radius:10px 10px 0 0" class="gold-shimmer-line"></div>' : '';
+      const earlyBadge = cert.isEarly ? '<div style="display:inline-flex;align-items:center;gap:2px;background:#fef9f0;border:1px solid #fde68a;border-radius:20px;padding:1px 5px;margin-bottom:3px"><div style="width:3px;height:3px;border-radius:50%;background:#d97706"></div><span style="font-family:var(--mono);font-size:5px;color:#854f0b;font-weight:700;letter-spacing:.05em">EARLY INVESTOR</span></div>' : '';
+      const pin = isPinned ? '<div style="position:absolute;top:6px;right:50px;width:6px;height:6px;border-radius:50%;background:var(--amber-mid)"></div>' : '';
+      return '<div onclick="openZukanCert(\'' + cert.id + '\')" style="position:relative;flex-shrink:0;background:' + (cert.isEarly ? '#fffdf5' : '#faf8f4') + ';border:1.5px solid ' + (isPinned ? 'var(--amber-mid)' : cert.isEarly ? '#e8c84a' : '#d4cbbe') + ';border-radius:10px;overflow:hidden;display:flex;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.06)">' +
+        earlyBar +
+        '<div style="flex:1;padding:7px 8px 7px 10px;min-width:0">' +
+          earlyBadge +
+          '<div style="font-family:var(--mono);font-size:5px;color:#a09080;letter-spacing:.06em;margin-bottom:2px">INVESTMENT CERTIFICATE</div>' +
+          '<div style="font-size:11px;font-weight:700;color:#1a1400;line-height:1.3;margin-bottom:4px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">' + cert.name + '</div>' +
+          '<div style="display:flex;gap:10px;align-items:center">' +
+            '<div><div style="font-family:var(--mono);font-size:5px;color:#a09080">TICKER</div><div style="font-family:var(--mono);font-size:10px;font-weight:700;color:#1a1400">' + cert.ticker + '</div></div>' +
+            '<div><div style="font-family:var(--mono);font-size:5px;color:#a09080">VOTES</div><div style="font-family:var(--mono);font-size:10px;font-weight:700;color:#1a1400">' + cert.votesAtTime + '票目</div></div>' +
+            '<div style="font-family:var(--mono);font-size:5px;color:#a09080;margin-left:auto">' + cert.date + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div style="width:44px;flex-shrink:0;border-left:1.5px dashed #d4c9b8;background:#ede9e0;border-radius:0 10px 10px 0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:6px 0">' +
+          '<div style="width:28px;height:28px;border-radius:50%;border:1.5px solid #c0392b;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#fff"><svg width="10" height="10" viewBox="0 0 20 20" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#c0392b" stroke-width="2" stroke-linecap="round"/></svg></div>' +
+          '<div style="font-family:var(--mono);font-size:5px;color:#a09080;text-align:center">' + cert.serial + '</div>' +
+        '</div>' +
+        pin +
+      '</div>';
     }
     const near = idx < certs.length + 3;
-    return `<div style="background:${near?'rgba(232,133,10,.03)':'rgba(0,0,0,.02)'};border:1.5px dashed ${near?'rgba(232,133,10,.2)':'rgba(0,0,0,.08)'};border-radius:7px;aspect-ratio:2/3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px"><div style="font-size:10px;color:${near?'rgba(232,133,10,.25)':'rgba(0,0,0,.08)'}">+</div><div style="font-family:var(--mono);font-size:5.5px;color:${near?'rgba(232,133,10,.2)':'rgba(0,0,0,.06)'}">${String(idx+1).padStart(2,'0')}</div></div>`;
+    return '<div style="flex-shrink:0;background:' + (near ? 'rgba(232,133,10,.03)' : 'rgba(0,0,0,.02)') + ';border:1.5px dashed ' + (near ? 'rgba(232,133,10,.2)' : 'rgba(0,0,0,.08)') + ';border-radius:10px;height:58px;display:flex;align-items:center;justify-content:center;gap:6px">' +
+      '<div style="font-size:12px;color:' + (near ? 'rgba(232,133,10,.3)' : 'rgba(0,0,0,.1)') + '">+</div>' +
+      '<div style="font-family:var(--mono);font-size:8px;color:' + (near ? 'rgba(232,133,10,.25)' : 'rgba(0,0,0,.07)') + '">' + String(idx+1).padStart(2,'0') + '</div>' +
+    '</div>';
   }
-  function pageHTML(page) {
+
+  // ページのHTMLを生成
+  function renderPage(page) {
     const sl = slots.slice(page*5, page*5+5);
-    // 5枚が画面に収まるように gap:6px, padding考慮
-    return `<div style="display:flex;flex-direction:column;gap:6px;padding:6px 6px 0">${sl.map((c,i)=>slotHTML(c,page*5+i)).join('')}</div>`;
+    return sl.map((c,i) => slotHTML(c, page*5+i)).join('');
   }
-  const overlay = document.getElementById('zukan-overlay'); if (!overlay) return;
+
+  // ドットHTML
+  const dotsHTML = Array.from({length:totalPages}, (_,i) =>
+    '<div onclick="window._zukanGoPage(' + i + ')" style="width:' + (i===0?'20':'8') + 'px;height:4px;border-radius:2px;background:' + (i===0?'var(--amber-mid)':'rgba(0,0,0,.15)') + ';cursor:pointer;transition:all .3s" id="zdot-' + i + '"></div>'
+  ).join('');
+
+  const overlay = document.getElementById('zukan-overlay');
+  if (!overlay) return;
   overlay.style.display = 'block';
-  overlay.innerHTML = `<div style="height:100%;display:flex;flex-direction:column;animation:zukanSlideUp .4s cubic-bezier(.16,1,.3,1) both;background:var(--surface)"><div style="background:var(--surface);padding:12px 14px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0"><div onclick="closeZukanBook()" style="cursor:pointer;color:var(--text2);display:flex;align-items:center"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 5l-5 5 5 5"/></svg></div><div><div style="font-size:15px;font-weight:700;color:var(--text)">株券図鑑</div><div style="font-size:9px;color:var(--text3)">Investment Certificate Book</div></div><div style="margin-left:auto;display:flex;align-items:center;gap:10px"><button onclick="shareZukan()" style="display:flex;align-items:center;gap:5px;background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:5px 12px;cursor:pointer;font-family:var(--sans);font-size:11px;font-weight:700;color:var(--text2)"><svg width="11" height="11" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="17" cy="3" r="2"/><circle cx="17" cy="17" r="2"/><circle cx="3" cy="10" r="2"/><path d="M5 10h9M15.3 4.5l-8.6 4M15.3 15.5l-8.6-4"/></svg>シェア</button><div style="display:flex;align-items:center;gap:4px"><div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--amber-mid)">${certs.length}</div><div style="font-size:9px;color:var(--text3)">/ ${TOTAL}枚</div></div></div></div><div style="padding:8px 12px 0;flex-shrink:0"><div style="background:rgba(0,0,0,.07);border-radius:4px;height:3px;overflow:hidden"><div style="background:linear-gradient(90deg,#f5d68a,#e8850a);height:100%;width:${(certs.length/TOTAL*100).toFixed(1)}%;border-radius:4px"></div></div><div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px"><div style="font-size:9px;color:var(--text3)">ピンをタップするとホーム表示を変更できます</div><div style="font-family:var(--mono);font-size:9px;color:var(--amber-mid)">${(certs.length/TOTAL*100).toFixed(1)}%</div></div></div><div style="flex:1;overflow:hidden;position:relative;background:#f5f3ee" id="zukan-pages-wrap"><div id="zukan-pages" style="display:flex;width:200%;height:100%;transition:transform .35s cubic-bezier(.4,0,.2,1)"><div style="width:50%;height:100%;overflow-y:auto;scrollbar-width:none;padding:10px 12px 20px"><div style="background:#fff;border-radius:14px;overflow:hidden;border:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,.06)"><div style="font-family:var(--mono);font-size:7px;color:#c8bfae;text-align:center;padding:6px 0;border-bottom:0.5px solid rgba(0,0,0,.06)">PAGE 1</div><div style="padding:8px 8px 10px">${pageHTML(0)}</div><div style="font-family:var(--mono);font-size:7px;color:#c8bfae;text-align:center;padding:6px 0;border-top:0.5px solid rgba(0,0,0,.06)">— 1 —</div></div><div style="padding:10px 0;text-align:center;font-size:10px;color:var(--text3)">← スワイプで次のページへ →</div></div><div style="width:50%;height:100%;overflow-y:auto;scrollbar-width:none;padding:10px 12px 20px"><div style="background:#fff;border-radius:14px;overflow:hidden;border:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,.06)"><div style="font-family:var(--mono);font-size:7px;color:#c8bfae;text-align:center;padding:6px 0;border-bottom:0.5px solid rgba(0,0,0,.06)">PAGE 2</div><div style="padding:8px 8px 10px">${pageHTML(1)}</div><div style="font-family:var(--mono);font-size:7px;color:#c8bfae;text-align:center;padding:6px 0;border-top:0.5px solid rgba(0,0,0,.06)">— 2 —</div></div></div></div><div id="zukan-dots" style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:5"><div style="width:20px;height:4px;border-radius:2px;background:var(--amber-mid);cursor:pointer;transition:all .3s" id="zdot-0"></div><div style="width:8px;height:4px;border-radius:2px;background:rgba(0,0,0,.15);cursor:pointer;transition:all .3s" id="zdot-1"></div></div></div></div>`;
-  const wrap = overlay.querySelector('#zukan-pages-wrap');
-  const totalPages = Math.ceil(TOTAL / 5);
+
+  overlay.innerHTML =
+    '<div style="height:100%;display:flex;flex-direction:column;animation:zukanSlideUp .4s cubic-bezier(.16,1,.3,1) both;background:var(--surface)">' +
+      // ヘッダー
+      '<div style="background:var(--surface);padding:12px 14px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0">' +
+        '<div onclick="closeZukanBook()" style="cursor:pointer;color:var(--text2);display:flex;align-items:center"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 5l-5 5 5 5"/></svg></div>' +
+        '<div><div style="font-size:15px;font-weight:700;color:var(--text)">株券図鑑</div><div style="font-size:9px;color:var(--text3)">Investment Certificate Book</div></div>' +
+        '<div style="margin-left:auto;display:flex;align-items:center;gap:10px">' +
+          '<button onclick="shareZukan()" style="display:flex;align-items:center;gap:5px;background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:5px 12px;cursor:pointer;font-family:var(--sans);font-size:11px;font-weight:700;color:var(--text2)"><svg width="11" height="11" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="17" cy="3" r="2"/><circle cx="17" cy="17" r="2"/><circle cx="3" cy="10" r="2"/><path d="M5 10h9M15.3 4.5l-8.6 4M15.3 15.5l-8.6-4"/></svg>シェア</button>' +
+          '<div style="display:flex;align-items:center;gap:4px"><div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--amber-mid)">' + certs.length + '</div><div style="font-size:9px;color:var(--text3)">/ ' + TOTAL + '枚</div></div>' +
+        '</div>' +
+      '</div>' +
+      // プログレスバー
+      '<div style="padding:6px 12px;flex-shrink:0">' +
+        '<div style="background:rgba(0,0,0,.07);border-radius:4px;height:3px;overflow:hidden"><div style="background:linear-gradient(90deg,#f5d68a,#e8850a);height:100%;width:' + (certs.length/TOTAL*100).toFixed(1) + '%;border-radius:4px"></div></div>' +
+        '<div style="display:flex;justify-content:space-between;margin-top:3px"><div style="font-size:9px;color:var(--text3)" id="zukan-page-label">PAGE 1 / ' + totalPages + '</div><div style="font-family:var(--mono);font-size:9px;color:var(--amber-mid)">' + (certs.length/TOTAL*100).toFixed(1) + '%</div></div>' +
+      '</div>' +
+      // カードエリア（flex:1で残り全部使う）
+      '<div style="flex:1;overflow:hidden;background:#f5f3ee;padding:8px 10px 0;display:flex;flex-direction:column;gap:6px" id="zukan-card-area">' +
+      '</div>' +
+      // ナビゲーション
+      '<div style="flex-shrink:0;padding:8px 16px 16px;background:#f5f3ee;display:flex;align-items:center;justify-content:space-between">' +
+        '<button id="zprev" onclick="window._zukanGoPage(' + 0 + '-1+window._zukanPage)" style="width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);opacity:0.3"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 5l-5 5 5 5"/></svg></button>' +
+        '<div style="display:flex;gap:6px" id="zukan-dots">' + dotsHTML + '</div>' +
+        '<button id="znext" onclick="window._zukanGoPage(window._zukanPage+1)" style="width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2)"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 5l5 5-5 5"/></svg></button>' +
+      '</div>' +
+    '</div>';
+
+  window._zukanPage = 0;
+
   function goPage(n) {
     currentPage = Math.max(0, Math.min(totalPages - 1, n));
-    const inner = overlay.querySelector('#zukan-page-inner');
-    const label = overlay.querySelector('#zukan-page-label');
-    const num = overlay.querySelector('#zukan-page-num');
-    const content = overlay.querySelector('#zukan-page-content');
-    if (inner) inner.innerHTML = pageHTML(currentPage);
-    if (label) label.textContent = 'PAGE ' + (currentPage + 1);
-    if (num) num.textContent = '— ' + (currentPage + 1) + ' —';
-    if (content) content.scrollTop = 0;
+    window._zukanPage = currentPage;
+
+    // カードエリアに5枚を描画
+    const area = overlay.querySelector('#zukan-card-area');
+    if (area) area.innerHTML = renderPage(currentPage);
+
+    // ページラベル更新
+    const lbl = overlay.querySelector('#zukan-page-label');
+    if (lbl) lbl.textContent = 'PAGE ' + (currentPage+1) + ' / ' + totalPages;
+
     // ドット更新
     for (let i = 0; i < totalPages; i++) {
-      const d = overlay.querySelector('#zdot-' + i);
-      if (d) { d.style.background = i === currentPage ? 'var(--amber-mid)' : 'rgba(0,0,0,.15)'; d.style.width = i === currentPage ? '20px' : '8px'; }
+      const d = overlay.querySelector('#zdot-'+i);
+      if (d) { d.style.background = i===currentPage ? 'var(--amber-mid)' : 'rgba(0,0,0,.15)'; d.style.width = i===currentPage ? '20px' : '8px'; }
     }
-    // 前後ボタン
-    const prev = overlay.querySelector('#zprev'); const next = overlay.querySelector('#znext');
-    if (prev) prev.style.opacity = currentPage === 0 ? '0.3' : '1';
-    if (next) next.style.opacity = currentPage === totalPages - 1 ? '0.3' : '1';
+
+    // ボタンのopacity
+    const prev = overlay.querySelector('#zprev');
+    const next = overlay.querySelector('#znext');
+    if (prev) prev.style.opacity = currentPage===0 ? '0.3' : '1';
+    if (next) next.style.opacity = currentPage===totalPages-1 ? '0.3' : '1';
   }
+
   window._zukanGoPage = goPage;
   goPage(0);
+
   // スワイプ
-  let startX = 0, startY = 0, dragging = false;
-  wrap.addEventListener('touchstart', e => { startX = e.touches[0].clientX; startY = e.touches[0].clientY; dragging = true; }, {passive:true});
-  wrap.addEventListener('touchend', e => {
-    if (!dragging) return;
-    const dx = e.changedTouches[0].clientX - startX;
-    const dy = Math.abs(e.changedTouches[0].clientY - startY);
-    dragging = false;
-    if (Math.abs(dx) > 50 && dy < 80) { if (dx < 0) goPage(currentPage + 1); else goPage(currentPage - 1); }
+  const wrap = overlay.querySelector('#zukan-card-area');
+  let sx = 0, sy = 0, sw = false;
+  overlay.addEventListener('touchstart', e => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; sw = true; }, {passive:true});
+  overlay.addEventListener('touchend', e => {
+    if (!sw) return; sw = false;
+    const dx = e.changedTouches[0].clientX - sx;
+    const dy = Math.abs(e.changedTouches[0].clientY - sy);
+    if (Math.abs(dx) > 50 && dy < 100) { if (dx < 0) goPage(currentPage+1); else goPage(currentPage-1); }
   }, {passive:true});
 }
 
@@ -1996,7 +2066,7 @@ function openZukanCert(certId) {
   const certs = loadCerts(); const cert = certs.find(c => c.id === certId); if (!cert) return;
   spawnZukanParticles();
   const idea = ideas.find(i => i.id === cert.ideaId); const overlay = document.getElementById('zukan-overlay'); if (!overlay) return;
-  const score = idea ? idea.score.toFixed(1) : cert.score.toFixed(1); const votes = idea ? idea.votes : 0; const genre = idea ? idea.genre : ''; const desc = idea?.desc || ''; const actions = idea?.actions || [];
+  const score = idea ? idea.score.toFixed(1) : (cert.score||50).toFixed(1); const votes = idea ? idea.votes : (cert.votesAtTime||0); const genre = idea ? idea.genre : ''; const desc = idea?.desc || idea?.description || ''; const actions = idea?.actions || [];
   overlay.style.display = 'block';
   overlay.innerHTML = `<div style="height:100%;display:flex;flex-direction:column;animation:zukanSlideUp .4s cubic-bezier(.16,1,.3,1) both"><div class="zukan-fadeup-1" style="background:var(--surface);padding:12px 14px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0"><div onclick="closeZukanCert()" style="cursor:pointer;color:var(--text2);display:flex;align-items:center"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 5l-5 5 5 5"/></svg></div><div style="font-size:13px;font-weight:700;color:var(--text)">${cert.ticker}</div><div style="font-size:9px;color:var(--text3);margin-left:2px">${cert.serial}</div><div style="margin-left:auto;display:flex;gap:6px"><button onclick="pinCertFromDetail('${cert.id}')" style="display:flex;align-items:center;gap:4px;border-radius:20px;padding:5px 11px;cursor:pointer;font-family:var(--sans);font-size:11px;font-weight:700;border:1px solid var(--amber-border);background:var(--amber-bg);color:var(--amber)"><svg width="10" height="10" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>ホームに表示</button><button onclick="shareCertificate('${cert.ideaId}','${encodeURIComponent(cert.name)}','${cert.ticker}')" style="display:flex;align-items:center;gap:4px;background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:5px 11px;cursor:pointer;font-family:var(--sans);font-size:11px;font-weight:700;color:var(--text2)"><svg width="10" height="10" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="17" cy="3" r="2"/><circle cx="17" cy="17" r="2"/><circle cx="3" cy="10" r="2"/><path d="M5 10h9M15.3 4.5l-8.6 4M15.3 15.5l-8.6-4"/></svg>シェア</button></div></div><div style="flex:1;overflow-y:auto;scrollbar-width:none;padding:12px 12px 20px;background:var(--surface2)"><div class="zukan-cert-flip" style="position:relative;background:${cert.isEarly?'#fffdf5':'#faf8f4'};border:1px solid ${cert.isEarly?'#e8c84a':'#d4cbbe'};border-radius:16px;overflow:hidden;display:flex;margin-bottom:12px;box-shadow:0 4px 18px rgba(0,0,0,.1)">${cert.isEarly?'<div style="position:absolute;top:0;left:0;right:0;height:4px;border-radius:16px 16px 0 0" class="gold-shimmer-line"></div>':''}<div style="flex:1;padding:${cert.isEarly?'16px':'12px'} 12px 12px 14px">${cert.isEarly?'<div style="display:inline-flex;align-items:center;gap:3px;background:#fef9f0;border:1px solid #fde68a;border-radius:20px;padding:2px 8px;margin-bottom:7px"><div style="width:3px;height:3px;border-radius:50%;background:#d97706"></div><span style="font-family:var(--mono);font-size:7px;color:#854f0b;font-weight:700;letter-spacing:.05em">EARLY INVESTOR</span></div>':''}<div style="font-family:var(--mono);font-size:7px;color:#a09080;letter-spacing:.1em;margin-bottom:4px">INVESTMENT CERTIFICATE</div><div style="font-size:14px;font-weight:700;color:#1a1400;line-height:1.35;margin-bottom:8px">${cert.name}</div><div style="display:flex;gap:14px;margin-bottom:6px"><div><div style="font-family:var(--mono);font-size:7px;color:#a09080;margin-bottom:1px">TICKER</div><div style="font-family:var(--mono);font-size:12px;font-weight:700;color:#1a1400">${cert.ticker}</div></div><div><div style="font-family:var(--mono);font-size:7px;color:#a09080;margin-bottom:1px">VOTES AT TIME</div><div style="font-family:var(--mono);font-size:12px;font-weight:700;color:#1a1400">${cert.votesAtTime}票目</div></div></div><div style="font-family:var(--mono);font-size:7px;color:#a09080">${cert.date}</div></div><div style="width:62px;flex-shrink:0;border-left:2px dashed #d4c9b8;background:#ede9e0;border-radius:0 16px 16px 0;display:flex;flex-direction:column;align-items:center;justify-content:space-around;padding:10px 0"><div style="font-family:var(--mono);font-size:6px;color:#a09080;text-align:center;letter-spacing:.04em">SERIAL<br>${cert.serial}</div><div class="zukan-stamp-anim" style="width:40px;height:40px;border-radius:50%;border:2px solid #c0392b;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;background:var(--surface)"><svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#c0392b" stroke-width="2" stroke-linecap="round"/></svg><span style="font-family:var(--mono);font-size:6px;color:#c0392b;letter-spacing:.04em">DONE</span></div><div style="font-family:var(--mono);font-size:7px;color:#a09080">あいぽ</div></div></div>${idea?`<div class="zukan-fadeup-2" style="background:var(--surface);border-radius:14px;padding:13px 14px;margin-bottom:10px;border:1px solid var(--border)"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.06em">SCORE</div><div style="font-family:var(--mono);font-size:22px;font-weight:700;color:var(--green-light);line-height:1">${score}<span style="font-size:10px;color:var(--text3);margin-left:3px">pt</span></div></div><div style="background:rgba(0,0,0,.07);border-radius:4px;height:5px;overflow:hidden;margin-bottom:10px"><div class="zukan-bar-anim" style="background:linear-gradient(90deg,var(--green-light),#16a34a);height:100%;width:${Math.min(100,parseFloat(score))}%;border-radius:4px"></div></div><div style="display:flex;justify-content:space-between"><div style="text-align:center"><div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text)">${votes}</div><div style="font-size:9px;color:var(--text3)">応援票</div></div><div style="text-align:center"><div style="font-size:11px;font-weight:700;color:var(--text)">${genre}</div><div style="font-size:9px;color:var(--text3)">ジャンル</div></div><div style="text-align:center"><div style="font-size:11px;font-weight:700;color:${cert.isEarly?'#854f0b':'var(--text3)'}">${cert.isEarly?'EARLY':'通常'}</div><div style="font-size:9px;color:var(--text3)">レア度</div></div></div></div>${desc?`<div class="zukan-fadeup-3" style="background:var(--surface);border-radius:14px;padding:13px 14px;margin-bottom:10px;border:1px solid var(--border)"><div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.06em;margin-bottom:6px">ABOUT</div><div style="font-size:12px;color:var(--text);line-height:1.75">${desc}</div></div>`:''}<div class="zukan-fadeup-3" style="background:var(--surface);border-radius:14px;padding:13px 14px;margin-bottom:10px;border:1px solid var(--border)"><div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.06em;margin-bottom:10px">PROGRESS</div><div style="display:flex;align-items:flex-start">${[0,1,2,3].map(i=>`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;position:relative">${i>0?`<div style="position:absolute;left:-50%;top:10px;right:50%;height:2px;background:${i<=(idea.progressStep||0)?'var(--amber-mid)':'rgba(0,0,0,.08)'}"></div>`:''}<div style="width:22px;height:22px;border-radius:50%;background:${i<=(idea.progressStep||0)?'var(--amber-mid)':'rgba(0,0,0,.07)'};display:flex;align-items:center;justify-content:center;position:relative;z-index:1">${i<=(idea.progressStep||0)?`<svg width="10" height="10" viewBox="0 0 20 20" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg>`:`<div style="width:5px;height:5px;border-radius:50%;background:rgba(0,0,0,.15)"></div>`}</div><div style="font-size:7px;color:${i<=(idea.progressStep||0)?'var(--amber-mid)':'var(--text3)'};text-align:center;font-weight:${i===(idea.progressStep||0)?'700':'400'};line-height:1.3">${['アイデア','開発中','テスト','リリース'][i]}</div></div>`).join('')}</div></div>${actions.length>0?`<div class="zukan-fadeup-4" style="background:var(--surface);border-radius:14px;padding:13px 14px;border:1px solid var(--border)"><div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.06em;margin-bottom:8px">NEXT ACTIONS</div>${actions.map((a,i)=>`<div style="display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:0.5px solid var(--border)"><div style="font-family:var(--mono);font-size:10px;color:var(--amber-mid);font-weight:700;min-width:18px;margin-top:1px">0${i+1}</div><div style="font-size:12px;color:var(--text);line-height:1.5">${a}</div></div>`).join('')}</div>`:''}`:`<div class="zukan-fadeup-2" style="background:var(--surface);border-radius:14px;padding:20px;text-align:center;border:1px solid var(--border)"><div style="font-size:12px;color:var(--text3)">アイデアの詳細を読み込めませんでした</div></div>`}</div></div>`;
 }
