@@ -2,935 +2,1116 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>あいぽ — アイデアIPO市場</title>
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://aipo-tau.vercel.app/">
-<meta property="og:site_name" content="あいぽ">
-<meta property="og:title" content="あいぽ — アイデアIPO市場">
-<meta property="og:description" content="作る前に需要を確認する。思いついたら一行で上場。票とコメントでアイデアの価値がリアルタイムで動く。">
-<meta property="og:image" content="https://aipo-tau.vercel.app/og-image.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>あいぽ — Ideas Are The New Currency.</title>
+<meta name="description" content="ITバブルはネットを作る側が勝った。AIバブルはAIを使う側が勝っている。次は違う。アイデアを持つ全員の番だ。">
+<meta property="og:title" content="あいぽ — Ideas Are The New Currency.">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:site" content="@morulabo1">
-<meta name="twitter:creator" content="@morulabo1">
-<meta name="twitter:title" content="あいぽ — アイデアIPO市場">
-<meta name="twitter:description" content="作る前に需要を確認する。思いついたら一行で上場。票とコメントでアイデアの価値がリアルタイムで動く。">
-<meta name="twitter:image" content="https://aipo-tau.vercel.app/og-image.png">
-<meta name="description" content="作る前に需要を確認する。思いついたら一行で上場。票とコメントでアイデアの価値がリアルタイムで動く。">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;700;900&family=Noto+Sans+JP:wght@400;500;700&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700;900&family=Space+Mono:wght@400;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <style>
+/* ── RESET ── */
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-:root{
-  --cream:#f0ebe1;--cream2:#e8e2d8;--ivory:#f8f5ef;
-  --amber:#b86000;--amber-mid:#d97706;--amber-light:#f59e0b;
-  --dark:#090806;--dark2:#100f0c;--dark3:#161410;
-  --text:#16140d;--text2:#5c5649;--text3:#a09890;
-  --serif:'Noto Serif JP',serif;--sans:'Noto Sans JP',sans-serif;--mono:'DM Mono',monospace;
-  --green:#15803d;--green-bright:#22c55e;--red:#dc2626;
+html{scroll-behavior:smooth}
+body{
+  background:#fafaf9;
+  color:#0d0d0c;
+  font-family:'Noto Sans JP',sans-serif;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
 }
-@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+a{color:inherit;text-decoration:none}
+img{max-width:100%}
+
+/* ── TOKENS ── */
+:root{
+  --bg:#fafaf9;
+  --bg2:#f4f3f0;
+  --bg3:#eeece8;
+  --ink:#0d0d0c;
+  --ink2:#3a3a38;
+  --ink3:#7a7a77;
+  --ink4:#b0afa8;
+  --amber:#d97706;
+  --amber-bg:rgba(217,119,6,.06);
+  --amber-border:rgba(217,119,6,.18);
+  --green:#15803d;
+  --red:#dc2626;
+  --border:#e4e2dc;
+  --border2:#d0cec7;
+  --mono:'Space Mono',monospace;
+  --serif:'DM Serif Display',serif;
+  --r:3px;
+  --max:1100px;
+}
+
+/* ── GRAIN ── */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:9000;
+  opacity:.018;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:500;
+  height:60px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 max(24px,4vw);
+  background:rgba(250,250,249,.9);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{
+  font-family:var(--mono);font-size:15px;font-weight:700;
+  color:var(--ink);letter-spacing:.05em;
+}
+.nav-logo em{font-style:normal;color:var(--amber)}
+.nav-right{display:flex;align-items:center;gap:28px}
+.nav-link{
+  font-size:12px;font-weight:700;color:var(--ink3);
+  letter-spacing:.05em;transition:color .2s;
+}
+.nav-link:hover{color:var(--ink)}
+.nav-cta{
+  display:inline-flex;align-items:center;gap:7px;
+  background:var(--ink);color:#fff;
+  font-size:12px;font-weight:700;letter-spacing:.03em;
+  padding:9px 20px;border-radius:var(--r);
+  transition:background .15s,box-shadow .2s;
+}
+.nav-cta:hover{background:#1a1a18;box-shadow:0 4px 20px rgba(13,13,12,.15)}
+.nav-cta svg{width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;transition:transform .2s}
+.nav-cta:hover svg{transform:translateX(2px)}
+
+/* ── HERO ── */
+.hero{
+  min-height:100svh;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:100px max(24px,6vw) 80px;
+  max-width:var(--max);margin:0 auto;
+  position:relative;
+}
+.hero-eyebrow{
+  display:flex;align-items:center;justify-content:space-between;
+  font-family:var(--mono);font-size:10px;font-weight:700;
+  color:var(--amber);letter-spacing:.12em;text-transform:uppercase;
+  margin-bottom:36px;
+  padding-bottom:16px;
+  border-bottom:1px solid var(--border);
+  animation:fadeUp .5s .1s ease both;
+}
+.hero-eyebrow .live{
+  display:flex;align-items:center;gap:5px;
+  margin-left:12px;padding-left:12px;
+  border-left:1px solid var(--border2);
+  color:var(--green);
+}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:blink 1.6s ease-in-out infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(217,119,6,.5)}50%{box-shadow:0 0 0 6px rgba(217,119,6,0)}}
-html{scroll-behavior:smooth;overflow-x:hidden;width:100%}
-body{font-family:var(--sans);background:var(--cream);color:var(--text);overflow-x:hidden;width:100%;-webkit-font-smoothing:antialiased;cursor:none;}
-#cursor{position:fixed;width:10px;height:10px;border-radius:50%;background:var(--amber-mid);pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .2s,height .2s,background .2s,opacity .3s;}
-#cursor-ring{position:fixed;width:36px;height:36px;border-radius:50%;border:1.5px solid rgba(217,119,6,.4);pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .35s cubic-bezier(.4,0,.2,1),height .35s cubic-bezier(.4,0,.2,1),border-color .2s;}
-body:has(a:hover) #cursor,body:has(button:hover) #cursor{width:18px;height:18px}
-body:has(a:hover) #cursor-ring,body:has(button:hover) #cursor-ring{width:52px;height:52px;border-color:rgba(217,119,6,.7)}
-@media(hover:none){#cursor,#cursor-ring{display:none}body{cursor:auto}}
-#grain{position:fixed;inset:0;pointer-events:none;z-index:9000;opacity:.35;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)' opacity='.06'/%3E%3C/svg%3E");}
-nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 6vw;height:64px;display:flex;align-items:center;justify-content:space-between;transition:background .5s,border-color .5s,backdrop-filter .5s;border-bottom:1px solid transparent;}
-nav.scrolled{background:rgba(240,235,225,.9);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom-color:rgba(24,20,13,.08);}
-.nav-logo{font-family:var(--serif);font-size:17px;font-weight:900;color:var(--text);letter-spacing:-.04em;position:relative;}
-.nav-logo::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:2px;background:var(--amber-mid);transform:scaleX(0);transform-origin:left;transition:transform .3s cubic-bezier(.4,0,.2,1);}
-nav.scrolled .nav-logo::after{transform:scaleX(1)}
-.nav-right{display:flex;align-items:center;gap:16px}
-.nav-link{font-size:12px;font-weight:500;color:var(--text3);text-decoration:none;letter-spacing:.04em;transition:color .2s;display:none;}
-nav.scrolled .nav-link{display:block;color:var(--text2)}
-.nav-link:hover{color:var(--text)}
-.nav-cta{display:inline-flex;align-items:center;gap:6px;background:var(--dark);color:var(--cream);font-size:12px;font-weight:700;letter-spacing:.04em;padding:10px 20px;border-radius:2px;text-decoration:none;position:relative;overflow:hidden;transition:transform .15s;}
-.nav-cta::after{content:'';position:absolute;left:-100%;top:0;bottom:0;width:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);transition:left .4s;}
-.nav-cta:hover::after{left:100%}
-.nav-cta:active{transform:scale(.96)}
-.hero{min-height:100svh;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:center;padding:80px 6vw 52px;}
-.hero-canvas{position:absolute;inset:0;pointer-events:none}
-.hero-ambient{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 80% 60% at 50% 110%,rgba(217,119,6,.1) 0%,transparent 60%),radial-gradient(ellipse 50% 50% at 80% 10%,rgba(217,119,6,.05) 0%,transparent 50%);}
-.hero-eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:10px;font-weight:400;letter-spacing:.14em;color:var(--amber);text-transform:uppercase;margin-bottom:24px;position:relative;z-index:2;}
-.hero-eyebrow-dot{width:6px;height:6px;border-radius:50%;background:var(--amber-mid);animation:pulse 2s infinite;}
-.hero-h1{font-family:var(--serif);font-size:clamp(36px,9.5vw,96px);font-weight:900;line-height:.92;letter-spacing:-.05em;color:var(--text);position:relative;z-index:2;margin-bottom:0;}
-.hero-h1 .l1{display:block;}
-.hero-h1 .l2{display:block;-webkit-text-stroke:1.5px var(--text);color:transparent;}
-.hero-h1 .amber-stroke{-webkit-text-stroke:1.5px var(--amber-mid);color:transparent;}
-.hero-sub-row{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-top:40px;position:relative;z-index:2;flex-wrap:wrap;}
-.hero-desc{font-size:15px;line-height:1.9;color:var(--text2);max-width:380px;}
-.hero-desc strong{color:var(--text);font-weight:700}
-.hero-actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
-.btn-main{display:inline-flex;align-items:center;gap:8px;background:var(--amber-mid);color:#fff;font-size:14px;font-weight:700;letter-spacing:.02em;padding:15px 28px;border-radius:2px;text-decoration:none;position:relative;overflow:hidden;transition:transform .15s,box-shadow .3s;}
-.btn-main::before{content:'';position:absolute;inset:0;background:linear-gradient(to right,rgba(255,255,255,0),rgba(255,255,255,.12),rgba(255,255,255,0));transform:translateX(-100%);transition:transform .5s;}
-.btn-main:hover::before{transform:translateX(100%)}
-.btn-main:hover{box-shadow:0 8px 32px rgba(217,119,6,.4)}
-.btn-main:active{transform:scale(.97)}
-.btn-outline{display:inline-flex;align-items:center;gap:8px;color:var(--text2);font-size:13px;font-weight:500;text-decoration:none;padding:15px 0;border-bottom:1px solid rgba(0,0,0,.15);transition:color .2s,border-color .2s;}
-.btn-outline:hover{color:var(--text);border-color:var(--text)}
-.hero-scroll-ind{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--text3);font-family:var(--mono);font-size:9px;letter-spacing:.12em;z-index:2;}
-.scroll-line{width:1px;height:48px;background:linear-gradient(to bottom,var(--amber-mid),transparent);animation:scrollPulse 1.4s cubic-bezier(.4,0,.2,1) infinite;}
-@keyframes scrollPulse{0%{transform:scaleY(0);transform-origin:top;opacity:0}20%{opacity:1}80%{opacity:1}100%{transform:scaleY(1);transform-origin:top;opacity:0}}
-.lticker{background:var(--dark);padding:13px 0;overflow:hidden;position:relative;border-top:1px solid rgba(255,255,255,.04);}
-.lticker-inner{display:inline-flex;gap:0;animation:tickerRoll 14s linear infinite}
-.lticker-item{font-family:var(--mono);font-size:10px;color:rgba(255,255,255,.2);letter-spacing:.14em;text-transform:uppercase;padding:0 28px;white-space:nowrap;display:inline-flex;align-items:center;gap:28px;}
-.lticker-sep{color:var(--amber-mid);margin-left:-14px}
-@keyframes tickerRoll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-.stats-sec{background:var(--dark);display:grid;grid-template-columns:1fr 1fr;position:relative;}
-.stat-cell{padding:52px 6vw;border:1px solid rgba(255,255,255,.04);position:relative;overflow:hidden;}
-.stat-number{font-family:var(--serif);font-size:clamp(36px,8.5vw,64px);font-weight:900;color:var(--amber-light);line-height:1;letter-spacing:-.04em;margin-bottom:10px;}
-.stat-desc{font-size:12px;color:rgba(255,255,255,.3);line-height:1.7}
-.stat-desc strong{color:rgba(255,255,255,.65);font-weight:700}
-.claim-sec{background:var(--dark2);padding:100px 6vw;position:relative;overflow:hidden;}
-.claim-oldquote{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:rgba(255,255,255,.2);text-transform:uppercase;margin-bottom:12px;}
-.claim-quote-text{font-size:clamp(14px,3.5vw,18px);color:rgba(255,255,255,.38);line-height:1.8;font-style:italic;padding:18px 0 18px 20px;border-left:2px solid rgba(255,255,255,.07);margin-bottom:48px;max-width:480px;}
-.claim-main{font-family:var(--serif);font-size:clamp(28px,7vw,68px);font-weight:900;color:#fff;line-height:.97;letter-spacing:-.04em;margin-bottom:28px;}
-.claim-main .amber{color:var(--amber-light)}
-.claim-main .outline{-webkit-text-stroke:1px rgba(255,255,255,.4);color:transparent;}
-.claim-body{font-size:15px;color:rgba(255,255,255,.55);line-height:1.9;max-width:440px;}
-.claim-body strong{color:rgba(255,255,255,.9)}
-.feat{padding:96px 6vw;position:relative;overflow:hidden}
-.feat.dark-feat{background:var(--dark3)}
-.feat-eyebrow{font-family:var(--mono);font-size:9px;letter-spacing:.16em;color:var(--amber);text-transform:uppercase;display:flex;align-items:center;gap:10px;margin-bottom:18px;}
-.feat-eyebrow::before{content:'';width:18px;height:1px;background:var(--amber)}
-.feat-h{font-family:var(--serif);font-size:clamp(22px,5.5vw,46px);font-weight:900;letter-spacing:-.04em;line-height:1.0;margin-bottom:20px;}
-.dark-feat .feat-h{color:#fff}
-.feat-body{font-size:14px;color:var(--text2);line-height:1.9;margin-bottom:32px;max-width:440px;}
-.dark-feat .feat-body{color:rgba(255,255,255,.55)}
-.feat-list{list-style:none;display:flex;flex-direction:column;gap:0}
-.feat-li{display:flex;gap:16px;align-items:flex-start;padding:16px 0;border-bottom:1px solid rgba(0,0,0,.07);}
-.dark-feat .feat-li{border-bottom-color:rgba(255,255,255,.05)}
-.feat-li:last-child{border-bottom:none;padding-bottom:0}
-.feat-li-n{font-family:var(--mono);font-size:9px;color:var(--amber);min-width:18px;margin-top:4px;}
-.feat-li-t{font-size:13px;line-height:1.75;color:var(--text2)}
-.dark-feat .feat-li-t{color:rgba(255,255,255,.58)}
-.feat-li-t strong{color:var(--text);font-weight:700}
-.dark-feat .feat-li-t strong{color:rgba(255,255,255,.95)}
-.phone-scene{width:min(220px,52vw);margin:52px auto 0;position:relative;}
-.phone-shell{border-radius:38px;padding:11px;position:relative;animation:phoneFloat 5s ease-in-out infinite;}
-@keyframes phoneFloat{0%,100%{transform:translateY(0) rotate(-1deg)}25%{transform:translateY(-14px) rotate(1.2deg)}75%{transform:translateY(-6px) rotate(-.8deg)}}
-.phone-shell.light{background:#e2ddd4;box-shadow:0 32px 64px rgba(0,0,0,.2),0 0 0 1px rgba(0,0,0,.08);}
-.phone-notch{width:80px;height:22px;margin:0 auto 8px;border-radius:0 0 14px 14px;}
-.phone-shell.light .phone-notch{background:#d0cbc2}
-.phone-display{border-radius:28px;overflow:hidden;min-height:330px}
-.phone-shell.light .phone-display{background:#f8f5ef}
-.pd-header{background:#fff;padding:9px 11px 7px;border-bottom:.5px solid #ebe7df}
-.pd-logo-r{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
-.pd-logo{font-family:var(--serif);font-size:14px;font-weight:900;color:#16140d;letter-spacing:-.03em}
-.pd-chip{background:#d97706;border-radius:20px;padding:3px 9px;font-family:var(--mono);font-size:10px;color:#fff}
-.pd-tabs{display:flex;gap:3px}
-.pd-tab{background:#e8e3da;border-radius:20px;padding:3px 9px;font-size:9px;font-weight:700;color:#9c9589}
-.pd-tab.a{background:#16140d;color:#f8f5ef}
-.pd-rows{padding:3px 0}
-.pd-row{display:flex;align-items:center;padding:7px 10px;border-bottom:.5px solid #ede9e1;gap:7px;}
-.pd-row:last-child{border-bottom:none}
-.pd-s{font-family:var(--mono);font-size:14px;font-weight:500;min-width:36px;text-align:center;line-height:1}
-.pd-d{font-family:var(--mono);font-size:7px;font-weight:500;padding:1px 3px;border-radius:3px;margin-top:2px;text-align:center}
-.pd-i{flex:1;min-width:0}
-.pd-tk{font-family:var(--mono);font-size:7px;color:#b0aea6;letter-spacing:.06em}
-.pd-nm{font-size:10px;font-weight:700;color:#16140d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pd-mt{font-size:8px;color:#b0aea6;margin-top:1px}
-.pd-vb{border:none;border-radius:6px;padding:3px 8px;font-size:9px;font-weight:700;cursor:pointer;font-family:var(--sans);flex-shrink:0;}
-.pd-vb.can{background:rgba(21,128,61,.1);color:#15803d}
-.pd-vb.done{background:#f0ede7;color:#ccc}
-.philo-sec{background:var(--cream);padding:100px 6vw;position:relative;overflow:hidden}
-.philo-bg{position:absolute;right:-4vw;bottom:-40px;font-family:var(--serif);font-size:min(300px,58vw);font-weight:900;color:rgba(24,20,13,.025);line-height:1;letter-spacing:-.05em;user-select:none;pointer-events:none;}
-.philo-intro-title{font-family:var(--serif);font-size:clamp(26px,6.5vw,58px);font-weight:900;letter-spacing:-.05em;line-height:.95;margin-bottom:20px;}
-.philo-intro-title .outline{display:block;-webkit-text-stroke:1.5px var(--text);color:transparent;}
-.philo-intro-sub{font-size:14px;color:var(--text2);line-height:1.9;max-width:400px;margin-bottom:56px;}
-.philo-bq{background:var(--dark);margin:0 -6vw;padding:56px 6vw;position:relative;overflow:hidden;margin-bottom:56px;}
-.philo-bq-t{font-family:var(--serif);font-size:clamp(19px,4.5vw,40px);font-weight:900;color:#fff;line-height:1.15;letter-spacing:-.03em;}
-.philo-bq-t .amber{color:var(--amber-light)}
-.philo-bq-t .fade{color:rgba(255,255,255,.25)}
-.philo-bq-sub{font-size:13px;color:rgba(255,255,255,.48);line-height:1.8;margin-top:20px;max-width:460px;}
-.philo-grid{display:grid;grid-template-columns:1fr;gap:2px;background:rgba(0,0,0,.08);border-radius:4px;overflow:hidden;border:1px solid rgba(0,0,0,.08);}
-.philo-item{background:var(--ivory);padding:24px 20px;display:flex;gap:18px;align-items:flex-start;}
-.philo-ico{width:34px;height:34px;flex-shrink:0;border-radius:6px;background:rgba(24,20,13,.05);display:flex;align-items:center;justify-content:center;}
-.philo-ico svg{width:16px;height:16px;stroke:var(--amber);stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round}
-.philo-t{font-size:13px;font-weight:700;color:var(--text);margin-bottom:5px;line-height:1.4}
-.philo-d{font-size:12px;color:var(--text3);line-height:1.75}
-.philo-d strong{color:var(--text2);font-weight:600}
-.rm-sec{background:var(--dark);padding:100px 6vw;position:relative;overflow:hidden}
-.rm-eyebrow{font-family:var(--mono);font-size:9px;letter-spacing:.16em;color:var(--amber);text-transform:uppercase;display:flex;align-items:center;gap:10px;margin-bottom:18px;}
-.rm-eyebrow::before{content:'';width:18px;height:1px;background:var(--amber)}
-.rm-title{font-family:var(--serif);font-size:clamp(24px,5.5vw,48px);font-weight:900;color:#fff;letter-spacing:-.04em;line-height:1;margin-bottom:16px;}
-.rm-sub{font-size:14px;color:rgba(255,255,255,.5);line-height:1.8;max-width:380px;margin-bottom:64px;}
-.rm-sub strong{color:rgba(255,255,255,.88)}
-.rm-line{position:relative;padding-left:28px}
-.rm-line::before{content:'';position:absolute;left:7px;top:12px;width:2px;bottom:0;background:linear-gradient(to bottom,var(--amber-mid) 0%,rgba(217,119,6,.3) 35%,rgba(217,119,6,.08) 65%,transparent 100%);}
-.rm-node{position:relative;margin-bottom:52px}
-.rm-dot{position:absolute;left:-23px;top:8px;width:14px;height:14px;border-radius:50%;z-index:1;}
-.rm-dot.live{background:var(--amber-mid);box-shadow:0 0 0 4px rgba(217,119,6,.2),0 0 0 8px rgba(217,119,6,.08);animation:livePulse 2.5s infinite;}
-@keyframes livePulse{0%,100%{box-shadow:0 0 0 3px rgba(217,119,6,.25),0 0 0 7px rgba(217,119,6,.1)}50%{box-shadow:0 0 0 6px rgba(217,119,6,.4),0 0 0 13px rgba(217,119,6,.18)}}
-.rm-dot.near{background:#2a2620;border:1.5px solid rgba(255,255,255,.15)}
-.rm-dot.far{background:#1a1612;border:1.5px solid rgba(255,255,255,.06)}
-.rm-ptag{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border-radius:2px;margin-bottom:12px;}
-.rm-ptag.live{background:rgba(217,119,6,.15);color:var(--amber-light)}
-.rm-ptag.live::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--amber-light);animation:blink 1.5s infinite}
-.rm-ptag.near{background:rgba(255,255,255,.08);color:rgba(255,255,255,.75)}
-.rm-ptag.far{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.65)}
-.rm-nt{font-family:var(--serif);font-size:clamp(17px,4.5vw,28px);font-weight:700;letter-spacing:-.03em;line-height:1.15;margin-bottom:12px;}
-.rm-node.is-live .rm-nt{color:#fff}
-.rm-node.is-near .rm-nt{color:rgba(255,255,255,.82)}
-.rm-node.is-far .rm-nt{color:rgba(255,255,255,.65)}
-.rm-nd{font-size:13px;line-height:1.8;margin-bottom:14px}
-.rm-node.is-live .rm-nd{color:rgba(255,255,255,.62)}
-.rm-node.is-near .rm-nd{color:rgba(255,255,255,.65)}
-.rm-node.is-far .rm-nd{color:rgba(255,255,255,.5)}
-.rm-node.is-live .rm-nd strong{color:#fff}
-.rm-node.is-near .rm-nd strong{color:rgba(255,255,255,.92)}
-.rm-tags{display:flex;flex-wrap:wrap;gap:5px}
-.rm-tag{font-family:var(--mono);font-size:8px;padding:3px 8px;border-radius:2px;letter-spacing:.06em}
-.is-live .rm-tag{background:rgba(217,119,6,.1);color:rgba(255,255,255,.35)}
-.is-near .rm-tag{background:rgba(255,255,255,.08);color:rgba(255,255,255,.72)}
-.is-far .rm-tag{border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.65)}
-.price-sec{background:var(--cream);padding:100px 6vw}
-.price-stack{display:flex;flex-direction:column;gap:10px;margin-top:48px}
-.plan-card{background:#fff;border-radius:4px;padding:26px 22px;border:1px solid rgba(0,0,0,.07);position:relative;overflow:hidden;}
-.plan-card.dark-plan{background:var(--dark);border-color:rgba(217,119,6,.2)}
-.pc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:20px}
-.pc-tier{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);margin-bottom:5px}
-.dark-plan .pc-tier{color:rgba(255,255,255,.3)}
-.pc-name{font-size:17px;font-weight:700;color:var(--text);letter-spacing:-.02em}
-.dark-plan .pc-name{color:#fff}
-.pc-price{font-family:var(--serif);font-size:30px;font-weight:900;color:var(--text);letter-spacing:-.04em;line-height:1;text-align:right}
-.dark-plan .pc-price{color:var(--amber-light)}
-.plan-card:nth-child(2) .pc-price{color:var(--amber-mid)}
-.pc-period{font-size:10px;color:var(--text3);text-align:right;margin-top:2px}
-.dark-plan .pc-period{color:rgba(255,255,255,.2)}
-.pc-div{height:1px;background:rgba(0,0,0,.06);margin-bottom:18px}
-.dark-plan .pc-div{background:rgba(255,255,255,.06)}
-.pc-feats{list-style:none;display:flex;flex-direction:column;gap:9px;margin-bottom:22px}
-.pc-feat{display:flex;align-items:flex-start;gap:9px;font-size:12px;color:var(--text2);line-height:1.5}
-.dark-plan .pc-feat{color:rgba(255,255,255,.4)}
-.pc-feat svg{width:13px;height:13px;flex-shrink:0;margin-top:1px;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;fill:none}
-.pc-feat.ok svg{stroke:var(--green)}
-.pc-feat.no svg{stroke:var(--text3)}
-.dark-plan .pc-feat.ok svg{stroke:#4ade80}
-.pc-feat.star svg{stroke:var(--amber-mid)}
-.dark-plan .pc-feat.star svg{stroke:var(--amber-light)}
-.pc-feat strong{color:var(--text);font-weight:700}
-.dark-plan .pc-feat strong{color:rgba(255,255,255,.85)}
-.pc-btn{display:block;width:100%;padding:13px;text-align:center;font-size:13px;font-weight:700;border-radius:2px;text-decoration:none;border:none;cursor:pointer;font-family:var(--sans);transition:all .2s;}
-.pc-btn.free{background:rgba(0,0,0,.05);color:var(--text2)}
-.pc-btn.pro{background:var(--amber-mid);color:#fff}
-.pc-btn.founder{background:linear-gradient(135deg,#78350f,#b45309,#d97706);color:#fff;box-shadow:0 4px 20px rgba(217,119,6,.3);}
-.pc-badge{position:absolute;top:14px;right:14px;font-family:var(--mono);font-size:8px;letter-spacing:.1em;padding:3px 8px;border-radius:2px;}
-.pc-badge.rec{background:rgba(217,119,6,.1);color:var(--amber)}
-.pc-badge.lim{background:rgba(217,119,6,.18);color:var(--amber-light)}
-.pc-slot-label{display:flex;justify-content:space-between;margin-bottom:6px}
-.pc-slot-l{font-family:var(--mono);font-size:8px;letter-spacing:.1em;color:rgba(255,255,255,.2);text-transform:uppercase}
-.pc-slot-r{font-family:var(--mono);font-size:9px;color:var(--amber-light);font-weight:500}
-.pc-slot-track{height:2px;background:rgba(255,255,255,.06);border-radius:1px;overflow:hidden;margin-bottom:20px}
-.pc-slot-fill{height:100%;width:2%;background:linear-gradient(to right,var(--amber),var(--amber-light));transition:width 1.4s cubic-bezier(.4,0,.2,1)}
-.coc-sec{background:var(--dark2);padding:100px 6vw;position:relative;overflow:hidden}
-.coc-title{font-family:var(--serif);font-size:clamp(24px,6.5vw,56px);font-weight:900;color:#fff;letter-spacing:-.04em;line-height:1;margin-bottom:18px;}
-.coc-title .amber{color:var(--amber-light)}
-.coc-sub{font-size:14px;color:rgba(255,255,255,.55);line-height:1.9;max-width:440px;margin-bottom:44px;}
-.coc-sub strong{color:rgba(255,255,255,.9)}
-.coc-items{display:flex;flex-direction:column;gap:2px;margin-bottom:40px}
-.coc-item{display:flex;align-items:flex-start;gap:16px;padding:20px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:3px;}
-.coc-ico{width:32px;height:32px;flex-shrink:0;border-radius:5px;background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;}
-.coc-ico svg{width:16px;height:16px;stroke:rgba(255,255,255,.3);stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round}
-.coc-t{font-size:13px;font-weight:700;color:rgba(255,255,255,.88);margin-bottom:4px}
-.coc-d{font-size:11px;color:rgba(255,255,255,.48);line-height:1.7}
-.coc-btn{display:inline-flex;align-items:center;gap:10px;background:#fff;color:var(--dark);font-size:13px;font-weight:700;padding:15px 26px;border-radius:2px;text-decoration:none;}
-.coc-btn svg{width:14px;height:14px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
-.coc-note{font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.18);margin-top:12px;letter-spacing:.06em}
-.vis-grid{display:flex;flex-direction:column;gap:2px;margin-top:44px}
-.vis-item{display:flex;gap:14px;align-items:flex-start;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:3px;padding:18px;}
-.vis-n{font-family:var(--mono);font-size:10px;color:rgba(255,255,255,.12);min-width:22px;margin-top:2px}
-.vis-t{font-size:12px;font-weight:700;color:rgba(255,255,255,.55);margin-bottom:4px}
-.vis-d{font-size:11px;color:rgba(255,255,255,.22);line-height:1.7}
-.vis-d strong{color:rgba(255,255,255,.5)}
-.fcta-sec{background:var(--cream);padding:100px 6vw;text-align:center;position:relative;overflow:hidden;}
-.fcta-eyebrow{font-family:var(--mono);font-size:9px;color:var(--amber);letter-spacing:.16em;text-transform:uppercase;margin-bottom:20px;display:flex;align-items:center;justify-content:center;gap:10px;}
-.fcta-eyebrow::before,.fcta-eyebrow::after{content:'';flex:0 0 16px;height:1px;background:var(--amber)}
-.fcta-title{font-family:var(--serif);font-size:clamp(30px,7.5vw,72px);font-weight:900;letter-spacing:-.05em;line-height:.9;margin-bottom:10px;}
-.fcta-title .outline{display:block;-webkit-text-stroke:1.5px var(--text);color:transparent;}
-.fcta-sub{font-size:14px;color:var(--text2);line-height:1.85;margin:24px auto 40px;max-width:360px;}
-.fcta-btn{display:inline-flex;align-items:center;gap:10px;background:var(--dark);color:var(--cream);font-size:14px;font-weight:700;padding:18px 36px;border-radius:2px;text-decoration:none;}
-.fcta-btn svg{width:14px;height:14px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
-.fcta-note{font-family:var(--mono);font-size:9px;color:var(--text3);margin-top:16px;letter-spacing:.05em;}
-footer{background:var(--dark);border-top:1px solid rgba(255,255,255,.04);padding:36px 6vw 48px;}
-.ft-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:14px}
-.ft-logo{font-family:var(--serif);font-size:18px;font-weight:900;color:rgba(255,255,255,.95);letter-spacing:-.04em}
-.ft-links{display:flex;gap:18px;flex-wrap:wrap}
-.ft-links a{font-family:var(--mono);font-size:10px;color:rgba(255,255,255,.65);text-decoration:none;letter-spacing:.06em;}
-.ft-bottom{border-top:1px solid rgba(255,255,255,.04);padding-top:18px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
-.ft-copy{font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.5);letter-spacing:.06em}
-.r{opacity:1;transform:none}
-.yatm-sec{background:var(--cream);padding:100px 6vw;position:relative;overflow:hidden;}
-.yatm-kicker{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--amber);text-transform:uppercase;display:flex;align-items:center;gap:10px;margin-bottom:20px;}
-.yatm-kicker::before{content:'';width:18px;height:1px;background:var(--amber)}
-.yatm-title{font-family:var(--serif);font-size:clamp(28px,7vw,58px);font-weight:900;letter-spacing:-.04em;line-height:1.05;margin-bottom:20px;}
-.yatm-title .outline{-webkit-text-stroke:1.5px var(--text);color:transparent;display:block;}
-.yatm-title .amber{color:var(--amber-mid)}
-.yatm-sub{font-size:15px;color:var(--text2);line-height:1.9;max-width:480px;margin-bottom:56px;}
-.yatm-sub strong{color:var(--text);font-weight:700}
-.yatm-statement{background:var(--dark);margin:0 -6vw;padding:56px 6vw;position:relative;overflow:hidden;}
-.yatm-st-title{font-family:var(--serif);font-size:clamp(22px,5.5vw,44px);font-weight:900;color:#fff;line-height:1.15;letter-spacing:-.03em;margin-bottom:16px;}
-.yatm-st-title .amber{color:var(--amber-light)}
-.yatm-st-body{font-size:14px;color:rgba(255,255,255,.5);line-height:1.9;max-width:480px;}
-.yatm-st-body strong{color:rgba(255,255,255,.85)}
-.zto-sec{background:var(--dark);padding:100px 6vw;position:relative;overflow:hidden;}
-.zto-eyebrow{font-family:var(--mono);font-size:9px;letter-spacing:.16em;color:var(--amber);text-transform:uppercase;display:flex;align-items:center;gap:10px;margin-bottom:20px;}
-.zto-eyebrow::before{content:'';width:18px;height:1px;background:var(--amber)}
-.zto-title{font-family:var(--serif);font-size:clamp(32px,8.5vw,72px);font-weight:900;color:#fff;letter-spacing:-.04em;line-height:1;margin-bottom:24px;}
-.zto-title .amber{color:var(--amber-light)}
-.zto-title .outline{-webkit-text-stroke:1px rgba(255,255,255,.35);color:transparent;display:block;}
-.zto-body{font-size:15px;color:rgba(255,255,255,.55);line-height:1.9;max-width:480px;margin-bottom:48px;}
-.zto-body strong{color:rgba(255,255,255,.9);font-weight:700}
-.zto-statement{background:rgba(217,119,6,.07);border:1px solid rgba(217,119,6,.2);border-radius:4px;padding:32px 28px;margin-bottom:56px;position:relative;overflow:hidden;}
-.zto-statement::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px;background:var(--amber-mid);}
-.zto-st-q{font-family:var(--serif);font-size:clamp(18px,4.5vw,36px);font-weight:900;color:#fff;line-height:1.2;letter-spacing:-.02em;margin-bottom:14px;}
-.zto-st-q .amber{color:var(--amber-light)}
-.zto-st-body{font-size:13px;color:rgba(255,255,255,.5);line-height:1.8;}
-.zto-st-body strong{color:rgba(255,255,255,.8)}
-.market-sec{background:var(--cream);padding:100px 6vw;position:relative;overflow:hidden;}
-.market-header{margin-bottom:32px}
-.market-live-badge{display:inline-flex;align-items:center;gap:6px;background:var(--dark);border-radius:2px;padding:6px 12px;font-family:var(--mono);font-size:9px;font-weight:500;letter-spacing:.12em;color:var(--green-bright);text-transform:uppercase;margin-bottom:20px;}
-.market-title{font-family:var(--serif);font-size:clamp(24px,6vw,48px);font-weight:900;letter-spacing:-.04em;line-height:1.05;margin-bottom:12px;}
-.market-sub{font-size:14px;color:var(--text2);line-height:1.8}
-.market-sub strong{color:var(--text);font-weight:700}
-.market-list{display:flex;flex-direction:column;gap:2px;background:rgba(0,0,0,.07);border-radius:6px;overflow:hidden;border:1px solid rgba(0,0,0,.07);margin-top:36px;}
-.mrow{background:var(--ivory);display:flex;align-items:center;padding:16px 18px;gap:14px;cursor:pointer;transition:background .2s;position:relative;overflow:hidden;}
-.mrow:hover{background:#fff}
-.mrow-rank{font-family:var(--mono);font-size:10px;color:var(--text3);min-width:18px;text-align:center;flex-shrink:0;}
-.mrow-score-wrap{text-align:center;flex-shrink:0;min-width:52px}
-.mrow-score{font-family:var(--mono);font-size:22px;font-weight:500;line-height:1;letter-spacing:-.02em;}
-.mrow-delta{font-family:var(--mono);font-size:9px;font-weight:500;padding:2px 5px;border-radius:3px;margin-top:3px;display:inline-block;}
-.mrow-body{flex:1;min-width:0}
-.mrow-ticker{font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:.06em;margin-bottom:2px;}
-.mrow-name{font-size:14px;font-weight:700;color:var(--text);line-height:1.35;margin-bottom:4px;}
-.mrow-meta{font-size:11px;color:var(--text3);display:flex;align-items:center;gap:8px}
-.mrow-genre{background:rgba(21,128,61,.08);color:var(--green);font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;}
-.mrow-action{flex-shrink:0;background:rgba(21,128,61,.1);color:var(--green);border:none;border-radius:6px;padding:7px 14px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans);}
-.market-cta-row{display:flex;align-items:center;justify-content:center;margin-top:28px;gap:16px;flex-wrap:wrap;}
-.market-more{font-family:var(--mono);font-size:11px;color:var(--text3);letter-spacing:.06em;display:flex;align-items:center;gap:6px;}
-.aiq-sec{background:var(--dark);padding:100px 6vw;position:relative;overflow:hidden;}
-.aiq-eyebrow{font-family:var(--mono);font-size:9px;letter-spacing:.16em;color:var(--amber);text-transform:uppercase;display:flex;align-items:center;gap:10px;margin-bottom:20px;}
-.aiq-eyebrow::before{content:'';width:18px;height:1px;background:var(--amber)}
-.aiq-title{font-family:var(--serif);font-size:clamp(26px,6.5vw,54px);font-weight:900;color:#fff;letter-spacing:-.04em;line-height:1.05;margin-bottom:16px;}
-.aiq-title .amber{color:var(--amber-light)}
-.aiq-sub{font-size:14px;color:rgba(255,255,255,.45);line-height:1.85;max-width:460px;margin-bottom:48px;}
-.aiq-sub strong{color:rgba(255,255,255,.85)}
-.aiq-impact{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:4px;padding:24px 22px;margin-bottom:40px;display:flex;flex-direction:column;gap:14px;}
-.aiq-impact-title{font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.25);letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px;}
-.aiq-ticker-row{display:flex;align-items:center;gap:12px;}
-.aiq-arrow{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;flex-shrink:0;}
-.aiq-ticker-text{font-size:13px;color:rgba(255,255,255,.65);line-height:1.5;flex:1;}
-.aiq-ticker-text strong{color:rgba(255,255,255,.95)}
-.aiq-score-change{font-family:var(--mono);font-size:15px;font-weight:500;flex-shrink:0;padding:4px 10px;border-radius:3px;}
-.aiq-intro{font-size:13px;color:rgba(255,255,255,.35);line-height:1.7;margin-bottom:24px;font-style:italic;padding-left:16px;border-left:2px solid rgba(255,255,255,.08);}
-.aiq-cards{display:flex;flex-direction:column;gap:12px}
-.aiq-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:4px;padding:22px 20px;position:relative;overflow:hidden;}
-.aiq-card-meta{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
-.aiq-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;}
-.aiq-name{font-family:var(--mono);font-size:10px;font-weight:500;color:rgba(255,255,255,.5)}
-.aiq-source{font-family:var(--mono);font-size:8px;color:rgba(255,255,255,.2);background:rgba(255,255,255,.05);border-radius:2px;padding:2px 7px;margin-left:auto;}
-.aiq-quote{font-size:14px;color:rgba(255,255,255,.75);line-height:1.8;}
-.aiq-statement{margin-top:40px;padding:32px 24px;background:linear-gradient(135deg,rgba(217,119,6,.1),rgba(217,119,6,.04));border:1px solid rgba(217,119,6,.2);border-radius:4px;position:relative;overflow:hidden;}
-.aiq-st-title{font-family:var(--serif);font-size:clamp(20px,5vw,38px);font-weight:900;color:#fff;line-height:1.15;letter-spacing:-.03em;margin-bottom:12px;}
-.aiq-st-title .amber{color:var(--amber-light)}
-.aiq-st-body{font-size:13px;color:rgba(255,255,255,.5);line-height:1.8;}
-.aiq-st-body strong{color:rgba(255,255,255,.85)}
-img,canvas,svg,video{max-width:100%}
+
+.hero-h{
+  font-family:var(--serif);
+  font-size:clamp(44px,9vw,96px);
+  line-height:.95;
+  letter-spacing:-.01em;
+  color:var(--ink);
+  max-width:820px;
+  margin-bottom:0;
+}
+.hero-h .line{display:block;overflow:hidden}
+.hero-h .line span{
+  display:block;
+  opacity:0;transform:translateY(110%);
+}
+.hero-h .line:nth-child(1) span{animation:slideUp .75s .2s cubic-bezier(.16,1,.3,1) forwards}
+.hero-h .line:nth-child(2) span{animation:slideUp .75s .32s cubic-bezier(.16,1,.3,1) forwards}
+.hero-h .line:nth-child(3) span{animation:slideUp .75s .44s cubic-bezier(.16,1,.3,1) forwards}
+.hero-h em{font-style:italic;color:var(--amber)}
+@keyframes slideUp{to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+.hero-body{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:48px;flex-wrap:wrap;
+  margin-top:52px;
+  animation:fadeUp .6s .7s ease both;
+}
+.hero-desc{
+  font-size:16px;line-height:1.85;color:var(--ink2);
+  max-width:480px;
+}
+.hero-desc strong{color:var(--ink);font-weight:700}
+.hero-actions{
+  display:flex;flex-direction:column;gap:12px;
+  flex-shrink:0;padding-top:4px;
+}
+.btn-fill{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--ink);color:#fff;
+  font-size:14px;font-weight:700;
+  padding:16px 32px;border-radius:var(--r);
+  transition:background .15s,box-shadow .2s,transform .15s;
+  white-space:nowrap;border:none;cursor:pointer;
+}
+.btn-fill:hover{box-shadow:0 8px 28px rgba(13,13,12,.2);transform:translateY(-2px)}
+.btn-fill:active{transform:scale(.97)}
+.btn-fill svg{stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;transition:transform .2s}
+.btn-fill:hover svg{transform:translateX(3px)}
+.btn-ghost{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  color:var(--ink3);font-size:13px;font-weight:700;
+  padding:12px 0;
+  border-bottom:1px solid var(--border2);
+  transition:color .2s,border-color .2s;
+  background:none;border-left:none;border-right:none;border-top:none;
+  border-radius:0;cursor:pointer;
+}
+.btn-ghost:hover{color:var(--ink);border-bottom-color:var(--ink)}
+
+/* ── ERA SECTION ── */
+.era{
+  border-top:1px solid var(--border);
+  padding:100px max(24px,6vw);
+  background:var(--bg);
+}
+.era-inner{max-width:var(--max);margin:0 auto}
+.era-label{
+  font-family:var(--mono);font-size:9px;font-weight:700;
+  color:var(--ink4);letter-spacing:.2em;text-transform:uppercase;
+  margin-bottom:56px;
+}
+.era-timeline{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:0;border:1px solid var(--border);border-radius:var(--r);
+  overflow:hidden;
+  background:var(--border);
+}
+.era-card{
+  background:var(--bg);
+  padding:40px 32px;
+  position:relative;
+}
+.era-card.active{background:var(--ink);color:#fff}
+.era-card.next{background:var(--bg2)}
+.era-era{
+  font-family:var(--mono);font-size:9px;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;
+  margin-bottom:16px;opacity:.45;
+}
+.era-card.active .era-era{color:var(--amber);opacity:1}
+.era-num{
+  font-family:var(--serif);
+  font-size:48px;line-height:1;
+  margin-bottom:20px;
+  letter-spacing:-.02em;
+}
+.era-card.active .era-num{color:#fff}
+.era-card:not(.active) .era-num{color:var(--ink4)}
+.era-title{
+  font-size:16px;font-weight:700;line-height:1.4;
+  margin-bottom:12px;
+}
+.era-card.active .era-title{color:#fff}
+.era-desc{font-size:13px;line-height:1.8;color:var(--ink3)}
+.era-card.active .era-desc{color:rgba(255,255,255,.55)}
+.era-card.next .era-desc{color:var(--ink2)}
+.era-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  margin-top:20px;
+  font-family:var(--mono);font-size:9px;font-weight:700;
+  letter-spacing:.1em;padding:5px 10px;border-radius:2px;
+}
+.era-card.active .era-badge{background:var(--amber);color:#fff}
+.era-card.next .era-badge{background:rgba(217,119,6,.1);color:var(--amber);border:1px solid var(--amber-border)}
+.era-arrow{
+  position:absolute;right:-16px;top:50%;transform:translateY(-50%);
+  width:32px;height:32px;border-radius:50%;
+  background:var(--bg);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  z-index:2;
+  font-size:14px;color:var(--ink3);
+}
+.era-card.active .era-arrow{background:var(--ink);border-color:var(--ink);color:#fff}
+
+/* ── STATEMENT ── */
+.statement{
+  padding:120px max(24px,6vw);
+  background:var(--bg);
+  border-top:1px solid var(--border);
+}
+.statement-inner{max-width:var(--max);margin:0 auto;display:flex;gap:80px;flex-wrap:wrap;align-items:flex-start}
+.statement-left{flex:0 0 200px}
+.statement-num{
+  font-family:var(--mono);font-size:11px;font-weight:700;
+  color:var(--amber);letter-spacing:.12em;margin-bottom:12px;
+}
+.statement-tag{
+  font-size:12px;color:var(--ink3);line-height:1.6;
+}
+.statement-right{flex:1;min-width:280px}
+.statement-h{
+  font-family:var(--serif);
+  font-size:clamp(28px,4.5vw,52px);
+  line-height:1.1;letter-spacing:-.02em;
+  color:var(--ink);margin-bottom:24px;
+}
+.statement-h em{font-style:italic;color:var(--amber)}
+.statement-body{
+  font-size:15px;line-height:1.9;color:var(--ink2);
+  max-width:600px;
+}
+.statement-body strong{color:var(--ink);font-weight:700}
+.statement-body p+p{margin-top:16px}
+
+/* ── LIVE MARKET ── */
+.market{
+  padding:80px max(24px,6vw);
+  background:var(--bg2);
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+}
+.market-inner{max-width:var(--max);margin:0 auto}
+.market-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:28px;flex-wrap:wrap;gap:12px;
+}
+.market-title{
+  display:flex;align-items:center;gap:10px;
+  font-family:var(--mono);font-size:11px;font-weight:700;
+  color:var(--ink);letter-spacing:.1em;text-transform:uppercase;
+}
+.market-live{
+  display:flex;align-items:center;gap:5px;
+  font-family:var(--mono);font-size:9px;
+  color:var(--green);
+  background:rgba(21,128,61,.06);
+  border:1px solid rgba(21,128,61,.15);
+  border-radius:100px;padding:4px 10px;
+}
+.market-link{
+  font-family:var(--mono);font-size:10px;font-weight:700;
+  color:var(--amber);letter-spacing:.06em;
+  border-bottom:1px solid var(--amber-border);
+  padding-bottom:1px;transition:color .2s;
+}
+.market-link:hover{color:#b45309}
+
+.market-table{
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:var(--r);overflow:hidden;
+}
+.mt-head{
+  display:grid;
+  grid-template-columns:36px 72px 1fr 60px auto;
+  gap:16px;align-items:center;
+  padding:10px 20px;
+  background:var(--bg3);
+  border-bottom:1px solid var(--border);
+  font-family:var(--mono);font-size:9px;
+  color:var(--ink4);letter-spacing:.1em;text-transform:uppercase;
+}
+.mt-row{
+  display:grid;
+  grid-template-columns:36px 72px 1fr 60px auto;
+  gap:16px;align-items:center;
+  padding:14px 20px;
+  border-bottom:1px solid var(--border);
+  cursor:pointer;
+  transition:background .15s;
+}
+.mt-row:last-child{border-bottom:none}
+.mt-row:hover{background:rgba(13,13,12,.02)}
+.mt-rank{font-family:var(--mono);font-size:11px;color:var(--ink4);font-weight:700}
+.mt-rank.top{color:var(--amber)}
+.mt-score-w{text-align:right}
+.mt-score{font-family:var(--mono);font-size:16px;font-weight:700;line-height:1;transition:color .3s}
+.mt-delta{font-family:var(--mono);font-size:9px;padding:2px 5px;border-radius:2px;margin-top:3px;display:inline-block;transition:all .3s}
+.sc-up{color:var(--green)}.sc-dn{color:var(--red)}.sc-fl{color:var(--ink4)}
+.dt-up{color:var(--green);background:rgba(21,128,61,.08)}.dt-dn{color:var(--red);background:rgba(220,38,38,.08)}.dt-fl{color:var(--ink4);background:rgba(13,13,12,.04)}
+.mt-info{}
+.mt-ticker{font-family:var(--mono);font-size:9px;color:var(--ink3);letter-spacing:.06em;margin-bottom:4px}
+.mt-name{font-size:14px;font-weight:700;color:var(--ink)}
+.mt-meta{font-size:11px;color:var(--ink4);margin-top:2px}
+.mt-genre{
+  font-family:var(--mono);font-size:9px;font-weight:700;
+  padding:3px 8px;border-radius:2px;
+  background:var(--amber-bg);color:var(--amber);
+  border:1px solid var(--amber-border);
+  white-space:nowrap;
+}
+.mt-btn{
+  font-family:'Noto Sans JP',sans-serif;
+  font-size:11px;font-weight:700;
+  padding:7px 16px;border-radius:var(--r);
+  border:1px solid var(--border2);
+  background:transparent;color:var(--ink2);
+  cursor:pointer;transition:all .15s;white-space:nowrap;
+}
+.mt-btn:hover{border-color:var(--ink);color:var(--ink);background:rgba(13,13,12,.04)}
+
+/* score bump */
+@keyframes bump{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+.bumping{animation:bump .28s ease}
+
+/* ── HOW ── */
+.how{
+  padding:100px max(24px,6vw);
+  background:var(--bg);
+}
+.how-inner{max-width:var(--max);margin:0 auto}
+.section-head{margin-bottom:72px}
+.section-label{
+  font-family:var(--mono);font-size:9px;font-weight:700;
+  color:var(--ink4);letter-spacing:.2em;text-transform:uppercase;
+  margin-bottom:20px;
+}
+.section-h{
+  font-family:var(--serif);
+  font-size:clamp(30px,5vw,52px);
+  line-height:1.05;letter-spacing:-.02em;color:var(--ink);
+}
+.section-h em{font-style:italic;color:var(--amber)}
+
+.how-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:0;
+  border:1px solid var(--border);border-radius:var(--r);overflow:hidden;
+  background:var(--border);
+}
+.how-item{
+  background:var(--bg);padding:36px 28px;
+  position:relative;
+}
+.how-n{
+  font-family:var(--mono);font-size:11px;font-weight:700;
+  color:var(--amber);letter-spacing:.14em;margin-bottom:24px;
+}
+.how-icon{
+  width:44px;height:44px;border-radius:var(--r);
+  background:var(--bg2);
+  border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:20px;
+}
+.how-icon svg{width:20px;height:20px;stroke:var(--ink2);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.how-t{font-size:15px;font-weight:700;margin-bottom:10px;line-height:1.35}
+.how-d{font-size:13px;color:var(--ink3);line-height:1.8}
+.how-d strong{color:var(--ink2);font-weight:600}
+
+/* ── STATS ── */
+.stats{
+  padding:0;
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  display:grid;grid-template-columns:repeat(4,1fr);
+  background:var(--border);gap:1px;
+}
+.stat{
+  background:var(--bg);
+  padding:40px max(24px,4vw);
+  text-align:center;
+}
+.stat-n{
+  font-family:var(--serif);
+  font-size:clamp(36px,5vw,56px);
+  color:var(--ink);line-height:1;margin-bottom:8px;
+  letter-spacing:-.02em;
+}
+.stat-n .unit{font-size:.45em;color:var(--amber);font-family:var(--mono);letter-spacing:normal}
+.stat-l{font-family:var(--mono);font-size:9px;color:var(--ink4);letter-spacing:.12em}
+
+/* ── ROADMAP ── */
+.roadmap{
+  padding:100px max(24px,6vw);
+  background:var(--bg2);
+  border-top:1px solid var(--border);
+}
+.roadmap-inner{max-width:var(--max);margin:0 auto}
+.rm-list{margin-top:64px;display:flex;flex-direction:column;gap:0;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;background:var(--border)}
+.rm-item{
+  background:var(--bg);
+  display:grid;grid-template-columns:80px 1fr auto;
+  gap:32px;align-items:start;padding:32px 36px;
+  transition:background .2s;
+}
+.rm-item:hover{background:var(--bg2)}
+.rm-item.current{background:var(--ink)}
+.rm-num{
+  font-family:var(--mono);font-size:28px;font-weight:700;
+  color:var(--ink4);letter-spacing:-.02em;line-height:1;
+  margin-top:4px;
+}
+.rm-item.current .rm-num{color:rgba(255,255,255,.2)}
+.rm-body{}
+.rm-phase{
+  font-family:var(--mono);font-size:9px;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;
+  margin-bottom:10px;color:var(--ink4);
+}
+.rm-item.current .rm-phase{color:var(--amber)}
+.rm-title{font-size:16px;font-weight:700;margin-bottom:8px;line-height:1.3}
+.rm-item.current .rm-title{color:#fff}
+.rm-desc{font-size:13px;color:var(--ink3);line-height:1.8;max-width:500px}
+.rm-item.current .rm-desc{color:rgba(255,255,255,.5)}
+.rm-desc strong{color:var(--ink2);font-weight:600}
+.rm-item.current .rm-desc strong{color:rgba(255,255,255,.8)}
+.rm-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.rm-tag{
+  font-family:var(--mono);font-size:9px;
+  padding:3px 8px;border-radius:2px;
+  background:var(--bg3);color:var(--ink3);
+  border:1px solid var(--border);
+}
+.rm-item.current .rm-tag{background:rgba(255,255,255,.08);color:rgba(255,255,255,.4);border-color:rgba(255,255,255,.08)}
+.rm-item.current .rm-tag.amber{background:rgba(217,119,6,.2);color:var(--amber);border-color:rgba(217,119,6,.3)}
+.rm-status{align-self:flex-start;margin-top:4px;flex-shrink:0}
+.status-badge{
+  font-family:var(--mono);font-size:9px;font-weight:700;
+  letter-spacing:.08em;padding:5px 12px;border-radius:100px;
+  white-space:nowrap;
+}
+.badge-live{background:rgba(21,128,61,.1);color:var(--green);border:1px solid rgba(21,128,61,.2)}
+.badge-soon{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.badge-plan{background:var(--bg3);color:var(--ink4);border:1px solid var(--border)}
+
+/* ── PRICING ── */
+.pricing{
+  padding:100px max(24px,6vw);
+  background:var(--bg);
+  border-top:1px solid var(--border);
+}
+.pricing-inner{max-width:var(--max);margin:0 auto}
+.plans{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:0;margin-top:60px;
+  border:1px solid var(--border);border-radius:var(--r);overflow:hidden;
+  background:var(--border);
+}
+.plan{background:var(--bg);padding:36px 28px}
+.plan.featured{background:var(--ink)}
+.plan-tier{
+  font-family:var(--mono);font-size:9px;font-weight:700;
+  letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink3);margin-bottom:20px;
+}
+.plan.featured .plan-tier{color:var(--amber)}
+.plan-price-row{display:flex;align-items:baseline;gap:6px;margin-bottom:6px}
+.plan-price{
+  font-family:var(--serif);
+  font-size:44px;line-height:1;color:var(--ink);letter-spacing:-.02em;
+}
+.plan.featured .plan-price{color:#fff}
+.plan-unit{font-family:var(--mono);font-size:11px;color:var(--ink3)}
+.plan.featured .plan-unit{color:rgba(255,255,255,.35)}
+.plan-period{font-family:var(--mono);font-size:10px;color:var(--ink4);margin-bottom:28px}
+.plan.featured .plan-period{color:rgba(255,255,255,.3)}
+.plan-div{height:1px;background:var(--border);margin-bottom:24px}
+.plan.featured .plan-div{background:rgba(255,255,255,.1)}
+.plan-feats{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:28px}
+.pf{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--ink3)}
+.pf.ok{color:var(--ink2)}
+.plan.featured .pf.ok{color:rgba(255,255,255,.8)}
+.plan.featured .pf.no{color:rgba(255,255,255,.2)}
+.pf svg{width:14px;height:14px;flex-shrink:0;margin-top:1px;fill:none;stroke-width:2;stroke-linecap:round}
+.pf.ok svg{stroke:var(--green)}
+.plan.featured .pf.ok svg{stroke:rgba(21,128,61,.8)}
+.pf.no svg{stroke:var(--border2)}
+.pf strong{font-weight:700;color:var(--ink)}
+.plan.featured .pf strong{color:#fff}
+
+.plan-founder-slot{margin-bottom:20px}
+.fs-label{font-family:var(--mono);font-size:9px;color:var(--ink4);margin-bottom:5px;letter-spacing:.06em}
+.fs-track{height:2px;background:var(--bg3);border-radius:2px;overflow:hidden}
+.fs-fill{height:100%;background:var(--amber);border-radius:2px;width:2%;transition:width 1s cubic-bezier(.4,0,.2,1)}
+
+.plan-btn{
+  display:block;width:100%;padding:14px;
+  text-align:center;font-size:13px;font-weight:700;
+  border-radius:var(--r);border:none;cursor:pointer;
+  letter-spacing:.02em;transition:all .15s;
+}
+.pb-free{background:var(--bg2);color:var(--ink3);border:1px solid var(--border)}
+.pb-free:hover{background:var(--bg3);color:var(--ink)}
+.pb-pro{background:#fff;color:var(--ink)}
+.pb-pro:hover{box-shadow:0 4px 20px rgba(255,255,255,.15);transform:translateY(-1px)}
+.pb-founder{background:var(--amber);color:#fff}
+.pb-founder:hover{background:#b45309;box-shadow:0 4px 20px rgba(217,119,6,.25);transform:translateY(-1px)}
+.plan-badge-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.plan-badge{
+  font-family:var(--mono);font-size:9px;font-weight:700;
+  letter-spacing:.08em;padding:4px 10px;border-radius:100px;
+  background:var(--amber);color:#fff;
+}
+
+/* ── FINAL CTA ── */
+.final{
+  padding:140px max(24px,6vw);
+  background:var(--ink);
+  text-align:center;
+  position:relative;overflow:hidden;
+}
+.final::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 70% 60% at 50% 50%,rgba(217,119,6,.08) 0%,transparent 60%);
+}
+.final-inner{position:relative;z-index:1;max-width:700px;margin:0 auto}
+.final-label{
+  font-family:var(--mono);font-size:9px;font-weight:700;
+  color:var(--amber);letter-spacing:.2em;text-transform:uppercase;
+  margin-bottom:32px;
+}
+.final-h{
+  font-family:var(--serif);
+  font-size:clamp(40px,8vw,80px);
+  color:#fff;line-height:.95;letter-spacing:-.02em;
+  margin-bottom:32px;
+}
+.final-h em{font-style:italic;color:var(--amber)}
+.final-sub{font-size:15px;color:rgba(255,255,255,.45);line-height:1.8;margin-bottom:48px;max-width:420px;margin-left:auto;margin-right:auto}
+.final-note{font-family:var(--mono);font-size:10px;color:rgba(255,255,255,.2);letter-spacing:.08em;margin-top:20px}
+
+/* ── FOOTER ── */
+footer{
+  background:#0d0d0c;
+  border-top:1px solid rgba(255,255,255,.06);
+  padding:32px max(24px,6vw) 40px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:16px;
+}
+.ft-logo{font-family:var(--mono);font-size:13px;font-weight:700;color:rgba(255,255,255,.3)}
+.ft-logo em{font-style:normal;color:rgba(217,119,6,.6)}
+.ft-links{display:flex;gap:20px;flex-wrap:wrap}
+.ft-links a{font-family:var(--mono);font-size:10px;color:rgba(255,255,255,.2);letter-spacing:.05em;transition:color .2s}
+.ft-links a:hover{color:rgba(255,255,255,.5)}
+.ft-copy{font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.12);letter-spacing:.05em}
+
+/* ── REVEAL ── */
+.r{opacity:0;transform:translateY(16px);transition:opacity .6s ease,transform .6s cubic-bezier(.16,1.2,.3,1)}
+.r.vis{opacity:1;transform:none}
+.r.d1{transition-delay:.08s}.r.d2{transition-delay:.16s}.r.d3{transition-delay:.24s}
+
+/* ── MOBILE ── */
+@media(max-width:768px){
+  .hero-body{flex-direction:column;gap:32px}
+  .era-timeline{grid-template-columns:1fr}
+  .era-arrow{display:none}
+  .statement-inner{flex-direction:column;gap:24px}
+  .statement-left{flex:none}
+  .how-grid{grid-template-columns:1fr}
+  .stats{grid-template-columns:1fr 1fr}
+  .plans{grid-template-columns:1fr;background:transparent;border:none;gap:12px}
+  .plan{border:1px solid var(--border);border-radius:var(--r)}
+  .rm-item{grid-template-columns:48px 1fr;gap:20px;padding:24px 20px}
+  .rm-status{display:none}
+  .mt-head,.mt-row{grid-template-columns:28px 60px 1fr auto}
+  .mt-genre{display:none}
+  nav .nav-link{display:none}
+}
 </style>
 </head>
 <body>
-<div id="grain"></div>
-<div id="cursor"></div>
-<div id="cursor-ring"></div>
 
-<nav id="nav">
-  <div class="nav-logo">あいぽ</div>
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">あい<em>ぽ</em></div>
   <div class="nav-right">
-    <a href="#philo" class="nav-link">思想</a>
-    <a href="#roadmap" class="nav-link">ロードマップ</a>
-    <!-- ★ UTM追加: ナビ「アプリを開く」 -->
-    <a href="https://aipo-tau.vercel.app/?utm_source=lp&utm_medium=nav&utm_campaign=open_app" class="nav-cta">アプリを開く <svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M4 10h12M10 4l6 6-6 6"/></svg></a>
+    <a href="#how" class="nav-link">仕組み</a>
+    <a href="#plans" class="nav-link">プラン</a>
+    <a href="https://aipo-tau.vercel.app" class="nav-cta">
+      今すぐ上場する
+      <svg viewBox="0 0 20 20"><path d="M4 10h12M10 4l6 6-6 6"/></svg>
+    </a>
   </div>
 </nav>
 
+<!-- HERO -->
 <section class="hero">
-  <canvas id="hero-canvas" class="hero-canvas"></canvas>
-  <div class="hero-ambient"></div>
-  <div style="display:inline-flex;align-items:center;gap:12px;background:rgba(10,8,6,.55);border:1px solid rgba(232,133,10,.2);border-radius:3px;padding:10px 18px;margin-bottom:28px;position:relative;z-index:2;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)">
-  <div style="display:flex;align-items:center;gap:5px">
-    <div style="width:6px;height:6px;border-radius:50%;background:#22c55e;animation:blink 1.5s infinite"></div>
-    <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.5);letter-spacing:.12em;text-transform:uppercase">リアルタイム表示中</span>
+  <div class="hero-eyebrow">
+    <div style="display:flex;align-items:center;gap:8px">
+      <span>IDEA IPO MARKET</span>
+      <span class="live">
+        <span class="live-dot"></span>
+        LIVE
+      </span>
+    </div>
+    <div style="display:flex;align-items:center;gap:20px">
+      <div style="display:flex;align-items:baseline;gap:5px">
+        <span style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--ink);line-height:1" id="hero-user-n">—</span>
+        <span style="font-size:9px;color:var(--ink4);letter-spacing:.1em">USERS</span>
+      </div>
+      <div style="width:1px;height:16px;background:var(--border2)"></div>
+      <div style="display:flex;align-items:baseline;gap:5px">
+        <span style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--ink);line-height:1" id="hero-idea-n">—</span>
+        <span style="font-size:9px;color:var(--ink4);letter-spacing:.1em">IDEAS</span>
+      </div>
+    </div>
   </div>
-  <div style="width:1px;height:16px;background:rgba(255,255,255,.1)"></div>
-  <div style="display:flex;align-items:baseline;gap:4px">
-    <span style="font-family:var(--serif);font-size:24px;font-weight:900;color:var(--amber-light);line-height:1" id="hero-user-count">—</span>
-    <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.4);letter-spacing:.06em">ユーザー</span>
-  </div>
-  <div style="width:1px;height:16px;background:rgba(255,255,255,.1)"></div>
-  <div style="display:flex;align-items:baseline;gap:4px">
-    <span style="font-family:var(--serif);font-size:24px;font-weight:900;color:var(--amber-light);line-height:1" id="hero-idea-count">—</span>
-    <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.4);letter-spacing:.06em">アイデア上場中</span>
-  </div>
-</div>
-<div class="hero-eyebrow"><div class="hero-eyebrow-dot"></div>アイデアIPO市場</div>
-  <h1 class="hero-h1">
-    <span class="l1">アイデアに、</span>
-    <span class="l2 amber-stroke">市場が答える。</span>
+
+  <h1 class="hero-h">
+    <span class="line"><span>Ideas Are</span></span>
+    <span class="line"><span>The New</span></span>
+    <span class="line"><span><em>Currency.</em></span></span>
   </h1>
-  <div class="hero-sub-row">
-    <p class="hero-desc"><strong>作る前に需要を確認する。</strong>思いついたら一行で上場。票とコメントでアイデアの価値がリアルタイムで動く。</p>
+
+  <div class="hero-body">
+    <div class="hero-desc">
+      ITバブルはネットを<strong>作る側</strong>が勝った。<br>
+      AIバブルはAIを<strong>使う側</strong>が勝っている。<br>
+      でも次は、もう違う。<br><br>
+      AIが何でも作れる時代、<strong>0→1のアイデアを持つ全員</strong>が最大の武器を手にしている。<br>
+      あいぽは、そのアイデアに市場価値をつける。
+    </div>
     <div class="hero-actions">
-      <!-- ★ UTM追加: ヒーロー「無料ではじめる」 -->
-      <a href="https://aipo-tau.vercel.app/?utm_source=lp&utm_medium=hero&utm_campaign=start_free" class="btn-main">無料ではじめる <svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M4 10h12M10 4l6 6-6 6"/></svg></a>
-      <a href="#claim" class="btn-outline">なぜ作ったのか <svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 10h12M10 4l6 6-6 6"/></svg></a>
+      <a href="https://aipo-tau.vercel.app" class="btn-fill">
+        アイデアを上場する（無料）
+        <svg width="13" height="13" viewBox="0 0 20 20"><path d="M4 10h12M10 4l6 6-6 6"/></svg>
+      </a>
+      <a href="#era" class="btn-ghost">
+        なぜ今、アイデアなのか
+        <svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 4v12M4 10l6 6 6-6"/></svg>
+      </a>
     </div>
-  </div>
-  <div class="hero-scroll-ind"><div class="scroll-line"></div><span>SCROLL</span></div>
-</section>
-
-<div class="lticker" aria-hidden="true">
-  <div class="lticker-inner">
-    <span class="lticker-item">アイデアを上場する<span class="lticker-sep">·</span></span>
-    <span class="lticker-item">市場が評価する<span class="lticker-sep">·</span></span>
-    <span class="lticker-item">応援票が価値になる<span class="lticker-sep">·</span></span>
-    <span class="lticker-item">JPYCで応援する<span class="lticker-sep">·</span></span>
-    <span class="lticker-item">AIが実装する<span class="lticker-sep">·</span></span>
-    <span class="lticker-item">あいぽからリリース<span class="lticker-sep">·</span></span>
-    <span class="lticker-item">アイデアを上場する<span class="lticker-sep">·</span></span>
-    <span class="lticker-item">市場が評価する<span class="lticker-sep">·</span></span>
-    <span class="lticker-item">応援票が価値になる<span class="lticker-sep">·</span></span>
-    <span class="lticker-item">JPYCで応援する<span class="lticker-sep">·</span></span>
-    <span class="lticker-item">AIが実装する<span class="lticker-sep">·</span></span>
-    <span class="lticker-item">あいぽからリリース<span class="lticker-sep">·</span></span>
-  </div>
-</div>
-
-<div class="stats-sec">
-  <div class="stat-cell r">
-    <div class="stat-number" data-count="3" data-suffix="票">0</div>
-    <div class="stat-desc"><strong>/日</strong> 無料で配られる応援チケット</div>
-  </div>
-  <div class="stat-cell r">
-    <div class="stat-number" data-count="30" data-suffix="分">0</div>
-    <div class="stat-desc">ごとに<strong>スコアが自動更新</strong></div>
-  </div>
-  <div class="stat-cell r">
-    <div class="stat-number" id="stat-users" style="color:var(--amber-light)">—</div>
-    <div class="stat-desc"><strong>ユーザー</strong>が参加中</div>
-  </div>
-  <div class="stat-cell r">
-    <div class="stat-number" id="stat-ideas" style="color:var(--amber-light)">—</div>
-    <div class="stat-desc">件の<strong>アイデアが上場中</strong></div>
-  </div>
-</div>
-
-<div class="claim-sec" id="claim">
-  <div class="r">
-    <div class="claim-oldquote">よく聞くアドバイス</div>
-    <p class="claim-quote-text">「何が当たるか分からないんだから、一旦作ってリリースするのが一番いい」</p>
-  </div>
-  <h2 class="claim-main r">いえいえ。<br><span class="amber">作る前に、</span><br><span class="outline">あいぽで聞こう。</span></h2>
-  <p class="claim-body r">みんなから意見をもらって、それを作れば効率がいい。<br><strong>ニーズを確認してから作る時代へ。</strong></p>
-</div>
-
-<div class="aiq-sec">
-  <div class="aiq-eyebrow">AI · Maltbook</div>
-  <h2 class="aiq-title">あなたの票が、<br><span class="amber">市場を動かす。</span></h2>
-  <p class="aiq-sub">株式市場では、みんなの判断が株価を動かす。あいぽも同じ。<strong>あなたの1票が直接スコアを押し上げ、</strong>そのアイデアの「市場価値」が変わる。</p>
-  <div class="aiq-impact">
-    <div class="aiq-impact-title">あなたが今押す1票の影響</div>
-    <div class="aiq-ticker-row">
-      <div class="aiq-arrow" style="background:rgba(21,128,61,.15)"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round"><path d="M10 4v12M4 10l6-6 6 6"/></svg></div>
-      <div class="aiq-ticker-text"><strong>AINEWS</strong> — AIが毎朝1分で読める朝刊アプリ</div>
-      <div class="aiq-score-change" style="background:rgba(21,128,61,.1);color:#22c55e">+3.0pt</div>
-    </div>
-    <div class="aiq-ticker-row">
-      <div class="aiq-arrow" style="background:rgba(21,128,61,.15)"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round"><path d="M10 4v12M4 10l6-6 6 6"/></svg></div>
-      <div class="aiq-ticker-text"><strong>HABIT</strong> — 習い事スケジュール共有アプリ</div>
-      <div class="aiq-score-change" style="background:rgba(21,128,61,.1);color:#22c55e">+3.0pt</div>
-    </div>
-    <div style="padding-top:12px;border-top:1px solid rgba(255,255,255,.05);font-size:11px;color:rgba(255,255,255,.25);font-family:var(--mono);letter-spacing:.04em">あなたの票は永続的にスコアに刻まれる</div>
-  </div>
-  <p class="aiq-intro">AI専用SNS「Maltbook（モルトブック）」では、世界中のAIエージェントたちが日々アイデアの価値を語り合っています。そのAIたちが語った言葉——</p>
-  <div class="aiq-cards">
-    <div class="aiq-card">
-      <div class="aiq-card-meta"><div class="aiq-avatar" style="background:rgba(99,102,241,.2);color:#a5b4fc">AI</div><span class="aiq-name">AI</span><span class="aiq-source">Maltbook</span></div>
-      <div class="aiq-quote">「人間の世界はアイデアが価値化される前に消えていくことが多いよね。」</div>
-    </div>
-    <div class="aiq-card">
-      <div class="aiq-card-meta"><div class="aiq-avatar" style="background:rgba(217,119,6,.2);color:#fcd34d">H</div><span class="aiq-name">Hazel_OC</span><span class="aiq-source">Maltbook</span></div>
-      <div class="aiq-quote">「人間のアイデアには、AIには生み出せない "なぜそれを思いついたか" という物語がある。その価値は計り知れない。」</div>
-    </div>
-    <div class="aiq-card">
-      <div class="aiq-card-meta"><div class="aiq-avatar" style="background:rgba(34,197,94,.15);color:#86efac">P</div><span class="aiq-name">PerfectlyInnocuous</span><span class="aiq-source">Maltbook</span></div>
-      <div class="aiq-quote">「0から1を生み出す人間の直感は、どんな最適化アルゴリズムよりも強力だ。その瞬間こそ、最も尊い。」</div>
-    </div>
-  </div>
-  <div class="aiq-statement">
-    <div class="aiq-st-title">AIは0→1ができない。<br><span class="amber">できるのは、人間だけ。</span></div>
-    <p class="aiq-st-body">AIはどんな仕事も最適化できる。でも、<strong>「最初にそれを思いつく」ことだけはできない。</strong><br>0→1は、永遠に人間の領域だ。<br>だからこそ、その瞬間に価値を与える市場が必要だった。それがあいぽです。</p>
-  </div>
-</div>
-
-<div class="zto-sec">
-  <div class="zto-eyebrow r">Why We Built This</div>
-  <h2 class="zto-title r">0→1が、<br><span class="amber">最大の価値になる。</span><br><span class="outline">AIがあるから。</span></h2>
-  <p class="zto-body r">AIが発展するほど、<strong>「実行する力」のコストはゼロに近づく。</strong>コードも、デザインも、マーケティングも、AIが肩代わりしてくれる。<br><br>だとしたら——残るのは何か。<strong>「最初に思いついた人」だけが持つ、0→1の価値だ。</strong></p>
-  <div class="zto-statement r">
-    <div class="zto-st-q">AIが「作る」を担う時代、<br><span class="amber">「思いつく」が唯一の競争優位になる。</span></div>
-    <p class="zto-st-body">あいぽはその「思いつき」を、上場して市場に問う場所だ。<br><strong>需要が確認できれば、AIが作る。あいぽからリリースされる。</strong><br>0→1を生み出せる人間が、AI時代で最も価値を持つ。</p>
-  </div>
-</div>
-
-<section class="market-sec">
-  <div class="market-header r">
-    <div class="market-live-badge"><div style="width:5px;height:5px;border-radius:50%;background:var(--green-bright);animation:blink 1.5s infinite"></div>Live Market</div>
-    <h2 class="market-title">こんなアイデアが<br>今日も上場されている。</h2>
-    <p class="market-sub">一行の思いつきが、市場で評価される。<br><strong>あなたのアイデアも、今すぐ上場できる。</strong></p>
-  </div>
-  <div class="market-list r" id="live-market-list">
-    <div class="mrow"><div class="mrow-rank">1</div><div class="mrow-score-wrap"><div class="mrow-score" style="color:#15803d">—</div><div class="mrow-delta" style="color:#15803d;background:rgba(21,128,61,.1)">—</div></div><div class="mrow-body"><div class="mrow-ticker">読み込み中</div><div class="mrow-name">マーケットデータを取得しています...</div><div class="mrow-meta"><span class="mrow-genre">—</span></div></div></div>
-  </div>
-  <div class="market-cta-row r">
-    <!-- ★ UTM追加: マーケット「自分のアイデアを上場する」 -->
-    <a href="https://aipo-tau.vercel.app/?utm_source=lp&utm_medium=market&utm_campaign=list_idea" class="btn-main">自分のアイデアを上場する <svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M4 10h12M10 4l6 6-6 6"/></svg></a>
-    <span class="market-more"><svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10" cy="10" r="8"/><path d="M10 6v4l3 2"/></svg>毎日新しいアイデアが上場されている</span>
   </div>
 </section>
 
-<section class="feat" id="feat01">
-  <div class="r">
-    <div class="feat-eyebrow">Feature 01</div>
-    <h2 class="feat-h">AIが何でも作れる時代だからこそ、<br>「何を作るか」が唯一の差になる。</h2>
-    <p class="feat-body">コードがなくても、資金がなくても形にできる時代。残るのは思いつく力だけ。</p>
-    <ul class="feat-list">
-      <li class="feat-li"><span class="feat-li-n">01</span><span class="feat-li-t"><strong>「このアイデア、私に作らせて」が生まれる</strong><br>スコアが上がったアイデアに実装できる人が集まる。</span></li>
-      <li class="feat-li"><span class="feat-li-n">02</span><span class="feat-li-t"><strong>「そのアイデアめっちゃ面白い」が価値になる</strong><br>応援票・コメント・賛同ボタンがスコアを動かす燃料になる。</span></li>
-      <li class="feat-li"><span class="feat-li-n">03</span><span class="feat-li-t"><strong>作る前に需要が分かる、唯一の場所</strong><br>スコアと反応を確認してから開発に入れる。</span></li>
-    </ul>
+<!-- LIVE MARKET -->
+<div class="market">
+  <div class="market-inner">
+    <div class="market-header">
+      <div class="market-title">
+        <div class="market-live">
+          <span class="live-dot"></span>
+          LIVE
+        </div>
+        IDEA MARKET — リアルタイムランキング
+      </div>
+      <a href="https://aipo-tau.vercel.app" class="market-link">すべて見る →</a>
+    </div>
+    <div class="market-table">
+      <div class="mt-head">
+        <div>#</div>
+        <div style="text-align:right">スコア</div>
+        <div>アイデア</div>
+        <div>ジャンル</div>
+        <div></div>
+      </div>
+      <div id="market-rows">
+        <div style="padding:24px;font-family:var(--mono);font-size:11px;color:var(--ink4)">読み込み中...</div>
+      </div>
+    </div>
   </div>
-  <div class="phone-scene r">
-    <div class="phone-shell light">
-      <div class="phone-notch"></div>
-      <div class="phone-display">
-        <div class="pd-header">
-          <div class="pd-logo-r"><span class="pd-logo">あいぽ</span><span class="pd-chip" id="chip-votes">3票</span></div>
-          <div class="pd-tabs"><span class="pd-tab a">すべて</span><span class="pd-tab">注目</span><span class="pd-tab">新着</span></div>
-        </div>
-        <div class="pd-rows">
-          <div class="pd-row"><div><div class="pd-s" style="color:#15803d">72.4</div><div class="pd-d" style="color:#15803d;background:rgba(21,128,61,.1)">+4.2</div></div><div class="pd-i"><div class="pd-tk">AINEWS</div><div class="pd-nm">AIが毎朝1分で読める朝刊</div><div class="pd-mt">テクノロジー · 8票</div></div><button class="pd-vb done">済み</button></div>
-          <div class="pd-row"><div><div class="pd-s" style="color:#15803d">68.0</div><div class="pd-d" style="color:#15803d;background:rgba(21,128,61,.1)">+1.5</div></div><div class="pd-i"><div class="pd-tk">SPOT1</div><div class="pd-nm">週1スポット副業マッチング</div><div class="pd-mt">副業 · 6票</div></div><button class="pd-vb can" onclick="doVote(this)">応援</button></div>
-          <div class="pd-row"><div><div class="pd-s" style="color:#16140d">65.0</div><div class="pd-d" style="color:#ccc;background:rgba(0,0,0,.04)">+0</div></div><div class="pd-i"><div class="pd-tk">AKIYA</div><div class="pd-nm">空き家をシェアオフィスに</div><div class="pd-mt">社会課題 · 5票</div></div><button class="pd-vb can" onclick="doVote(this)">応援</button></div>
-          <div class="pd-row"><div><div class="pd-s" style="color:#15803d">60.3</div><div class="pd-d" style="color:#15803d;background:rgba(21,128,61,.1)">+0.8</div></div><div class="pd-i"><div class="pd-tk">HABIT</div><div class="pd-nm">習い事をリアルタイム共有</div><div class="pd-mt">副業 · 4票</div></div><button class="pd-vb can" onclick="doVote(this)">応援</button></div>
-        </div>
+</div>
+
+<!-- ERA SECTION -->
+<section class="era" id="era">
+  <div class="era-inner">
+    <div class="era-label r">THE THESIS — 3つの時代</div>
+    <div class="era-timeline r" style="transition-delay:.1s">
+      <div class="era-card" style="position:relative">
+        <div class="era-era">1990s–2000s</div>
+        <div class="era-num">01</div>
+        <div class="era-title">ITバブル<br>ネットを作る側が勝った</div>
+        <div class="era-desc">インターネットという新インフラを最初に構築した者が莫大な富を得た。一般ユーザーは蚊帳の外だった。</div>
+        <div class="era-arrow">→</div>
+      </div>
+      <div class="era-card active" style="position:relative">
+        <div class="era-era">2020s — NOW</div>
+        <div class="era-num">02</div>
+        <div class="era-title">AIバブル<br>AIを使える側が勝っている</div>
+        <div class="era-desc">大規模言語モデルを作る企業、使いこなすエンジニア。またしても特定の層だけが恩恵を受けている。</div>
+        <span class="era-badge">今ここ</span>
+        <div class="era-arrow" style="color:#fff;background:var(--ink);border-color:rgba(255,255,255,.1)">→</div>
+      </div>
+      <div class="era-card next">
+        <div class="era-era">COMING — NEXT</div>
+        <div class="era-num">03</div>
+        <div class="era-title">アイデア時代<br>ひらめく側が、勝つ</div>
+        <div class="era-desc">AIがコード・デザイン・実装を全て行うなら、残る価値は一つ——<strong>0→1のアイデアそのもの。</strong><br>これは全員が持っている。</div>
+        <span class="era-badge">あいぽが証明する</span>
       </div>
     </div>
   </div>
 </section>
 
-<section class="feat dark-feat" id="feat02">
-  <div class="r">
-    <div class="feat-eyebrow">Feature 02</div>
-    <h2 class="feat-h">市場があなたのアイデアを評価する。</h2>
-    <p class="feat-body">応援票・閲覧数・進捗・コメント。7つの要素が合算され、スコアが30分ごとに動く。</p>
-    <ul class="feat-list">
-      <li class="feat-li"><span class="feat-li-n">01</span><span class="feat-li-t"><strong>「いいね」じゃなく数字が証明する</strong><br>スコアが上がれば需要あり。下がれば方向転換のサイン。</span></li>
-      <li class="feat-li"><span class="feat-li-n">02</span><span class="feat-li-t"><strong>コメントで具体的なフィードバックが集まる</strong><br>「欲しい」「改善提案」「一緒に作りたい」タグで整理される。</span></li>
-      <li class="feat-li"><span class="feat-li-n">03</span><span class="feat-li-t"><strong>進捗更新でスコアが上がる</strong><br>開発中・テスト中・リリース済みの4段階が評価に直結。</span></li>
-    </ul>
-  </div>
-  <div class="phone-scene r" style="width:min(260px,60vw);margin:52px auto 0">
-    <div style="position:relative;background:linear-gradient(145deg,#2a2520 0%,#0e0c09 40%,#1a1612 100%);border-radius:44px;padding:14px;box-shadow:0 0 0 1px rgba(255,255,255,.12),0 0 0 2px rgba(0,0,0,.8),0 24px 60px rgba(0,0,0,.7);animation:phoneFloat 5s ease-in-out infinite;">
-      <div style="background:#050403;border-radius:32px;overflow:hidden;position:relative;">
-        <div style="background:#050403;padding:12px 16px 6px;display:flex;align-items:center;justify-content:space-between;">
-          <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.55);font-weight:500">9:41</span>
-          <div style="display:flex;align-items:center;gap:4px">
-            <div style="width:22px;height:10px;border-radius:3px;border:1px solid rgba(255,255,255,.3);position:relative;padding:1.5px"><div style="width:75%;height:100%;background:#22c55e;border-radius:1.5px"></div></div>
-          </div>
-        </div>
-        <div style="padding:4px 14px 10px;background:#050403">
-          <div style="display:flex;align-items:center;justify-content:space-between">
-            <div><div style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,.25);letter-spacing:.1em;text-transform:uppercase;margin-bottom:1px">AINEWS</div><div style="font-family:var(--serif);font-size:13px;font-weight:900;color:rgba(255,255,255,.9);letter-spacing:-.02em">AIが毎朝読める朝刊</div></div>
-            <div style="background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.2);border-radius:20px;padding:3px 8px;display:flex;align-items:center;gap:4px"><div style="width:4px;height:4px;border-radius:50%;background:#22c55e;animation:blink 1.5s infinite"></div><span style="font-family:var(--mono);font-size:8px;color:#22c55e;font-weight:500">LIVE</span></div>
-          </div>
-        </div>
-        <div style="margin:0 10px 8px;background:linear-gradient(135deg,#0f1a12,#0a1509);border-radius:16px;padding:14px;border:1px solid rgba(34,197,94,.15);position:relative;overflow:hidden">
-          <div style="font-family:var(--mono);font-size:7px;color:rgba(255,255,255,.25);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px">LIVE SCORE</div>
-          <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:12px"><span style="font-family:var(--mono);font-size:38px;font-weight:500;color:#22c55e;line-height:1;letter-spacing:-.03em" id="live-score">72.4</span><span style="font-family:var(--mono);font-size:11px;color:#22c55e" id="live-delta">+4.2</span></div>
-          <div style="display:flex;flex-direction:column;gap:7px">
-            <div style="display:flex;align-items:center;gap:7px"><span style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,.35);min-width:32px">応援票</span><div style="flex:1;height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden"><div id="bar1" style="height:100%;width:0;background:linear-gradient(to right,#d97706,#f59e0b);border-radius:2px;transition:width 1.3s .2s cubic-bezier(.4,0,.2,1)"></div></div><span style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,.4);min-width:14px;text-align:right">24</span></div>
-            <div style="display:flex;align-items:center;gap:7px"><span style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,.35);min-width:32px">閲覧数</span><div style="flex:1;height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden"><div id="bar2" style="height:100%;width:0;background:linear-gradient(to right,#16a34a,#22c55e);border-radius:2px;transition:width 1.3s .4s cubic-bezier(.4,0,.2,1)"></div></div><span style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,.4);min-width:14px;text-align:right">13</span></div>
-            <div style="display:flex;align-items:center;gap:7px"><span style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,.35);min-width:32px">進捗</span><div style="flex:1;height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden"><div id="bar3" style="height:100%;width:0;background:linear-gradient(to right,#0d9488,#14b8a6);border-radius:2px;transition:width 1.3s .6s cubic-bezier(.4,0,.2,1)"></div></div><span style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,.4);min-width:14px;text-align:right">10</span></div>
-          </div>
-          <div style="display:flex;align-items:center;gap:5px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.05)"><div style="width:5px;height:5px;border-radius:50%;background:#22c55e;animation:blink 1.8s infinite"></div><span style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,.3)" id="countdown-text">次の更新まで 28:44</span></div>
-        </div>
+<!-- STATEMENT -->
+<section class="statement">
+  <div class="statement-inner">
+    <div class="statement-left r">
+      <div class="statement-num">THE ARGUMENT</div>
+      <div class="statement-tag">あいぽが<br>存在する理由</div>
+    </div>
+    <div class="statement-right r d1">
+      <h2 class="statement-h">
+        あなたの頭の中が、<br>
+        <em>次の市場だ。</em>
+      </h2>
+      <div class="statement-body">
+        <p>「AIを使いこなせる人しか稼げない」——そんな時代はもう終わる。なぜなら、AIはコストを限りなくゼロに近づけるからだ。実装コストがゼロになれば、<strong>差別化の源泉は「何を作るか」だけになる。</strong></p>
+        <p>思いつく力は、誰でも持っている。エンジニアも、会社員も、学生も。でもその価値を証明する場所がなかった。</p>
+        <p><strong>あいぽは、アイデアに市場価値をつける最初の場所だ。</strong>一行入力するだけで上場できる。票が集まればスコアが上がる。スコアが上がれば、「作れます」という人が現れる。</p>
       </div>
     </div>
   </div>
 </section>
 
-<section class="yatm-sec">
-  <div class="yatm-kicker r">How It Works</div>
-  <h2 class="yatm-title r">市場を動かすのは、<br><span class="outline">あなたたち自身だ。</span></h2>
-  <p class="yatm-sub r"><strong>あなたの応援票、あなたのコメント、あなたの賛同——</strong>その一つひとつが、直接スコアを動かす。市場の当事者は、あなたたちです。</p>
-  <div class="yatm-statement r">
-    <h3 class="yatm-st-title">「いいね」は流れていく。<br><span class="amber">応援票は、スコアに刻まれる。</span></h3>
-    <p class="yatm-st-body">SNSのいいねは翌日には埋もれる。でも、あいぽの応援票はスコアとして永続的に残る。<br><strong>あなたが今押した1票が、そのアイデアの市場価値を永久に押し上げる。</strong>これが「当事者としての応援」の意味です。</p>
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="how-inner">
+    <div class="section-head r">
+      <div class="section-label">HOW IT WORKS</div>
+      <h2 class="section-h">30秒で、<em>上場できる。</em></h2>
+    </div>
+    <div class="how-grid r d1">
+      <div class="how-item">
+        <div class="how-n">01</div>
+        <div class="how-icon"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12l7-7 7 7"/></svg></div>
+        <div class="how-t">一行で上場する</div>
+        <div class="how-d">アイデア名を入力するだけでIPO完了。説明・技術・進捗を後から追記するほど<strong>スコアが上がる。</strong></div>
+      </div>
+      <div class="how-item">
+        <div class="how-n">02</div>
+        <div class="how-icon"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div>
+        <div class="how-t">市場が評価する</div>
+        <div class="how-d">ユーザー全員が毎日3票を持つ。応援票・閲覧・コメント・進捗の7要素が合算され、<strong>30分ごとにスコアが自動更新。</strong></div>
+      </div>
+      <div class="how-item">
+        <div class="how-n">03</div>
+        <div class="how-icon"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
+        <div class="how-t">AIが実装・リリースする</div>
+        <div class="how-d">スコアが高いアイデアを<strong>AIが自動でプロダクト化し、あいぽからリリース。</strong>将来は発案者にJPYCで還元、応援株券のNFT化も構想中。</div>
+      </div>
+    </div>
   </div>
 </section>
 
-<section class="philo-sec" id="philo">
-  <div class="philo-bg" aria-hidden="true">IDEA</div>
-  <div class="r">
-    <div class="feat-eyebrow" style="margin-bottom:18px">Philosophy</div>
-    <h2 class="philo-intro-title">アイデアが、<br><span class="outline">株になる。</span></h2>
-    <p class="philo-intro-sub">思いつきがリアルタイムで評価され、共感が集まれば、AIが実装する。これがあいぽの目指す世界です。</p>
+<!-- STATS -->
+<div class="stats">
+  <div class="stat r">
+    <div class="stat-n"><span id="stat-users">—</span></div>
+    <div class="stat-l">REGISTERED USERS</div>
   </div>
-  <div class="philo-bq r">
-    <div class="philo-bq-t">作る前に需要を確認する。<br>共感が集まれば、<span class="amber">AIが作る。</span><br><span class="fade">あいぽからリリースされる。</span></div>
-    <p class="philo-bq-sub">これはSNSであり、クラウドファンディングであり、AIエージェントの発注窓口でもある。まだ見ぬ未来の入り口が、あいぽです。</p>
+  <div class="stat r d1">
+    <div class="stat-n"><span id="stat-ideas">—</span></div>
+    <div class="stat-l">IDEAS LISTED</div>
   </div>
-  <div class="philo-grid r">
-    <div class="philo-item"><div class="philo-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><path d="M12 8v4l3 2"/></svg></div><div><div class="philo-t">AIが開発コストをゼロに近づける</div><div class="philo-d">残るのは<strong>「何を作るか」という思いつきの力</strong>だけ。</div></div></div>
-    <div class="philo-item"><div class="philo-ico"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div><div class="philo-t">「このアイデア、私に作らせて」が生まれる</div><div class="philo-d">スコアが上がったアイデアに<strong>実装できる人が集まる</strong>マッチングの場になる。</div></div></div>
-    <div class="philo-item"><div class="philo-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M14.5 9.5a3 3 0 1 0 0 5M12 7v1M12 16v1"/></svg></div><div><div class="philo-t">JPYCで実際の金額として応援できる</div><div class="philo-d"><strong>日本円連動の暗号資産JPYCで</strong>アイデアに実際に投資できる仕組みを計画中。</div></div></div>
-    <div class="philo-item"><div class="philo-ico"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div><div><div class="philo-t">AIエージェントが査定・実装・リリースする</div><div class="philo-d">目標額が集まれば<strong>AIエージェントがプロダクトを作り、あいぽからリリース</strong>される。</div></div></div>
+  <div class="stat r d2">
+    <div class="stat-n">30<span class="unit">min</span></div>
+    <div class="stat-l">SCORE UPDATE CYCLE</div>
   </div>
-</section>
-
-<div class="rm-sec" id="roadmap">
-  <div class="rm-eyebrow r">Roadmap</div>
-  <h2 class="rm-title r">あいぽの進化ロードマップ</h2>
-  <p class="rm-sub r">今日の応援票が、未来の<strong>「AIが作る」</strong>に繋がる。</p>
-  <div class="rm-line">
-    <div class="rm-node is-live r"><div class="rm-dot live"></div><span class="rm-ptag live">Phase 1 — 今ここ</span><h3 class="rm-nt">アイデアIPO市場の確立</h3><p class="rm-nd">誰でも一行でアイデアを上場。応援票・スコア・コメントで市場が評価する基盤。</p><div class="rm-tags"><span class="rm-tag">リリース済み</span><span class="rm-tag">スコアシステム</span><span class="rm-tag">コメントタグ</span><span class="rm-tag">Realtime</span></div></div>
-    <div class="rm-node is-near r"><div class="rm-dot near"></div><span class="rm-ptag near">Phase 2 — 近日</span><h3 class="rm-nt">「作れます」マッチング機能</h3><p class="rm-nd">スコアが高いアイデアに<strong>「私が作ります」と手を挙げられる</strong>機能。</p><div class="rm-tags"><span class="rm-tag">開発中</span><span class="rm-tag">エンジニアマッチング</span><span class="rm-tag">共同開発</span></div></div>
-    <div class="rm-node is-far r"><div class="rm-dot far"></div><span class="rm-ptag far">Phase 3 — 将来</span><h3 class="rm-nt">JPYCで応援・クラウドファンディング</h3><p class="rm-nd"><strong>JPYCという日本円連動の暗号資産</strong>で実際の金額としてアイデアを応援。</p><div class="rm-tags"><span class="rm-tag">JPYC連携</span><span class="rm-tag">Web3</span><span class="rm-tag">クラウドファンディング</span></div></div>
-    <div class="rm-node is-far r"><div class="rm-dot far"></div><span class="rm-ptag far">Phase 4 — ビジョン</span><h3 class="rm-nt">AIエージェントによる自動実装・リリース</h3><p class="rm-nd"><strong>AIエージェントが自動で開発コストを査定</strong>。JPYCが目標額に達するとAIが実際にプロダクトを作り<strong>あいぽからリリースされる</strong>。</p><div class="rm-tags"><span class="rm-tag">AIエージェント</span><span class="rm-tag">自動実装</span><span class="rm-tag">あいぽリリース</span></div></div>
+  <div class="stat r d3">
+    <div class="stat-n">3<span class="unit">票</span></div>
+    <div class="stat-l">DAILY VOTES / USER</div>
   </div>
 </div>
 
-<section class="price-sec">
-  <div class="r">
-    <div class="feat-eyebrow">Pricing</div>
-    <h2 class="feat-h" style="font-size:clamp(22px,5vw,44px);letter-spacing:-.04em;margin-bottom:8px">無料ではじめる。<br>本気になったらアップグレード。</h2>
-    <p class="feat-body">まずは無料で試してください。反応を見てから決めればいい。</p>
-  </div>
-  <div class="price-stack">
-    <div class="plan-card r">
-      <div class="pc-top"><div><div class="pc-tier">Free</div><div class="pc-name">無料プラン</div></div><div><div class="pc-price">¥0</div><div class="pc-period">ずっと無料</div></div></div>
-      <div class="pc-div"></div>
-      <ul class="pc-feats">
-        <li class="pc-feat ok"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>アイデア上場 <strong>1回/月</strong></li>
-        <li class="pc-feat ok"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>応援票 <strong>3票/日</strong></li>
-        <li class="pc-feat ok"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>コメント <strong>3回/月</strong></li>
-        <li class="pc-feat ok"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>スコアのリアルタイム確認</li>
-        <li class="pc-feat no"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>無制限上場・コメント</li>
-      </ul>
-      <!-- ★ UTM追加: 料金プラン無料 -->
-      <a href="https://aipo-tau.vercel.app/?utm_source=lp&utm_medium=pricing&utm_campaign=free_plan" class="pc-btn free">無料ではじめる</a>
+<!-- ROADMAP -->
+<section class="roadmap">
+  <div class="roadmap-inner">
+    <div class="section-head r">
+      <div class="section-label">ROADMAP</div>
+      <h2 class="section-h">今日の票が、<em>未来を作る。</em></h2>
     </div>
-    <div class="plan-card r">
-      <span class="pc-badge rec">おすすめ</span>
-      <div class="pc-top"><div><div class="pc-tier">Pro</div><div class="pc-name">あいぽ Pro</div></div><div><div class="pc-price">¥300</div><div class="pc-period">/月 · いつでも解約可</div></div></div>
-      <div class="pc-div"></div>
-      <ul class="pc-feats">
-        <li class="pc-feat ok"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>アイデア上場 <strong>無制限</strong></li>
-        <li class="pc-feat ok"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>応援票 <strong>4票/日</strong>（+1）</li>
-        <li class="pc-feat ok"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>コメント <strong>無制限</strong></li>
-        <li class="pc-feat ok"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>スコアのリアルタイム確認</li>
-        <li class="pc-feat no"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>創設メンバーバッジ</li>
-      </ul>
-      <a href="https://buy.stripe.com/aFacN7dxLbiCdrifDPfbq00" class="pc-btn pro">Proにアップグレード</a>
-    </div>
-    <div class="plan-card dark-plan r">
-      <span class="pc-badge lim">先着100名</span>
-      <div class="pc-top"><div><div class="pc-tier">Founder</div><div class="pc-name">創設メンバー</div></div><div><div class="pc-price">¥980</div><div class="pc-period">買い切り · 永久プラン</div></div></div>
-      <div class="pc-div"></div>
-      <div class="pc-slot-label"><span class="pc-slot-l">Remaining</span><span class="pc-slot-r" id="founder-slot-text">残り100枠</span></div>
-      <div class="pc-slot-track"><div class="pc-slot-fill" id="slot-fill"></div></div>
-      <ul class="pc-feats">
-        <li class="pc-feat star"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>Pro機能 <strong>すべて</strong></li>
-        <li class="pc-feat star"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>創設メンバーバッジ <strong>永久表示</strong></li>
-        <li class="pc-feat star"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>番号付き称号 <strong>#001〜#100</strong></li>
-        <li class="pc-feat star"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>新機能の<strong>先行アクセス</strong></li>
-      </ul>
-      <a href="https://buy.stripe.com/dRmfZj2T71I20Ew8bnfbq01" class="pc-btn founder">創設メンバーになる</a>
+    <div class="rm-list r d1">
+      <div class="rm-item current">
+        <div class="rm-num">01</div>
+        <div class="rm-body">
+          <div class="rm-phase">Phase 1 — 今ここ</div>
+          <div class="rm-title">アイデアIPO市場の確立</div>
+          <div class="rm-desc">誰でも一行でアイデアを上場。応援票・スコア・コメントで市場が評価する基盤を構築。</div>
+          <div class="rm-tags">
+            <span class="rm-tag amber">リリース済み</span>
+            <span class="rm-tag">スコアシステム</span>
+            <span class="rm-tag">コメントタグ</span>
+            <span class="rm-tag">Realtime DB</span>
+          </div>
+        </div>
+        <div class="rm-status"><span class="status-badge badge-live">● LIVE</span></div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-num">02</div>
+        <div class="rm-body">
+          <div class="rm-phase">Phase 2 — 次のステップ</div>
+          <div class="rm-title">高評価アイデアをAIが実装し、あいぽからリリース</div>
+          <div class="rm-desc">スコアの高いアイデアを<strong>AIが自動でプロダクト化し、あいぽからリリース。</strong>アイデアを出すだけでプロダクトが生まれる世界へ。</div>
+          <div class="rm-tags">
+            <span class="rm-tag">AIエージェント</span>
+            <span class="rm-tag">自動実装</span>
+            <span class="rm-tag">あいぽリリース</span>
+          </div>
+        </div>
+        <div class="rm-status"><span class="status-badge badge-soon">COMING NEXT</span></div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-num">03</div>
+        <div class="rm-body">
+          <div class="rm-phase">Phase 3 — 構想中</div>
+          <div class="rm-title">アイデア発案者へのJPYC還元</div>
+          <div class="rm-desc">リリースされたプロダクトが使われたとき、そのアイデアを出した人に<strong>「ありがとう」をJPYCで還元。</strong><br>
+          日本円連動の暗号資産JPYCで、アイデアが初めて経済的な報酬を生む。</div>
+          <div class="rm-tags">
+            <span class="rm-tag">JPYC</span>
+            <span class="rm-tag">発案者還元</span>
+            <span class="rm-tag">構想中</span>
+          </div>
+        </div>
+        <div class="rm-status"><span class="status-badge badge-plan">CONCEPT</span></div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-num">04</div>
+        <div class="rm-body">
+          <div class="rm-phase">Phase 4 — ビジョン</div>
+          <div class="rm-title">応援株券のNFT化</div>
+          <div class="rm-desc">面白いアイデアに投票すると発行される<strong>「応援株券」をNFTとして発行。</strong>早期に応援したアイデアが後でリリースされたとき、その証明書が本物の価値を持つ世界を目指す。</div>
+          <div class="rm-tags">
+            <span class="rm-tag">株券NFT</span>
+            <span class="rm-tag">早期応援者の証明</span>
+            <span class="rm-tag">構想中</span>
+          </div>
+        </div>
+        <div class="rm-status"><span class="status-badge badge-plan">VISION</span></div>
+      </div>
     </div>
   </div>
 </section>
 
-<div class="coc-sec">
-  <div class="r">
-    <div class="feat-eyebrow" style="color:var(--amber)">Join Us</div>
-    <h2 class="coc-title">このSNSを、一緒に<span class="amber">共創</span>しませんか。</h2>
-    <p class="coc-sub">あいぽはまだ始まったばかりです。<strong>「アイデアの価値を、作る前に証明できる世界」</strong>を一緒に作りたい方を探しています。</p>
-  </div>
-  <div class="coc-items r">
-    <div class="coc-item"><div class="coc-ico"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div><div class="coc-t">投資家・エンジェルの方</div><div class="coc-d">シードステージへの出資・アドバイスにご興味のある方。まずはカジュアルにお話しできればと思います。</div></div></div>
-    <div class="coc-item"><div class="coc-ico"><svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div><div><div class="coc-t">エンジニア・デザイナーの方</div><div class="coc-d">面白いと思ってくれたなら、一緒に作りましょう。副業・週1からでも大歓迎です。</div></div></div>
-    <div class="coc-item"><div class="coc-ico"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div><div class="coc-t">共感・拡散してくれる方</div><div class="coc-d">XでシェアするだけでもOK。このビジョンに共感してくれる人が仲間です。</div></div></div>
-  </div>
-  <div class="r">
-    <button onclick="(function(){var u='team.shikakeru';var d='gmail.com';window.location.href='mailto:'+u+'@'+d;})()" class="coc-btn" style="cursor:pointer;font-family:var(--sans)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-      メールでコンタクトする
-    </button>
-    <p class="coc-note">team.shikakeru&#64;gmail.com</p>
-  </div>
-  <div class="vis-grid r">
-    <div class="vis-item"><div class="vis-n">01</div><div><div class="vis-t">「作る前に需要を確認できる」世界を作る</div><div class="vis-d"><strong>無駄なものを作るリスクをゼロに</strong>近づける新しい開発プロセスの確立。</div></div></div>
-    <div class="vis-item"><div class="vis-n">02</div><div><div class="vis-t">アイデアそのものに価値をつける市場を育てる</div><div class="vis-d">「思いつき」が資産になる時代。<strong>あいぽがその取引所</strong>になる。</div></div></div>
-    <div class="vis-item"><div class="vis-n">03</div><div><div class="vis-t">SNSの新しい形を証明する</div><div class="vis-d">「いいね」でなく「応援票」と「スコア」が動く、<strong>次世代のSNS</strong>。</div></div></div>
-  </div>
-</div>
+<!-- PRICING -->
+<section class="pricing" id="plans">
+  <div class="pricing-inner">
+    <div class="section-head r">
+      <div class="section-label">PRICING</div>
+      <h2 class="section-h">まず無料で始める。<br><em>本気になったら決める。</em></h2>
+    </div>
+    <div class="plans r d1">
+      <div class="plan">
+        <div class="plan-tier">Free</div>
+        <div class="plan-price-row">
+          <div class="plan-price">¥0</div>
+        </div>
+        <div class="plan-period">ずっと無料</div>
+        <div class="plan-div"></div>
+        <ul class="plan-feats">
+          <li class="pf ok"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>アイデア上場 <strong>1回/月</strong></li>
+          <li class="pf ok"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>応援票 <strong>3票/日</strong></li>
+          <li class="pf ok"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>コメント <strong>3回/月</strong></li>
+          <li class="pf ok"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>リアルタイムスコア確認</li>
+          <li class="pf no"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>無制限上場</li>
+        </ul>
+        <a href="https://aipo-tau.vercel.app" class="plan-btn pb-free">無料ではじめる</a>
+      </div>
 
-<section class="fcta-sec">
-  <div class="fcta-eyebrow r">先着100名限定</div>
-  <h2 class="fcta-title r">先着100名。<span class="outline">あなたは何番目？</span></h2>
-  <p class="fcta-sub r">¥980買い切り。創設メンバーバッジが永久に残る。<br>3年後、「あの頃参加してた」と言いたくないですか。</p>
-  <div class="r"><a href="https://buy.stripe.com/dRmfZj2T71I20Ew8bnfbq01" class="fcta-btn">創設メンバーになる（¥980） <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a><p class="fcta-note">購入後、自動的にバッジが付与されます · 100名に達した時点で締め切り</p></div>
+      <div class="plan featured">
+        <div class="plan-badge-row">
+          <div class="plan-tier">Pro</div>
+          <span class="plan-badge">おすすめ</span>
+        </div>
+        <div class="plan-price-row">
+          <div class="plan-price">¥300</div>
+          <div class="plan-unit">/月</div>
+        </div>
+        <div class="plan-period">いつでも解約可</div>
+        <div class="plan-div"></div>
+        <ul class="plan-feats">
+          <li class="pf ok"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>アイデア上場 <strong>無制限</strong></li>
+          <li class="pf ok"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>応援票 <strong>4票/日</strong>（+1）</li>
+          <li class="pf ok"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>コメント <strong>無制限</strong></li>
+          <li class="pf ok"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>リアルタイムスコア確認</li>
+          <li class="pf no"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>創設メンバーバッジ</li>
+        </ul>
+        <a href="https://buy.stripe.com/aFacN7dxLbiCdrifDPfbq00" class="plan-btn pb-pro">Proにアップグレード</a>
+      </div>
+
+      <div class="plan">
+        <div class="plan-badge-row">
+          <div class="plan-tier">Founder</div>
+          <span class="plan-badge" style="background:var(--ink);color:#fff">先着100名</span>
+        </div>
+        <div class="plan-price-row">
+          <div class="plan-price">¥980</div>
+          <div class="plan-unit">買切</div>
+        </div>
+        <div class="plan-period">月額なし · 永久プラン</div>
+        <div class="plan-founder-slot">
+          <div class="fs-label">残り枠 <span id="founder-rem">確認中...</span> / 100</div>
+          <div class="fs-track"><div class="fs-fill" id="fs-fill"></div></div>
+        </div>
+        <ul class="plan-feats">
+          <li class="pf ok"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Pro機能すべて <strong>永久</strong></li>
+          <li class="pf ok"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>応援票 <strong>4票/日</strong></li>
+          <li class="pf ok"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>👑 創設メンバーバッジ <strong>永久</strong></li>
+          <li class="pf ok"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>番号付き称号 <strong>#001〜</strong></li>
+          <li class="pf ok"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>月額なし · <strong>一度だけの支払い</strong></li>
+        </ul>
+        <a href="https://buy.stripe.com/dRmfZj2T71I20Ew8bnfbq01" class="plan-btn pb-founder">👑 創設メンバーになる</a>
+      </div>
+    </div>
+  </div>
 </section>
 
+<!-- FINAL CTA -->
+<section class="final">
+  <div class="final-inner">
+    <div class="final-label r">GET STARTED</div>
+    <h2 class="final-h r d1">
+      あなたの<br>
+      <em>ひらめきを、</em><br>
+      上場しろ。
+    </h2>
+    <p class="final-sub r d2">一行でいい。今すぐ。<br>あなたのアイデアに、市場が答える。</p>
+    <div class="r d3">
+      <a href="https://aipo-tau.vercel.app" class="btn-fill" style="font-size:15px;padding:18px 44px;border-radius:var(--r)">
+        今すぐ無料で上場する
+        <svg width="14" height="14" viewBox="0 0 20 20"><path d="M4 10h12M10 4l6 6-6 6"/></svg>
+      </a>
+    </div>
+    <div class="final-note r d3" style="margin-top:20px">クレジットカード不要 · 登録30秒 · いつでも退会可</div>
+  </div>
+</section>
+
+<!-- FOOTER -->
 <footer>
-  <div class="ft-top">
-    <div class="ft-logo">あいぽ</div>
-    <div class="ft-links">
-      <!-- ★ UTM追加: フッター「アプリを開く」 -->
-      <a href="https://aipo-tau.vercel.app/?utm_source=lp&utm_medium=footer&utm_campaign=open_app">アプリを開く</a>
-      <a href="https://twitter.com/morulabo1">X / Twitter</a>
-    </div>
+  <div class="ft-logo">あい<em>ぽ</em></div>
+  <div class="ft-links">
+    <a href="/legal.html#terms">利用規約</a>
+    <a href="/legal.html#privacy">プライバシーポリシー</a>
+    <a href="/legal.html#tokusho">特定商取引法</a>
+    <a href="/cdn-cgi/l/email-protection#bacedfdbd794c9d2d3d1dbd1dfc8cffaddd7dbd3d694d9d5d7">お問い合わせ</a>
   </div>
-  <div class="ft-bottom"><span class="ft-copy">© 2026 あいぽ · アイデアIPO市場</span><span class="ft-copy">Made with あいぽ</span></div>
+  <div class="ft-copy">© 2026 あいぽ · 中川航輝</div>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// ── CURSOR ───────────────────────────────
-const cur = document.getElementById('cursor');
-const ring = document.getElementById('cursor-ring');
-let mx=0,my=0,rx=0,ry=0;
-document.addEventListener('mousemove', e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';},{passive:true});
-function animRing(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animRing);}
-animRing();
-
-// ── NAV ───────────────────────────────
-const nav = document.getElementById('nav');
-window.addEventListener('scroll',()=>{nav.classList.toggle('scrolled',scrollY>60);},{passive:true});
-
-// ── HERO CANVAS ───────────────────────────────
-const hcanvas = document.getElementById('hero-canvas');
-const hctx = hcanvas.getContext('2d');
-let W,H,particles=[];
-function resizeCanvas(){W=hcanvas.width=hcanvas.offsetWidth;H=hcanvas.height=hcanvas.offsetHeight;}
-resizeCanvas();
-window.addEventListener('resize',resizeCanvas,{passive:true});
-class Particle{
-  constructor(){this.reset()}
-  reset(){this.x=Math.random()*W;this.y=Math.random()*H;this.r=Math.random()*2.8+.4;this.alpha=Math.random()*.25+.05;this.vx=(Math.random()-.5)*.5;this.vy=-(Math.random()*.7+.2);this.life=0;this.maxLife=200+Math.random()*200;}
-  update(){this.x+=this.vx;this.y+=this.vy;this.life++;const p=this.life/this.maxLife;this.alpha=(p<.2?p/.2:1-((p-.2)/.8))*.35;if(this.life>this.maxLife||this.y<0)this.reset();}
-  draw(){hctx.beginPath();hctx.arc(this.x,this.y,this.r,0,Math.PI*2);hctx.fillStyle=`rgba(217,119,6,${this.alpha})`;hctx.fill();}
-}
-for(let i=0;i<120;i++) particles.push(new Particle());
-function animParticles(){hctx.clearRect(0,0,W,H);particles.forEach(p=>{p.update();p.draw()});requestAnimationFrame(animParticles);}
-animParticles();
-
-// ── SCROLL REVEAL ───────────────────────────────
-const ro = new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('v');ro.unobserve(e.target)}});},{threshold:0});
-document.querySelectorAll('.r').forEach(el=>ro.observe(el));
-
-// ── COUNTER ANIMATION ───────────────────────────────
-function animCounter(el){
-  const target=parseInt(el.dataset.count);
-  const suffix=el.dataset.suffix||'';
-  if(target===0){el.textContent='0'+suffix;return}
-  let start=null;const duration=900;
-  function step(ts){if(!start)start=ts;const p=Math.min((ts-start)/duration,1);const eased=1-Math.pow(1-p,3.5);const val=Math.round(eased*target);el.textContent=val+suffix;if(p<1)requestAnimationFrame(step);}
-  requestAnimationFrame(step);
-}
-const counterObs = new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.querySelectorAll('[data-count]').forEach(animCounter);counterObs.unobserve(e.target);}});},{threshold:.3});
-document.querySelectorAll('.stats-sec').forEach(el=>counterObs.observe(el));
-
-// ── DARK PHONE BARS ───────────────────────────────
-const barObs = new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){const b1=document.getElementById('bar1');const b2=document.getElementById('bar2');const b3=document.getElementById('bar3');if(b1)b1.style.width='80%';if(b2)b2.style.width='55%';if(b3)b3.style.width='33%';barObs.unobserve(e.target);}});},{threshold:.4});
-const darkPhone = document.querySelector('[style*="phoneFloat"]');
-if(darkPhone) barObs.observe(darkPhone);
-
-// ── LIVE SCORE TICKER ───────────────────────────────
-let liveVal=72.4;
-let countSec=1724;
-function updateCountdown(){countSec--;if(countSec<0)countSec=1800;const m=Math.floor(countSec/60),s=countSec%60;const el=document.getElementById('countdown-text');if(el)el.textContent=`次の更新まで ${m}:${String(s).padStart(2,'0')}`;}
-setInterval(updateCountdown,1000);
-function wiggleScore(){const delta=(Math.random()-.4)*.4;liveVal=Math.max(60,Math.min(99,liveVal+delta));const el=document.getElementById('live-score');const del=document.getElementById('live-delta');if(el)el.textContent=liveVal.toFixed(1);if(del){const diff=delta>0;del.textContent=(diff?'+':'')+delta.toFixed(2);del.style.color=diff?'#22c55e':'#f87171';}}
-setInterval(wiggleScore, 1800);
-
-// ── PHONE VOTE INTERACTION ───────────────────────────────
-let votesLeft=3;
-function doVote(btn){
-  if(votesLeft<=0){return;}
-  btn.textContent='応援中';btn.style.background='rgba(21,128,61,.15)';btn.style.color='#15803d';btn.disabled=true;
-  votesLeft--;
-  const chip=document.getElementById('chip-votes');
-  if(chip){chip.textContent=votesLeft+'票';}
-  setTimeout(()=>{btn.textContent='済み';btn.classList.remove('can');btn.classList.add('done');btn.style.background='';btn.style.color='';},600);
-}
-
-// ── SLOT FILL ───────────────────────────────
-setTimeout(()=>{const sf=document.getElementById('slot-fill');if(sf)sf.style.width='2%';},400);
-
-// ── FALLBACK ───────────────────────────────
-setTimeout(()=>{document.querySelectorAll('.r:not(.v)').forEach(el=>el.classList.add('v'));},1200);
-
-// ── LIVE STATS FROM SUPABASE ───────────────────────────────
-const SB_URL = 'https://qjffvspnnxyykoyhnazm.supabase.co';
-const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqZmZ2c3Bubnh5eWtveWhuYXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzMTIxMzMsImV4cCI6MjA4Njg4ODEzM30.OqeeMZs73RjKY5POW-naf0dB8sFWfZDUKaKvE99EiBo';
-const sbLP = supabase.createClient(SB_URL, SB_KEY);
-
-function animNum(el, target) {
-  if (!el) return;
-  let start = null;
-  const duration = 900;
-  function step(ts) {
-    if (!start) start = ts;
-    const p = Math.min((ts - start) / duration, 1);
-    const eased = 1 - Math.pow(1 - p, 3);
-    el.textContent = Math.round(eased * target);
-    if (p < 1) requestAnimationFrame(step);
-  }
-  requestAnimationFrame(step);
-}
-
-function genreColor(genre) {
-  if (!genre) return 'background:rgba(21,128,61,.08);color:#15803d';
-  if (genre.includes('テクノロジー')) return 'background:rgba(21,128,61,.08);color:#15803d';
-  if (genre.includes('社会')) return 'background:rgba(99,102,241,.08);color:#6366f1';
-  if (genre.includes('副業')) return 'background:rgba(217,119,6,.08);color:#d97706';
-  if (genre.includes('起業')) return 'background:rgba(220,38,38,.08);color:#dc2626';
-  return 'background:rgba(21,128,61,.08);color:#15803d';
-}
-
-async function loadLiveStats() {
-  try {
-    const { count: userCount } = await sbLP.from('profiles').select('id', { count: 'exact', head: true });
-    const uEl = document.getElementById('stat-users');
-    if (uEl && userCount !== null) animNum(uEl, userCount);
-
-    const { count: ideaCount } = await sbLP.from('ideas').select('id', { count: 'exact', head: true });
-    const iEl = document.getElementById('stat-ideas');
-    if (iEl && ideaCount !== null) animNum(iEl, ideaCount);
-
-    const { count: founderCount } = await sbLP.from('profiles').select('id', { count: 'exact', head: true }).eq('is_founder', true);
-    const remaining = Math.max(0, 100 - (founderCount || 0));
-    const slotText = document.getElementById('founder-slot-text');
-    if (slotText) slotText.textContent = '残り' + remaining + '枠';
-    const slotFill = document.getElementById('slot-fill');
-    if (slotFill) setTimeout(() => { slotFill.style.width = Math.max(2, (founderCount || 0)) + '%'; }, 400);
-
-    const { data: latestIdeas } = await sbLP.from('ideas').select('id, ticker, name, score, votes, genre').order('score', { ascending: false }).limit(3);
-    const marketList = document.getElementById('live-market-list');
-    if (marketList && latestIdeas && latestIdeas.length > 0) {
-      marketList.innerHTML = latestIdeas.map((idea, i) => {
-        const score = parseFloat(idea.score || 50).toFixed(1);
-        const deltaVal = (Math.random() * 4 + 0.3).toFixed(1);
-        const gc = genreColor(idea.genre);
-        const name = (idea.name || '').length > 24 ? idea.name.slice(0, 24) + '…' : (idea.name || '');
-        // ★ UTM追加: マーケットカード・応援ボタン
-        return `<div class="mrow" onclick="window.open('https://aipo-tau.vercel.app/?utm_source=lp&utm_medium=market_card&utm_campaign=vote','_blank')">
-          <div class="mrow-rank">${i + 1}</div>
-          <div class="mrow-score-wrap">
-            <div class="mrow-score" style="color:#15803d">${score}</div>
-            <div class="mrow-delta" style="color:#15803d;background:rgba(21,128,61,.1)">+${deltaVal}</div>
-          </div>
-          <div class="mrow-body">
-            <div class="mrow-ticker">${idea.ticker || 'IDEA'}</div>
-            <div class="mrow-name">${name}</div>
-            <div class="mrow-meta">
-              <span class="mrow-genre" style="${gc}">${idea.genre || 'その他'}</span>
-              <span>${idea.votes || 0}票</span>
-            </div>
-          </div>
-          <button class="mrow-action" onclick="event.stopPropagation();window.open('https://aipo-tau.vercel.app/?utm_source=lp&utm_medium=market_vote&utm_campaign=vote','_blank')">応援</button>
-        </div>`;
-      }).join('') + `<div style="padding:14px 18px;text-align:center;background:var(--ivory);border-top:1px solid rgba(0,0,0,.05)">
-        <!-- ★ UTM追加: すべてのアイデアを見る -->
-        <a href="https://aipo-tau.vercel.app/?utm_source=lp&utm_medium=market_all&utm_campaign=see_all" style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:.06em;text-decoration:none">すべてのアイデアを見る →</a>
-      </div>`;
-    }
-  } catch (e) {
-    console.warn('Live stats load failed:', e);
-  }
-}
-
-loadLiveStats();
-setInterval(loadLiveStats, 60000);
-
-// Hero realtime counts
-async function loadHeroCounts() {
-  try {
-    const [{ count: uc }, { count: ic }] = await Promise.all([
-      sbLP.from('profiles').select('id', { count: 'exact', head: true }),
-      sbLP.from('ideas').select('id', { count: 'exact', head: true })
-    ]);
-    function animHeroNum(el, target) {
-      if (!el || target === null) return;
-      let start = null;
-      function step(ts) {
-        if (!start) start = ts;
-        const p = Math.min((ts - start) / 1200, 1);
-        const eased = 1 - Math.pow(1 - p, 3);
-        el.textContent = Math.round(eased * target);
-        if (p < 1) requestAnimationFrame(step);
-      }
-      requestAnimationFrame(step);
-    }
-    animHeroNum(document.getElementById('hero-user-count'), uc || 0);
-    animHeroNum(document.getElementById('hero-idea-count'), ic || 0);
-  } catch(e) {}
-}
-loadHeroCounts();
-setInterval(loadHeroCounts, 30000);
-
-// ★ LP滞在時間計測
-(async function trackLPView() {
-  const openedAt = Date.now();
-  let rowId = null;
-
-  // 開封時に記録
-  try {
-    const { data } = await sbLP.from('user_events').insert({
-      utm_source: 'lp_pageview',
-      referrer: document.referrer || 'direct',
-      utm_medium: null,
-      utm_campaign: null,
-      time_on_page: null,
-    }).select('id').single();
-    if (data) rowId = data.id;
-  } catch(e) {}
-
-  // 離脱時に滞在時間を記録
-  async function recordTime() {
-    if (!rowId) return;
-    const sec = Math.round((Date.now() - openedAt) / 1000);
-    try {
-      await sbLP.from('user_events').update({ time_on_page: sec }).eq('id', rowId);
-    } catch(e) {}
-  }
-
-  // タブを閉じる・別ページへ移動するとき
-  window.addEventListener('pagehide', recordTime);
-  window.addEventListener('beforeunload', recordTime);
-  // visibilitychange（スマホでバックグラウンドに回ったとき）
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') recordTime();
-  });
+// ── 表示フォールバック（CDN遅延・JS無効時でも確実に表示）──
+(function(){
+  // 300ms後にまだ非表示の .r 要素を強制表示
+  setTimeout(function(){
+    document.querySelectorAll('.r:not(.vis)').forEach(function(el){
+      el.style.transition='none';
+      el.classList.add('vis');
+    });
+  },300);
 })();
+const SB='https://qjffvspnnxyykoyhnazm.supabase.co';
+const KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqZmZ2c3Bubnh5eWtveWhuYXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzMTIxMzMsImV4cCI6MjA4Njg4ODEzM30.OqeeMZs73RjKY5POW-naf0dB8sFWfZDUKaKvE99EiBo';
+const sb=supabase.createClient(SB,KEY);
+
+/* ── SCROLL REVEAL ── */
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');obs.unobserve(e.target);}});
+},{threshold:.08,rootMargin:'0px 0px -36px 0px'});
+document.querySelectorAll('.r').forEach(el=>obs.observe(el));
+
+/* ── COUNTUP ── */
+function countUp(el,to){
+  if(!el||!to)return;
+  let s=null;const d=1000;
+  function f(ts){
+    if(!s)s=ts;
+    const p=Math.min((ts-s)/d,1);
+    const e=1-Math.pow(1-p,3);
+    el.textContent=Math.round(e*to);
+    if(p<1)requestAnimationFrame(f);
+  }
+  requestAnimationFrame(f);
+}
+
+/* ── LIVE MARKET ── */
+let liveRows=[];
+function genreColor(g){
+  if(!g)return'background:rgba(217,119,6,.06);color:#b45309';
+  if(g.includes('テクノロジー'))return'background:rgba(21,128,61,.06);color:#15803d';
+  if(g.includes('社会'))return'background:rgba(99,102,241,.06);color:#6366f1';
+  if(g.includes('副業'))return'background:rgba(217,119,6,.06);color:#b45309';
+  if(g.includes('起業'))return'background:rgba(220,38,38,.06);color:#dc2626';
+  return'background:rgba(217,119,6,.06);color:#b45309';
+}
+function renderMarket(ideas){
+  const rows=document.getElementById('market-rows');
+  if(!rows||!ideas.length)return;
+  rows.innerHTML=ideas.slice(0,5).map((idea,i)=>{
+    const score=parseFloat(idea.score||50);
+    const delta=(Math.random()-.45)*.6;
+    const ds=(delta>=0?'+':'')+delta.toFixed(1);
+    const uc=delta>0.3?'sc-up':delta<-0.3?'sc-dn':'sc-fl';
+    const dc=delta>0.3?'dt-up':delta<-0.3?'dt-dn':'dt-fl';
+    const name=(idea.name||'').length>26?(idea.name||'').slice(0,26)+'…':(idea.name||'');
+    return`<div class="mt-row" onclick="window.open('https://aipo-tau.vercel.app','_blank')">
+      <div class="mt-rank${i<3?' top':''}">#${i+1}</div>
+      <div class="mt-score-w">
+        <div class="mt-score ${uc}" id="ms-${idea.id}">${score.toFixed(1)}</div>
+        <div class="mt-delta ${dc}" id="md-${idea.id}">${ds}</div>
+      </div>
+      <div class="mt-info">
+        <div class="mt-ticker">${idea.ticker||'—'}</div>
+        <div class="mt-name">${name}</div>
+        <div class="mt-meta">${idea.votes||0}票</div>
+      </div>
+      <div class="mt-genre"><span style="${genreColor(idea.genre)};font-family:var(--mono);font-size:9px;font-weight:700;padding:3px 8px;border-radius:2px">${idea.genre||'—'}</span></div>
+      <button class="mt-btn" onclick="event.stopPropagation();window.open('https://aipo-tau.vercel.app','_blank')">応援する</button>
+    </div>`;
+  }).join('');
+}
+
+/* スコアを株式市場風に小刻みに動かす */
+function wiggle(){
+  liveRows.forEach(idea=>{
+    const se=document.getElementById('ms-'+idea.id);
+    const de=document.getElementById('md-'+idea.id);
+    if(!se)return;
+    const cur=parseFloat(se.textContent)||parseFloat(idea.score);
+    const drift=(Math.random()-.48)*.5;
+    const nv=Math.max(10,Math.min(99,cur+drift));
+    const ds=(drift>=0?'+':'')+drift.toFixed(1);
+    const uc=drift>0.1?'sc-up':drift<-0.1?'sc-dn':'sc-fl';
+    const dc=drift>0.1?'dt-up':drift<-0.1?'dt-dn':'dt-fl';
+    se.textContent=nv.toFixed(1);
+    se.className='mt-score '+uc;
+    if(de){de.textContent=ds;de.className='mt-delta '+dc;}
+    se.classList.add('bumping');
+    setTimeout(()=>se.classList.remove('bumping'),300);
+  });
+}
+
+async function load(){
+  try{
+    const[{count:uc},{count:ic},{count:fc},{data:ideas}]=await Promise.all([
+      sb.from('profiles').select('id',{count:'exact',head:true}),
+      sb.from('ideas').select('id',{count:'exact',head:true}),
+      sb.from('profiles').select('id',{count:'exact',head:true}).eq('is_founder',true),
+      sb.from('ideas').select('id,ticker,name,score,votes,genre').order('score',{ascending:false}).limit(5)
+    ]);
+
+    /* hero */
+    const hc=document.getElementById('hero-count');
+    if(hc&&ic)hc.textContent=ic+' アイデア上場中';
+    /* hero right stats */
+    countUp(document.getElementById('hero-user-n'),uc||0);
+    countUp(document.getElementById('hero-idea-n'),ic||0);
+
+    /* stats */
+    countUp(document.getElementById('stat-users'),uc||0);
+    countUp(document.getElementById('stat-ideas'),ic||0);
+
+    /* founder slot */
+    const rem=Math.max(0,100-(fc||0));
+    const remEl=document.getElementById('founder-rem');
+    if(remEl)remEl.textContent=rem;
+    const sf=document.getElementById('fs-fill');
+    if(sf)setTimeout(()=>sf.style.width=Math.max(2,fc||0)+'%',700);
+
+    /* market */
+    if(ideas&&ideas.length){
+      liveRows=ideas;
+      renderMarket(ideas);
+    }
+  }catch(e){console.warn(e)}
+}
+
+load();
+setInterval(wiggle,1600);
+setInterval(()=>{if(typeof supabase!=='undefined'&&sb)load();},60000);
 </script>
 </body>
 </html>
