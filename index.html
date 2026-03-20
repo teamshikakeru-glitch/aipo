@@ -46,9 +46,9 @@
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; max-width: 100%; }
 html, body { overflow-x: hidden !important; width: 100%; max-width: 100vw; position: relative; }
 html { overflow-x: hidden; }
-body { background: var(--bg); color: var(--text); font-family: var(--sans); overscroll-behavior: none; overflow-x: hidden !important; width: 100%; touch-action: pan-y pinch-zoom; }
+body { background: var(--bg); color: var(--text); font-family: var(--sans); overflow-x: hidden !important; overflow-y: auto; width: 100%; touch-action: pan-y pinch-zoom; }
 .app { max-width: 390px; margin: 0 auto; min-height: 100vh; overflow: hidden; width: 100%; }
-.screen { display: none; min-height: 100vh; padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)); overflow-x: hidden; width: 100%; }
+.screen { display: none; min-height: 100vh; padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)); overflow-x: hidden; overflow-y: visible; width: 100%; }
 .screen.active { display: block; background: var(--surface); }
 .header { background: var(--surface); padding: 16px 18px 0; position: sticky; top: 0; z-index: 20; }
 .hd-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
@@ -591,10 +591,7 @@ input[type=file] { display: none; }
           <div style="font-size:12px;font-weight:700;color:var(--green);font-family:var(--mono)" id="user-balance">0</div>
           <div style="font-size:9px;color:var(--text3)">円</div>
         </div>
-        <div style="display:flex;align-items:center;gap:5px;background:var(--surface2);border-radius:20px;padding:4px 10px">
-          <div style="font-size:12px;font-weight:700;color:#185FA5;font-family:var(--mono)" id="portfolio-insight-score">0</div>
-          <div style="font-size:9px;color:var(--text3)">目利きpt</div>
-        </div>
+
         <div onclick="showPricingSheet()" style="display:flex;align-items:center;gap:4px;background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:20px;padding:4px 10px;cursor:pointer;margin-left:auto">
           <svg width="10" height="10" viewBox="0 0 20 20" fill="none" stroke="var(--amber-mid)" stroke-width="2"><circle cx="10" cy="10" r="8"/><path d="M10 6v4l3 3"/></svg>
           <div style="font-size:9px;font-weight:700;color:var(--amber)">プランを見る</div>
@@ -1052,20 +1049,63 @@ function updatePlanBadge() {
 }
 
 function calcScore(idea) {
-  let s = 50;
-  s += idea.votes * 3;
-  s += Math.min(idea.views * 0.1, 20);
-  s += Math.min((idea.commentList||[]).length * 2, 20);
-  s += idea.progress * 10;
-  s += idea.desc ? 5 : 0;
-  s += idea.tech ? 3 : 0;
-  const same = ideas.filter(i => i.genre === idea.genre && i.id !== idea.id);
-  if (same.length > 0 && same.every(i => i.votes <= idea.votes)) s += 5;
-  s -= idea.postedDaysAgo * 1.0;
-  const daysSinceVote = idea.daysSinceLastVote || idea.postedDaysAgo;
-  if (daysSinceVote >= 7) s -= 5;
-  s += Math.min((idea.supporters||0) * 2, 10);
-  return Math.round(s * 10) / 10;
+  let s = 30;
+
+  // 票: 対数スケール（10票で+29pt、50票で+46pt、100票で+55pt）
+  const v = idea.votes || 0;
+  s += Math.min(Math.log(v + 1) * 12, 45);
+
+  // 閲覧: 軽い加点
+  s += Math.min((idea.views||0) * 0.04, 5);
+
+  // コメント: 対数スケール
+  const cm = (idea.commentList||[]).length;
+  s += Math.min(Math.log(cm + 1) * 8, 12);
+
+  // 進捗ボーナス（アイデア段階→リリース済み）
+  s += (idea.progressStep||idea.progress||0) * 7;
+
+  // 詳細さ
+  s += idea.desc ? 3 : 0;
+  s += idea.tech ? 2 : 0;
+
+  // 自然減衰（1日1.5pt）
+  s -= (idea.postedDaysAgo||0) * 1.5;
+
+  // 放置ペナルティ
+  const daysSinceVote = idea.daysSinceLastVote || idea.postedDaysAgo || 0;
+  if (daysSinceVote >= 14) s -= 15;
+  else if (daysSinceVote >= 7) s -= 8;
+
+  // 競合ペナルティ
+  const sameGenre = (typeof ideas !== 'undefined' ? ideas : []).filter(i => i.genre === idea.genre && i.id !== idea.id);
+  if (sameGenre.length >= 3) s -= Math.min(sameGenre.length * 1.2, 8);
+
+  return Math.max(10, Math.min(99, Math.round(s * 10) / 10));
+}
+
+// スコアの格付けラベル
+function scoreGrade(score) {
+  if (score >= 90) return { label: 'S', color: '#bf6d00', bg: '#fff8ed', text: '伝説級' };
+  if (score >= 80) return { label: 'A', color: '#1a7a4a', bg: '#edf7f2', text: 'トップクラス' };
+  if (score >= 70) return { label: 'B', color: '#185FA5', bg: '#f0f7ff', text: '注目レベル' };
+  if (score >= 55) return { label: 'C', color: '#6b6860', bg: 'var(--surface2)', text: '成長中' };
+  return { label: 'D', color: '#9a9590', bg: 'var(--surface2)', text: 'スタート' };
+}
+
+// パーセンタイル計算（全アイデア中の順位）
+function calcPercentile(idea) {
+  if (!ideas || ideas.length <= 1) return 100;
+  const sorted = [...ideas].sort((a, b) => b.score - a.score);
+  const rank = sorted.findIndex(i => i.id === idea.id) + 1;
+  return Math.round((1 - (rank - 1) / ideas.length) * 100);
+}
+
+// カテゴリ内順位
+function calcGenreRank(idea) {
+  const sameGenre = ideas.filter(i => i.genre === idea.genre).sort((a, b) => b.score - a.score);
+  const rank = sameGenre.findIndex(i => i.id === idea.id) + 1;
+  return { rank, total: sameGenre.length };
 }
 
 setInterval(() => {
@@ -1146,7 +1186,7 @@ function buildPortfolioRow(idea) {
   const deltaColor = delta>0.3?'#22a85f':delta<-0.3?'#c0392b':'#999';
   const deltaBg = delta>0.3?'rgba(34,168,95,.12)':delta<-0.3?'rgba(192,57,43,.1)':'rgba(0,0,0,.05)';
   const isHot = idea.votes >= HOT_THRESHOLD; const isFav = favIdeas.has(idea.id); const isOwn = myIdeas.has(idea.id);
-  return `<div style="border-bottom:0.5px solid var(--border);position:relative">${isFav ? '<div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#e8850a,#bf6d00);border-radius:0 2px 2px 0;z-index:1"></div>' : ''}<div onclick="showDetail('${idea.id}')" style="padding:12px 14px 8px;display:flex;align-items:flex-start;gap:10px;cursor:pointer"><div style="display:flex;flex-direction:column;align-items:center;min-width:58px;flex-shrink:0;padding:4px 0"><div style="font-family:var(--mono);font-size:22px;font-weight:700;color:${scoreColor};line-height:1">${idea.score.toFixed(1)}</div><div style="font-family:var(--mono);font-size:10px;font-weight:700;color:${deltaColor};background:${deltaBg};padding:2px 6px;border-radius:5px;margin-top:3px">${ds}</div><div style="font-size:9px;color:var(--text3);margin-top:3px">${idea.votes}票</div></div><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-bottom:2px"><span style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text2)">${idea.ticker}</span>${isHot?'<span class="hot-badge">注目</span>':''}</div><div style="font-size:14px;font-weight:700;color:var(--text);line-height:1.4;margin-bottom:5px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${idea.name}</div><div style="display:flex;gap:4px;flex-wrap:wrap"><span class="stag stag-genre">${idea.genre}</span>${idea.tech?`<span class="stag stag-a">${idea.tech}</span>`:''}</div></div><canvas style="width:60px;height:38px;flex-shrink:0;margin-top:4px" id="pspark-${idea.id}"></canvas></div>${isOwn ? `<div style="display:flex;border-top:0.5px solid var(--border)"><button onclick="event.stopPropagation();showEditIdea('${idea.id}')" style="flex:1;padding:10px;font-size:12px;font-weight:700;font-family:var(--sans);border:none;border-right:0.5px solid var(--border);background:var(--surface);color:var(--amber);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px"><svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 3.3a1 1 0 011.4 1.4L6 14.8l-3.5.7.7-3.5L14.7 3.3z"/></svg>編集</button><button onclick="event.stopPropagation();confirmDeleteIdea('${idea.id}')" style="flex:1;padding:10px;font-size:12px;font-weight:700;font-family:var(--sans);border:none;background:var(--surface);color:var(--red);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px"><svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h14M8 6V4h4v2M9 10v5M11 10v5M5 6l1 11h8l1-11"/></svg>削除</button></div>` : ''}</div>`;
+  return `<div style="border-bottom:0.5px solid var(--border);position:relative">${isFav ? '<div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#e8850a,#bf6d00);border-radius:0 2px 2px 0;z-index:1"></div>' : ''}<div onclick="showDetail('${idea.id}')" style="padding:12px 14px 8px;display:flex;align-items:flex-start;gap:10px;cursor:pointer"><div style="display:flex;flex-direction:column;align-items:center;min-width:58px;flex-shrink:0;padding:4px 0"><div style="font-family:var(--mono);font-size:22px;font-weight:700;color:${scoreColor};line-height:1">${idea.score.toFixed(1)}</div><div style="display:flex;align-items:center;gap:4px;margin-top:3px"><div style="font-family:var(--mono);font-size:10px;font-weight:700;color:${deltaColor};background:${deltaBg};padding:2px 6px;border-radius:5px">${ds}</div><div style="font-size:9px;font-weight:700;color:${scoreGrade(idea.score).color}">${scoreGrade(idea.score).label}</div></div><div style="font-size:9px;color:var(--text3);margin-top:2px">${idea.votes}票</div></div><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-bottom:2px"><span style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text2)">${idea.ticker}</span>${isHot?'':''}</div><div style="font-size:14px;font-weight:700;color:var(--text);line-height:1.4;margin-bottom:5px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${idea.name}</div><div style="display:flex;gap:4px;flex-wrap:wrap"><span class="stag stag-genre">${idea.genre}</span>${idea.tech?`<span class="stag stag-a">${idea.tech}</span>`:''}</div></div><canvas style="width:60px;height:38px;flex-shrink:0;margin-top:4px" id="pspark-${idea.id}"></canvas></div>${isOwn ? `<div style="display:flex;border-top:0.5px solid var(--border)"><button onclick="event.stopPropagation();showEditIdea('${idea.id}')" style="flex:1;padding:10px;font-size:12px;font-weight:700;font-family:var(--sans);border:none;border-right:0.5px solid var(--border);background:var(--surface);color:var(--amber);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px"><svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 3.3a1 1 0 011.4 1.4L6 14.8l-3.5.7.7-3.5L14.7 3.3z"/></svg>編集</button><button onclick="event.stopPropagation();confirmDeleteIdea('${idea.id}')" style="flex:1;padding:10px;font-size:12px;font-weight:700;font-family:var(--sans);border:none;background:var(--surface);color:var(--red);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px"><svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h14M8 6V4h4v2M9 10v5M11 10v5M5 6l1 11h8l1-11"/></svg>削除</button></div>` : ''}</div>`;
 }
 
 let currentGenre = '';
@@ -1163,7 +1203,7 @@ function buildRowCompact(idea) {
   const delta = idea.score - idea.baseScore; const ds = (delta>=0?'+':'')+delta.toFixed(1);
   const scoreColor = delta>0.3?'#22a85f':delta<-0.3?'#c0392b':'var(--text)'; const deltaColor = delta>0.3?'#22a85f':delta<-0.3?'#c0392b':'#999'; const deltaBg = delta>0.3?'rgba(34,168,95,.12)':delta<-0.3?'rgba(192,57,43,.1)':'rgba(0,0,0,.05)';
   const isHot = idea.votes >= HOT_THRESHOLD; const voted = votedIds.has(idea.id); const dp = getDividendPreview(idea); const isFav = favIdeas.has(idea.id);
-  return `<div id="row-${idea.id}" onclick="showDetail('${idea.id}')" style="border-bottom:0.5px solid var(--border);cursor:pointer;position:relative;padding:7px 14px;display:flex;align-items:center;gap:9px">${isFav ? '<div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#e8850a,#bf6d00);border-radius:0 2px 2px 0"></div>' : ''}<div style="min-width:44px;flex-shrink:0;text-align:left"><div style="font-family:var(--mono);font-size:14px;font-weight:700;color:${scoreColor};line-height:1;letter-spacing:-.02em">${idea.score.toFixed(1)}</div><div style="font-family:var(--mono);font-size:8px;font-weight:700;color:${deltaColor};background:${deltaBg};padding:1px 4px;border-radius:3px;margin-top:2px;display:inline-block">${ds}</div></div><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:4px;margin-bottom:1px"><span style="font-family:var(--mono);font-size:9px;font-weight:700;color:var(--text3);letter-spacing:.04em">${idea.ticker}</span>${isHot?'<span class="hot-badge">注目</span>':''}${dp&&!voted?`<span style="font-size:8px;font-weight:700;color:${dp.color};background:${dp.bg};border:1px solid ${dp.border};border-radius:3px;padding:1px 5px;white-space:nowrap">${dp.text}</span>`:''}</div><div style="font-size:12px;font-weight:700;color:var(--text);line-height:1.3;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin-bottom:2px">${idea.name}</div><div style="font-size:9px;color:var(--text3)">${idea.genre} · ${idea.votes}票</div></div><button onclick="event.stopPropagation();voteIdea('${idea.id}')" style="background:${voted?'var(--surface2)':'rgba(34,168,95,.1)'};color:${voted?'var(--text3)':'var(--green)'};border:none;border-radius:50%;width:28px;height:28px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans);display:flex;align-items:center;justify-content:center;flex-shrink:0">${voted?'<svg width="11" height="11" viewBox="0 0 20 20" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#22a85f" stroke-width="2.2" stroke-linecap="round"/></svg>':'<svg width="11" height="11" viewBox="0 0 20 20" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="var(--green)" stroke-width="2.2" stroke-linecap="round"/></svg>'}</button></div>`;
+  return `<div id="row-${idea.id}" onclick="showDetail('${idea.id}')" style="border-bottom:0.5px solid var(--border);cursor:pointer;position:relative;padding:7px 14px;display:flex;align-items:center;gap:9px">${isFav ? '<div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#e8850a,#bf6d00);border-radius:0 2px 2px 0"></div>' : ''}<div style="min-width:44px;flex-shrink:0;text-align:left"><div style="font-family:var(--mono);font-size:14px;font-weight:700;color:${scoreColor};line-height:1;letter-spacing:-.02em">${idea.score.toFixed(1)} <span style="font-size:8px;font-weight:700;color:${scoreGrade(idea.score).color}">${scoreGrade(idea.score).label}</span></div><div style="font-family:var(--mono);font-size:8px;font-weight:700;color:${deltaColor};background:${deltaBg};padding:1px 4px;border-radius:3px;margin-top:2px;display:inline-block">${ds}</div></div><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:4px;margin-bottom:1px"><span style="font-family:var(--mono);font-size:9px;font-weight:700;color:var(--text3);letter-spacing:.04em">${idea.ticker}</span>${isHot?'':''}${dp&&!voted?`<span style="font-size:8px;font-weight:700;color:${dp.color};background:${dp.bg};border:1px solid ${dp.border};border-radius:3px;padding:1px 5px;white-space:nowrap">${dp.text}</span>`:''}</div><div style="font-size:12px;font-weight:700;color:var(--text);line-height:1.3;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin-bottom:2px">${idea.name}</div><div style="font-size:9px;color:var(--text3)">${idea.genre} · ${idea.votes}票</div></div><button onclick="event.stopPropagation();voteIdea('${idea.id}')" style="background:${voted?'var(--surface2)':'rgba(34,168,95,.1)'};color:${voted?'var(--text3)':'var(--green)'};border:none;border-radius:50%;width:28px;height:28px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans);display:flex;align-items:center;justify-content:center;flex-shrink:0">${voted?'<svg width="11" height="11" viewBox="0 0 20 20" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#22a85f" stroke-width="2.2" stroke-linecap="round"/></svg>':'<svg width="11" height="11" viewBox="0 0 20 20" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="var(--green)" stroke-width="2.2" stroke-linecap="round"/></svg>'}</button></div>`;
 }
 
 function buildRowList(idea) {
@@ -1201,12 +1241,12 @@ function setTab(el, tab) {
 function renderFeed() {
   renderTop3();
   let list = [...ideas]; const secEl = document.getElementById('sec-label');
-  if (currentTab === 'hot') { list = list.filter(i => i.votes >= HOT_THRESHOLD).sort((a,b) => b.score - a.score).slice(0, HOT_DISPLAY); secEl.textContent = `注目銘柄 · ${list.length}件`; }
-  else if (currentTab === 'new') { list = [...list].reverse(); secEl.textContent = `新着 · ${list.length}件`; }
+  if (currentTab === 'hot') { list = [...list].sort((a,b) => b.score - a.score).slice(0, HOT_DISPLAY); secEl.textContent = `注目銘柄 · ${list.length}件`; }
+  else if (currentTab === 'new') { const todayStr = new Date().toISOString().slice(0,10); const todayList = list.filter(i => (i.created_at||'').slice(0,10) === todayStr || i.postedDaysAgo < 1); list = todayList.length > 0 ? todayList : [...list].reverse().slice(0,10); secEl.textContent = `新着（今日）· ${list.length}件`; }
   else { list = list.sort((a,b) => b.score - a.score); secEl.textContent = `銘柄一覧 · ${list.length}件`; }
   if (currentGenre) list = list.filter(i => i.genre === currentGenre);
   const el = document.getElementById('stock-list'); const inlineLbl = document.getElementById('next-lbl-inline'); if (inlineLbl) inlineLbl.textContent = '';
-  if (list.length === 0) { el.innerHTML = '<div style="padding:24px;text-align:center;font-size:13px;color:var(--text3)">注目銘柄はまだありません。<br>20票集まると表示されます。</div>'; }
+  if (list.length === 0) { el.innerHTML = '<div style="padding:24px;text-align:center;font-size:13px;color:var(--text3)">注目銘柄はまだありません。</div>'; }
   else if (viewMode === 'compact') { el.innerHTML = list.map(idea => buildRowCompact(idea)).join(''); }
   else if (viewMode === 'list') { el.innerHTML = list.map(idea => buildRowList(idea)).join(''); }
   else { el.innerHTML = list.map(idea => buildRow(idea)).join(''); requestAnimationFrame(() => { list.forEach(idea => drawSpark('spark-'+idea.id, idea.history, (idea.score-idea.baseScore)>=0, 60, 38)); }); }
@@ -1216,7 +1256,7 @@ function buildRow(idea) {
   const delta = idea.score - idea.baseScore; const ds = (delta>=0?'+':'')+delta.toFixed(1);
   const scoreColor = delta>0.3?'#22a85f':delta<-0.3?'#c0392b':'var(--text)'; const deltaColor = delta>0.3?'#22a85f':delta<-0.3?'#c0392b':'#999'; const deltaBg = delta>0.3?'rgba(34,168,95,.12)':delta<-0.3?'rgba(192,57,43,.1)':'rgba(0,0,0,.05)';
   const isHot = idea.votes >= HOT_THRESHOLD; const voted = votedIds.has(idea.id); const fb = founderBadgeHTML(idea.userId); const isFav = favIdeas.has(idea.id);
-  return `<div id="row-${idea.id}" onclick="showDetail('${idea.id}')" style="border-bottom:0.5px solid var(--border);cursor:pointer;position:relative;display:grid;grid-template-columns:64px 1fr auto;align-items:center;padding:10px 12px;gap:10px">${isFav ? '<div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#e8850a,#bf6d00);border-radius:0 2px 2px 0"></div>' : ''}<div style="text-align:center;flex-shrink:0"><div style="font-family:var(--mono);font-size:20px;font-weight:700;color:${scoreColor};line-height:1;letter-spacing:-.02em">${idea.score.toFixed(1)}</div><div style="font-family:var(--mono);font-size:9px;font-weight:700;color:${deltaColor};background:${deltaBg};padding:1px 5px;border-radius:4px;margin-top:3px;display:inline-block">${ds}</div></div><div style="min-width:0"><div style="display:flex;align-items:center;gap:4px;margin-bottom:1px"><span style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.04em">${idea.ticker}</span><button onclick="event.stopPropagation();toggleFav('${idea.id}')" style="background:none;border:none;cursor:pointer;padding:0;line-height:1;display:flex;align-items:center"><svg width="12" height="12" viewBox="0 0 24 24" fill="${isFav?'#e8850a':'none'}" stroke="${isFav?'#e8850a':'#ccc'}" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></button>${isHot?'<span class="hot-badge">注目</span>':''}${fb ? fb : ''}</div><div style="font-size:13px;font-weight:700;color:var(--text);line-height:1.35;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin-bottom:2px">${idea.name}</div><div style="font-size:10px;color:var(--text3)">${idea.genre} · ${idea.votes}票</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">${(()=>{ const dp=getDividendPreview(idea); return dp&&!voted?`<div style="font-size:9px;font-weight:700;color:${dp.color};background:${dp.bg};border:1px solid ${dp.border};border-radius:4px;padding:2px 6px;white-space:nowrap">${dp.text}</div>`:''; })()}<button onclick="event.stopPropagation();voteIdea('${idea.id}')" style="background:${voted?'var(--surface2)':'rgba(34,168,95,.1)'};color:${voted?'var(--text3)':'var(--green)'};border:none;border-radius:14px;padding:7px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans);white-space:nowrap">${voted?'済み':'応援'}</button></div></div>`;
+  return `<div id="row-${idea.id}" onclick="showDetail('${idea.id}')" style="border-bottom:0.5px solid var(--border);cursor:pointer;position:relative;display:grid;grid-template-columns:64px 1fr auto;align-items:center;padding:10px 12px;gap:10px">${isFav ? '<div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#e8850a,#bf6d00);border-radius:0 2px 2px 0"></div>' : ''}<div style="text-align:center;flex-shrink:0"><div style="font-family:var(--mono);font-size:20px;font-weight:700;color:${scoreColor};line-height:1;letter-spacing:-.02em">${idea.score.toFixed(1)} <span style="font-size:10px;font-weight:700;color:${scoreGrade(idea.score).color};background:${scoreGrade(idea.score).bg};padding:1px 5px;border-radius:3px;vertical-align:middle">${scoreGrade(idea.score).label}</span></div><div style="font-family:var(--mono);font-size:9px;font-weight:700;color:${deltaColor};background:${deltaBg};padding:1px 5px;border-radius:4px;margin-top:3px;display:inline-block">${ds}</div></div><div style="min-width:0"><div style="display:flex;align-items:center;gap:4px;margin-bottom:1px"><span style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.04em">${idea.ticker}</span><button onclick="event.stopPropagation();toggleFav('${idea.id}')" style="background:none;border:none;cursor:pointer;padding:0;line-height:1;display:flex;align-items:center"><svg width="12" height="12" viewBox="0 0 24 24" fill="${isFav?'#e8850a':'none'}" stroke="${isFav?'#e8850a':'#ccc'}" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></button>${isHot?'':''}${fb ? fb : ''}</div><div style="font-size:13px;font-weight:700;color:var(--text);line-height:1.35;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin-bottom:2px">${idea.name}</div><div style="font-size:10px;color:var(--text3)">${idea.genre} · ${idea.votes}票</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">${(()=>{ const dp=getDividendPreview(idea); return dp&&!voted?`<div style="font-size:9px;font-weight:700;color:${dp.color};background:${dp.bg};border:1px solid ${dp.border};border-radius:4px;padding:2px 6px;white-space:nowrap">${dp.text}</div>`:''; })()}<button onclick="event.stopPropagation();voteIdea('${idea.id}')" style="background:${voted?'var(--surface2)':'rgba(34,168,95,.1)'};color:${voted?'var(--text3)':'var(--green)'};border:none;border-radius:14px;padding:7px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans);white-space:nowrap">${voted?'済み':'応援'}</button></div></div>`;
 }
 
 function drawSpark(id, data, isUp, w, h) {
@@ -1320,22 +1360,22 @@ function showDetail(id) {
       <svg width="16" height="16" viewBox="0 0 20 20" fill="${voted?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z"/></svg>
       ${voted?'応援済み（'+idea.votes+'票）':'このアイデアを応援する（残り'+votesLeft+'票）'}
     </button>
-    <div style="background:var(--surface);border-radius:var(--r-lg);padding:14px 16px;margin-bottom:14px">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><div style="font-size:13px;font-weight:700;color:var(--text2)">${idea.votes}人が応援中</div><div style="display:flex;align-items:center">${buildAvatars(idea.id)}</div><span style="font-size:10px;color:var(--text3)">最近の応援者</span></div>
-      <button id="support-btn-${idea.id}" onclick="toggleSupport('${idea.id}')" style="${getSupportStyle(idea.id)}">
-        <svg width="14" height="14" viewBox="0 0 20 20" fill="${supportedIdeas.has(idea.id)?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M10 16l-7-7a4 4 0 015.7-5.7L10 5l1.3-1.7A4 4 0 0117 9l-7 7z"/></svg>
-        ${supportedIdeas.has(idea.id) ? '賛同済み！' : '一緒に作りたい！'}
-        <span style="font-size:11px;font-weight:700;background:${supportedIdeas.has(idea.id)?'#e6f1fb':'var(--surface2)'};color:${supportedIdeas.has(idea.id)?'#185FA5':'var(--text2)'};padding:3px 10px;border-radius:20px">${(idea.supporters||0)}人</span>
-      </button>
-    </div>
-    <div style="background:var(--surface);border-radius:var(--r-lg);padding:12px 14px;margin-bottom:14px"><div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.06em;margin-bottom:8px">目利きポイント</div>${buildEarlyInfo(idea.id)}</div>
+
+
     <div class="hero-card">
       <div class="hero-top">
-        <div class="hero-left">${icoSVG(idea.emoji, 48)}<div class="hero-ticker">${idea.ticker}${isHot?' 🔥 注目銘柄':''}</div><div class="hero-name">${idea.name}</div><div class="hero-genre">${idea.genre}${idea.tech?' · '+idea.tech:''}</div></div>
-        <div class="hero-score-wrap"><div class="hero-score ${sc}">${idea.score.toFixed(1)}</div><div class="hero-pill" style="background:${pc}">${ds}</div></div>
+        <div class="hero-left">${icoSVG(idea.emoji, 48)}<div class="hero-ticker">${idea.ticker}</div><div class="hero-name">${idea.name}</div><div class="hero-genre">${idea.genre}${idea.tech?' · '+idea.tech:''}</div></div>
+        <div class="hero-score-wrap">
+          <div class="hero-score ${sc}">${idea.score.toFixed(1)}</div>
+          <div class="hero-pill" style="background:${pc}">${ds}</div>
+          ${(()=>{ const g=scoreGrade(idea.score); return `<div style="font-size:9px;font-weight:700;color:${g.color};background:${g.bg};border-radius:4px;padding:2px 6px;margin-top:4px;text-align:center">${g.label} ${g.text}</div>`; })()}
+        </div>
       </div>
       <div class="big-spark-wrap"><canvas id="big-spark" style="width:100%;height:60px;display:block"></canvas></div>
       <div class="reason-row"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="var(--text3)" stroke-width="1"/><line x1="6" y1="5" x2="6" y2="8" stroke="var(--text3)" stroke-width="1" stroke-linecap="round"/><circle cx="6" cy="3.5" r=".5" fill="var(--text3)"/></svg><span class="reason-text">${idea.lastReason||'スコアを計算中です'}</span></div>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+        ${(()=>{ const pct=calcPercentile(idea); const gr=calcGenreRank(idea); const pctColor=pct>=80?'var(--green)':pct>=50?'var(--amber)':'var(--text3)'; return `<div style="background:var(--surface2);border-radius:8px;padding:5px 10px;font-size:11px;color:${pctColor};font-weight:700">全体 上位${100-pct+1<1?1:100-pct+1}%</div><div style="background:var(--surface2);border-radius:8px;padding:5px 10px;font-size:11px;color:var(--text2);font-weight:700">${idea.genre} ${gr.rank}/${gr.total}位</div>`; })()}
+      </div>
     </div>
     <div style="display:flex;gap:8px;margin-bottom:12px">
       <button onclick="shareToX('${idea.id}')" style="flex:1;padding:11px;border-radius:var(--r-lg);font-size:13px;font-weight:700;font-family:var(--sans);border:none;cursor:pointer;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;gap:6px"><svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path d="M2 2l7.5 8.5L2 18h2l6.3-7.1L16 18h4L12 9.2 18.5 2h-2L10.6 8.6 5 2H2z"/></svg>Xでシェア</button>
@@ -1483,12 +1523,28 @@ function showPostPreview() {
   document.body.appendChild(overlay);
 }
 
-function doPost() {
+async function doPost() {
   const title = document.getElementById('inp-title')?.value?.trim(); const desc = document.getElementById('inp-desc')?.value?.trim(); const tech = document.getElementById('inp-tech')?.value?.trim(); const rawTicker = document.getElementById('inp-ticker')?.value?.trim().toUpperCase();
   if (!title) { showToast('アイデア名を入力してください'); return; }
   if (!selectedGenre) { showToast('ジャンルを選んでください'); return; }
   if (!canPost()) { showUpgradeModal('上場はPro会員限定です'); return; }
   if (!currentUser) { showToast('ログインして上場しよう！'); return; }
+
+  // 類似アイデアチェック（3件以上ある場合のみ）
+  if (ideas && ideas.length >= 3) {
+    const postBtn = document.querySelector('#screen-post .primary-btn');
+    if (postBtn) { postBtn.textContent = '類似を確認中...'; postBtn.disabled = true; }
+    try {
+      const similar = await checkSimilarIdeas(title);
+      if (postBtn) { postBtn.textContent = 'プレビューを確認して上場する →'; postBtn.disabled = false; }
+      if (similar && similar.length > 0) {
+        const confirmed = await showSimilarWarning(similar);
+        if (!confirmed) return;
+      }
+    } catch(e) {
+      if (postBtn) { postBtn.textContent = 'プレビューを確認して上場する →'; postBtn.disabled = false; }
+    }
+  }
   const ticker = rawTicker || (title.replace(/[^A-Za-zぁ-ん一-龯]/g,'').slice(0,5).toUpperCase() || 'IDEA');
   const score = calcScore({votes:0,views:0,commentList:[],progress:0,progressStep:0,postedDaysAgo:0,daysSinceLastVote:0,desc,tech,supporters:0,genre:selectedGenre,id:'_'});
   const newIdea = { id:'local-'+Date.now(), ticker, emoji:selectedEmoji, name:title, desc, genre:selectedGenre, tech, baseScore:score, score, votes:0, views:0, progress:0, progressStep:0, postedDaysAgo:0, daysSinceLastVote:0, history:[score], lastReason:'上場しました', lastDelta:0, commentList:[], actions:[], supporters:0, userId: currentUser?.id };
@@ -1983,6 +2039,51 @@ async function loadHirobaList(){
         '</div>';
     }).join('');
   }catch(e){list.innerHTML='<div class="empty"><div class="empty-txt">読み込みに失敗しました</div></div>';}
+}
+
+
+// ===== PRICING SHEET =====
+function showPricingSheet() {
+  const existing = document.getElementById('pricing-sheet');
+  if (existing) { existing.remove(); return; }
+  const sheet = document.createElement('div');
+  sheet.id = 'pricing-sheet';
+  sheet.style.cssText = 'position:fixed;inset:0;z-index:500;display:flex;align-items:flex-end;justify-content:center';
+  const planLabel = currentUser?.isFounder ? '👑 創設メンバー' : (isPro ? 'PRO' : '無料プラン');
+  const isFounder = currentUser?.isFounder;
+  sheet.innerHTML = `<div style="position:absolute;inset:0;background:rgba(0,0,0,.45)" onclick="document.getElementById('pricing-sheet').remove()"></div><div style="position:relative;background:var(--surface);border-radius:24px 24px 0 0;padding:20px 20px 40px;width:100%;max-width:390px;max-height:88vh;overflow-y:auto"><div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px"></div><div style="font-family:var(--mono);font-size:10px;color:var(--amber-mid);letter-spacing:.1em;font-weight:700;margin-bottom:4px">現在のプラン</div><div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:16px">${planLabel}</div>${isFounder ? '<div style="background:var(--amber-bg);border:1.5px solid var(--amber-border);border-radius:14px;padding:14px 16px;margin-bottom:10px"><div style="font-size:11px;font-weight:700;color:var(--amber);margin-bottom:8px">👑 創設メンバー特典</div><div style="font-size:13px;color:var(--text2);line-height:1.8">✓ 上場・コメント無制限<br>✓ 1日4票<br>✓ 創設メンバーバッジ永久<br>✓ 番号付き称号</div></div>' : !isPro ? '<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:10px"><div style="background:var(--amber-bg);border:2px solid var(--amber-mid);border-radius:14px;padding:14px 16px;position:relative"><div style="position:absolute;top:-8px;left:14px;background:var(--amber-mid);color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:100px">おすすめ</div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:14px;font-weight:700;color:var(--text)">👑 創設メンバー</div><div style="font-size:18px;font-weight:700;color:var(--amber)">¥980</div></div><div style="font-size:12px;color:var(--text2);line-height:1.8;margin-bottom:10px">✓ 上場・コメント無制限<br>✓ 1日4票<br>✓ バッジ永久付与<br>✓ 買い切り・月額なし</div><button onclick="upgradeFounder()" style="width:100%;padding:12px;background:var(--amber-mid);border:none;border-radius:100px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">創設メンバーになる</button></div><div style="background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:14px 16px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:14px;font-weight:700;color:var(--text)">Pro</div><div style="font-size:16px;font-weight:700;color:var(--text)">¥300<span style="font-size:11px;font-weight:400;color:var(--text3)">/月</span></div></div><div style="font-size:12px;color:var(--text2);line-height:1.8;margin-bottom:10px">✓ 上場・コメント無制限<br>✓ 1日4票<br>✓ いつでも解約可</div><button onclick="upgradePro()" style="width:100%;padding:12px;background:var(--ink);border:none;border-radius:100px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">Proにアップグレード</button></div></div>' : '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:10px"><div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:8px">Pro 特典</div><div style="font-size:13px;color:var(--text2);line-height:1.8">✓ 上場・コメント無制限<br>✓ 1日4票</div></div>'}<div onclick="window.open('https://aipo-tau.vercel.app/pricing.html','_blank')" style="text-align:center;padding:12px;font-size:13px;color:var(--amber);cursor:pointer;font-weight:600">料金・ルール詳細を見る →</div></div>`;
+  document.body.appendChild(sheet);
+}
+
+
+
+async function checkSimilarIdeas(title) {
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: '既存アイデアの中から新しいアイデアと類似するものを最大3つ選んでください。JSONのみで返してください。形式:[{"id":"...","name":"...","reason":"（一言で類似理由）"}] 類似なければ[]。新しいアイデア:' + title + ' 既存:' + JSON.stringify(ideas.slice(0,40).map(i=>({id:i.id,name:i.name,genre:i.genre}))) }]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.[0]?.text || '[]';
+    const clean = text.replace(/```json|```/g,'').trim();
+    return JSON.parse(clean);
+  } catch(e) { return []; }
+}
+
+function showSimilarWarning(similar) {
+  return new Promise(resolve => {
+    const modal = document.createElement('div');
+    modal.style.cssText = 'position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center';
+    modal.innerHTML = `<div style="background:var(--surface);border-radius:24px 24px 0 0;padding:24px 20px 40px;width:100%;max-width:390px"><div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px"></div><div style="font-family:var(--mono);font-size:10px;color:var(--amber-mid);font-weight:700;margin-bottom:8px">類似アイデアが見つかりました</div><div style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6">以下のアイデアと似ている可能性があります。差別化ポイントを明確にすると票が集まりやすくなります。</div><div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">${similar.map(s=>`<div style="background:var(--surface2);border-radius:10px;padding:10px 12px;border:1px solid var(--border)"><div style="font-size:12px;font-weight:700;color:var(--text)">${s.name}</div><div style="font-size:11px;color:var(--text3);margin-top:3px">${s.reason||''}</div></div>`).join('')}</div><button id="sim-go" style="width:100%;padding:14px;background:var(--amber-mid);border:none;border-radius:100px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans);margin-bottom:8px">差別化できている → このまま上場</button><button id="sim-back" style="width:100%;padding:12px;background:transparent;border:none;font-size:13px;color:var(--text3);cursor:pointer;font-family:var(--sans)">見直す</button></div>`;
+    modal.querySelector('#sim-go').onclick = () => { modal.remove(); resolve(true); };
+    modal.querySelector('#sim-back').onclick = () => { modal.remove(); resolve(false); };
+    document.body.appendChild(modal);
+  });
 }
 
 init();
