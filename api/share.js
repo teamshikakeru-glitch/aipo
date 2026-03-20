@@ -5,7 +5,8 @@ const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 
 export default async function handler(req) {
   const { searchParams } = new URL(req.url);
-  const id = searchParams.get('id');
+  const id  = searchParams.get('id');
+  const img = searchParams.get('img'); // 株券画像URL（オプション）
 
   if (!id) {
     return Response.redirect('https://aipo-tau.vercel.app/', 302);
@@ -24,18 +25,15 @@ export default async function handler(req) {
     return Response.redirect('https://aipo-tau.vercel.app/', 302);
   }
 
-  const appUrl  = `https://aipo-tau.vercel.app/?id=${id}`;
-  const score   = parseFloat(idea.score || 50).toFixed(1);
-  const name    = idea.name || 'アイデア';
-  const ticker  = idea.ticker || 'IDEA';
-  const votes   = idea.votes || 0;
-  const date    = new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
-
-  const title       = `「${name}」${ticker} — あいぽ`;
+  const appUrl     = `https://aipo-tau.vercel.app/?id=${id}`;
+  const score      = parseFloat(idea.score || 50).toFixed(1);
+  const name       = idea.name || 'アイデア';
+  const ticker     = idea.ticker || 'IDEA';
+  const votes      = idea.votes || 0;
+  // 株券画像があればそれを、なければロゴ画像を使用
+  const ogImageUrl = img || `https://aipo-tau.vercel.app/og-image.png`;
+  const title      = `「${name}」${ticker} — あいぽ`;
   const description = `📊 スコア ${score}pt ／ 応援 ${votes}票${idea.genre ? ` ／ ${idea.genre}` : ''} | アイデアIPO市場「あいぽ」`;
-
-  // 株券OGP画像（og.jsに渡す）
-  const ogImageUrl = `https://aipo-tau.vercel.app/api/og?ticker=${encodeURIComponent(ticker)}&name=${encodeURIComponent(name)}&votes=${encodeURIComponent(votes+'票')}&date=${encodeURIComponent(date)}&score=${encodeURIComponent(score)}`;
 
   const html = `<!DOCTYPE html>
 <html lang="ja">
