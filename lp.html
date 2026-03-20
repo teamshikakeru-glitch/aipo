@@ -46,9 +46,9 @@
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; max-width: 100%; }
 html, body { overflow-x: hidden !important; width: 100%; max-width: 100vw; position: relative; }
 html { overflow-x: hidden; }
-body { background: var(--bg); color: var(--text); font-family: var(--sans); overscroll-behavior: none; overflow-x: hidden !important; width: 100%; touch-action: pan-y pinch-zoom; }
+body { background: var(--bg); color: var(--text); font-family: var(--sans); overflow-x: hidden !important; overflow-y: auto; width: 100%; touch-action: pan-y pinch-zoom; }
 .app { max-width: 390px; margin: 0 auto; min-height: 100vh; overflow: hidden; width: 100%; }
-.screen { display: none; min-height: 100vh; padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)); overflow-x: hidden; width: 100%; }
+.screen { display: none; min-height: 100vh; padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)); overflow-x: hidden; overflow-y: visible; width: 100%; }
 .screen.active { display: block; background: var(--surface); }
 .header { background: var(--surface); padding: 16px 18px 0; position: sticky; top: 0; z-index: 20; }
 .hd-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
@@ -1049,43 +1049,48 @@ function updatePlanBadge() {
 }
 
 function calcScore(idea) {
-  // ベーススコアは低め（40→差がつきやすい）
-  let s = 40;
+  let s = 30;
 
-  // 票: 効果を上げる（3→5）ただし対数で上限を設ける
-  const voteScore = idea.votes > 0 ? Math.min(idea.votes * 5, 30 + Math.log(idea.votes + 1) * 5) : 0;
-  s += voteScore;
+  // 票: 対数スケール（10票で+29pt、50票で+46pt、100票で+55pt）
+  const v = idea.votes || 0;
+  s += Math.min(Math.log(v + 1) * 12, 45);
 
-  // 閲覧: 効果を下げる（低品質な閲覧を抑制）
-  s += Math.min(idea.views * 0.05, 8);
+  // 閲覧: 軽い加点
+  s += Math.min((idea.views||0) * 0.04, 5);
 
-  // コメント: 重要度アップ
-  s += Math.min((idea.commentList||[]).length * 3, 15);
+  // コメント: 対数スケール
+  const cm = (idea.commentList||[]).length;
+  s += Math.min(Math.log(cm + 1) * 8, 12);
 
-  // 進捗ボーナス
-  s += idea.progress * 8;
+  // 進捗ボーナス（アイデア段階→リリース済み）
+  s += (idea.progressStep||idea.progress||0) * 7;
 
-  // 説明・技術: 詳細さへのボーナス
-  s += idea.desc ? 4 : 0;
+  // 詳細さ
+  s += idea.desc ? 3 : 0;
   s += idea.tech ? 2 : 0;
 
-  // 自然減衰: 1日2点（以前の2倍）
-  s -= idea.postedDaysAgo * 2.0;
+  // 自然減衰（1日1.5pt）
+  s -= (idea.postedDaysAgo||0) * 1.5;
 
-  // 長期放置ペナルティ（7日で-10、14日で-20）
-  const daysSinceVote = idea.daysSinceLastVote || idea.postedDaysAgo;
-  if (daysSinceVote >= 14) s -= 20;
-  else if (daysSinceVote >= 7) s -= 10;
+  // 放置ペナルティ
+  const daysSinceVote = idea.daysSinceLastVote || idea.postedDaysAgo || 0;
+  if (daysSinceVote >= 14) s -= 15;
+  else if (daysSinceVote >= 7) s -= 8;
 
-  // 類似競合ペナルティ（同ジャンルに類似アイデアが多いほど下がる）
-  const sameGenre = ideas.filter(i => i.genre === idea.genre && i.id !== idea.id);
-  if (sameGenre.length >= 3) s -= Math.min(sameGenre.length * 1.5, 10);
+  // 競合ペナルティ
+  const sameGenre = (typeof ideas !== 'undefined' ? ideas : []).filter(i => i.genre === idea.genre && i.id !== idea.id);
+  if (sameGenre.length >= 3) s -= Math.min(sameGenre.length * 1.2, 8);
 
-  // サポーター
-  s += Math.min((idea.supporters||0) * 2, 8);
-
-  // 最低10点・最高99点
   return Math.max(10, Math.min(99, Math.round(s * 10) / 10));
+}
+
+// スコアの格付けラベル
+function scoreGrade(score) {
+  if (score >= 90) return { label: 'S', color: '#bf6d00', bg: '#fff8ed', text: '伝説級' };
+  if (score >= 80) return { label: 'A', color: '#1a7a4a', bg: '#edf7f2', text: 'トップクラス' };
+  if (score >= 70) return { label: 'B', color: '#185FA5', bg: '#f0f7ff', text: '注目レベル' };
+  if (score >= 55) return { label: 'C', color: '#6b6860', bg: 'var(--surface2)', text: '成長中' };
+  return { label: 'D', color: '#9a9590', bg: 'var(--surface2)', text: 'スタート' };
 }
 
 // パーセンタイル計算（全アイデア中の順位）
@@ -1181,7 +1186,7 @@ function buildPortfolioRow(idea) {
   const deltaColor = delta>0.3?'#22a85f':delta<-0.3?'#c0392b':'#999';
   const deltaBg = delta>0.3?'rgba(34,168,95,.12)':delta<-0.3?'rgba(192,57,43,.1)':'rgba(0,0,0,.05)';
   const isHot = idea.votes >= HOT_THRESHOLD; const isFav = favIdeas.has(idea.id); const isOwn = myIdeas.has(idea.id);
-  return `<div style="border-bottom:0.5px solid var(--border);position:relative">${isFav ? '<div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#e8850a,#bf6d00);border-radius:0 2px 2px 0;z-index:1"></div>' : ''}<div onclick="showDetail('${idea.id}')" style="padding:12px 14px 8px;display:flex;align-items:flex-start;gap:10px;cursor:pointer"><div style="display:flex;flex-direction:column;align-items:center;min-width:58px;flex-shrink:0;padding:4px 0"><div style="font-family:var(--mono);font-size:22px;font-weight:700;color:${scoreColor};line-height:1">${idea.score.toFixed(1)}</div><div style="font-family:var(--mono);font-size:10px;font-weight:700;color:${deltaColor};background:${deltaBg};padding:2px 6px;border-radius:5px;margin-top:3px">${ds}</div><div style="font-size:9px;color:var(--text3);margin-top:3px">${idea.votes}票</div></div><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-bottom:2px"><span style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text2)">${idea.ticker}</span>${isHot?'':''}</div><div style="font-size:14px;font-weight:700;color:var(--text);line-height:1.4;margin-bottom:5px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${idea.name}</div><div style="display:flex;gap:4px;flex-wrap:wrap"><span class="stag stag-genre">${idea.genre}</span>${idea.tech?`<span class="stag stag-a">${idea.tech}</span>`:''}</div></div><canvas style="width:60px;height:38px;flex-shrink:0;margin-top:4px" id="pspark-${idea.id}"></canvas></div>${isOwn ? `<div style="display:flex;border-top:0.5px solid var(--border)"><button onclick="event.stopPropagation();showEditIdea('${idea.id}')" style="flex:1;padding:10px;font-size:12px;font-weight:700;font-family:var(--sans);border:none;border-right:0.5px solid var(--border);background:var(--surface);color:var(--amber);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px"><svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 3.3a1 1 0 011.4 1.4L6 14.8l-3.5.7.7-3.5L14.7 3.3z"/></svg>編集</button><button onclick="event.stopPropagation();confirmDeleteIdea('${idea.id}')" style="flex:1;padding:10px;font-size:12px;font-weight:700;font-family:var(--sans);border:none;background:var(--surface);color:var(--red);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px"><svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h14M8 6V4h4v2M9 10v5M11 10v5M5 6l1 11h8l1-11"/></svg>削除</button></div>` : ''}</div>`;
+  return `<div style="border-bottom:0.5px solid var(--border);position:relative">${isFav ? '<div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#e8850a,#bf6d00);border-radius:0 2px 2px 0;z-index:1"></div>' : ''}<div onclick="showDetail('${idea.id}')" style="padding:12px 14px 8px;display:flex;align-items:flex-start;gap:10px;cursor:pointer"><div style="display:flex;flex-direction:column;align-items:center;min-width:58px;flex-shrink:0;padding:4px 0"><div style="font-family:var(--mono);font-size:22px;font-weight:700;color:${scoreColor};line-height:1">${idea.score.toFixed(1)}</div><div style="display:flex;align-items:center;gap:4px;margin-top:3px"><div style="font-family:var(--mono);font-size:10px;font-weight:700;color:${deltaColor};background:${deltaBg};padding:2px 6px;border-radius:5px">${ds}</div><div style="font-size:9px;font-weight:700;color:${scoreGrade(idea.score).color}">${scoreGrade(idea.score).label}</div></div><div style="font-size:9px;color:var(--text3);margin-top:2px">${idea.votes}票</div></div><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-bottom:2px"><span style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text2)">${idea.ticker}</span>${isHot?'':''}</div><div style="font-size:14px;font-weight:700;color:var(--text);line-height:1.4;margin-bottom:5px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${idea.name}</div><div style="display:flex;gap:4px;flex-wrap:wrap"><span class="stag stag-genre">${idea.genre}</span>${idea.tech?`<span class="stag stag-a">${idea.tech}</span>`:''}</div></div><canvas style="width:60px;height:38px;flex-shrink:0;margin-top:4px" id="pspark-${idea.id}"></canvas></div>${isOwn ? `<div style="display:flex;border-top:0.5px solid var(--border)"><button onclick="event.stopPropagation();showEditIdea('${idea.id}')" style="flex:1;padding:10px;font-size:12px;font-weight:700;font-family:var(--sans);border:none;border-right:0.5px solid var(--border);background:var(--surface);color:var(--amber);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px"><svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 3.3a1 1 0 011.4 1.4L6 14.8l-3.5.7.7-3.5L14.7 3.3z"/></svg>編集</button><button onclick="event.stopPropagation();confirmDeleteIdea('${idea.id}')" style="flex:1;padding:10px;font-size:12px;font-weight:700;font-family:var(--sans);border:none;background:var(--surface);color:var(--red);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px"><svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h14M8 6V4h4v2M9 10v5M11 10v5M5 6l1 11h8l1-11"/></svg>削除</button></div>` : ''}</div>`;
 }
 
 let currentGenre = '';
@@ -1198,7 +1203,7 @@ function buildRowCompact(idea) {
   const delta = idea.score - idea.baseScore; const ds = (delta>=0?'+':'')+delta.toFixed(1);
   const scoreColor = delta>0.3?'#22a85f':delta<-0.3?'#c0392b':'var(--text)'; const deltaColor = delta>0.3?'#22a85f':delta<-0.3?'#c0392b':'#999'; const deltaBg = delta>0.3?'rgba(34,168,95,.12)':delta<-0.3?'rgba(192,57,43,.1)':'rgba(0,0,0,.05)';
   const isHot = idea.votes >= HOT_THRESHOLD; const voted = votedIds.has(idea.id); const dp = getDividendPreview(idea); const isFav = favIdeas.has(idea.id);
-  return `<div id="row-${idea.id}" onclick="showDetail('${idea.id}')" style="border-bottom:0.5px solid var(--border);cursor:pointer;position:relative;padding:7px 14px;display:flex;align-items:center;gap:9px">${isFav ? '<div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#e8850a,#bf6d00);border-radius:0 2px 2px 0"></div>' : ''}<div style="min-width:44px;flex-shrink:0;text-align:left"><div style="font-family:var(--mono);font-size:14px;font-weight:700;color:${scoreColor};line-height:1;letter-spacing:-.02em">${idea.score.toFixed(1)}</div><div style="font-family:var(--mono);font-size:8px;font-weight:700;color:${deltaColor};background:${deltaBg};padding:1px 4px;border-radius:3px;margin-top:2px;display:inline-block">${ds}</div></div><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:4px;margin-bottom:1px"><span style="font-family:var(--mono);font-size:9px;font-weight:700;color:var(--text3);letter-spacing:.04em">${idea.ticker}</span>${isHot?'':''}${dp&&!voted?`<span style="font-size:8px;font-weight:700;color:${dp.color};background:${dp.bg};border:1px solid ${dp.border};border-radius:3px;padding:1px 5px;white-space:nowrap">${dp.text}</span>`:''}</div><div style="font-size:12px;font-weight:700;color:var(--text);line-height:1.3;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin-bottom:2px">${idea.name}</div><div style="font-size:9px;color:var(--text3)">${idea.genre} · ${idea.votes}票</div></div><button onclick="event.stopPropagation();voteIdea('${idea.id}')" style="background:${voted?'var(--surface2)':'rgba(34,168,95,.1)'};color:${voted?'var(--text3)':'var(--green)'};border:none;border-radius:50%;width:28px;height:28px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans);display:flex;align-items:center;justify-content:center;flex-shrink:0">${voted?'<svg width="11" height="11" viewBox="0 0 20 20" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#22a85f" stroke-width="2.2" stroke-linecap="round"/></svg>':'<svg width="11" height="11" viewBox="0 0 20 20" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="var(--green)" stroke-width="2.2" stroke-linecap="round"/></svg>'}</button></div>`;
+  return `<div id="row-${idea.id}" onclick="showDetail('${idea.id}')" style="border-bottom:0.5px solid var(--border);cursor:pointer;position:relative;padding:7px 14px;display:flex;align-items:center;gap:9px">${isFav ? '<div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#e8850a,#bf6d00);border-radius:0 2px 2px 0"></div>' : ''}<div style="min-width:44px;flex-shrink:0;text-align:left"><div style="font-family:var(--mono);font-size:14px;font-weight:700;color:${scoreColor};line-height:1;letter-spacing:-.02em">${idea.score.toFixed(1)} <span style="font-size:8px;font-weight:700;color:${scoreGrade(idea.score).color}">${scoreGrade(idea.score).label}</span></div><div style="font-family:var(--mono);font-size:8px;font-weight:700;color:${deltaColor};background:${deltaBg};padding:1px 4px;border-radius:3px;margin-top:2px;display:inline-block">${ds}</div></div><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:4px;margin-bottom:1px"><span style="font-family:var(--mono);font-size:9px;font-weight:700;color:var(--text3);letter-spacing:.04em">${idea.ticker}</span>${isHot?'':''}${dp&&!voted?`<span style="font-size:8px;font-weight:700;color:${dp.color};background:${dp.bg};border:1px solid ${dp.border};border-radius:3px;padding:1px 5px;white-space:nowrap">${dp.text}</span>`:''}</div><div style="font-size:12px;font-weight:700;color:var(--text);line-height:1.3;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin-bottom:2px">${idea.name}</div><div style="font-size:9px;color:var(--text3)">${idea.genre} · ${idea.votes}票</div></div><button onclick="event.stopPropagation();voteIdea('${idea.id}')" style="background:${voted?'var(--surface2)':'rgba(34,168,95,.1)'};color:${voted?'var(--text3)':'var(--green)'};border:none;border-radius:50%;width:28px;height:28px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans);display:flex;align-items:center;justify-content:center;flex-shrink:0">${voted?'<svg width="11" height="11" viewBox="0 0 20 20" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#22a85f" stroke-width="2.2" stroke-linecap="round"/></svg>':'<svg width="11" height="11" viewBox="0 0 20 20" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="var(--green)" stroke-width="2.2" stroke-linecap="round"/></svg>'}</button></div>`;
 }
 
 function buildRowList(idea) {
@@ -1251,7 +1256,7 @@ function buildRow(idea) {
   const delta = idea.score - idea.baseScore; const ds = (delta>=0?'+':'')+delta.toFixed(1);
   const scoreColor = delta>0.3?'#22a85f':delta<-0.3?'#c0392b':'var(--text)'; const deltaColor = delta>0.3?'#22a85f':delta<-0.3?'#c0392b':'#999'; const deltaBg = delta>0.3?'rgba(34,168,95,.12)':delta<-0.3?'rgba(192,57,43,.1)':'rgba(0,0,0,.05)';
   const isHot = idea.votes >= HOT_THRESHOLD; const voted = votedIds.has(idea.id); const fb = founderBadgeHTML(idea.userId); const isFav = favIdeas.has(idea.id);
-  return `<div id="row-${idea.id}" onclick="showDetail('${idea.id}')" style="border-bottom:0.5px solid var(--border);cursor:pointer;position:relative;display:grid;grid-template-columns:64px 1fr auto;align-items:center;padding:10px 12px;gap:10px">${isFav ? '<div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#e8850a,#bf6d00);border-radius:0 2px 2px 0"></div>' : ''}<div style="text-align:center;flex-shrink:0"><div style="font-family:var(--mono);font-size:20px;font-weight:700;color:${scoreColor};line-height:1;letter-spacing:-.02em">${idea.score.toFixed(1)}</div><div style="font-family:var(--mono);font-size:9px;font-weight:700;color:${deltaColor};background:${deltaBg};padding:1px 5px;border-radius:4px;margin-top:3px;display:inline-block">${ds}</div></div><div style="min-width:0"><div style="display:flex;align-items:center;gap:4px;margin-bottom:1px"><span style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.04em">${idea.ticker}</span><button onclick="event.stopPropagation();toggleFav('${idea.id}')" style="background:none;border:none;cursor:pointer;padding:0;line-height:1;display:flex;align-items:center"><svg width="12" height="12" viewBox="0 0 24 24" fill="${isFav?'#e8850a':'none'}" stroke="${isFav?'#e8850a':'#ccc'}" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></button>${isHot?'':''}${fb ? fb : ''}</div><div style="font-size:13px;font-weight:700;color:var(--text);line-height:1.35;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin-bottom:2px">${idea.name}</div><div style="font-size:10px;color:var(--text3)">${idea.genre} · ${idea.votes}票</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">${(()=>{ const dp=getDividendPreview(idea); return dp&&!voted?`<div style="font-size:9px;font-weight:700;color:${dp.color};background:${dp.bg};border:1px solid ${dp.border};border-radius:4px;padding:2px 6px;white-space:nowrap">${dp.text}</div>`:''; })()}<button onclick="event.stopPropagation();voteIdea('${idea.id}')" style="background:${voted?'var(--surface2)':'rgba(34,168,95,.1)'};color:${voted?'var(--text3)':'var(--green)'};border:none;border-radius:14px;padding:7px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans);white-space:nowrap">${voted?'済み':'応援'}</button></div></div>`;
+  return `<div id="row-${idea.id}" onclick="showDetail('${idea.id}')" style="border-bottom:0.5px solid var(--border);cursor:pointer;position:relative;display:grid;grid-template-columns:64px 1fr auto;align-items:center;padding:10px 12px;gap:10px">${isFav ? '<div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#e8850a,#bf6d00);border-radius:0 2px 2px 0"></div>' : ''}<div style="text-align:center;flex-shrink:0"><div style="font-family:var(--mono);font-size:20px;font-weight:700;color:${scoreColor};line-height:1;letter-spacing:-.02em">${idea.score.toFixed(1)} <span style="font-size:10px;font-weight:700;color:${scoreGrade(idea.score).color};background:${scoreGrade(idea.score).bg};padding:1px 5px;border-radius:3px;vertical-align:middle">${scoreGrade(idea.score).label}</span></div><div style="font-family:var(--mono);font-size:9px;font-weight:700;color:${deltaColor};background:${deltaBg};padding:1px 5px;border-radius:4px;margin-top:3px;display:inline-block">${ds}</div></div><div style="min-width:0"><div style="display:flex;align-items:center;gap:4px;margin-bottom:1px"><span style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.04em">${idea.ticker}</span><button onclick="event.stopPropagation();toggleFav('${idea.id}')" style="background:none;border:none;cursor:pointer;padding:0;line-height:1;display:flex;align-items:center"><svg width="12" height="12" viewBox="0 0 24 24" fill="${isFav?'#e8850a':'none'}" stroke="${isFav?'#e8850a':'#ccc'}" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></button>${isHot?'':''}${fb ? fb : ''}</div><div style="font-size:13px;font-weight:700;color:var(--text);line-height:1.35;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin-bottom:2px">${idea.name}</div><div style="font-size:10px;color:var(--text3)">${idea.genre} · ${idea.votes}票</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">${(()=>{ const dp=getDividendPreview(idea); return dp&&!voted?`<div style="font-size:9px;font-weight:700;color:${dp.color};background:${dp.bg};border:1px solid ${dp.border};border-radius:4px;padding:2px 6px;white-space:nowrap">${dp.text}</div>`:''; })()}<button onclick="event.stopPropagation();voteIdea('${idea.id}')" style="background:${voted?'var(--surface2)':'rgba(34,168,95,.1)'};color:${voted?'var(--text3)':'var(--green)'};border:none;border-radius:14px;padding:7px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans);white-space:nowrap">${voted?'済み':'応援'}</button></div></div>`;
 }
 
 function drawSpark(id, data, isUp, w, h) {
@@ -1360,7 +1365,11 @@ function showDetail(id) {
     <div class="hero-card">
       <div class="hero-top">
         <div class="hero-left">${icoSVG(idea.emoji, 48)}<div class="hero-ticker">${idea.ticker}</div><div class="hero-name">${idea.name}</div><div class="hero-genre">${idea.genre}${idea.tech?' · '+idea.tech:''}</div></div>
-        <div class="hero-score-wrap"><div class="hero-score ${sc}">${idea.score.toFixed(1)}</div><div class="hero-pill" style="background:${pc}">${ds}</div></div>
+        <div class="hero-score-wrap">
+          <div class="hero-score ${sc}">${idea.score.toFixed(1)}</div>
+          <div class="hero-pill" style="background:${pc}">${ds}</div>
+          ${(()=>{ const g=scoreGrade(idea.score); return `<div style="font-size:9px;font-weight:700;color:${g.color};background:${g.bg};border-radius:4px;padding:2px 6px;margin-top:4px;text-align:center">${g.label} ${g.text}</div>`; })()}
+        </div>
       </div>
       <div class="big-spark-wrap"><canvas id="big-spark" style="width:100%;height:60px;display:block"></canvas></div>
       <div class="reason-row"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="var(--text3)" stroke-width="1"/><line x1="6" y1="5" x2="6" y2="8" stroke="var(--text3)" stroke-width="1" stroke-linecap="round"/><circle cx="6" cy="3.5" r=".5" fill="var(--text3)"/></svg><span class="reason-text">${idea.lastReason||'スコアを計算中です'}</span></div>
