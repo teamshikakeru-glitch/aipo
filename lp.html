@@ -188,6 +188,18 @@ nav{
   overflow:hidden;
   background:var(--border);
 }
+@media(max-width:768px){
+  .era-timeline{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  .era-timeline::-webkit-scrollbar{display:none}
+  .era-card{min-width:220px;padding:20px 16px}
+  .era-num{font-size:32px;margin-bottom:10px}
+  .era-arrow{display:none}
+}
 .era-card{
   background:var(--bg);
   padding:40px 32px;
@@ -609,10 +621,7 @@ footer{
 
   /* ── ERA ── */
   .era{padding:56px 20px}
-  .era-timeline{grid-template-columns:1fr;gap:1px}
-  .era-arrow{display:none}
-  .era-card{padding:28px 20px}
-  .era-num{font-size:36px;margin-bottom:12px}
+  .era-num{font-size:32px;margin-bottom:10px}
 
   /* ── STATEMENT ── */
   .statement{padding:56px 20px}
@@ -845,19 +854,19 @@ footer{
 <div class="stats">
   <div class="stat r">
     <div class="stat-n"><span id="stat-users">—</span></div>
-    <div class="stat-l">REGISTERED USERS</div>
+    <div class="stat-l">登録ユーザー数</div>
   </div>
   <div class="stat r d1">
     <div class="stat-n"><span id="stat-ideas">—</span></div>
-    <div class="stat-l">IDEAS LISTED</div>
+    <div class="stat-l">アイデア上場数</div>
   </div>
   <div class="stat r d2">
     <div class="stat-n">30<span class="unit">min</span></div>
-    <div class="stat-l">SCORE UPDATE CYCLE</div>
+    <div class="stat-l">スコア更新サイクル</div>
   </div>
   <div class="stat r d3">
     <div class="stat-n">3<span class="unit">票</span></div>
-    <div class="stat-l">DAILY VOTES / USER</div>
+    <div class="stat-l">1人あたりの1日の票数</div>
   </div>
 </div>
 
