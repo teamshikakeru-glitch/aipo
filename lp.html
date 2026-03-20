@@ -1291,7 +1291,7 @@ function setTab(el, tab) {
 function renderFeed() {
   renderTop3();
   let list = [...ideas]; const secEl = document.getElementById('sec-label');
-  if (currentTab === 'hot') { list = [...list].sort((a,b) => b.score - a.score).slice(0, HOT_DISPLAY); secEl.textContent = `注目銘柄 · ${list.length}件`; }
+  if (currentTab === 'hot') { list = list.filter(i => i.score >= 80).sort((a,b) => b.score - a.score); secEl.textContent = `注目銘柄 · ${list.length}件`; }
   else if (currentTab === 'new') { const todayStr = new Date().toISOString().slice(0,10); const todayList = list.filter(i => (i.created_at||'').slice(0,10) === todayStr || i.postedDaysAgo < 1); list = todayList.length > 0 ? todayList : [...list].reverse().slice(0,10); secEl.textContent = `新着（今日）· ${list.length}件`; }
   else { list = list.sort((a,b) => b.score - a.score); secEl.textContent = `銘柄一覧 · ${list.length}件`; }
   if (currentGenre) list = list.filter(i => i.genre === currentGenre);
@@ -1872,12 +1872,40 @@ function loadCerts() {
   } catch(e) { return []; }
 }
 
-function saveCertToCollection(idea, votesAtTime) {
+// Supabaseから図鑑をロードして localStorageと同期
+async function syncCertsFromCloud() {
+  if (!currentUser?.id) return;
+  try {
+    const { data } = await sb.from('user_certificates').select('cert_data').eq('user_id', currentUser.id);
+    if (!data || data.length === 0) return;
+    const cloudCerts = data.map(r => { try { return JSON.parse(r.cert_data); } catch { return null; } }).filter(Boolean);
+    const local = loadCerts();
+    const localIds = new Set(local.map(c => c.ideaId));
+    let changed = false;
+    cloudCerts.forEach(c => { if (!localIds.has(c.ideaId)) { local.push(c); changed = true; } });
+    if (changed) {
+      local.sort((a,b) => (b.id > a.id ? 1 : -1));
+      localStorage.setItem(COLL_KEY, JSON.stringify(local));
+      renderCertCollection();
+    }
+  } catch(e) { console.error('syncCerts error:', e); }
+}
+
+async function saveCertToCollection(idea, votesAtTime) {
   try {
     const certs = loadCerts(); if (certs.find(c => c.ideaId === idea.id)) return;
     const today = new Date();
-    certs.unshift({ id: idea.id + '-' + Date.now(), ideaId: idea.id, ticker: idea.ticker || 'IDEA', name: idea.name || '', votesAtTime: votesAtTime + 1, score: idea.score || 50, date: today.toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'}), time: today.toLocaleTimeString('ja-JP', {hour:'2-digit',minute:'2-digit'}), serial: 'AI-' + String(today.getMonth()+1).padStart(2,'0') + String(today.getDate()).padStart(2,'0'), holder: (currentUser && currentUser.x_username) ? currentUser.x_username : 'user', isEarly: (votesAtTime + 1) <= 5, isFirst: votesAtTime === 0 });
+    const cert = { id: idea.id + '-' + Date.now(), ideaId: idea.id, ticker: idea.ticker || 'IDEA', name: idea.name || '', votesAtTime: votesAtTime + 1, score: idea.score || 50, date: today.toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'}), time: today.toLocaleTimeString('ja-JP', {hour:'2-digit',minute:'2-digit'}), serial: 'AI-' + String(today.getMonth()+1).padStart(2,'0') + String(today.getDate()).padStart(2,'0'), holder: (currentUser && currentUser.x_username) ? currentUser.x_username : 'user', isEarly: (votesAtTime + 1) <= 5, isFirst: votesAtTime === 0 };
+    certs.unshift(cert);
     localStorage.setItem(COLL_KEY, JSON.stringify(certs));
+    // Supabaseにも保存（別ブラウザ同期用）
+    if (currentUser?.id) {
+      await sb.from('user_certificates').upsert({
+        user_id: currentUser.id,
+        idea_id: idea.id,
+        cert_data: JSON.stringify(cert)
+      }, { onConflict: 'user_id,idea_id' }).catch(()=>{});
+    }
   } catch(e) { console.error('saveCert error:', e); }
 }
 
@@ -1903,7 +1931,11 @@ function openZukanBook() {
     const near = idx < certs.length + 3;
     return `<div style="background:${near?'rgba(232,133,10,.03)':'rgba(0,0,0,.02)'};border:1.5px dashed ${near?'rgba(232,133,10,.2)':'rgba(0,0,0,.08)'};border-radius:7px;aspect-ratio:2/3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px"><div style="font-size:10px;color:${near?'rgba(232,133,10,.25)':'rgba(0,0,0,.08)'}">+</div><div style="font-family:var(--mono);font-size:5.5px;color:${near?'rgba(232,133,10,.2)':'rgba(0,0,0,.06)'}">${String(idx+1).padStart(2,'0')}</div></div>`;
   }
-  function pageHTML(page) { const sl = slots.slice(page*5, page*5+5); return `<div style="display:flex;flex-direction:column;gap:8px">${sl.map((c,i)=>slotHTML(c,page*5+i)).join('')}</div>`; }
+  function pageHTML(page) {
+    const sl = slots.slice(page*5, page*5+5);
+    // 5枚が画面に収まるように gap:6px, padding考慮
+    return `<div style="display:flex;flex-direction:column;gap:6px;padding:6px 6px 0">${sl.map((c,i)=>slotHTML(c,page*5+i)).join('')}</div>`;
+  }
   const overlay = document.getElementById('zukan-overlay'); if (!overlay) return;
   overlay.style.display = 'block';
   overlay.innerHTML = `<div style="height:100%;display:flex;flex-direction:column;animation:zukanSlideUp .4s cubic-bezier(.16,1,.3,1) both;background:var(--surface)"><div style="background:var(--surface);padding:12px 14px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0"><div onclick="closeZukanBook()" style="cursor:pointer;color:var(--text2);display:flex;align-items:center"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 5l-5 5 5 5"/></svg></div><div><div style="font-size:15px;font-weight:700;color:var(--text)">株券図鑑</div><div style="font-size:9px;color:var(--text3)">Investment Certificate Book</div></div><div style="margin-left:auto;display:flex;align-items:center;gap:10px"><button onclick="shareZukan()" style="display:flex;align-items:center;gap:5px;background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:5px 12px;cursor:pointer;font-family:var(--sans);font-size:11px;font-weight:700;color:var(--text2)"><svg width="11" height="11" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="17" cy="3" r="2"/><circle cx="17" cy="17" r="2"/><circle cx="3" cy="10" r="2"/><path d="M5 10h9M15.3 4.5l-8.6 4M15.3 15.5l-8.6-4"/></svg>シェア</button><div style="display:flex;align-items:center;gap:4px"><div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--amber-mid)">${certs.length}</div><div style="font-size:9px;color:var(--text3)">/ ${TOTAL}枚</div></div></div></div><div style="padding:8px 12px 0;flex-shrink:0"><div style="background:rgba(0,0,0,.07);border-radius:4px;height:3px;overflow:hidden"><div style="background:linear-gradient(90deg,#f5d68a,#e8850a);height:100%;width:${(certs.length/TOTAL*100).toFixed(1)}%;border-radius:4px"></div></div><div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px"><div style="font-size:9px;color:var(--text3)">ピンをタップするとホーム表示を変更できます</div><div style="font-family:var(--mono);font-size:9px;color:var(--amber-mid)">${(certs.length/TOTAL*100).toFixed(1)}%</div></div></div><div style="flex:1;overflow:hidden;position:relative;background:#f5f3ee" id="zukan-pages-wrap"><div id="zukan-pages" style="display:flex;width:200%;height:100%;transition:transform .35s cubic-bezier(.4,0,.2,1)"><div style="width:50%;height:100%;overflow-y:auto;scrollbar-width:none;padding:10px 12px 20px"><div style="background:#fff;border-radius:14px;overflow:hidden;border:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,.06)"><div style="font-family:var(--mono);font-size:7px;color:#c8bfae;text-align:center;padding:6px 0;border-bottom:0.5px solid rgba(0,0,0,.06)">PAGE 1</div><div style="padding:8px 8px 10px">${pageHTML(0)}</div><div style="font-family:var(--mono);font-size:7px;color:#c8bfae;text-align:center;padding:6px 0;border-top:0.5px solid rgba(0,0,0,.06)">— 1 —</div></div><div style="padding:10px 0;text-align:center;font-size:10px;color:var(--text3)">← スワイプで次のページへ →</div></div><div style="width:50%;height:100%;overflow-y:auto;scrollbar-width:none;padding:10px 12px 20px"><div style="background:#fff;border-radius:14px;overflow:hidden;border:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,.06)"><div style="font-family:var(--mono);font-size:7px;color:#c8bfae;text-align:center;padding:6px 0;border-bottom:0.5px solid rgba(0,0,0,.06)">PAGE 2</div><div style="padding:8px 8px 10px">${pageHTML(1)}</div><div style="font-family:var(--mono);font-size:7px;color:#c8bfae;text-align:center;padding:6px 0;border-top:0.5px solid rgba(0,0,0,.06)">— 2 —</div></div></div></div><div id="zukan-dots" style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:5"><div style="width:20px;height:4px;border-radius:2px;background:var(--amber-mid);cursor:pointer;transition:all .3s" id="zdot-0"></div><div style="width:8px;height:4px;border-radius:2px;background:rgba(0,0,0,.15);cursor:pointer;transition:all .3s" id="zdot-1"></div></div></div></div>`;
@@ -2062,7 +2094,7 @@ async function init() {
     if (!gsDone) { document.getElementById('guide-screen').classList.add('active'); }
     else if (!hasSession) { document.getElementById('login-screen').classList.add('active'); }
   }, 800);
-  if (hasSession) { await checkProStatus(); await loadVotedIds(); await loadInsightScore(); await loadDividends(); }
+  if (hasSession) { await checkProStatus(); await loadVotedIds(); syncCertsFromCloud(); await loadInsightScore(); await loadDividends(); }
   initEmojiPicker(); setViewMode(viewMode); checkUpgradeSuccess(); checkChargeSuccess();
   await fetchIdeas(); startRealtime(); updatePlanBadge();
   if (hasSession) { const founderEl = document.getElementById('founder-remaining'); if (founderEl) loadFounderCount(); }
