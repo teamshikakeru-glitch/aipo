@@ -1,5 +1,3 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-
 export const config = { runtime: 'edge' };
 
 const SB_URL = 'https://qjffvspnnxyykoyhnazm.supabase.co';
@@ -13,19 +11,18 @@ export default async function handler(req) {
     return Response.redirect('https://aipo-tau.vercel.app/', 302);
   }
 
-  // Supabaseからアイデア情報を取得
   let idea = null;
   try {
-    const sb = createClient(SB_URL, SB_KEY);
-    const { data } = await sb
-      .from('ideas')
-      .select('id, name, ticker, score, votes, genre')
-      .eq('id', id)
-      .single();
-    idea = data;
+    const res = await fetch(`${SB_URL}/rest/v1/ideas?id=eq.${id}&select=id,name,ticker,score,votes,genre&limit=1`, {
+      headers: {
+        'apikey': SB_KEY,
+        'Authorization': `Bearer ${SB_KEY}`,
+      }
+    });
+    const data = await res.json();
+    if (data && data.length > 0) idea = data[0];
   } catch (e) {}
 
-  // アイデアが見つからない場合はアプリトップへ
   if (!idea) {
     return Response.redirect('https://aipo-tau.vercel.app/', 302);
   }
@@ -35,11 +32,11 @@ export default async function handler(req) {
   const name   = idea.name || 'アイデア';
   const ticker = idea.ticker || 'IDEA';
   const votes  = idea.votes || 0;
+  const date   = new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
 
   const title       = `「${name}」${ticker} — あいぽ`;
-  const description = `📊 スコア ${score}pt ／ 応援 ${votes}票 ／ ${idea.genre || 'アイデア'} | アイデアIPO市場「あいぽ」`;
-
-  const ogImageUrl = `https://aipo-tau.vercel.app/api/og?ticker=${encodeURIComponent(ticker)}&name=${encodeURIComponent(name)}&votes=${encodeURIComponent(votes + '票')}&date=${encodeURIComponent(new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}))}`;
+  const description = `📊 スコア ${score}pt ／ 応援 ${votes}票${idea.genre ? ` ／ ${idea.genre}` : ''} | アイデアIPO市場「あいぽ」`;
+  const ogImageUrl  = `https://aipo-tau.vercel.app/api/og?ticker=${encodeURIComponent(ticker)}&name=${encodeURIComponent(name)}&votes=${encodeURIComponent(votes + '票')}&date=${encodeURIComponent(date)}`;
 
   const html = `<!DOCTYPE html>
 <html lang="ja">
