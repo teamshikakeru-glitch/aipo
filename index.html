@@ -1082,12 +1082,13 @@ function calcScore(idea) {
   s += idea.tech ? 2 : 0;
 
   // ⑥ 自然減衰（1日 -1.5pt）
-  s -= (idea.postedDaysAgo || 0) * 1.5;
+  s -= (idea.postedDaysAgo || 0) * 3.0;
 
   // ⑦ 放置ペナルティ（最後に票・閲覧がない期間）
   const daysSinceVote = idea.daysSinceLastVote || idea.postedDaysAgo || 0;
-  if (daysSinceVote >= 14) s -= 15;
-  else if (daysSinceVote >= 7) s -= 8;
+  if (daysSinceVote >= 14) s -= 25;
+  else if (daysSinceVote >= 7) s -= 12;
+  else if (daysSinceVote >= 3) s -= 4;
 
   // ⑧ 競合ペナルティ（同ジャンルが多いと下がる）
   const sameGenre = (typeof ideas !== 'undefined' ? ideas : []).filter(i => i.genre === idea.genre && i.id !== idea.id);
