@@ -1049,48 +1049,97 @@ function updatePlanBadge() {
 }
 
 function calcScore(idea) {
-  let s = 30;
+  // ──────────────────────────────────────────
+  //  スコア計算式（最低10 〜 最高99）
+  //  各要素の満点と重みを明示
+  // ──────────────────────────────────────────
+  let s = 30; // ベース
 
-  // 票: 対数スケール（10票で+29pt、50票で+46pt、100票で+55pt）
+  // ① 応援票（最大 +25pt）
+  //    10票→+17, 30票→+22, 100票→+25
   const v = idea.votes || 0;
-  s += Math.min(Math.log(v + 1) * 12, 45);
+  s += Math.min(Math.log(v + 1) * 8, 25);
 
-  // 閲覧: 軽い加点
-  s += Math.min((idea.views||0) * 0.04, 5);
+  // ② 閲覧数（最大 +15pt）
+  //    100閲→+4, 500閲→+10, 1000閲→+15
+  const views = idea.views || 0;
+  s += Math.min(Math.log(views + 1) * 3, 15);
 
-  // コメント: 対数スケール
-  const cm = (idea.commentList||[]).length;
-  s += Math.min(Math.log(cm + 1) * 8, 12);
+  // ③ コメント数（最大 +15pt）
+  //    1件→+5, 5件→+11, 10件→+15
+  const cm = (idea.commentList || []).length;
+  s += Math.min(Math.log(cm + 1) * 7, 15);
 
-  // 進捗ボーナス（アイデア段階→リリース済み）
-  s += (idea.progressStep||idea.progress||0) * 7;
+  // ④ 進捗（最大 +20pt）
+  //    アイデア段階: 0pt → 開発中: +7pt → テスト中: +14pt → リリース済み: +20pt
+  const progress = idea.progressStep || idea.progress || 0;
+  const progressBonus = [0, 7, 14, 20][Math.min(progress, 3)];
+  s += progressBonus;
 
-  // 詳細さ
+  // ⑤ 説明・技術（詳細さボーナス 最大 +5pt）
   s += idea.desc ? 3 : 0;
   s += idea.tech ? 2 : 0;
 
-  // 自然減衰（1日1.5pt）
-  s -= (idea.postedDaysAgo||0) * 1.5;
+  // ⑥ 自然減衰（1日 -1.5pt）
+  s -= (idea.postedDaysAgo || 0) * 1.5;
 
-  // 放置ペナルティ
+  // ⑦ 放置ペナルティ（最後に票・閲覧がない期間）
   const daysSinceVote = idea.daysSinceLastVote || idea.postedDaysAgo || 0;
   if (daysSinceVote >= 14) s -= 15;
   else if (daysSinceVote >= 7) s -= 8;
 
-  // 競合ペナルティ
+  // ⑧ 競合ペナルティ（同ジャンルが多いと下がる）
   const sameGenre = (typeof ideas !== 'undefined' ? ideas : []).filter(i => i.genre === idea.genre && i.id !== idea.id);
-  if (sameGenre.length >= 3) s -= Math.min(sameGenre.length * 1.2, 8);
+  if (sameGenre.length >= 3) s -= Math.min(sameGenre.length * 1.0, 8);
 
   return Math.max(10, Math.min(99, Math.round(s * 10) / 10));
 }
 
 // スコアの格付けラベル
 function scoreGrade(score) {
-  if (score >= 90) return { label: 'S', color: '#bf6d00', bg: '#fff8ed', text: '伝説級' };
-  if (score >= 80) return { label: 'A', color: '#1a7a4a', bg: '#edf7f2', text: 'トップクラス' };
-  if (score >= 70) return { label: 'B', color: '#185FA5', bg: '#f0f7ff', text: '注目レベル' };
-  if (score >= 55) return { label: 'C', color: '#6b6860', bg: 'var(--surface2)', text: '成長中' };
-  return { label: 'D', color: '#9a9590', bg: 'var(--surface2)', text: 'スタート' };
+  if (score >= 80) return { label: 'S', color: '#bf6d00', bg: '#fff8ed', text: '超注目', desc: '80〜99　市場が熱狂している' };
+  if (score >= 65) return { label: 'A', color: '#1a7a4a', bg: '#edf7f2', text: '注目', desc: '65〜79　多くの人が評価している' };
+  if (score >= 50) return { label: 'B', color: '#185FA5', bg: '#f0f7ff', text: '普通', desc: '50〜64　着実に成長中' };
+  if (score >= 35) return { label: 'C', color: '#6b6860', bg: 'var(--surface2)', text: '低調', desc: '35〜49　もう少し票・閲覧が欲しい' };
+  return { label: 'D', color: '#9a9590', bg: 'var(--surface2)', text: '要テコ入れ', desc: '10〜34　活動が少ない状態' };
+}
+
+// スコア一覧を表示するモーダル
+function showScoreGuide() {
+  const existing = document.getElementById('score-guide-modal');
+  if (existing) { existing.remove(); return; }
+  const modal = document.createElement('div');
+  modal.id = 'score-guide-modal';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:500;display:flex;align-items:flex-end;justify-content:center';
+  modal.innerHTML = `
+    <div style="position:absolute;inset:0;background:rgba(0,0,0,.45)" onclick="document.getElementById('score-guide-modal').remove()"></div>
+    <div style="position:relative;background:var(--surface);border-radius:24px 24px 0 0;padding:20px 20px 40px;width:100%;max-width:390px">
+      <div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px"></div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--amber-mid);font-weight:700;letter-spacing:.1em;margin-bottom:14px">SCORE GUIDE</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${[
+          {range:'80〜99', label:'超注目', color:'#bf6d00', bg:'#fff8ed', border:'#f5d68a', desc:'市場が熱狂している'},
+          {range:'65〜79', label:'注目', color:'#1a7a4a', bg:'#edf7f2', border:'#9de0cc', desc:'多くの人が評価している'},
+          {range:'50〜64', label:'普通', color:'#185FA5', bg:'#f0f7ff', border:'#b5d4f4', desc:'着実に成長中'},
+          {range:'35〜49', label:'低調', color:'#6b6860', bg:'var(--surface2)', border:'var(--border2)', desc:'票・閲覧がもう少し欲しい'},
+          {range:'10〜34', label:'要テコ入れ', color:'#9a9590', bg:'var(--surface2)', border:'var(--border2)', desc:'活動が少ない状態'},
+        ].map(g => `
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:${g.bg};border:1px solid ${g.border};border-radius:10px">
+            <div style="font-family:var(--mono);font-size:16px;font-weight:700;color:${g.color};min-width:40px">${g.range}</div>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:${g.color}">${g.label}</div>
+              <div style="font-size:11px;color:var(--text3);margin-top:1px">${g.desc}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      <div style="margin-top:14px;padding:10px 12px;background:var(--bg);border-radius:8px;font-size:11px;color:var(--text3);line-height:1.7">
+        スコアは票・閲覧・コメント・進捗をもとに計算されます。<br>
+        毎日1.5pt自然に下がるため、継続的な活動が大切です。
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
 }
 
 // パーセンタイル計算（全アイデア中の順位）
