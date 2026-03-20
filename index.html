@@ -164,7 +164,7 @@ input[type=file] { display: none; }
 .cert-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:400;display:flex;align-items:flex-end;justify-content:center}
 .cert-modal-box{background:var(--surface);border-radius:24px 24px 0 0;padding:24px 20px 44px;width:100%;max-width:390px;animation:slideUp .35s cubic-bezier(.16,1,.3,1)}
 @keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
-.cert-wrap{background:#f5f1ea;border-radius:12px;overflow:visible;border:1px solid #e0d8cc;display:flex;margin-bottom:16px;position:relative}
+.cert-wrap{background:#fffef8;border-radius:12px;overflow:hidden;display:flex;margin-bottom:16px;position:relative;border:2px solid #e8c84a;box-shadow:0 0 0 1px #f5d68a inset,0 4px 20px rgba(232,133,10,.12)}
 .cert-notch-t{position:absolute;left:calc(100% - 101px);top:-10px;width:20px;height:20px;background:#e8dfd0;border-radius:50%;border:1px solid #d4c9b8;z-index:2}
 .cert-notch-b{position:absolute;left:calc(100% - 101px);bottom:-10px;width:20px;height:20px;background:#e8dfd0;border-radius:50%;border:1px solid #d4c9b8;z-index:2}
 .cert-left{flex:1;padding:18px 16px;min-width:0}
@@ -496,7 +496,7 @@ input[type=file] { display: none; }
     <a href="/legal.html#tokusho" target="_blank" style="font-family:var(--mono);font-size:10px;color:var(--text3);text-decoration:none;letter-spacing:.04em">特定商取引法</a>
     <a href="/legal.html#terms" target="_blank" style="font-family:var(--mono);font-size:10px;color:var(--text3);text-decoration:none;letter-spacing:.04em">利用規約</a>
     <a href="/legal.html#privacy" target="_blank" style="font-family:var(--mono);font-size:10px;color:var(--text3);text-decoration:none;letter-spacing:.04em">プライバシーポリシー</a>
-    <a href="mailto:team.shikakeru@gmail.com" style="font-family:var(--mono);font-size:10px;color:var(--text3);text-decoration:none;letter-spacing:.04em">お問い合わせ</a>
+    <a href="/cdn-cgi/l/email-protection#ed99888c80c39e8584868c86889f98ad8a808c8481c38e8280" style="font-family:var(--mono);font-size:10px;color:var(--text3);text-decoration:none;letter-spacing:.04em">お問い合わせ</a>
   </div>
   <div style="font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:.04em">© 2026 あいぽ · 中川航輝</div>
 </div>
@@ -504,7 +504,7 @@ input[type=file] { display: none; }
 <input type="file" id="file-input" accept="image/*">
 <div class="toast" id="toast"></div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 const SUPABASE_URL = 'https://qjffvspnnxyykoyhnazm.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqZmZ2c3Bubnh5eWtveWhuYXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzMTIxMzMsImV4cCI6MjA4Njg4ODEzM30.OqeeMZs73RjKY5POW-naf0dB8sFWfZDUKaKvE99EiBo';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -1421,7 +1421,7 @@ function buildCertHTML(idea, votesAtTime) {
   const serial = 'AI-' + String(today.getMonth()+1).padStart(2,'0') + String(today.getDate()).padStart(2,'0');
   const userName = currentUser?.x_username ? '@' + currentUser.x_username : '@ユーザー';
   const voteLabel = (votesAtTime + 1) + '票目'; const ideaName = idea.name.length > 16 ? idea.name.slice(0, 16) + '…' : idea.name;
-  return `<div class="cert-notch-t"></div><div class="cert-notch-b"></div><div class="cert-left"><div class="cert-brand"><div class="cert-brand-ico"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="7,14 10,10 12,11.5 15,7 18,4" stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="18" cy="4" r="2" fill="#f59e0b"/></svg></div><span class="cert-brand-name">あいぽ</span></div><div class="cert-divider"><div class="cert-divider-line"></div><span class="cert-divider-txt">INVESTMENT CERTIFICATE</span><div class="cert-divider-line"></div></div><div style="display:grid;grid-template-columns:auto 1fr;gap:10px;margin-bottom:10px"><div><div class="cert-field-lbl">DATE</div><div class="cert-field-val" style="font-size:11px">${dateStr}</div><div style="font-family:var(--mono);font-size:9px;color:#a09080">${timeStr}</div></div><div><div class="cert-field-lbl">IDEA</div><div class="cert-field-val">${ideaName}</div></div></div><div style="display:flex;align-items:flex-start;gap:6px;flex-wrap:wrap"><div><div class="cert-field-lbl">TICKER</div><div class="cert-mono">${idea.ticker}</div></div><div style="width:.5px;height:28px;background:#d4c9b8;margin-top:10px"></div><div><div class="cert-field-lbl">HOLDER</div><div class="cert-mono">${userName}</div></div><div style="width:.5px;height:28px;background:#d4c9b8;margin-top:10px"></div><div><div class="cert-field-lbl">VOTES AT TIME</div><div class="cert-mono">${voteLabel}</div></div></div><div class="cert-early"><div class="cert-early-dot"></div><span class="cert-early-txt">EARLY INVESTOR</span></div></div><div class="cert-right"><div style="text-align:center"><div style="font-family:var(--mono);font-size:7px;color:#a09080;letter-spacing:.08em;margin-bottom:4px">SERIAL</div><div style="font-family:var(--mono);font-size:9px;color:#1a1400;background:#e5ddd0;border-radius:3px;padding:2px 6px;letter-spacing:.03em">${serial}</div></div><div class="cert-stamp"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#c0392b" stroke-width="2" stroke-linecap="round"/></svg><span class="cert-stamp-txt">INVESTED</span></div><div style="text-align:center"><div style="display:flex;gap:1.5px;align-items:flex-end;margin-bottom:3px"><div style="width:2px;height:26px;background:#1a1400;border-radius:.5px"></div><div style="width:1px;height:22px;background:#1a1400;border-radius:.5px"></div><div style="width:3px;height:26px;background:#1a1400;border-radius:.5px"></div><div style="width:1px;height:18px;background:#1a1400;border-radius:.5px"></div><div style="width:2px;height:26px;background:#1a1400;border-radius:.5px"></div></div><div style="font-family:var(--mono);font-size:7px;color:#a09080;letter-spacing:.08em">あいぽ</div></div></div>`;
+  return `<div class="cert-left"><div class="cert-brand" style="display:none"><div class="cert-brand-ico"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="7,14 10,10 12,11.5 15,7 18,4" stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="18" cy="4" r="2" fill="#f59e0b"/></svg></div><span class="cert-brand-name">あいぽ</span></div><div style="margin-bottom:6px"><div class="cert-early" style="margin-bottom:6px"><div class="cert-early-dot"></div><span class="cert-early-txt">EARLY INVESTOR</span></div></div><div class="cert-divider"><div class="cert-divider-line"></div><span class="cert-divider-txt">INVESTMENT CERTIFICATE</span><div class="cert-divider-line"></div></div><div style="display:grid;grid-template-columns:auto 1fr;gap:10px;margin-bottom:10px"><div><div class="cert-field-lbl">DATE</div><div class="cert-field-val" style="font-size:11px">${dateStr}</div><div style="font-family:var(--mono);font-size:9px;color:#a09080">${timeStr}</div></div><div><div class="cert-field-lbl">IDEA</div><div class="cert-field-val">${ideaName}</div></div></div><div style="display:flex;align-items:flex-start;gap:6px;flex-wrap:wrap"><div><div class="cert-field-lbl">TICKER</div><div class="cert-mono">${idea.ticker}</div></div><div style="width:.5px;height:28px;background:#d4c9b8;margin-top:10px"></div><div><div class="cert-field-lbl">HOLDER</div><div class="cert-mono">${userName}</div></div><div style="width:.5px;height:28px;background:#d4c9b8;margin-top:10px"></div><div><div class="cert-field-lbl">VOTES AT TIME</div><div class="cert-mono">${voteLabel}</div></div></div></div><div class="cert-right"><div style="text-align:center"><div style="font-family:var(--mono);font-size:7px;color:#a09080;letter-spacing:.08em;margin-bottom:4px">SERIAL</div><div style="font-family:var(--mono);font-size:9px;color:#1a1400;background:#e5ddd0;border-radius:3px;padding:2px 6px;letter-spacing:.03em">${serial}</div></div><div class="cert-stamp"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#c0392b" stroke-width="2" stroke-linecap="round"/></svg><span class="cert-stamp-txt">DONE</span></div><div style="text-align:center"><div style="display:flex;gap:1.5px;align-items:flex-end;margin-bottom:3px"><div style="width:2px;height:26px;background:#1a1400;border-radius:.5px"></div><div style="width:1px;height:22px;background:#1a1400;border-radius:.5px"></div><div style="width:3px;height:26px;background:#1a1400;border-radius:.5px"></div><div style="width:1px;height:18px;background:#1a1400;border-radius:.5px"></div><div style="width:2px;height:26px;background:#1a1400;border-radius:.5px"></div></div><div style="font-family:var(--mono);font-size:7px;color:#a09080;letter-spacing:.08em">あいぽ</div></div></div>`;
 }
 
 function showCertificate(idea, votesAtTime) {
@@ -1857,11 +1857,4 @@ async function init() {
   initEmojiPicker(); setViewMode(viewMode); checkUpgradeSuccess(); checkChargeSuccess();
   await fetchIdeas(); startRealtime(); updatePlanBadge();
   if (hasSession) { const founderEl = document.getElementById('founder-remaining'); if (founderEl) loadFounderCount(); }
-  // ログイン後にプロフィールボタンのアバターを更新
-  if (hasSession) { setTimeout(() => _updateProfileBtnAvatar(), 1200); }
-}
-
-init();
-</script>
-</body>
-</html>
+  // ログイン後にプロ�
