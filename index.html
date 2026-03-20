@@ -1610,7 +1610,7 @@ async function saveUsername() {
   document.getElementById('username-modal')?.remove(); renderPortfolio(); showToast('名前を更新しました');
 }
 
-async function doLogin() { const { error } = await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } }); if (error) showToast('ログインに失敗しました'); }
+async function doLogin() { const { error } = await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin, queryParams: { prompt: 'select_account' } } }); if (error) showToast('ログインに失敗しました'); }
 async function doLogout() { await sb.auth.signOut(); currentUser = null; isPro = false; votesLeft = 3; myIdeas.clear(); votedIds.clear(); showToast('ログアウトしました'); }
 
 let guideStep = 0;
