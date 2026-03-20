@@ -24,6 +24,39 @@ body{
 a{color:inherit;text-decoration:none}
 button{font-family:inherit;cursor:pointer}
 
+
+/* ── LIVE BAR ── */
+#live-bar{
+  position:fixed;top:56px;left:0;right:0;z-index:99;
+  background:#fff;
+  border-bottom:1px solid var(--border);
+  height:36px;
+  display:flex;align-items:center;
+}
+.live-bar-inner{
+  display:flex;align-items:center;gap:12px;
+  padding:0 20px;
+  width:100%;
+}
+.lb-dot{
+  width:5px;height:5px;border-radius:50%;
+  background:var(--green);flex-shrink:0;
+  animation:pulse 1.6s ease-in-out infinite;
+}
+.lb-live{
+  font-family:var(--mono);font-size:9px;font-weight:700;
+  color:var(--green);letter-spacing:.12em;
+}
+.lb-stat{display:flex;align-items:baseline;gap:4px}
+.lb-n{
+  font-family:var(--mono);font-size:13px;font-weight:700;
+  color:var(--ink);
+}
+.lb-l{font-size:9px;color:var(--ink3);letter-spacing:.04em}
+.lb-div{width:1px;height:14px;background:var(--border)}
+/* PCでは非表示（navに表示済み） */
+@media(min-width:640px){#live-bar{display:none}}
+
 /* ─── TOKENS ─── */
 :root{
   --bg:#f8f7f4;
@@ -58,14 +91,39 @@ nav{
 }
 .nav-logo em{font-style:normal;color:var(--amber)}
 .nav-btn{
-  display:inline-flex;align-items:center;gap:6px;
+  display:inline-flex;align-items:center;justify-content:center;
   background:var(--ink);color:#fff;
   font-size:12px;font-weight:700;letter-spacing:.04em;
-  padding:9px 18px;border-radius:4px;
+  padding:9px 20px;border-radius:4px;
   border:none;transition:opacity .15s;
+  min-width:96px;
+  position:relative;
+}
+.nav-btn svg{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;
+  opacity:.6;
 }
 .nav-btn:active{opacity:.8}
 .nav-right{display:flex;align-items:center;gap:8px}
+.nav-stats{
+  display:flex;align-items:center;gap:12px;
+  background:#fff;
+  border:1.5px solid var(--border);
+  border-radius:100px;
+  padding:6px 16px;
+  margin-right:6px;
+  box-shadow:0 1px 6px rgba(0,0,0,.06);
+}
+.nav-stat{display:flex;align-items:baseline;gap:4px}
+.nav-stat-n{
+  font-family:var(--mono);font-size:15px;font-weight:700;
+  color:var(--ink);line-height:1;
+}
+.nav-stat-l{font-size:9px;color:var(--ink3);letter-spacing:.04em;white-space:nowrap}
+.nav-stat-div{width:1px;height:16px;background:var(--border)}
+/* スマホでは非表示 */
+@media(max-width:639px){.nav-stats{display:none}}
 .nav-link-text{
   font-size:12px;font-weight:700;color:var(--ink3);
   letter-spacing:.04em;padding:9px 12px;border-radius:4px;
@@ -78,7 +136,7 @@ nav{
 .s-hero{
   min-height:100svh;
   display:flex;flex-direction:column;justify-content:center;
-  padding:80px 20px 40px;
+  padding:116px 20px 40px;
   position:relative;overflow:hidden;
   background:var(--bg);
 }
@@ -684,14 +742,43 @@ footer{
 <nav>
   <div class="nav-logo"><span style="color:var(--ink)">あい</span><em>ぽ</em></div>
   <div class="nav-right">
+    <div class="nav-stats">
+      <div class="nav-stat">
+        <span class="nav-stat-n" id="nav-users">—</span>
+        <span class="nav-stat-l">登録者数</span>
+      </div>
+      <div class="nav-stat-div"></div>
+      <div class="nav-stat">
+        <span class="nav-stat-n" id="nav-ideas">—</span>
+        <span class="nav-stat-l">上場数</span>
+      </div>
+    </div>
     <a href="#era" class="nav-link-text">思想</a>
     <a href="#plans" class="nav-link-text">プラン</a>
+    <a href="#recruit" class="nav-link-text">投資家</a>
     <a href="https://aipo-tau.vercel.app" class="nav-btn">
       上場する
       <svg width="11" height="11" viewBox="0 0 20 20"><path d="M4 10h12M10 4l6 6-6 6"/></svg>
     </a>
   </div>
 </nav>
+
+<!-- LIVE BAR (スマホ固定) -->
+<div id="live-bar">
+  <div class="live-bar-inner">
+    <div class="lb-dot"></div>
+    <span class="lb-live">LIVE</span>
+    <div class="lb-stat">
+      <span class="lb-n" id="lb-users">—</span>
+      <span class="lb-l">登録者数</span>
+    </div>
+    <div class="lb-div"></div>
+    <div class="lb-stat">
+      <span class="lb-n" id="lb-ideas">—</span>
+      <span class="lb-l">上場数</span>
+    </div>
+  </div>
+</div>
 
 <!-- HERO -->
 <section class="s-hero">
@@ -1191,7 +1278,11 @@ async function load(){
       sb.from('ideas').select('id,ticker,name,score,votes,genre').order('score',{ascending:false}).limit(5)
     ]);
     cnt(document.getElementById('hero-users'),uc??0);
+    cnt(document.getElementById('nav-users'),uc??0);
+    cnt(document.getElementById('lb-users'),uc??0);
     cnt(document.getElementById('hero-ideas'),ic??0);
+    cnt(document.getElementById('nav-ideas'),ic??0);
+    cnt(document.getElementById('lb-ideas'),ic??0);
     cnt(document.getElementById('stat-u'),uc??0);
     cnt(document.getElementById('stat-i'),ic??0);
     const hic=document.getElementById('hero-idea-cnt');
