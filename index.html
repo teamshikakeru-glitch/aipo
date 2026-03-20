@@ -462,7 +462,7 @@ input[type=file] { display: none; }
         </div>
         <div style="font-size:11px;font-weight:700;color:var(--text);padding:6px;background:var(--bg);border-radius:8px;text-align:center;border:0.5px solid var(--border2);">@aideaipo →</div>
       </a>
-      <a href="mailto:team.shikakeru@gmail.com" style="text-decoration:none;background:var(--surface);border-radius:14px;border:0.5px solid var(--border2);padding:14px;display:flex;flex-direction:column;gap:8px;">
+      <a href="/cdn-cgi/l/email-protection#6d19080c00431e0504060c06081f182d0a000c0401430e0200" style="text-decoration:none;background:var(--surface);border-radius:14px;border:0.5px solid var(--border2);padding:14px;display:flex;flex-direction:column;gap:8px;">
         <div style="width:28px;height:28px;background:var(--amber-bg);border-radius:8px;display:flex;align-items:center;justify-content:center;border:1px solid var(--amber-border);">
           <svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="var(--amber-mid)" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="5" width="16" height="12" rx="2"/><path d="M2 7l8 6 8-6"/></svg>
         </div>
@@ -536,7 +536,7 @@ input[type=file] { display: none; }
 <input type="file" id="file-input" accept="image/*">
 <div class="toast" id="toast"></div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 const SUPABASE_URL = 'https://qjffvspnnxyykoyhnazm.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqZmZ2c3Bubnh5eWtveWhuYXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzMTIxMzMsImV4cCI6MjA4Njg4ODEzM30.OqeeMZs73RjKY5POW-naf0dB8sFWfZDUKaKvE99EiBo';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -1426,7 +1426,104 @@ function _openShareSheetUI(nameShort, ticker, score, votes) {
   document.body.appendChild(overlay);
 }
 
-function _shareX()    { const u='https://twitter.com/intent/tweet?text='+encodeURIComponent(_shareText)+'&url='+encodeURIComponent(_shareOgUrl); document.getElementById('share-sheet-overlay')?.remove(); window.location.href=u; }
+
+async function _uploadCertImage(ideaId) {
+  try {
+    // 一時的に株券HTMLを生成してキャプチャ
+    const idea = ideas.find(i => i.id === ideaId);
+    if (!idea) return null;
+
+    // 一時div作成
+    const tmp = document.createElement('div');
+    tmp.style.cssText = 'position:fixed;left:-9999px;top:0;width:600px;background:#f0ebe1;padding:40px;z-index:-1';
+    tmp.innerHTML = `<div style="width:520px;background:#faf8f4;border-radius:16px;border:1.5px solid #e0d8cc;display:flex;overflow:hidden">
+      <div style="flex:1;padding:32px 36px;display:flex;flex-direction:column;justify-content:space-between">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px">
+            <div style="width:28px;height:28px;background:#1a1400;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#f59e0b;font-size:16px;font-weight:700">↗</div>
+            <span style="font-size:18px;font-weight:700;color:#1a1400">あいぽ</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px">
+            <div style="flex:1;height:1px;background:#c8bfae"></div>
+            <span style="font-size:9px;color:#a09080;letter-spacing:.12em">INVESTMENT CERTIFICATE</span>
+            <div style="flex:1;height:1px;background:#c8bfae"></div>
+          </div>
+          <div style="margin-bottom:16px">
+            <div style="font-size:9px;color:#a09080;letter-spacing:.08em;margin-bottom:4px">IDEA</div>
+            <div style="font-size:16px;font-weight:700;color:#1a1400;line-height:1.35">${idea.name}</div>
+          </div>
+          <div style="display:flex;gap:20px">
+            <div>
+              <div style="font-size:9px;color:#a09080;letter-spacing:.08em;margin-bottom:3px">TICKER</div>
+              <div style="font-size:20px;font-weight:500;color:#1a1400;font-family:monospace">${idea.ticker}</div>
+            </div>
+            <div>
+              <div style="font-size:9px;color:#a09080;letter-spacing:.08em;margin-bottom:3px">SCORE</div>
+              <div style="font-size:20px;font-weight:500;color:#1a1400;font-family:monospace">${parseFloat(idea.score||50).toFixed(1)}</div>
+            </div>
+            <div>
+              <div style="font-size:9px;color:#a09080;letter-spacing:.08em;margin-bottom:3px">VOTES</div>
+              <div style="font-size:20px;font-weight:500;color:#1a1400;font-family:monospace">${idea.votes||0}票</div>
+            </div>
+          </div>
+        </div>
+        <div style="display:inline-flex;align-items:center;gap:5px;background:#fef9f0;border:1px solid #fde68a;border-radius:4px;padding:4px 10px;margin-top:16px">
+          <div style="width:5px;height:5px;border-radius:50%;background:#d97706"></div>
+          <span style="font-size:11px;color:#854f0b;letter-spacing:.06em;font-family:monospace">EARLY INVESTOR</span>
+        </div>
+      </div>
+      <div style="width:120px;flex-shrink:0;border-left:2px dashed #d4c9b8;background:#ede9e0;padding:28px 18px;display:flex;flex-direction:column;align-items:center;justify-content:space-between">
+        <div style="text-align:center">
+          <div style="font-size:9px;color:#a09080;letter-spacing:.08em;margin-bottom:6px">SERIAL</div>
+          <div style="font-size:11px;font-weight:500;color:#1a1400;background:#e5ddd0;border-radius:4px;padding:3px 8px;font-family:monospace">AI-${String(new Date().getMonth()+1).padStart(2,'0')}${String(new Date().getDate()).padStart(2,'0')}</div>
+        </div>
+        <div style="width:64px;height:64px;border-radius:50%;border:2.5px solid #c0392b;display:flex;flex-direction:column;align-items:center;justify-content:center">
+          <div style="font-size:24px;color:#c0392b">✓</div>
+          <div style="font-size:8px;color:#c0392b;letter-spacing:.06em;font-family:monospace">INVESTED</div>
+        </div>
+        <div style="font-size:10px;color:#a09080;letter-spacing:.08em">あいぽ</div>
+      </div>
+    </div>`;
+    document.body.appendChild(tmp);
+
+    const canvas = await html2canvas(tmp.firstChild, { scale:2, backgroundColor:'#f0ebe1', useCORS:true, logging:false });
+    document.body.removeChild(tmp);
+
+    const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+    const fileName = `cert-${ideaId}-${Date.now()}.png`;
+
+    const { data, error } = await sb.storage.from('og-images').upload(fileName, blob, {
+      contentType: 'image/png', upsert: true
+    });
+    if (error) { console.error('upload error:', error); return null; }
+
+    const { data: urlData } = sb.storage.from('og-images').getPublicUrl(fileName);
+    return urlData.publicUrl;
+  } catch(e) {
+    console.error('_uploadCertImage error:', e);
+    return null;
+  }
+}
+
+async function _shareX() {
+  const overlay = document.getElementById('share-sheet-overlay');
+  const xBtn = overlay?.querySelector('[onclick="_shareX()"]');
+  if (xBtn) { xBtn.style.opacity='.5'; xBtn.style.pointerEvents='none'; }
+  showToast('画像を準備中...');
+  // ideaIdを取得
+  const ideaId = _shareOgUrl.match(/id=([^&]+)/)?.[1];
+  let finalOgUrl = _shareOgUrl;
+  if (ideaId) {
+    const imgUrl = await _uploadCertImage(ideaId);
+    if (imgUrl) {
+      // share.jsにimgパラメータを付与
+      finalOgUrl = _shareOgUrl + '&img=' + encodeURIComponent(imgUrl);
+    }
+  }
+  const u = 'https://twitter.com/intent/tweet?text='+encodeURIComponent(_shareText)+'&url='+encodeURIComponent(finalOgUrl);
+  document.getElementById('share-sheet-overlay')?.remove();
+  window.location.href = u;
+}
 function _shareFb()   { const u='https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(_shareOgUrl); document.getElementById('share-sheet-overlay')?.remove(); window.location.href=u; }
 function _shareCopy() { navigator.clipboard.writeText(_shareAppUrl).then(()=>showToast('URLをコピーしました')).catch(()=>showToast('コピーできませんでした')); }
 
@@ -2105,11 +2202,4 @@ init();
   const tryOpen = (n) => {
     if (n > 20) return;
     const idea = (ideas||[]).find(i => i.id === ideaId);
-    if (idea) { showDetail(ideaId); }
-    else { setTimeout(() => tryOpen(n+1), 300); }
-  };
-  setTimeout(() => tryOpen(0), 800);
-})();
-</script>
-</body>
-</html>
+    if
