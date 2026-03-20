@@ -687,6 +687,34 @@ async function checkProStatus() {
   if (data?.is_founder) { currentUser.founderNumber = data.founder_number ?? 0; currentUser.isFounder = true; }
   updatePlanBadge();
   loadFounderCount();
+  // pending_founders照合（ログイン前購入の自動付与）
+  await applyPendingPlan();
+}
+
+async function applyPendingPlan() {
+  if (!currentUser?.email) return;
+  const { data: pending } = await sb.from('pending_founders').select('*').eq('email', currentUser.email).is('applied_at', null).single();
+  if (!pending) return;
+  console.log('pending_founders found:', pending);
+  try {
+    const { data: prof } = await sb.from('profiles').select('is_founder, is_pro').eq('id', currentUser.id).single();
+    if (pending.plan === 'founder' && !prof?.is_founder) {
+      const { count } = await sb.from('profiles').select('id', { count: 'exact', head: true }).eq('is_founder', true);
+      const founderNumber = (count || 0) + 1;
+      await sb.from('profiles').upsert({ id: currentUser.id, is_founder: true, is_pro: true, founder_number: founderNumber }, { onConflict: 'id' });
+      isPro = true; votesLeft = 4; currentUser.isFounder = true; currentUser.founderNumber = founderNumber;
+      document.getElementById('votes-left').textContent = votesLeft;
+      updatePlanBadge();
+      showToast('👑 創設メンバーが適用されました！');
+    } else if (pending.plan === 'pro' && !prof?.is_pro) {
+      await sb.from('profiles').upsert({ id: currentUser.id, is_pro: true }, { onConflict: 'id' });
+      isPro = true; votesLeft = 4;
+      document.getElementById('votes-left').textContent = votesLeft;
+      updatePlanBadge();
+      showToast('⭐ Proプランが適用されました！');
+    }
+    await sb.from('pending_founders').update({ applied_at: new Date().toISOString() }).eq('email', currentUser.email);
+  } catch(e) { console.error('applyPendingPlan error:', e); }
 }
 
 async function loadFounderCount() {
@@ -1147,7 +1175,7 @@ function showDetail(id) {
       </div>
     </div>
     <div style="display:flex;gap:8px;margin-bottom:12px">
-      <button onclick="shareToX('${idea.id}')" style="flex:1;padding:11px;border-radius:var(--r-lg);font-size:13px;font-weight:700;font-family:var(--sans);border:none;cursor:pointer;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;gap:6px"><svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path d="M2 2l7.5 8.5L2 18h2l6.3-7.1L16 18h4L12 9.2 18.5 2h-2L10.6 8.6 5 2H2z"/></svg>Xでシェア</button>
+      <button onclick="openShareSheet('${idea.id}')" style="flex:1;padding:11px;border-radius:var(--r-lg);font-size:13px;font-weight:700;font-family:var(--sans);border:none;cursor:pointer;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;gap:6px"><svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path d="M2 2l7.5 8.5L2 18h2l6.3-7.1L16 18h4L12 9.2 18.5 2h-2L10.6 8.6 5 2H2z"/></svg>Xでシェア</button>
       <button onclick="copyIdeaLink('${idea.id}')" style="flex:1;padding:11px;border-radius:var(--r-lg);font-size:13px;font-weight:700;font-family:var(--sans);border:1.5px solid var(--border2);cursor:pointer;background:var(--surface);color:var(--text2);display:flex;align-items:center;justify-content:center;gap:6px"><svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13H7a4 4 0 010-8h3M10 7h3a4 4 0 010 8h-3M7 10h6"/></svg>リンクをコピー</button>
     </div>
     ${idea.desc?`<div class="desc-card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div class="ic-title" style="margin-bottom:0">DESCRIPTION</div>${isMyIdea?`<button onclick="editField('${idea.id}','desc')" style="font-size:11px;color:var(--amber);background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:20px;padding:3px 10px;cursor:pointer;font-family:var(--sans);font-weight:700">編集</button>`:''}</div><div id="desc-view-${idea.id}">${renderDesc(idea.desc)}</div><textarea id="desc-edit-${idea.id}" class="inp inp-sm" style="display:none;margin-top:8px" rows="3">${idea.desc}</textarea><button id="desc-save-${idea.id}" onclick="saveField('${idea.id}','desc')" style="display:none;margin-top:8px;width:100%;padding:10px;background:var(--amber-mid);border:none;border-radius:var(--r-md);font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">保存する</button></div>`:''}
@@ -1304,6 +1332,66 @@ function showScoreUpToast(idea) {
 function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
 
 // ★★★ パッチ②: shareToX OGP対応版 ★★★
+
+function openShareSheet(id) {
+  const idea = ideas.find(i=>i.id===id); if(!idea) return;
+  document.getElementById('share-sheet-overlay')?.remove();
+  const score = parseFloat(idea.score||50).toFixed(1);
+  const shareUrl = `https://aipo-tau.vercel.app/?id=${idea.id}`;
+  const ogUrl = `https://aipo-tau.vercel.app/api/share?id=${idea.id}`;
+  const text = `「${idea.name}」${idea.ticker}\n📊 スコア ${score}pt ／ 応援 ${idea.votes||0}票\n\n#あいぽ #アイデアIPO${idea.genre?` #${idea.genre}`:''}`;
+  const nameShort = idea.name.length > 18 ? idea.name.slice(0,18)+'…' : idea.name;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'share-sheet-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:999;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .2s ease';
+  overlay.onclick = e => { if(e.target===overlay) overlay.remove(); };
+
+  overlay.innerHTML = `<div style="width:100%;max-width:390px;background:var(--surface);border-radius:22px 22px 0 0;padding:0 0 calc(24px + env(safe-area-inset-bottom,0px));animation:slideUp .3s cubic-bezier(.16,1,.3,1)">
+    <div style="width:36px;height:4px;background:var(--border2);border-radius:2px;margin:12px auto 0"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px 12px">
+      <div style="font-size:14px;font-weight:700;color:var(--text)">シェアする</div>
+      <button onclick="document.getElementById('share-sheet-overlay').remove()" style="width:26px;height:26px;border-radius:50%;border:none;background:var(--bg);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--text3)">✕</button>
+    </div>
+    <div style="margin:0 16px 16px;background:var(--bg);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px">
+      <div style="width:34px;height:34px;border-radius:8px;background:var(--surface2);border:0.5px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="1.8" stroke-linecap="round"><polyline points="7,14 10,10 12,11.5 15,7"/><circle cx="15" cy="7" r="1.5" fill="var(--text3)"/></svg>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--text)">${nameShort} ${idea.ticker}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:1px">スコア ${score}pt ／ 応援 ${idea.votes||0}票</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 16px 16px">
+      <div onclick="window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(text)+'&url='+encodeURIComponent(ogUrl),'_blank','noopener,width=600,height=500')" style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer">
+        <div style="width:54px;height:54px;border-radius:50%;background:#000;display:flex;align-items:center;justify-content:center">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="#fff"><path d="M2 2l7.5 8.5L2 18h2l6.3-7.1L16 18h4L12 9.2 18.5 2h-2L10.6 8.6 5 2H2z"/></svg>
+        </div>
+        <span style="font-size:11px;color:var(--text3)">X</span>
+      </div>
+      <div onclick="window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(ogUrl),'_blank','noopener,width=600,height=500')" style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer">
+        <div style="width:54px;height:54px;border-radius:50%;background:#1877F2;display:flex;align-items:center;justify-content:center">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+        </div>
+        <span style="font-size:11px;color:var(--text3)">Facebook</span>
+      </div>
+      <div onclick="navigator.clipboard.writeText(shareUrl).then(()=>showToast('URLをコピーしました')).catch(()=>showToast('コピーできませんでした'))" style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer">
+        <div style="width:54px;height:54px;border-radius:50%;background:var(--bg);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="1.8" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        </div>
+        <span style="font-size:11px;color:var(--text3)">URLコピー</span>
+      </div>
+    </div>
+    <div style="margin:0 16px;background:var(--bg);border-radius:10px;padding:10px 12px;font-size:12px;color:var(--text2);line-height:1.75;margin-bottom:12px">
+      「${idea.name.length>20?idea.name.slice(0,20)+'…':idea.name}」${idea.ticker}<br>
+      📊 スコア ${score}pt ／ 応援 ${idea.votes||0}票<br>
+      <span style="color:var(--text3)">#あいぽ #アイデアIPO${idea.genre?' #'+idea.genre:''}</span>
+    </div>
+  </div>`;
+
+  document.body.appendChild(overlay);
+}
+
 function shareToX(id) {
   const idea = ideas.find(i=>i.id===id); if(!idea) return;
   const shareUrl = `https://aipo-tau.vercel.app/?id=${idea.id}`;
@@ -1451,7 +1539,7 @@ function buildCertHTML(idea, votesAtTime) {
 function showCertificate(idea, votesAtTime) {
   const existing = document.getElementById('cert-modal'); if (existing) existing.remove();
   const overlay = document.createElement('div'); overlay.id = 'cert-modal'; overlay.className = 'cert-modal-overlay';
-  overlay.innerHTML = `<div class="cert-modal-box"><div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px"></div><div style="font-size:14px;font-weight:700;text-align:center;margin-bottom:4px;color:var(--text)">株券が発行されました</div><div style="font-size:11px;color:var(--text3);text-align:center;margin-bottom:14px">応援の証として保存・シェアできます</div><div class="cert-wrap" id="cert-inner">${buildCertHTML(idea, votesAtTime)}</div><button class="cert-share-btn" id="cert-share-btn" onclick="shareCertificate('${idea.id}','${encodeURIComponent(idea.name)}','${idea.ticker}')"><svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M2 2l7.5 8.5L2 18h2l6.3-7.1L16 18h4L12 9.2 18.5 2h-2L10.6 8.6 5 2H2z"/></svg>Xでシェアする</button><button class="cert-close-btn" onclick="document.getElementById('cert-modal').remove()">閉じる</button></div>`;
+  overlay.innerHTML = `<div class="cert-modal-box"><div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px"></div><div style="font-size:14px;font-weight:700;text-align:center;margin-bottom:4px;color:var(--text)">株券が発行されました</div><div style="font-size:11px;color:var(--text3);text-align:center;margin-bottom:14px">応援の証として保存・シェアできます</div><div class="cert-wrap" id="cert-inner">${buildCertHTML(idea, votesAtTime)}</div><button class="cert-share-btn" id="cert-share-btn" onclick="openShareSheet('${idea.id}')"><svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M2 2l7.5 8.5L2 18h2l6.3-7.1L16 18h4L12 9.2 18.5 2h-2L10.6 8.6 5 2H2z"/></svg>Xでシェアする</button><button class="cert-close-btn" onclick="document.getElementById('cert-modal').remove()">閉じる</button></div>`;
   document.body.appendChild(overlay);
   _lastCertHTML = buildCertHTML(idea, votesAtTime);
   overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
