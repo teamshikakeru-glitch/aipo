@@ -1052,20 +1052,58 @@ function updatePlanBadge() {
 }
 
 function calcScore(idea) {
-  let s = 50;
-  s += idea.votes * 3;
-  s += Math.min(idea.views * 0.1, 20);
-  s += Math.min((idea.commentList||[]).length * 2, 20);
-  s += idea.progress * 10;
-  s += idea.desc ? 5 : 0;
-  s += idea.tech ? 3 : 0;
-  const same = ideas.filter(i => i.genre === idea.genre && i.id !== idea.id);
-  if (same.length > 0 && same.every(i => i.votes <= idea.votes)) s += 5;
-  s -= idea.postedDaysAgo * 1.0;
+  // ベーススコアは低め（40→差がつきやすい）
+  let s = 40;
+
+  // 票: 効果を上げる（3→5）ただし対数で上限を設ける
+  const voteScore = idea.votes > 0 ? Math.min(idea.votes * 5, 30 + Math.log(idea.votes + 1) * 5) : 0;
+  s += voteScore;
+
+  // 閲覧: 効果を下げる（低品質な閲覧を抑制）
+  s += Math.min(idea.views * 0.05, 8);
+
+  // コメント: 重要度アップ
+  s += Math.min((idea.commentList||[]).length * 3, 15);
+
+  // 進捗ボーナス
+  s += idea.progress * 8;
+
+  // 説明・技術: 詳細さへのボーナス
+  s += idea.desc ? 4 : 0;
+  s += idea.tech ? 2 : 0;
+
+  // 自然減衰: 1日2点（以前の2倍）
+  s -= idea.postedDaysAgo * 2.0;
+
+  // 長期放置ペナルティ（7日で-10、14日で-20）
   const daysSinceVote = idea.daysSinceLastVote || idea.postedDaysAgo;
-  if (daysSinceVote >= 7) s -= 5;
-  s += Math.min((idea.supporters||0) * 2, 10);
-  return Math.round(s * 10) / 10;
+  if (daysSinceVote >= 14) s -= 20;
+  else if (daysSinceVote >= 7) s -= 10;
+
+  // 類似競合ペナルティ（同ジャンルに類似アイデアが多いほど下がる）
+  const sameGenre = ideas.filter(i => i.genre === idea.genre && i.id !== idea.id);
+  if (sameGenre.length >= 3) s -= Math.min(sameGenre.length * 1.5, 10);
+
+  // サポーター
+  s += Math.min((idea.supporters||0) * 2, 8);
+
+  // 最低10点・最高99点
+  return Math.max(10, Math.min(99, Math.round(s * 10) / 10));
+}
+
+// パーセンタイル計算（全アイデア中の順位）
+function calcPercentile(idea) {
+  if (!ideas || ideas.length <= 1) return 100;
+  const sorted = [...ideas].sort((a, b) => b.score - a.score);
+  const rank = sorted.findIndex(i => i.id === idea.id) + 1;
+  return Math.round((1 - (rank - 1) / ideas.length) * 100);
+}
+
+// カテゴリ内順位
+function calcGenreRank(idea) {
+  const sameGenre = ideas.filter(i => i.genre === idea.genre).sort((a, b) => b.score - a.score);
+  const rank = sameGenre.findIndex(i => i.id === idea.id) + 1;
+  return { rank, total: sameGenre.length };
 }
 
 setInterval(() => {
@@ -1336,6 +1374,9 @@ function showDetail(id) {
       </div>
       <div class="big-spark-wrap"><canvas id="big-spark" style="width:100%;height:60px;display:block"></canvas></div>
       <div class="reason-row"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="var(--text3)" stroke-width="1"/><line x1="6" y1="5" x2="6" y2="8" stroke="var(--text3)" stroke-width="1" stroke-linecap="round"/><circle cx="6" cy="3.5" r=".5" fill="var(--text3)"/></svg><span class="reason-text">${idea.lastReason||'スコアを計算中です'}</span></div>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+        ${(()=>{ const pct=calcPercentile(idea); const gr=calcGenreRank(idea); const pctColor=pct>=80?'var(--green)':pct>=50?'var(--amber)':'var(--text3)'; return `<div style="background:var(--surface2);border-radius:8px;padding:5px 10px;font-size:11px;color:${pctColor};font-weight:700">全体 上位${100-pct+1<1?1:100-pct+1}%</div><div style="background:var(--surface2);border-radius:8px;padding:5px 10px;font-size:11px;color:var(--text2);font-weight:700">${idea.genre} ${gr.rank}/${gr.total}位</div>`; })()}
+      </div>
     </div>
     <div style="display:flex;gap:8px;margin-bottom:12px">
       <button onclick="shareToX('${idea.id}')" style="flex:1;padding:11px;border-radius:var(--r-lg);font-size:13px;font-weight:700;font-family:var(--sans);border:none;cursor:pointer;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;gap:6px"><svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path d="M2 2l7.5 8.5L2 18h2l6.3-7.1L16 18h4L12 9.2 18.5 2h-2L10.6 8.6 5 2H2z"/></svg>Xでシェア</button>
@@ -1483,12 +1524,28 @@ function showPostPreview() {
   document.body.appendChild(overlay);
 }
 
-function doPost() {
+async function doPost() {
   const title = document.getElementById('inp-title')?.value?.trim(); const desc = document.getElementById('inp-desc')?.value?.trim(); const tech = document.getElementById('inp-tech')?.value?.trim(); const rawTicker = document.getElementById('inp-ticker')?.value?.trim().toUpperCase();
   if (!title) { showToast('アイデア名を入力してください'); return; }
   if (!selectedGenre) { showToast('ジャンルを選んでください'); return; }
   if (!canPost()) { showUpgradeModal('上場はPro会員限定です'); return; }
   if (!currentUser) { showToast('ログインして上場しよう！'); return; }
+
+  // 類似アイデアチェック（3件以上ある場合のみ）
+  if (ideas && ideas.length >= 3) {
+    const postBtn = document.querySelector('#screen-post .primary-btn');
+    if (postBtn) { postBtn.textContent = '類似を確認中...'; postBtn.disabled = true; }
+    try {
+      const similar = await checkSimilarIdeas(title);
+      if (postBtn) { postBtn.textContent = 'プレビューを確認して上場する →'; postBtn.disabled = false; }
+      if (similar && similar.length > 0) {
+        const confirmed = await showSimilarWarning(similar);
+        if (!confirmed) return;
+      }
+    } catch(e) {
+      if (postBtn) { postBtn.textContent = 'プレビューを確認して上場する →'; postBtn.disabled = false; }
+    }
+  }
   const ticker = rawTicker || (title.replace(/[^A-Za-zぁ-ん一-龯]/g,'').slice(0,5).toUpperCase() || 'IDEA');
   const score = calcScore({votes:0,views:0,commentList:[],progress:0,progressStep:0,postedDaysAgo:0,daysSinceLastVote:0,desc,tech,supporters:0,genre:selectedGenre,id:'_'});
   const newIdea = { id:'local-'+Date.now(), ticker, emoji:selectedEmoji, name:title, desc, genre:selectedGenre, tech, baseScore:score, score, votes:0, views:0, progress:0, progressStep:0, postedDaysAgo:0, daysSinceLastVote:0, history:[score], lastReason:'上場しました', lastDelta:0, commentList:[], actions:[], supporters:0, userId: currentUser?.id };
@@ -1997,6 +2054,37 @@ function showPricingSheet() {
   const isFounder = currentUser?.isFounder;
   sheet.innerHTML = `<div style="position:absolute;inset:0;background:rgba(0,0,0,.45)" onclick="document.getElementById('pricing-sheet').remove()"></div><div style="position:relative;background:var(--surface);border-radius:24px 24px 0 0;padding:20px 20px 40px;width:100%;max-width:390px;max-height:88vh;overflow-y:auto"><div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px"></div><div style="font-family:var(--mono);font-size:10px;color:var(--amber-mid);letter-spacing:.1em;font-weight:700;margin-bottom:4px">現在のプラン</div><div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:16px">${planLabel}</div>${isFounder ? '<div style="background:var(--amber-bg);border:1.5px solid var(--amber-border);border-radius:14px;padding:14px 16px;margin-bottom:10px"><div style="font-size:11px;font-weight:700;color:var(--amber);margin-bottom:8px">👑 創設メンバー特典</div><div style="font-size:13px;color:var(--text2);line-height:1.8">✓ 上場・コメント無制限<br>✓ 1日4票<br>✓ 創設メンバーバッジ永久<br>✓ 番号付き称号</div></div>' : !isPro ? '<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:10px"><div style="background:var(--amber-bg);border:2px solid var(--amber-mid);border-radius:14px;padding:14px 16px;position:relative"><div style="position:absolute;top:-8px;left:14px;background:var(--amber-mid);color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:100px">おすすめ</div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:14px;font-weight:700;color:var(--text)">👑 創設メンバー</div><div style="font-size:18px;font-weight:700;color:var(--amber)">¥980</div></div><div style="font-size:12px;color:var(--text2);line-height:1.8;margin-bottom:10px">✓ 上場・コメント無制限<br>✓ 1日4票<br>✓ バッジ永久付与<br>✓ 買い切り・月額なし</div><button onclick="upgradeFounder()" style="width:100%;padding:12px;background:var(--amber-mid);border:none;border-radius:100px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">創設メンバーになる</button></div><div style="background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:14px 16px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:14px;font-weight:700;color:var(--text)">Pro</div><div style="font-size:16px;font-weight:700;color:var(--text)">¥300<span style="font-size:11px;font-weight:400;color:var(--text3)">/月</span></div></div><div style="font-size:12px;color:var(--text2);line-height:1.8;margin-bottom:10px">✓ 上場・コメント無制限<br>✓ 1日4票<br>✓ いつでも解約可</div><button onclick="upgradePro()" style="width:100%;padding:12px;background:var(--ink);border:none;border-radius:100px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">Proにアップグレード</button></div></div>' : '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:10px"><div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:8px">Pro 特典</div><div style="font-size:13px;color:var(--text2);line-height:1.8">✓ 上場・コメント無制限<br>✓ 1日4票</div></div>'}<div onclick="window.open('https://aipo-tau.vercel.app/pricing.html','_blank')" style="text-align:center;padding:12px;font-size:13px;color:var(--amber);cursor:pointer;font-weight:600">料金・ルール詳細を見る →</div></div>`;
   document.body.appendChild(sheet);
+}
+
+
+
+async function checkSimilarIdeas(title) {
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: '既存アイデアの中から新しいアイデアと類似するものを最大3つ選んでください。JSONのみで返してください。形式:[{"id":"...","name":"...","reason":"（一言で類似理由）"}] 類似なければ[]。新しいアイデア:' + title + ' 既存:' + JSON.stringify(ideas.slice(0,40).map(i=>({id:i.id,name:i.name,genre:i.genre}))) }]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.[0]?.text || '[]';
+    const clean = text.replace(/```json|```/g,'').trim();
+    return JSON.parse(clean);
+  } catch(e) { return []; }
+}
+
+function showSimilarWarning(similar) {
+  return new Promise(resolve => {
+    const modal = document.createElement('div');
+    modal.style.cssText = 'position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center';
+    modal.innerHTML = `<div style="background:var(--surface);border-radius:24px 24px 0 0;padding:24px 20px 40px;width:100%;max-width:390px"><div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px"></div><div style="font-family:var(--mono);font-size:10px;color:var(--amber-mid);font-weight:700;margin-bottom:8px">類似アイデアが見つかりました</div><div style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6">以下のアイデアと似ている可能性があります。差別化ポイントを明確にすると票が集まりやすくなります。</div><div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">${similar.map(s=>`<div style="background:var(--surface2);border-radius:10px;padding:10px 12px;border:1px solid var(--border)"><div style="font-size:12px;font-weight:700;color:var(--text)">${s.name}</div><div style="font-size:11px;color:var(--text3);margin-top:3px">${s.reason||''}</div></div>`).join('')}</div><button id="sim-go" style="width:100%;padding:14px;background:var(--amber-mid);border:none;border-radius:100px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans);margin-bottom:8px">差別化できている → このまま上場</button><button id="sim-back" style="width:100%;padding:12px;background:transparent;border:none;font-size:13px;color:var(--text3);cursor:pointer;font-family:var(--sans)">見直す</button></div>`;
+    modal.querySelector('#sim-go').onclick = () => { modal.remove(); resolve(true); };
+    modal.querySelector('#sim-back').onclick = () => { modal.remove(); resolve(false); };
+    document.body.appendChild(modal);
+  });
 }
 
 init();
