@@ -14,10 +14,7 @@ export default async function handler(req) {
   let idea = null;
   try {
     const res = await fetch(`${SB_URL}/rest/v1/ideas?id=eq.${id}&select=id,name,ticker,score,votes,genre&limit=1`, {
-      headers: {
-        'apikey': SB_KEY,
-        'Authorization': `Bearer ${SB_KEY}`,
-      }
+      headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
     });
     const data = await res.json();
     if (data && data.length > 0) idea = data[0];
@@ -27,22 +24,23 @@ export default async function handler(req) {
     return Response.redirect('https://aipo-tau.vercel.app/', 302);
   }
 
-  const appUrl = `https://aipo-tau.vercel.app/?id=${id}`;
-  const score  = parseFloat(idea.score || 50).toFixed(1);
-  const name   = idea.name || 'アイデア';
-  const ticker = idea.ticker || 'IDEA';
-  const votes  = idea.votes || 0;
-  const date   = new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+  const appUrl  = `https://aipo-tau.vercel.app/?id=${id}`;
+  const score   = parseFloat(idea.score || 50).toFixed(1);
+  const name    = idea.name || 'アイデア';
+  const ticker  = idea.ticker || 'IDEA';
+  const votes   = idea.votes || 0;
+  const date    = new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
 
   const title       = `「${name}」${ticker} — あいぽ`;
   const description = `📊 スコア ${score}pt ／ 応援 ${votes}票${idea.genre ? ` ／ ${idea.genre}` : ''} | アイデアIPO市場「あいぽ」`;
-  const ogImageUrl  = `https://aipo-tau.vercel.app/api/og?ticker=${encodeURIComponent(ticker)}&name=${encodeURIComponent(name)}&votes=${encodeURIComponent(votes + '票')}&date=${encodeURIComponent(date)}`;
+
+  // 株券OGP画像（og.jsに渡す）
+  const ogImageUrl = `https://aipo-tau.vercel.app/api/og?ticker=${encodeURIComponent(ticker)}&name=${encodeURIComponent(name)}&votes=${encodeURIComponent(votes+'票')}&date=${encodeURIComponent(date)}&score=${encodeURIComponent(score)}`;
 
   const html = `<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="refresh" content="0;url=${appUrl}">
 <title>${title}</title>
 <meta name="description" content="${description}">
 <meta property="og:type" content="website">
