@@ -65,6 +65,14 @@ nav{
   border:none;transition:opacity .15s;
 }
 .nav-btn:active{opacity:.8}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-link-text{
+  font-size:12px;font-weight:700;color:var(--ink3);
+  letter-spacing:.04em;padding:9px 12px;border-radius:4px;
+  transition:color .15s,background .15s;
+}
+.nav-link-text:hover{color:var(--ink);background:rgba(0,0,0,.05)}
+
 
 /* ─── HERO ─── */
 .s-hero{
@@ -72,6 +80,7 @@ nav{
   display:flex;flex-direction:column;justify-content:center;
   padding:80px 20px 40px;
   position:relative;overflow:hidden;
+  background:var(--bg);
 }
 .hero-badge{
   display:inline-flex;align-items:center;gap:7px;
@@ -101,10 +110,11 @@ nav{
   font-size:clamp(40px,11vw,64px);
   font-weight:900;line-height:1.1;
   letter-spacing:-.025em;
+  color:var(--ink);
   margin-bottom:0;
 }
 .hero-h .amber{color:var(--amber)}
-.hero-h .thin{font-weight:300;color:var(--ink3)}
+.hero-h .thin{}
 
 .hero-live-stats{
   display:flex;align-items:center;gap:20px;
@@ -117,11 +127,11 @@ nav{
   font-family:var(--mono);font-size:22px;font-weight:700;
   color:var(--ink);line-height:1;
 }
-.hls-label{font-size:10px;color:var(--ink3);letter-spacing:.04em}
+.hls-label{font-size:10px;color:var(--ink2);letter-spacing:.04em}
 .hls-div{width:1px;height:32px;background:var(--border)}
 
 .hero-desc{
-  font-size:15px;line-height:1.85;color:var(--ink2);
+  font-size:15px;line-height:1.85;color:var(--ink);
   margin-top:24px;
 }
 .hero-desc strong{color:var(--ink);font-weight:700}
@@ -625,51 +635,58 @@ footer{
 #splash.hide{opacity:0}
 .sp-copy{
   font-family:'Noto Sans JP',sans-serif;
-  font-size:clamp(28px,8vw,48px);
+  font-size:clamp(36px,10vw,60px);
   font-weight:900;
-  line-height:1.25;
+  line-height:1.1;
   letter-spacing:-.025em;
   color:#111;
   text-align:center;
-  margin-bottom:32px;
+  margin-bottom:24px;
   opacity:0;
-  transform:translateY(10px);
-  animation:spIn .5s .1s cubic-bezier(.16,1,.3,1) forwards;
+  transform:translateY(12px);
+  animation:spIn .6s .1s cubic-bezier(.16,1,.3,1) forwards;
 }
+.sp-copy em{font-style:normal;color:#d97706}
 .sp-logo{
   font-family:'Space Mono',monospace;
-  font-size:14px;
+  font-size:13px;
   font-weight:700;
-  color:#111;
-  letter-spacing:.08em;
+  color:rgba(0,0,0,.35);
+  letter-spacing:.12em;
   opacity:0;
-  animation:spIn .4s .45s ease forwards;
+  animation:spIn .4s .6s ease forwards;
 }
-.sp-logo em{font-style:normal;color:#d97706}
 .sp-bar{
   position:absolute;bottom:0;left:0;height:2px;
   background:#111;width:0%;
-  animation:spProgress 1.8s .1s cubic-bezier(.4,0,.2,1) forwards;
+  animation:spProgress 2.5s .1s cubic-bezier(.4,0,.2,1) forwards;
 }
+.sp-copy em{font-style:normal;color:#d97706}
 @keyframes spIn{to{opacity:1;transform:translateY(0)}}
 @keyframes spProgress{from{width:0%}to{width:100%}}
 </style>
 <body>
 <div id="splash">
   <div class="sp-copy">
-    あなたの<br>ひらめきを、<br>上場しろ。
+    あなたの<br>
+    <em>ひらめき</em>を、<br>
+    上場しろ。
   </div>
-  <div class="sp-logo">あい<em>ぽ</em></div>
+  <div class="sp-logo">あいぽ</div>
   <div class="sp-bar"></div>
 </div>
 
 <!-- NAV -->
 <nav>
-  <div class="nav-logo">あい<em>ぽ</em></div>
-  <a href="https://aipo-tau.vercel.app" class="nav-btn">
-    今すぐ上場する
-    <svg width="11" height="11" viewBox="0 0 20 20"><path d="M4 10h12M10 4l6 6-6 6"/></svg>
-  </a>
+  <div class="nav-logo"><span style="color:var(--ink)">あい</span><em>ぽ</em></div>
+  <div class="nav-right">
+    <a href="#era" class="nav-link-text">思想</a>
+    <a href="#plans" class="nav-link-text">プラン</a>
+    <a href="https://aipo-tau.vercel.app" class="nav-btn">
+      上場する
+      <svg width="11" height="11" viewBox="0 0 20 20"><path d="M4 10h12M10 4l6 6-6 6"/></svg>
+    </a>
+  </div>
 </nav>
 
 <!-- HERO -->
@@ -682,9 +699,9 @@ footer{
   </div>
 
   <h1 class="hero-h">
-    ひらめきが、<br>
-    <span class="amber">唯一の</span><br>
-    <span class="thin">資産になる。</span>
+    <span class="amber">ひらめき</span>が、<br>
+    唯一の<br>
+    資産になる。
   </h1>
 
   <div class="hero-live-stats">
@@ -798,7 +815,7 @@ footer{
       <em>次の市場だ。</em>
     </h2>
     <div class="stmt-body">
-      <p>「AIを使いこなせる人しか稼げない」——<strong>そんな時代はもう終わる。</strong></p>
+      <p>「AIを使いこなせる人しか稼げない。」<br><strong>そんな時代はもう終わる。</strong></p>
       <p>AIはコストをゼロに近づける。<br>差別化の源泉は<strong>「何を作るか」だけ</strong>になる。</p>
       <p>思いつく力は、誰でも持っている。<br>でもその価値を証明する場所がなかった。<br><strong>あいぽが、その場所になる。</strong></p>
     </div>
@@ -1061,7 +1078,7 @@ footer{
     sp.classList.add('hide');
     setTimeout(function(){sp.style.display='none';},650);
   }
-  setTimeout(dismiss, 2000);
+  setTimeout(dismiss, 2700);
   sp.addEventListener('click',dismiss,{once:true});
 })();
 
