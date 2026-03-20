@@ -87,9 +87,8 @@ nav{
   background:rgba(21,128,61,.07);
   border:1px solid rgba(21,128,61,.18);
   border-radius:100px;
-  padding:5px 12px;
-  margin-bottom:28px;
-  width:fit-content;
+  padding:5px 14px;
+  margin-bottom:32px;
 }
 .live-dot{
   width:6px;height:6px;border-radius:50%;
@@ -114,6 +113,7 @@ nav{
   margin-bottom:0;
 }
 .hero-h .amber{color:var(--amber)}
+.hero-h .sm{font-size:.78em}
 .hero-h .thin{}
 
 .hero-live-stats{
@@ -131,7 +131,7 @@ nav{
 .hls-div{width:1px;height:32px;background:var(--border)}
 
 .hero-desc{
-  font-size:15px;line-height:1.85;color:var(--ink);
+  font-size:15px;line-height:1.85;color:var(--ink2);
   margin-top:24px;
 }
 .hero-desc strong{color:var(--ink);font-weight:700}
@@ -566,7 +566,7 @@ nav{
 }
 .final-eyebrow::before,.final-eyebrow::after{content:'';flex:0 0 14px;height:1px;background:var(--amber)}
 .final-h{
-  font-size:clamp(36px,10vw,60px);
+  font-size:clamp(44px,13vw,80px);
   font-weight:900;line-height:1.1;letter-spacing:-.025em;
   color:#fff;margin-bottom:20px;
 }
@@ -602,7 +602,7 @@ footer{
 @media(min-width:640px){
   :root{--max:600px}
   nav{padding:0 40px}
-  .s-hero{padding:100px 40px 60px;max-width:760px;margin:0 auto}
+  .s-hero{padding:100px 40px 60px}
   .hero-cta{flex-direction:row}
   .btn-primary,.btn-sub{width:auto;flex:1}
   .s-head{padding:60px 40px 0}
@@ -635,7 +635,7 @@ footer{
 #splash.hide{opacity:0}
 .sp-copy{
   font-family:'Noto Sans JP',sans-serif;
-  font-size:clamp(36px,10vw,60px);
+  font-size:clamp(44px,13vw,80px);
   font-weight:900;
   line-height:1.1;
   letter-spacing:-.025em;
@@ -648,11 +648,11 @@ footer{
 }
 .sp-copy em{font-style:normal;color:#d97706}
 .sp-logo{
-  font-family:'Space Mono',monospace;
-  font-size:13px;
+  font-family:'Noto Sans JP',sans-serif;
+  font-size:16px;
   font-weight:700;
-  color:rgba(0,0,0,.35);
-  letter-spacing:.12em;
+  color:rgba(0,0,0,.3);
+  letter-spacing:.2em;
   opacity:0;
   animation:spIn .4s .6s ease forwards;
 }
@@ -699,9 +699,9 @@ footer{
   </div>
 
   <h1 class="hero-h">
-    <span class="amber">ひらめき</span>が、<br>
-    唯一の<br>
-    資産になる。
+    <span class="amber">ひらめき</span><span class="sm">が、</span><br>
+    <span class="sm">唯一の</span><br>
+    <span class="sm">資産になる。</span>
   </h1>
 
   <div class="hero-live-stats">
