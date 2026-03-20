@@ -586,7 +586,7 @@ input[type=file] { display: none; }
           <div style="font-size:9px;color:var(--text3);margin-top:1px">今日の票</div>
         </div>
       </div>
-      <div style="display:flex;gap:8px">
+      <div style="display:flex;gap:8px;align-items:center">
         <div style="display:flex;align-items:center;gap:5px;background:var(--surface2);border-radius:20px;padding:4px 10px;cursor:pointer" onclick="openChargeModal()">
           <div style="font-size:12px;font-weight:700;color:var(--green);font-family:var(--mono)" id="user-balance">0</div>
           <div style="font-size:9px;color:var(--text3)">円</div>
@@ -594,6 +594,10 @@ input[type=file] { display: none; }
         <div style="display:flex;align-items:center;gap:5px;background:var(--surface2);border-radius:20px;padding:4px 10px">
           <div style="font-size:12px;font-weight:700;color:#185FA5;font-family:var(--mono)" id="portfolio-insight-score">0</div>
           <div style="font-size:9px;color:var(--text3)">目利きpt</div>
+        </div>
+        <div onclick="showPricingSheet()" style="display:flex;align-items:center;gap:4px;background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:20px;padding:4px 10px;cursor:pointer;margin-left:auto">
+          <svg width="10" height="10" viewBox="0 0 20 20" fill="none" stroke="var(--amber-mid)" stroke-width="2"><circle cx="10" cy="10" r="8"/><path d="M10 6v4l3 3"/></svg>
+          <div style="font-size:9px;font-weight:700;color:var(--amber)">プランを見る</div>
         </div>
       </div>
     </div>
@@ -1015,7 +1019,7 @@ async function upgradePro() { document.getElementById('upgrade-modal')?.remove()
 
 function checkUpgradeSuccess() {
   const params = new URLSearchParams(window.location.search);
-  if (params.get('upgraded') === 'true') { isPro = true; votesLeft = 4; document.getElementById('votes-left').textContent = votesLeft; updatePlanBadge(); showToast('Proにアップグレードしました！🥃'); window.history.replaceState({}, '', '/'); }
+  if (params.get('upgraded') === 'true') { isPro = true; votesLeft = 4; document.getElementById('votes-left').textContent = votesLeft; updatePlanBadge(); showToast('Proにアップグレードしました！'); window.history.replaceState({}, '', '/'); }
 }
 
 function toggleProMenu() {
@@ -1026,7 +1030,7 @@ function toggleProMenu() {
   const menu = document.createElement('div');
   menu.id = 'pro-menu';
   menu.style.cssText = `position:fixed;top:${rect.bottom+6}px;right:16px;background:var(--surface);border:1.5px solid var(--border2);border-radius:14px;padding:8px;z-index:100;box-shadow:0 4px 20px rgba(0,0,0,0.12);min-width:200px`;
-  menu.innerHTML = isPro ? `<div style="padding:10px 12px;font-size:13px;color:var(--text2);border-bottom:0.5px solid var(--border)">現在：あいぽ Pro 🥃</div><div onclick="downgradeFree();document.getElementById('pro-menu').remove()" style="padding:10px 12px;font-size:13px;color:var(--red);cursor:pointer;font-weight:700">無料プランに戻す</div>` : `<div style="padding:10px 12px;font-size:13px;color:var(--text2);border-bottom:0.5px solid var(--border)">現在：無料プラン</div><div onclick="showUpgradeModal('あいぽ Proにアップグレード');document.getElementById('pro-menu').remove()" style="padding:10px 12px;font-size:13px;color:var(--amber);cursor:pointer;font-weight:700">✦ Proにアップグレード（¥300/月）</div>`;
+  menu.innerHTML = isPro ? `<div style="padding:10px 12px;font-size:13px;color:var(--text2);border-bottom:0.5px solid var(--border)">現在：あいぽ Pro</div><div onclick="downgradeFree();document.getElementById('pro-menu').remove()" style="padding:10px 12px;font-size:13px;color:var(--red);cursor:pointer;font-weight:700">無料プランに戻す</div>` : `<div style="padding:10px 12px;font-size:13px;color:var(--text2);border-bottom:0.5px solid var(--border)">現在：無料プラン</div><div onclick="showUpgradeModal('あいぽ Proにアップグレード');document.getElementById('pro-menu').remove()" style="padding:10px 12px;font-size:13px;color:var(--amber);cursor:pointer;font-weight:700">✦ Proにアップグレード（¥300/月）</div>`;
   document.body.appendChild(menu);
   setTimeout(() => document.addEventListener('click', function close(e) { if (!menu.contains(e.target) && e.target !== badge) { menu.remove(); document.removeEventListener('click', close); } }), 100);
 }
@@ -1633,7 +1637,21 @@ function startRealtime() {
       const prevScore = idea.score; idea.votes = updated.votes; idea.score = parseFloat(updated.score) || calcScore(idea); idea.history = [...idea.history.slice(-11), idea.score]; idea.lastDelta = idea.score - prevScore; idea.lastReason = idea.lastDelta > 0 ? 'リアルタイム更新で上昇' : '最新データに更新されました';
       const row = document.getElementById('row-'+updated.id); if (row) { row.classList.remove('flash-up','flash-dn'); void row.offsetWidth; row.classList.add(idea.lastDelta>=0?'flash-up':'flash-dn'); }
       if (document.getElementById('screen-feed').classList.contains('active')) requestAnimationFrame(renderFeed);
-    }).subscribe();
+    })
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'hiroba_voices' }, (payload) => {
+      const v = payload.new;
+      if (v.is_announcement || v.user_id === '7f3162ec-c281-435f-8e8e-3b6d65b8b1c9') { showAdminNotice(v.text); }
+      if (document.getElementById('screen-hiroba')?.classList.contains('active')) { loadHirobaList(); }
+    })
+    .subscribe();
+}
+
+function showAdminNotice(text) {
+  const el = document.createElement('div');
+  el.style.cssText = 'position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--amber-mid);color:#fff;font-size:12px;font-weight:700;padding:10px 20px;border-radius:100px;z-index:700;max-width:320px;text-align:center;line-height:1.5;box-shadow:0 4px 16px rgba(232,133,10,.4)';
+  el.textContent = '\uD83D\uDCE2 運営より: ' + text.slice(0, 50) + (text.length > 50 ? '...' : '');
+  document.body.appendChild(el);
+  setTimeout(() => { el.style.transition = 'opacity .5s'; el.style.opacity = '0'; setTimeout(() => el.remove(), 500); }, 5000);
 }
 
 function buildCertHTML(idea, votesAtTime) {
