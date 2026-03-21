@@ -594,10 +594,17 @@ async function sendAdminReply(id) {
   const inp=document.getElementById('reply-inp-'+id);
   const text=inp?.value?.trim(); if(!text) return;
   try {
+    const { data: voiceData } = await sb.from('hiroba_voices').select('user_id').eq('id',id).single();
     await sb.from('hiroba_voices').update({ ai_reply:'【運営】'+text }).eq('id',id);
+    if (voiceData?.user_id && voiceData.user_id !== ADMIN_ID) {
+      await sb.from('messages').insert({
+        from_id: ADMIN_ID, to_id: voiceData.user_id,
+        body: text, is_announcement: false, is_read: false,
+      });
+    }
     const box=document.getElementById('reply-box-'+id);
     if(box){ box.classList.add('sent'); if(inp){inp.value='';inp.placeholder='返信済み';inp.disabled=true;} }
-    showToast('返信を送信しました');
+    showToast('✓ 返信をメッセージ画面に送信しました');
   } catch(e) { alert('エラー: '+e.message); }
 }
 
@@ -1109,6 +1116,7 @@ async function sendBroadcast(){
   try{
     const {error}=await sb.from('hiroba_voices').insert({user_id:ADMIN_ID,user_name:'あいぽ運営',text,tag:'お知らせ',ai_reply:null,is_announcement:true});
     if(error) throw error;
+    await sb.from('messages').insert({from_id:ADMIN_ID,to_id:null,body:text,is_announcement:true,is_read:false});
     document.getElementById('broadcast-text').value='';
     status.textContent='✓ 送信しました！'; status.style.color='var(--green)';
     setTimeout(()=>{ status.textContent='全ユーザーの広場に表示されます'; status.style.color=''; },4000);
