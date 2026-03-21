@@ -558,6 +558,7 @@ async function loadHirobaInbox() {
               <div class="voice-actions">
                 ${!isDone?`<button class="voice-action-btn done-btn" onclick="markDone('${v.id}')">✓ 対応済みにする</button>`:''}
                 <button class="voice-action-btn link-btn" onclick="sendLinkToVoice('${v.id}','${(v.user_name||'').replace(/'/g,"\\'")}')">🔗 リンク送信</button>
+                ${v.user_id&&v.user_id!==ADMIN_ID?`<button class="voice-action-btn" onclick="showTalkHistory('${v.user_id}','${(v.user_name||'匿名').replace(/'/g,"\\'")}')">💬 トーク履歴</button>`:''}
                 <button class="voice-action-btn" onclick="deleteVoice('${v.id}')">🗑 削除</button>
               </div>
               <div class="voice-reply-box" id="reply-box-${v.id}">
@@ -589,7 +590,69 @@ async function markDone(id) {
     loadHirobaInbox();
   } catch(e) { alert('エラー: '+e.message); }
 }
+// ===== TALK HISTORY MODAL =====
+async function showTalkHistory(userId, userName) {
+  const overlay = document.createElement('div');
+  overlay.className = 'dash-modal-overlay';
+  overlay.onclick = e => { if(e.target===overlay) overlay.remove(); };
+  const safeUser = userName.replace(/'/g,"\\'");
+  overlay.innerHTML = '<div class="dash-modal-box" style="max-height:85vh">'
+    + '<div class="dash-modal-header">'
+    + '<div class="dash-modal-title">💬 ' + userName + ' とのトーク</div>'
+    + '<div class="dash-modal-close" onclick="this.closest(\'.dash-modal-overlay\').remove()">✕</div>'
+    + '</div>'
+    + '<div id="talk-list" style="margin-bottom:12px;max-height:50vh;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding-right:4px">'
+    + '<div style="font-size:12px;color:var(--ink3);text-align:center;padding:20px">読み込み中...</div>'
+    + '</div>'
+    + '<div style="border-top:1px solid var(--border);padding-top:12px;display:flex;gap:8px">'
+    + '<input id="talk-reply-inp" type="text" class="inp" placeholder="返信を入力..." style="flex:1" onkeydown="if(event.key===\'Enter\'&&!event.isComposing)sendTalkReply(\'' + userId + '\',\'' + safeUser + '\')">'
+    + '<button onclick="sendTalkReply(\'' + userId + '\',\'' + safeUser + '\')" style="padding:10px 18px;background:var(--ink);color:#fff;border:none;border-radius:var(--rs);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans);white-space:nowrap">送信</button>'
+    + '</div>'
+    + '</div>';
+  document.body.appendChild(overlay);
+  await loadTalkHistory(userId);
+  await sb.from('messages').update({ is_read: true })
+    .eq('from_id', userId).eq('to_id', ADMIN_ID).eq('is_read', false);
+}
 
+async function loadTalkHistory(userId) {
+  const list = document.getElementById('talk-list');
+  if (!list) return;
+  try {
+    const { data } = await sb.from('messages')
+      .select('*')
+      .or('and(from_id.eq.'+userId+',to_id.eq.'+ADMIN_ID+'),and(from_id.eq.'+ADMIN_ID+',to_id.eq.'+userId+')')
+      .order('created_at', { ascending: true })
+      .limit(50);
+    if (!data || data.length === 0) {
+      list.innerHTML = '<div style="font-size:12px;color:var(--ink3);text-align:center;padding:20px">まだメッセージはありません</div>';
+      return;
+    }
+    list.innerHTML = data.map(m => {
+      const isAdmin = m.from_id === ADMIN_ID;
+      const time = m.created_at ? new Date(m.created_at).toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
+      const readBadge = isAdmin ? (m.is_read ? '<span style="font-family:var(--mono);font-size:8px;color:var(--green)">既読</span>' : '<span style="font-family:var(--mono);font-size:8px;color:var(--ink3)">未読</span>') : '';
+      return '<div style="display:flex;flex-direction:column;align-items:'+(isAdmin?'flex-end':'flex-start')+'">'
+        + '<div style="max-width:80%;background:'+(isAdmin?'var(--ink)':'var(--white)')+';color:'+(isAdmin?'#fff':'var(--ink)')+';border:1px solid '+(isAdmin?'transparent':'var(--border)')+';border-radius:'+(isAdmin?'14px 14px 4px 14px':'14px 14px 14px 4px')+';padding:10px 13px;font-size:13px;line-height:1.6">'+m.body+'</div>'
+        + '<div style="display:flex;align-items:center;gap:4px;margin-top:3px;font-size:9px;color:var(--ink3)">'+time+' '+readBadge+'</div>'
+        + '</div>';
+    }).join('');
+    list.scrollTop = list.scrollHeight;
+  } catch(e) {
+    list.innerHTML = '<div style="font-size:12px;color:var(--red)">読み込み失敗: '+e.message+'</div>';
+  }
+}
+
+async function sendTalkReply(userId, userName) {
+  const inp = document.getElementById('talk-reply-inp');
+  const text = inp?.value?.trim(); if (!text) return;
+  inp.value = '';
+  try {
+    await sb.from('messages').insert({ from_id: ADMIN_ID, to_id: userId, body: text, is_announcement: false, is_read: false });
+    await loadTalkHistory(userId);
+    showToast('✓ 送信しました');
+  } catch(e) { showToast('エラー: '+e.message); }
+}
 async function sendAdminReply(id) {
   const inp=document.getElementById('reply-inp-'+id);
   const text=inp?.value?.trim(); if(!text) return;
