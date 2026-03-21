@@ -1396,7 +1396,23 @@ function _openShareSheetUI(nameShort, ticker, score, votes) {
   document.body.appendChild(overlay);
 }
 
-// ★★★ 修正版 _uploadCertImage ★★★
+// Canvas直描画版（PC/スマホ共通で安定）
+function _certRoundRect(ctx, x, y, w, h, r) {
+  const radii = typeof r === 'number' ? [r,r,r,r] : r;
+  const [tl,tr,br,bl] = radii;
+  ctx.beginPath();
+  ctx.moveTo(x+tl, y);
+  ctx.lineTo(x+w-tr, y);
+  ctx.quadraticCurveTo(x+w, y, x+w, y+tr);
+  ctx.lineTo(x+w, y+h-br);
+  ctx.quadraticCurveTo(x+w, y+h, x+w-br, y+h);
+  ctx.lineTo(x+bl, y+h);
+  ctx.quadraticCurveTo(x, y+h, x, y+h-bl);
+  ctx.lineTo(x, y+tl);
+  ctx.quadraticCurveTo(x, y, x+tl, y);
+  ctx.closePath();
+}
+
 async function _uploadCertImage(ideaId) {
   try {
     const idea = ideas.find(i => i.id === ideaId);
@@ -1406,125 +1422,182 @@ async function _uploadCertImage(ideaId) {
     const dateStr = today.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
     const timeStr = today.toLocaleTimeString('ja-JP', { hour:'2-digit', minute:'2-digit' });
     const serial = 'AI-' + String(today.getMonth()+1).padStart(2,'0') + String(today.getDate()).padStart(2,'0');
-    const userName = currentUser?.x_username ? '@' + currentUser.x_username : '@ユーザー';
+    const userName = currentUser?.x_username ? '@' + currentUser.x_username : '@user';
     const votesAtTime = myEarlyVotes[ideaId] ?? idea.votes ?? 0;
-    const voteLabel = (votesAtTime + 1) + '票目';
+    const voteLabel = (votesAtTime + 1) + 'votes';
     const isEarly = votesAtTime < 5;
-    const ideaName = idea.name.length > 18 ? idea.name.slice(0, 18) + '…' : idea.name;
+    const ideaName = idea.name.length > 20 ? idea.name.slice(0, 20) + '...' : idea.name;
     const score = parseFloat(idea.score || 50).toFixed(1);
 
-    // 大きな余白付き外側コンテナ
-    const tmp = document.createElement('div');
-    tmp.style.cssText = [
-      'position:fixed',
-      'left:-9999px',
-      'top:0',
-      'z-index:-1',
-      'width:760px',
-      'background:#e8e2d6',
-      'padding:90px 120px 80px',
-      'display:flex',
-      'flex-direction:column',
-      'align-items:center',
-      'gap:0'
-    ].join(';');
+    const DPR = 2;
+    const W = 800, H = 420;
+    const canvas = document.createElement('canvas');
+    canvas.width = W * DPR;
+    canvas.height = H * DPR;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(DPR, DPR);
 
-    // 株券本体
-    const certWrap = document.createElement('div');
-    certWrap.style.cssText = [
-      'width:520px',
-      'background:#faf8f4',
-      'border-radius:16px',
-      'border:1.5px solid #d8d0c0',
-      'display:flex',
-      'overflow:hidden',
-      'box-shadow:0 14px 52px rgba(0,0,0,0.20),0 2px 8px rgba(0,0,0,0.08)'
-    ].join(';');
+    // 背景
+    ctx.fillStyle = '#e8e2d6';
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = 'rgba(0,0,0,0.02)';
+    for (let x2=0; x2<W; x2+=20) for (let y2=0; y2<H; y2+=20) {
+      ctx.beginPath(); ctx.arc(x2, y2, 1, 0, Math.PI*2); ctx.fill();
+    }
 
-    certWrap.innerHTML = `
-      <div style="flex:1;padding:24px 20px 20px 24px;display:flex;flex-direction:column;justify-content:space-between;min-width:0">
-        <div>
-          ${isEarly ? `
-          <div style="display:inline-flex;align-items:center;gap:4px;background:#fef9f0;border:1px solid #fde68a;border-radius:20px;padding:3px 10px;margin-bottom:14px">
-            <div style="width:5px;height:5px;border-radius:50%;background:#d97706"></div>
-            <span style="font-family:monospace;font-size:9px;color:#854f0b;font-weight:700;letter-spacing:.08em">EARLY INVESTOR</span>
-          </div>` : ''}
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
-            <div style="flex:1;height:.5px;background:#c8bfae"></div>
-            <span style="font-family:monospace;font-size:8px;color:#a09080;letter-spacing:.12em">INVESTMENT CERTIFICATE</span>
-            <div style="flex:1;height:.5px;background:#c8bfae"></div>
-          </div>
-          <div style="margin-bottom:16px">
-            <div style="font-family:monospace;font-size:8px;color:#a09080;letter-spacing:.1em;margin-bottom:5px">IDEA</div>
-            <div style="font-size:18px;font-weight:700;color:#1a1400;line-height:1.4">${ideaName}</div>
-          </div>
-          <div style="display:flex;gap:22px;margin-bottom:16px">
-            <div>
-              <div style="font-family:monospace;font-size:8px;color:#a09080;letter-spacing:.1em;margin-bottom:3px">TICKER</div>
-              <div style="font-family:monospace;font-size:17px;font-weight:700;color:#1a1400">${idea.ticker}</div>
-            </div>
-            <div>
-              <div style="font-family:monospace;font-size:8px;color:#a09080;letter-spacing:.1em;margin-bottom:3px">SCORE</div>
-              <div style="font-family:monospace;font-size:17px;font-weight:700;color:#1a7a4a">${score}</div>
-            </div>
-            <div>
-              <div style="font-family:monospace;font-size:8px;color:#a09080;letter-spacing:.1em;margin-bottom:3px">VOTES AT TIME</div>
-              <div style="font-family:monospace;font-size:17px;font-weight:700;color:#1a1400">${voteLabel}</div>
-            </div>
-          </div>
-        </div>
-        <div>
-          <div style="font-family:monospace;font-size:9px;color:#b0a898;margin-bottom:6px">${dateStr} · ${timeStr}</div>
-          <div style="font-family:monospace;font-size:9px;color:#b0a898">HOLDER: ${userName}</div>
-        </div>
-      </div>
-      <div style="width:108px;flex-shrink:0;border-left:2px dashed #ccc5b5;background:#eae5db;border-radius:0 16px 16px 0;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:22px 0">
-        <div style="text-align:center;padding:0 12px">
-          <div style="font-family:monospace;font-size:8px;color:#a09080;letter-spacing:.08em;margin-bottom:6px">SERIAL</div>
-          <div style="font-family:monospace;font-size:10px;font-weight:600;color:#1a1400;background:#ddd8ce;border-radius:4px;padding:3px 7px">${serial}</div>
-        </div>
-        <div style="width:62px;height:62px;border-radius:50%;border:2.5px solid #c0392b;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:#fff">
-          <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#c0392b" stroke-width="2.2" stroke-linecap="round"/></svg>
-          <span style="font-family:monospace;font-size:7px;color:#c0392b;letter-spacing:.06em">INVESTED</span>
-        </div>
-        <div style="font-family:monospace;font-size:9px;color:#a09080;letter-spacing:.06em">あいぽ</div>
-      </div>
-    `;
+    // カード
+    const cx = 100, cy = 60, cw = 600, ch = 280;
+    const stubW = 120, stubX = cx + cw - stubW;
+
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,0.18)';
+    ctx.shadowBlur = 32;
+    ctx.shadowOffsetY = 12;
+    _certRoundRect(ctx, cx, cy, cw, ch, 18);
+    ctx.fillStyle = '#faf8f4';
+    ctx.fill();
+    ctx.restore();
+
+    _certRoundRect(ctx, cx, cy, cw, ch, 18);
+    ctx.fillStyle = '#faf8f4';
+    ctx.fill();
+    ctx.strokeStyle = '#d8d0c0';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // スタブ背景
+    _certRoundRect(ctx, stubX, cy, stubW, ch, [0,18,18,0]);
+    ctx.fillStyle = '#eae5db';
+    ctx.fill();
+
+    // 破線
+    ctx.save();
+    ctx.setLineDash([5,4]);
+    ctx.strokeStyle = '#ccc5b5';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(stubX, cy+12);
+    ctx.lineTo(stubX, cy+ch-12);
+    ctx.stroke();
+    ctx.restore();
+
+    // 左エリア
+    const lx = cx + 28;
+    let ly = cy + 28;
+
+    // EARLY INVESTOR バッジ
+    if (isEarly) {
+      ctx.fillStyle = '#fef9f0';
+      _certRoundRect(ctx, lx, ly, 128, 20, 10);
+      ctx.fill();
+      ctx.strokeStyle = '#fde68a';
+      ctx.lineWidth = 1;
+      _certRoundRect(ctx, lx, ly, 128, 20, 10);
+      ctx.stroke();
+      ctx.fillStyle = '#d97706';
+      ctx.beginPath(); ctx.arc(lx+11, ly+10, 3.5, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#854f0b';
+      ctx.font = 'bold 9px monospace';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('EARLY INVESTOR', lx+20, ly+10);
+      ly += 30;
+    }
+
+    // 区切り線
+    ctx.strokeStyle = '#c8bfae';
+    ctx.lineWidth = 0.5;
+    ctx.font = '8px monospace';
+    ctx.textBaseline = 'middle';
+    const certLabel = 'INVESTMENT CERTIFICATE';
+    const certLabelW = ctx.measureText(certLabel).width;
+    ctx.beginPath(); ctx.moveTo(lx, ly+5); ctx.lineTo(lx+46, ly+5); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(lx+56+certLabelW, ly+5); ctx.lineTo(stubX-cx-28+cx, ly+5); ctx.stroke();
+    ctx.fillStyle = '#a09080';
+    ctx.fillText(certLabel, lx+50, ly+5);
+    ly += 18;
+
+    // IDEA ラベル
+    ctx.fillStyle = '#a09080';
+    ctx.font = 'bold 8px monospace';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillText('IDEA', lx, ly);
+    ly += 14;
+
+    // アイデア名
+    ctx.fillStyle = '#1a1400';
+    ctx.font = 'bold 20px "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif';
+    ctx.fillText(ideaName, lx, ly);
+    ly += 34;
+
+    // TICKER / SCORE / VOTES
+    const cols2 = [
+      { label:'TICKER',        value: idea.ticker, color:'#1a1400', x: lx },
+      { label:'SCORE',         value: score,       color:'#1a7a4a', x: lx+100 },
+      { label:'VOTES',         value: voteLabel,   color:'#1a1400', x: lx+195 },
+    ];
+    for (const col of cols2) {
+      ctx.fillStyle = '#a09080';
+      ctx.font = 'bold 8px monospace';
+      ctx.fillText(col.label, col.x, ly);
+      ctx.fillStyle = col.color;
+      ctx.font = 'bold 16px monospace';
+      ctx.fillText(col.value, col.x, ly+18);
+    }
+    ly += 40;
+
+    // 日付・HOLDER
+    ctx.fillStyle = '#b0a898';
+    ctx.font = '10px monospace';
+    ctx.fillText(dateStr + ' ' + timeStr, lx, ly);
+    ctx.fillText('HOLDER: ' + userName, lx, ly+16);
+
+    // スタブ
+    const scx = stubX + stubW/2;
+    ctx.fillStyle = '#a09080';
+    ctx.font = 'bold 8px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('SERIAL', scx, cy+32);
+    ctx.fillStyle = '#ddd8ce';
+    _certRoundRect(ctx, scx-36, cy+38, 72, 20, 5);
+    ctx.fill();
+    ctx.fillStyle = '#1a1400';
+    ctx.font = 'bold 10px monospace';
+    ctx.fillText(serial, scx, cy+52);
+
+    // スタンプ
+    const sy = cy + ch/2 + 14;
+    ctx.strokeStyle = '#c0392b';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.arc(scx, sy, 30, 0, Math.PI*2); ctx.stroke();
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    ctx.moveTo(scx-11, sy+1);
+    ctx.lineTo(scx-3, sy+10);
+    ctx.lineTo(scx+13, sy-10);
+    ctx.stroke();
+    ctx.fillStyle = '#c0392b';
+    ctx.font = 'bold 8px monospace';
+    ctx.fillText('INVESTED', scx, sy+24);
+    ctx.fillStyle = '#a09080';
+    ctx.font = '10px monospace';
+    ctx.fillText('\u3042\u3044\u307D', scx, cy+ch-16);
+    ctx.textAlign = 'left';
 
     // フッター
-    const footer = document.createElement('div');
-    footer.style.cssText = [
-      'margin-top:32px',
-      'font-family:monospace',
-      'font-size:13px',
-      'color:rgba(26,20,0,0.25)',
-      'letter-spacing:.1em',
-      'text-align:center'
-    ].join(';');
-    footer.textContent = 'AIPO — IDEA IPO MARKET  ·  aipo-tau.vercel.app';
-
-    tmp.appendChild(certWrap);
-    tmp.appendChild(footer);
-    document.body.appendChild(tmp);
-
-    await new Promise(r => setTimeout(r, 200));
-
-    const canvas = await html2canvas(tmp, {
-      scale: 2,
-      backgroundColor: '#e8e2d6',
-      useCORS: true,
-      logging: false,
-    });
-    document.body.removeChild(tmp);
+    ctx.fillStyle = 'rgba(26,20,0,0.22)';
+    ctx.font = '13px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('AIPO - IDEA IPO MARKET  aipo-tau.vercel.app', W/2, cy+ch+38);
+    ctx.textAlign = 'left';
 
     const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
-    const fileName = `cert-${ideaId}-${Date.now()}.png`;
-
+    const fileName = 'cert-' + ideaId + '-' + Date.now() + '.png';
     const { data, error } = await sb.storage.from('og-images').upload(fileName, blob, {
       contentType: 'image/png', upsert: true
     });
     if (error) { console.error('upload error:', error); return null; }
-
     const { data: urlData } = sb.storage.from('og-images').getPublicUrl(fileName);
     return urlData.publicUrl;
 
@@ -2026,6 +2099,58 @@ async function init() {
   updateXBonus();
 }
 
+// X(Twitter)アプリ内ブラウザ検出 → 外部ブラウザへ誘導
+function checkInAppBrowser() {
+  const ua = navigator.userAgent || '';
+  const isTwitter = /Twitter/i.test(ua);
+  if (!isTwitter) return;
+  if (location.search.includes('extbrowser')) return; // ループ防止
+
+  const targetUrl = location.href + (location.search ? '&' : '?') + 'extbrowser=1';
+  const isIOS = /iPhone|iPad|iPod/i.test(ua);
+  const isAndroid = /Android/i.test(ua);
+
+  if (isAndroid) {
+    // Android: Chromeに強制転送
+    const intentUrl = 'intent://' + targetUrl.replace(/^https?:\/\//, '') +
+      '#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=' +
+      encodeURIComponent(targetUrl) + ';end';
+    window.location.href = intentUrl;
+    setTimeout(() => _showExtBrowserBanner(targetUrl), 600);
+  } else {
+    // iOS: プログラム的な強制は不可のためバナーを表示
+    _showExtBrowserBanner(targetUrl);
+  }
+}
+
+function _showExtBrowserBanner(url) {
+  const existing = document.getElementById('ext-browser-banner');
+  if (existing) return;
+  const banner = document.createElement('div');
+  banner.id = 'ext-browser-banner';
+  banner.style.cssText = [
+    'position:fixed', 'top:0', 'left:0', 'right:0', 'z-index:99999',
+    'background:#1a1400', 'padding:12px 16px',
+    'display:flex', 'align-items:center', 'justify-content:space-between', 'gap:10px',
+    'box-shadow:0 2px 12px rgba(0,0,0,0.3)'
+  ].join(';');
+  banner.innerHTML =
+    '<div style="flex:1;min-width:0">' +
+      '<div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:2px">ブラウザで開くと全機能が使えます</div>' +
+      '<div style="font-size:10px;color:rgba(255,255,255,.55)">Xアプリ内では一部機能が制限されます</div>' +
+    '</div>' +
+    '<a href="' + url + '" target="_blank" rel="noopener noreferrer" ' +
+      'style="background:#e8850a;color:#fff;border:none;border-radius:20px;padding:9px 16px;' +
+      'font-size:12px;font-weight:700;white-space:nowrap;text-decoration:none;flex-shrink:0">' +
+      'ブラウザで開く' +
+    '</a>' +
+    '<button onclick="document.getElementById(\'ext-browser-banner\').remove()" ' +
+      'style="background:none;border:none;color:rgba(255,255,255,.45);font-size:20px;' +
+      'cursor:pointer;padding:0;flex-shrink:0;line-height:1">\u00d7</button>';
+  document.body.prepend(banner);
+}
+
+checkInAppBrowser();
 init();
 </script>
 </body>
