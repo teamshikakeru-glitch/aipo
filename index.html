@@ -892,11 +892,11 @@ function calcScore(idea) {
   s += [0, 7, 14, 20][Math.min(progress, 3)];
   s += idea.desc ? 3 : 0;
   s += idea.tech ? 2 : 0;
-  s -= (idea.postedDaysAgo || 0) * 3.0;
+  s -= (idea.postedDaysAgo || 0) * 0.5;
   const daysSinceVote = idea.daysSinceLastVote || idea.postedDaysAgo || 0;
-  if (daysSinceVote >= 14) s -= 25;
-  else if (daysSinceVote >= 7) s -= 12;
-  else if (daysSinceVote >= 3) s -= 4;
+  if (daysSinceVote >= 14) s -= 10;
+  else if (daysSinceVote >= 7) s -= 5;
+  else if (daysSinceVote >= 3) s -= 2;
   const sameGenre = (typeof ideas !== 'undefined' ? ideas : []).filter(i => i.genre === idea.genre && i.id !== idea.id);
   if (sameGenre.length >= 3) s -= Math.min(sameGenre.length * 1.0, 8);
   return Math.max(10, Math.min(99, Math.round(s * 10) / 10));
