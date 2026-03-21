@@ -300,9 +300,7 @@ input[type=file] { display: none; }
 .postbox-sub{font-size:12px;color:var(--text3);text-align:center}
 @keyframes env-fly{0%{opacity:1;top:80px;left:50%;transform:translateX(-50%) scale(1) rotate(-5deg)}50%{opacity:1;top:180px;left:50%;transform:translateX(-50%) scale(.8) rotate(3deg)}80%{opacity:.6;top:280px;left:50%;transform:translateX(-52%) scale(.4) rotate(5deg)}100%{opacity:0;top:310px;left:50%;transform:translateX(-52%) scale(.1) rotate(8deg)}}
 @keyframes box-shake{0%,100%{transform:none}20%{transform:rotate(-3deg) translateX(-3px)}40%{transform:rotate(3deg) translateX(3px)}60%{transform:rotate(-2deg)}80%{transform:rotate(1deg)}}
-/* ===== ★追加: Markdown表示用 ===== */
 .md-desc strong{font-weight:700}.md-desc em{font-style:italic}.md-desc code{font-family:'Space Mono',monospace;font-size:11px;background:var(--bg);padding:1px 5px;border-radius:3px;border:1px solid var(--border)}.md-desc h1{font-size:15px;font-weight:700;margin:10px 0 4px}.md-desc h2{font-size:14px;font-weight:700;margin:8px 0 4px}.md-desc h3{font-size:13px;font-weight:700;margin:6px 0 3px}.md-desc a{color:var(--amber-mid);text-decoration:underline}.md-desc ul{padding-left:16px;margin:4px 0}.md-desc ul li{font-size:13px;margin-bottom:2px}
-/* ===== ★追加: プロフィールモーダル ===== */
 .profile-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:flex-end;justify-content:center}
 .profile-sheet{background:var(--surface);border-radius:20px 20px 0 0;padding:20px 20px 48px;width:100%;max-width:390px;max-height:85vh;overflow-y:auto}
 .profile-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 18px}
@@ -437,7 +435,6 @@ input[type=file] { display: none; }
     <div id="msg-unread-badge" style="display:none;font-size:10px;font-weight:700;color:#fff;background:var(--red);border-radius:100px;padding:3px 10px;margin-left:auto"></div>
   </div>
   <div style="padding:0 14px 100px;">
-    <!-- 投稿フォーム -->
     <div style="background:var(--surface);border-radius:16px;border:0.5px solid var(--border2);padding:16px;margin:14px 0;">
       <div style="font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:.1em;margin-bottom:10px;">VOICE YOUR OPINION</div>
       <textarea class="hiroba-textarea" id="hiroba-input" rows="2" placeholder="こんな機能が欲しい、ここが使いづらい、なんでも..."></textarea>
@@ -450,7 +447,6 @@ input[type=file] { display: none; }
       <label class="hiroba-anon"><input type="checkbox" id="hiroba-anon-check" style="width:16px;height:16px;accent-color:var(--amber-mid)">匿名で投稿する</label>
       <button class="hiroba-send" onclick="sendHiroba()"><svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2"><path d="M3 10l14-7-7 14-2-6z"/></svg>送信する</button>
     </div>
-    <!-- X・開発依頼 -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
       <a href="https://x.com/aideaipo" target="_blank" rel="noopener" style="text-decoration:none;background:var(--surface);border-radius:14px;border:0.5px solid var(--border2);padding:14px;display:flex;flex-direction:column;gap:8px;">
         <div style="width:28px;height:28px;background:var(--ink,#1a1400);border-radius:8px;display:flex;align-items:center;justify-content:center;">
@@ -473,12 +469,10 @@ input[type=file] { display: none; }
         <div style="font-size:11px;font-weight:700;color:var(--amber);padding:6px;background:var(--amber-bg);border-radius:8px;text-align:center;border:0.5px solid var(--amber-border);">相談する →</div>
       </a>
     </div>
-    <!-- メッセージ一覧 -->
     <div style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:.08em;margin-bottom:10px;">MESSAGES</div>
     <div id="msg-list" style="background:var(--surface);border-radius:14px;border:0.5px solid var(--border2);overflow:hidden;">
       <div style="padding:24px;text-align:center;font-size:12px;color:var(--text3);">読み込み中...</div>
     </div>
-    <!-- 返信フォーム（運営からのメッセージがある場合に表示） -->
     <div id="msg-reply-form" style="display:none;background:var(--surface);border-radius:14px;border:0.5px solid var(--border2);padding:14px;margin-top:10px;">
       <div style="font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:.1em;margin-bottom:8px;">REPLY TO 運営</div>
       <textarea id="msg-reply-input" rows="2" style="width:100%;border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:14px;color:var(--text);background:var(--surface2);font-family:var(--sans);resize:none;outline:none;line-height:1.6;" placeholder="返信を書く..."></textarea>
@@ -536,7 +530,7 @@ input[type=file] { display: none; }
 <input type="file" id="file-input" accept="image/*">
 <div class="toast" id="toast"></div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 const SUPABASE_URL = 'https://qjffvspnnxyykoyhnazm.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqZmZ2c3Bubnh5eWtveWhuYXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzMTIxMzMsImV4cCI6MjA4Njg4ODEzM30.OqeeMZs73RjKY5POW-naf0dB8sFWfZDUKaKvE99EiBo';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -603,7 +597,6 @@ async function fetchIdeas() {
     }));
     if (currentUser) { ideas.forEach(idea => { if (idea.userId === currentUser.id) myIdeas.add(idea.id); }); }
     renderFeed();
-    // URLパラメータから銘柄を開く
     const _sid = sessionStorage.getItem('aipo_idea_id');
     if (_sid) {
       sessionStorage.removeItem('aipo_idea_id');
@@ -706,7 +699,6 @@ async function checkProStatus() {
   if (data?.is_founder) { currentUser.founderNumber = data.founder_number ?? 0; currentUser.isFounder = true; }
   updatePlanBadge();
   loadFounderCount();
-  // pending_founders照合（ログイン前購入の自動付与）
   await applyPendingPlan();
 }
 
@@ -714,7 +706,6 @@ async function applyPendingPlan() {
   if (!currentUser?.email) return;
   const { data: pending } = await sb.from('pending_founders').select('*').eq('email', currentUser.email).is('applied_at', null).single();
   if (!pending) return;
-  console.log('pending_founders found:', pending);
   try {
     const { data: prof } = await sb.from('profiles').select('is_founder, is_pro').eq('id', currentUser.id).single();
     if (pending.plan === 'founder' && !prof?.is_founder) {
@@ -1014,15 +1005,6 @@ function renderPortfolio() {
   }).join('')}</div>`;
 }
 
-function buildPortfolioRow(idea) {
-  const delta = idea.score - idea.baseScore; const ds = (delta>=0?'+':'')+delta.toFixed(1);
-  const scoreColor = delta>0.3?'var(--green-light)':delta<-0.3?'var(--red)':'var(--text)';
-  const deltaColor = delta>0.3?'#22a85f':delta<-0.3?'#c0392b':'#999';
-  const deltaBg = delta>0.3?'rgba(34,168,95,.12)':delta<-0.3?'rgba(192,57,43,.1)':'rgba(0,0,0,.05)';
-  const isHot = idea.votes >= HOT_THRESHOLD; const isFav = favIdeas.has(idea.id); const isOwn = myIdeas.has(idea.id);
-  return `<div style="border-bottom:0.5px solid var(--border);position:relative">${isFav ? '<div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#e8850a,#bf6d00);border-radius:0 2px 2px 0;z-index:1"></div>' : ''}<div onclick="showDetail('${idea.id}')" style="padding:12px 14px 8px;display:flex;align-items:flex-start;gap:10px;cursor:pointer"><div style="display:flex;flex-direction:column;align-items:center;min-width:58px;flex-shrink:0;padding:4px 0"><div style="font-family:var(--mono);font-size:22px;font-weight:700;color:${scoreColor};line-height:1">${idea.score.toFixed(1)}</div><div style="display:flex;align-items:center;gap:4px;margin-top:3px"><div style="font-family:var(--mono);font-size:10px;font-weight:700;color:${deltaColor};background:${deltaBg};padding:2px 6px;border-radius:5px">${ds}</div><div style="font-size:9px;font-weight:700;color:${scoreGrade(idea.score).color}">${scoreGrade(idea.score).label}</div></div><div style="font-size:9px;color:var(--text3);margin-top:2px">${idea.votes}票</div></div><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-bottom:2px"><span style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text2)">${idea.ticker}</span></div><div style="font-size:14px;font-weight:700;color:var(--text);line-height:1.4;margin-bottom:5px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${idea.name}</div><div style="display:flex;gap:4px;flex-wrap:wrap"><span class="stag stag-genre">${idea.genre}</span>${idea.tech?`<span class="stag stag-a">${idea.tech}</span>`:''}</div></div><canvas style="width:60px;height:38px;flex-shrink:0;margin-top:4px" id="pspark-${idea.id}"></canvas></div>${isOwn ? `<div style="display:flex;border-top:0.5px solid var(--border)"><button onclick="event.stopPropagation();showEditIdea('${idea.id}')" style="flex:1;padding:10px;font-size:12px;font-weight:700;font-family:var(--sans);border:none;border-right:0.5px solid var(--border);background:var(--surface);color:var(--amber);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px"><svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 3.3a1 1 0 011.4 1.4L6 14.8l-3.5.7.7-3.5L14.7 3.3z"/></svg>編集</button><button onclick="event.stopPropagation();confirmDeleteIdea('${idea.id}')" style="flex:1;padding:10px;font-size:12px;font-weight:700;font-family:var(--sans);border:none;background:var(--surface);color:var(--red);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px"><svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h14M8 6V4h4v2M9 10v5M11 10v5M5 6l1 11h8l1-11"/></svg>削除</button></div>` : ''}</div>`;
-}
-
 let currentGenre = '';
 
 function setViewMode(mode) {
@@ -1151,15 +1133,6 @@ function showIPOBanner(idea) {
   banner.innerHTML = `<style>@keyframes slideDown{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}</style><div style="width:8px;height:8px;border-radius:50%;background:var(--amber-mid);flex-shrink:0;animation:blink 1.8s infinite"></div><div style="flex:1;min-width:0"><div style="font-size:9px;font-weight:700;color:var(--amber);letter-spacing:.06em;margin-bottom:2px">NEW LISTING</div><div style="font-size:12px;font-weight:700;color:var(--text);overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${idea.name || '新しいアイデアが上場しました'}</div><div style="font-size:10px;color:var(--text3);margin-top:1px">たった今上場しました</div></div><span onclick="document.getElementById('ipo-banner').remove()" style="font-size:16px;color:var(--text3);cursor:pointer;padding:0 4px">×</span>`;
   feedBody.prepend(banner);
   setTimeout(() => { if (banner.parentNode) banner.remove(); }, 5000);
-}
-
-function buildEarlyInfo(ideaId) {
-  const idea = ideas.find(i => i.id === ideaId); if (!idea) return '';
-  const votesWhen = myEarlyVotes[ideaId]; const isEarly = votesWhen !== undefined && votesWhen <= 5;
-  const pts = votesWhen === undefined ? 0 : votesWhen <= 1 ? 10 : votesWhen <= 3 ? 8 : votesWhen <= 5 ? 6 : votesWhen <= 10 ? 4 : 1;
-  if (!votedIds.has(ideaId)) return `<div style="font-size:12px;color:var(--text3)">応援すると目利きポイントが貯まります。早いほど高得点！</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"><span style="font-size:10px;background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border);border-radius:4px;padding:2px 7px;font-weight:700">1票目: +10pt</span><span style="font-size:10px;background:var(--surface2);color:var(--text2);border:1px solid var(--border2);border-radius:4px;padding:2px 7px;font-weight:700">2-3票: +8pt</span><span style="font-size:10px;background:var(--surface2);color:var(--text2);border:1px solid var(--border2);border-radius:4px;padding:2px 7px;font-weight:700">4-5票: +6pt</span></div>`;
-  if (isEarly) return `<div style="display:flex;align-items:center;gap:8px"><div style="width:32px;height:32px;border-radius:50%;background:var(--amber-bg);border:2px solid var(--amber-border);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">👁</div><div><div style="font-size:13px;font-weight:700;color:var(--amber)">あなたは早期発見者です！</div><div style="font-size:11px;color:var(--text3);margin-top:1px">${votesWhen}票のときに応援 → <strong style="color:var(--amber)">+${pts}pt</strong> 獲得済み</div></div></div>`;
-  return `<div style="font-size:12px;color:var(--text3)">応援済み（${idea.votes}票時点・+${pts}pt）</div>`;
 }
 
 function showDetail(id) {
@@ -1350,9 +1323,6 @@ function showScoreUpToast(idea) {
 
 function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
 
-// ★★★ パッチ②: shareToX OGP対応版 ★★★
-
-// シェア用グローバル
 let _shareText = '', _shareOgUrl = '', _shareAppUrl = '';
 
 function openShareSheet(id) {
@@ -1426,67 +1396,125 @@ function _openShareSheetUI(nameShort, ticker, score, votes) {
   document.body.appendChild(overlay);
 }
 
-
+// ★★★ 修正版 _uploadCertImage ★★★
 async function _uploadCertImage(ideaId) {
   try {
-    // 一時的に株券HTMLを生成してキャプチャ
     const idea = ideas.find(i => i.id === ideaId);
     if (!idea) return null;
 
-    // 一時div作成
+    const today = new Date();
+    const dateStr = today.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+    const timeStr = today.toLocaleTimeString('ja-JP', { hour:'2-digit', minute:'2-digit' });
+    const serial = 'AI-' + String(today.getMonth()+1).padStart(2,'0') + String(today.getDate()).padStart(2,'0');
+    const userName = currentUser?.x_username ? '@' + currentUser.x_username : '@ユーザー';
+    const votesAtTime = myEarlyVotes[ideaId] ?? idea.votes ?? 0;
+    const voteLabel = (votesAtTime + 1) + '票目';
+    const isEarly = votesAtTime < 5;
+    const ideaName = idea.name.length > 18 ? idea.name.slice(0, 18) + '…' : idea.name;
+    const score = parseFloat(idea.score || 50).toFixed(1);
+
+    // 大きな余白付き外側コンテナ
     const tmp = document.createElement('div');
-    tmp.style.cssText = 'position:fixed;left:-9999px;top:0;width:600px;background:#f0ebe1;padding:40px;z-index:-1';
-    tmp.innerHTML = `<div style="width:520px;background:#faf8f4;border-radius:16px;border:1.5px solid #e0d8cc;display:flex;overflow:hidden">
-      <div style="flex:1;padding:32px 36px;display:flex;flex-direction:column;justify-content:space-between">
+    tmp.style.cssText = [
+      'position:fixed',
+      'left:-9999px',
+      'top:0',
+      'z-index:-1',
+      'width:760px',
+      'background:#e8e2d6',
+      'padding:90px 120px 80px',
+      'display:flex',
+      'flex-direction:column',
+      'align-items:center',
+      'gap:0'
+    ].join(';');
+
+    // 株券本体
+    const certWrap = document.createElement('div');
+    certWrap.style.cssText = [
+      'width:520px',
+      'background:#faf8f4',
+      'border-radius:16px',
+      'border:1.5px solid #d8d0c0',
+      'display:flex',
+      'overflow:hidden',
+      'box-shadow:0 14px 52px rgba(0,0,0,0.20),0 2px 8px rgba(0,0,0,0.08)'
+    ].join(';');
+
+    certWrap.innerHTML = `
+      <div style="flex:1;padding:24px 20px 20px 24px;display:flex;flex-direction:column;justify-content:space-between;min-width:0">
         <div>
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px">
-            <div style="width:28px;height:28px;background:#1a1400;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#f59e0b;font-size:16px;font-weight:700">↗</div>
-            <span style="font-size:18px;font-weight:700;color:#1a1400">あいぽ</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px">
-            <div style="flex:1;height:1px;background:#c8bfae"></div>
-            <span style="font-size:9px;color:#a09080;letter-spacing:.12em">INVESTMENT CERTIFICATE</span>
-            <div style="flex:1;height:1px;background:#c8bfae"></div>
+          ${isEarly ? `
+          <div style="display:inline-flex;align-items:center;gap:4px;background:#fef9f0;border:1px solid #fde68a;border-radius:20px;padding:3px 10px;margin-bottom:14px">
+            <div style="width:5px;height:5px;border-radius:50%;background:#d97706"></div>
+            <span style="font-family:monospace;font-size:9px;color:#854f0b;font-weight:700;letter-spacing:.08em">EARLY INVESTOR</span>
+          </div>` : ''}
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+            <div style="flex:1;height:.5px;background:#c8bfae"></div>
+            <span style="font-family:monospace;font-size:8px;color:#a09080;letter-spacing:.12em">INVESTMENT CERTIFICATE</span>
+            <div style="flex:1;height:.5px;background:#c8bfae"></div>
           </div>
           <div style="margin-bottom:16px">
-            <div style="font-size:9px;color:#a09080;letter-spacing:.08em;margin-bottom:4px">IDEA</div>
-            <div style="font-size:16px;font-weight:700;color:#1a1400;line-height:1.35">${idea.name}</div>
+            <div style="font-family:monospace;font-size:8px;color:#a09080;letter-spacing:.1em;margin-bottom:5px">IDEA</div>
+            <div style="font-size:18px;font-weight:700;color:#1a1400;line-height:1.4">${ideaName}</div>
           </div>
-          <div style="display:flex;gap:20px">
+          <div style="display:flex;gap:22px;margin-bottom:16px">
             <div>
-              <div style="font-size:9px;color:#a09080;letter-spacing:.08em;margin-bottom:3px">TICKER</div>
-              <div style="font-size:20px;font-weight:500;color:#1a1400;font-family:monospace">${idea.ticker}</div>
+              <div style="font-family:monospace;font-size:8px;color:#a09080;letter-spacing:.1em;margin-bottom:3px">TICKER</div>
+              <div style="font-family:monospace;font-size:17px;font-weight:700;color:#1a1400">${idea.ticker}</div>
             </div>
             <div>
-              <div style="font-size:9px;color:#a09080;letter-spacing:.08em;margin-bottom:3px">SCORE</div>
-              <div style="font-size:20px;font-weight:500;color:#1a1400;font-family:monospace">${parseFloat(idea.score||50).toFixed(1)}</div>
+              <div style="font-family:monospace;font-size:8px;color:#a09080;letter-spacing:.1em;margin-bottom:3px">SCORE</div>
+              <div style="font-family:monospace;font-size:17px;font-weight:700;color:#1a7a4a">${score}</div>
             </div>
             <div>
-              <div style="font-size:9px;color:#a09080;letter-spacing:.08em;margin-bottom:3px">VOTES</div>
-              <div style="font-size:20px;font-weight:500;color:#1a1400;font-family:monospace">${idea.votes||0}票</div>
+              <div style="font-family:monospace;font-size:8px;color:#a09080;letter-spacing:.1em;margin-bottom:3px">VOTES AT TIME</div>
+              <div style="font-family:monospace;font-size:17px;font-weight:700;color:#1a1400">${voteLabel}</div>
             </div>
           </div>
         </div>
-        <div style="display:inline-flex;align-items:center;gap:5px;background:#fef9f0;border:1px solid #fde68a;border-radius:4px;padding:4px 10px;margin-top:16px">
-          <div style="width:5px;height:5px;border-radius:50%;background:#d97706"></div>
-          <span style="font-size:11px;color:#854f0b;letter-spacing:.06em;font-family:monospace">EARLY INVESTOR</span>
+        <div>
+          <div style="font-family:monospace;font-size:9px;color:#b0a898;margin-bottom:6px">${dateStr} · ${timeStr}</div>
+          <div style="font-family:monospace;font-size:9px;color:#b0a898">HOLDER: ${userName}</div>
         </div>
       </div>
-      <div style="width:120px;flex-shrink:0;border-left:2px dashed #d4c9b8;background:#ede9e0;padding:28px 18px;display:flex;flex-direction:column;align-items:center;justify-content:space-between">
-        <div style="text-align:center">
-          <div style="font-size:9px;color:#a09080;letter-spacing:.08em;margin-bottom:6px">SERIAL</div>
-          <div style="font-size:11px;font-weight:500;color:#1a1400;background:#e5ddd0;border-radius:4px;padding:3px 8px;font-family:monospace">AI-${String(new Date().getMonth()+1).padStart(2,'0')}${String(new Date().getDate()).padStart(2,'0')}</div>
+      <div style="width:108px;flex-shrink:0;border-left:2px dashed #ccc5b5;background:#eae5db;border-radius:0 16px 16px 0;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:22px 0">
+        <div style="text-align:center;padding:0 12px">
+          <div style="font-family:monospace;font-size:8px;color:#a09080;letter-spacing:.08em;margin-bottom:6px">SERIAL</div>
+          <div style="font-family:monospace;font-size:10px;font-weight:600;color:#1a1400;background:#ddd8ce;border-radius:4px;padding:3px 7px">${serial}</div>
         </div>
-        <div style="width:64px;height:64px;border-radius:50%;border:2.5px solid #c0392b;display:flex;flex-direction:column;align-items:center;justify-content:center">
-          <div style="font-size:24px;color:#c0392b">✓</div>
-          <div style="font-size:8px;color:#c0392b;letter-spacing:.06em;font-family:monospace">INVESTED</div>
+        <div style="width:62px;height:62px;border-radius:50%;border:2.5px solid #c0392b;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:#fff">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#c0392b" stroke-width="2.2" stroke-linecap="round"/></svg>
+          <span style="font-family:monospace;font-size:7px;color:#c0392b;letter-spacing:.06em">INVESTED</span>
         </div>
-        <div style="font-size:10px;color:#a09080;letter-spacing:.08em">あいぽ</div>
+        <div style="font-family:monospace;font-size:9px;color:#a09080;letter-spacing:.06em">あいぽ</div>
       </div>
-    </div>`;
+    `;
+
+    // フッター
+    const footer = document.createElement('div');
+    footer.style.cssText = [
+      'margin-top:32px',
+      'font-family:monospace',
+      'font-size:13px',
+      'color:rgba(26,20,0,0.25)',
+      'letter-spacing:.1em',
+      'text-align:center'
+    ].join(';');
+    footer.textContent = 'AIPO — IDEA IPO MARKET  ·  aipo-tau.vercel.app';
+
+    tmp.appendChild(certWrap);
+    tmp.appendChild(footer);
     document.body.appendChild(tmp);
 
-    const canvas = await html2canvas(tmp.firstChild, { scale:2, backgroundColor:'#f0ebe1', useCORS:true, logging:false });
+    await new Promise(r => setTimeout(r, 200));
+
+    const canvas = await html2canvas(tmp, {
+      scale: 2,
+      backgroundColor: '#e8e2d6',
+      useCORS: true,
+      logging: false,
+    });
     document.body.removeChild(tmp);
 
     const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
@@ -1499,6 +1527,7 @@ async function _uploadCertImage(ideaId) {
 
     const { data: urlData } = sb.storage.from('og-images').getPublicUrl(fileName);
     return urlData.publicUrl;
+
   } catch(e) {
     console.error('_uploadCertImage error:', e);
     return null;
@@ -1510,13 +1539,11 @@ async function _shareX() {
   const xBtn = overlay?.querySelector('[onclick="_shareX()"]');
   if (xBtn) { xBtn.style.opacity='.5'; xBtn.style.pointerEvents='none'; }
   showToast('画像を準備中...');
-  // ideaIdを取得
   const ideaId = _shareOgUrl.match(/id=([^&]+)/)?.[1];
   let finalOgUrl = _shareOgUrl;
   if (ideaId) {
     const imgUrl = await _uploadCertImage(ideaId);
     if (imgUrl) {
-      // share.jsにimgパラメータを付与
       finalOgUrl = _shareOgUrl + '&img=' + encodeURIComponent(imgUrl);
     }
   }
@@ -1526,7 +1553,6 @@ async function _shareX() {
 }
 function _shareFb()   { const u='https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(_shareOgUrl); document.getElementById('share-sheet-overlay')?.remove(); window.location.href=u; }
 function _shareCopy() { navigator.clipboard.writeText(_shareOgUrl).then(()=>showToast('URLをコピーしました')).catch(()=>showToast('コピーできませんでした')); }
-
 
 function shareToX(id) {
   const idea = ideas.find(i=>i.id===id); if(!idea) return;
@@ -1540,673 +1566,462 @@ function copyIdeaLink(id) {
   navigator.clipboard.writeText(`https://aipo-tau.vercel.app/api/share?id=${id}`).then(()=>showToast('リンクをコピーしました')).catch(()=>showToast('コピーできませんでした'));
 }
 
-function editField(id, field) {
-  if (field === 'desc') { document.getElementById('desc-view-'+id).style.display='none'; document.getElementById('desc-edit-'+id).style.display='block'; document.getElementById('desc-save-'+id).style.display='block'; }
-  else if (field === 'actions') { document.getElementById('actions-view-'+id).style.display='none'; document.getElementById('actions-edit-'+id).style.display='block'; }
-}
-
-function saveField(id, field) {
-  const idea = ideas.find(i=>i.id===id); if (!idea) return;
-  if (field === 'desc') { const newDesc = document.getElementById('desc-edit-'+id)?.value?.trim(); idea.desc = newDesc || idea.desc; updateDescToDB(id, idea.desc); showDetail(id); showToast('説明を更新しました'); }
-  else if (field === 'actions') { const newActions = idea.actions.map((_,i) => document.getElementById('action-inp-'+id+'-'+i)?.value?.trim()||'').filter(Boolean); idea.actions = newActions; showDetail(id); showToast('ネクストアクションを更新しました'); }
-}
-
-async function updateProgress(id, step) {
-  const idea = ideas.find(i=>i.id===id); if (!idea) return;
-  idea.progressStep = parseInt(step); idea.progress = parseInt(step); idea.score = calcScore(idea); idea.lastReason = '進捗を更新しました';
-  await updateProgressToDB(id, step); showDetail(id); showToast('進捗を更新しました');
-}
-
-function showEditIdea(id) {
-  const idea = ideas.find(i=>i.id===id); if (!idea) return;
-  const modal = document.createElement('div'); modal.id = 'edit-modal'; modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:flex-end;justify-content:center';
-  const genreList = ['起業家・スタートアップ','副業・フリーランス','業務効率','社会課題','テクノロジー'];
-  const emojiList = ['💡','🚀','🛠','📱','🤖','💰','🌱','❤️'];
-  const emojiRow = emojiList.map(e => `<div onclick="editSelEmoji(this,'${id}')" data-e="${e}" style="width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:2px solid ${idea.emoji===e?'var(--amber-mid)':'transparent'};background:${idea.emoji===e?'var(--amber-bg)':'var(--surface2)'};font-size:22px;transition:all .1s">${e}</div>`).join('');
-  const genreGrid = genreList.map(g => `<div onclick="editSelGenre(this,'${id}')" style="border:1.5px solid ${idea.genre===g?'var(--amber-mid)':'var(--border2)'};border-radius:var(--r-md);padding:10px 12px;font-size:12px;font-weight:700;color:${idea.genre===g?'var(--amber)':'var(--text2)'};cursor:pointer;text-align:center;background:${idea.genre===g?'var(--amber-bg)':'var(--surface)'};transition:all .15s${g==='起業家・スタートアップ'?';grid-column:1/-1':''}">${g}</div>`).join('');
-  const progressItems = [['0','アイデア段階','基本'],['1','開発中','+10pt'],['2','テスト中','+20pt'],['3','リリース済み','+30pt']];
-  const progressGrid = progressItems.map(([val,label,sub]) => `<div onclick="editSelProgress(this,'${id}','${val}')" style="border:1.5px solid ${idea.progressStep==val?'var(--amber-mid)':'var(--border2)'};background:${idea.progressStep==val?'var(--amber-bg)':'var(--surface)'};border-radius:var(--r-md);padding:10px 12px;cursor:pointer;transition:all .15s"><div style="font-size:12px;font-weight:700;color:${idea.progressStep==val?'var(--amber)':'var(--text2)'}">${label}</div><div style="font-size:10px;color:${idea.progressStep==val?'var(--amber-mid)':'var(--text3)'};margin-top:2px">${sub}</div></div>`).join('');
-  modal.innerHTML = `<div style="background:var(--surface);border-radius:24px 24px 0 0;padding:24px 20px 40px;width:100%;max-width:390px;max-height:90vh;overflow-y:auto"><div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 20px"></div><div style="font-family:var(--mono);font-size:10px;color:var(--amber-mid);letter-spacing:.1em;font-weight:700;margin-bottom:16px">EDIT LISTING</div><div class="field-wrap"><div class="field-lbl">アイコン</div><div style="display:flex;gap:7px;flex-wrap:wrap" id="edit-emoji-row-${id}">${emojiRow}</div></div><div class="field-wrap"><div class="field-lbl">アイデア名 <span class="field-req">必須</span></div><input class="inp" id="edit-title-${id}" value="${idea.name}" maxlength="40"></div><div class="field-wrap"><div class="field-lbl">ジャンル <span class="field-req">必須</span></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="edit-genre-grid-${id}">${genreGrid}</div></div><div class="field-wrap"><div class="field-lbl">ティッカー</div><input class="inp inp-sm" id="edit-ticker-${id}" value="${idea.ticker||''}" maxlength="5" style="text-transform:uppercase"></div><div class="field-wrap"><div class="field-lbl">説明</div><textarea class="inp inp-sm" id="edit-desc-${id}" rows="3">${idea.desc||''}</textarea></div><div class="field-wrap"><div class="field-lbl">作る技術</div><input class="inp inp-sm" id="edit-tech-${id}" value="${idea.tech||''}" placeholder="例：React Native、Python"></div><div class="field-wrap"><div class="field-lbl">進捗ステータス</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="edit-progress-grid-${id}">${progressGrid}</div></div><button onclick="saveEditIdea('${id}')" style="width:100%;padding:15px;background:var(--amber-mid);border:none;border-radius:var(--r-lg);font-size:15px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans);margin-top:4px">保存する</button><button onclick="document.getElementById('edit-modal').remove()" style="width:100%;padding:12px;background:transparent;border:none;font-size:14px;color:var(--text3);cursor:pointer;font-family:var(--sans);margin-top:4px">キャンセル</button></div>`;
-  document.body.appendChild(modal); modal.addEventListener('click', e => { if(e.target===modal) modal.remove(); });
-}
-
-function editSelEmoji(el, id) { const row = document.getElementById('edit-emoji-row-'+id); if (!row) return; row.querySelectorAll('[data-e]').forEach(x => { x.style.border = '2px solid transparent'; x.style.background = 'var(--surface2)'; }); el.style.border = '2px solid var(--amber-mid)'; el.style.background = 'var(--amber-bg)'; }
-function editSelGenre(el, id) { const grid = document.getElementById('edit-genre-grid-'+id); if (!grid) return; grid.querySelectorAll('div').forEach(x => { x.style.borderColor = 'var(--border2)'; x.style.color = 'var(--text2)'; x.style.background = 'var(--surface)'; }); el.style.borderColor = 'var(--amber-mid)'; el.style.color = 'var(--amber)'; el.style.background = 'var(--amber-bg)'; }
-function editSelProgress(el, id, val) { const grid = document.getElementById('edit-progress-grid-'+id); if (!grid) return; grid.querySelectorAll('div').forEach(x => { x.style.borderColor = 'var(--border2)'; x.style.background = 'var(--surface)'; x.querySelector('div').style.color = 'var(--text2)'; x.querySelectorAll('div')[1].style.color = 'var(--text3)'; }); el.style.borderColor = 'var(--amber-mid)'; el.style.background = 'var(--amber-bg)'; el.querySelector('div').style.color = 'var(--amber)'; el.querySelectorAll('div')[1].style.color = 'var(--amber-mid)'; }
-
-async function saveEditIdea(id) {
-  const idea = ideas.find(i=>i.id===id); if (!idea) return;
-  const emojiRow = document.getElementById('edit-emoji-row-'+id); const selectedEmoji = emojiRow?.querySelector('[style*="var(--amber-mid)"]')?.dataset?.e || idea.emoji;
-  const genreGrid = document.getElementById('edit-genre-grid-'+id); const selectedGenre = genreGrid?.querySelector('[style*="var(--amber-mid)"]')?.textContent?.trim() || idea.genre;
-  const progressGrid = document.getElementById('edit-progress-grid-'+id); const progressDivs = progressGrid?.querySelectorAll('div'); let selectedProgress = idea.progressStep;
-  if (progressDivs) { progressDivs.forEach((div, i) => { if (div.style.borderColor === 'var(--amber-mid)' || div.style.background === 'var(--amber-bg)') { selectedProgress = i; } }); }
-  const newName = document.getElementById('edit-title-'+id)?.value?.trim() || idea.name; const newDesc = document.getElementById('edit-desc-'+id)?.value?.trim() || ''; const newTech = document.getElementById('edit-tech-'+id)?.value?.trim() || ''; const rawTicker = document.getElementById('edit-ticker-'+id)?.value?.trim().toUpperCase(); const newTicker = rawTicker || idea.ticker;
-  idea.name = newName; idea.desc = newDesc; idea.tech = newTech; idea.ticker = newTicker; idea.emoji = selectedEmoji; idea.genre = selectedGenre; idea.progressStep = selectedProgress; idea.progress = selectedProgress; idea.score = calcScore(idea);
-  await sb.from('ideas').update({ name: newName, description: newDesc, tech: newTech, ticker: newTicker, emoji: selectedEmoji, genre: selectedGenre, progress_step: selectedProgress, updated_at: new Date() }).eq('id', id);
-  document.getElementById('edit-modal')?.remove(); showToast('更新しました'); renderPortfolio(); renderFeed();
-}
-
-function confirmDeleteIdea(id) {
-  const idea = ideas.find(i=>i.id===id); if (!idea) return;
-  const modal = document.createElement('div'); modal.id = 'delete-modal'; modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px';
-  modal.innerHTML = `<div style="background:var(--surface);border-radius:20px;padding:24px;width:100%;max-width:320px;text-align:center"><div style="font-size:32px;margin-bottom:12px">🗑</div><div style="font-size:15px;font-weight:700;margin-bottom:8px">このアイデアを削除しますか？</div><div style="font-size:13px;color:var(--text3);margin-bottom:20px">"${idea.name}"<br>削除するともとに戻せません。</div><button onclick="doDeleteIdea('${id}')" style="width:100%;padding:13px;background:var(--red);border:none;border-radius:var(--r-md);font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans);margin-bottom:8px">削除する</button><button onclick="document.getElementById('delete-modal').remove()" style="width:100%;padding:13px;background:transparent;border:none;font-size:14px;color:var(--text3);cursor:pointer;font-family:var(--sans)">キャンセル</button></div>`;
-  document.body.appendChild(modal);
-}
-
-async function doDeleteIdea(id) {
-  const idx = ideas.findIndex(i=>i.id===id); if (idx !== -1) ideas.splice(idx, 1); myIdeas.delete(id);
-  await sb.from('ideas').delete().eq('id', id); document.getElementById('delete-modal')?.remove(); renderPortfolio(); showToast('削除しました');
-}
-
-function showEditUsername() {
-  const modal = document.createElement('div'); modal.id = 'username-modal'; modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px';
-  modal.innerHTML = `<div style="background:var(--surface);border-radius:20px;padding:24px;width:100%;max-width:320px"><div style="font-size:16px;font-weight:700;margin-bottom:4px">名前を編集</div><div style="font-size:12px;color:var(--text3);margin-bottom:16px">あいぽ内での表示名です</div><input class="inp" id="username-inp" placeholder="ユーザー名" maxlength="20" value="${currentUser?.x_username||''}"><button onclick="saveUsername()" style="width:100%;padding:13px;background:var(--amber-mid);border:none;border-radius:var(--r-md);font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans);margin-top:12px">保存する</button><button onclick="document.getElementById('username-modal').remove()" style="width:100%;padding:11px;background:transparent;border:none;font-size:13px;color:var(--text3);cursor:pointer;font-family:var(--sans);margin-top:4px">キャンセル</button></div>`;
-  document.body.appendChild(modal);
-}
-
-async function saveUsername() {
-  const val = document.getElementById('username-inp')?.value?.trim(); if (!val) return;
-  if (currentUser) { currentUser.x_username = val; await sb.from('profiles').upsert({ id: currentUser.id, x_username: val }); }
-  document.getElementById('username-modal')?.remove(); renderPortfolio(); showToast('名前を更新しました');
-}
-
-async function doLogin() { const { error } = await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin, queryParams: { prompt: 'select_account' } } }); if (error) showToast('ログインに失敗しました'); }
-async function doLogout() { await sb.auth.signOut(); currentUser = null; isPro = false; votesLeft = 3; myIdeas.clear(); votedIds.clear(); showToast('ログアウトしました'); }
-
-let guideStep = 0;
-const GUIDE_TOTAL = 6;
-
-function guideNext() {
-  const nextBtn = document.getElementById('guide-next-btn');
-  if (guideStep >= GUIDE_TOTAL - 1) { guideFinish(); return; }
-  const cur = document.getElementById('gs-' + guideStep); if (cur) { cur.classList.add('exit'); setTimeout(()=>cur.classList.remove('active','exit'), 400); }
-  guideStep++; const next = document.getElementById('gs-' + guideStep); if (next) next.classList.add('active');
-  document.querySelectorAll('.guide-dot').forEach((d, i) => d.classList.toggle('active', i === guideStep));
-  if (guideStep === GUIDE_TOTAL - 1) nextBtn.textContent = 'はじめる →';
-}
-
-function guideFinish() {
-  localStorage.setItem('guide-done', '1'); const gs = document.getElementById('guide-screen');
-  if (gs) { gs.style.opacity = '0'; gs.style.transition = 'opacity .3s'; setTimeout(() => gs.style.display = 'none', 300); }
-}
-
-function startRealtime() {
-  sb.channel('public-updates')
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'ideas' }, (payload) => { const newIdea = payload.new; if (newIdea.user_id === currentUser?.id) return; showIPOBanner(newIdea); })
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'comments' }, async (payload) => {
-      const c = payload.new; const idea = ideas.find(i=>i.id===c.idea_id); if (!idea) return;
-      if (c.user_id === currentUser?.id) return;
-      const { data } = await sb.from('profiles').select('x_username').eq('id', c.user_id).single();
-      idea.commentList.unshift({ name:'@'+(data?.x_username||'ユーザー'), text:c.text, time:'たった今', tag: null }); idea.score = calcScore(idea);
-      if (document.getElementById('screen-detail').classList.contains('active')) { const list = document.getElementById('comment-list-'+c.idea_id); if (list) { list.innerHTML = `<div style="padding:10px 0;border-bottom:0.5px solid var(--border);animation:fu .5s ease-out"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px"><div style="display:flex;align-items:center;gap:6px"><span style="font-size:12px;font-weight:700;color:var(--text)">@${data?.x_username||'ユーザー'}</span></div><span style="font-size:10px;color:var(--text3)">たった今</span></div><div style="font-size:13px;color:var(--text);line-height:1.6">${c.text}</div></div>` + list.innerHTML; } }
-    })
-    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'ideas' }, (payload) => {
-      const updated = payload.new; const idea = ideas.find(i=>i.id===updated.id); if (!idea) return;
-      const prevScore = idea.score; idea.votes = updated.votes; idea.score = parseFloat(updated.score) || calcScore(idea); idea.history = [...idea.history.slice(-11), idea.score]; idea.lastDelta = idea.score - prevScore; idea.lastReason = idea.lastDelta > 0 ? 'リアルタイム更新で上昇' : '最新データに更新されました';
-      const row = document.getElementById('row-'+updated.id); if (row) { row.classList.remove('flash-up','flash-dn'); void row.offsetWidth; row.classList.add(idea.lastDelta>=0?'flash-up':'flash-dn'); }
-      if (document.getElementById('screen-feed').classList.contains('active')) requestAnimationFrame(renderFeed);
-    })
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'hiroba_voices' }, (payload) => {
-      const v = payload.new;
-      if (v.is_announcement || v.user_id === '7f3162ec-c281-435f-8e8e-3b6d65b8b1c9') { showAdminNotice(v.text); }
-      if (document.getElementById('screen-hiroba')?.classList.contains('active')) { loadHirobaList(); }
-    })
-    .subscribe();
-}
-
-function showAdminNotice(text) {
-  const el = document.createElement('div');
-  el.style.cssText = 'position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--amber-mid);color:#fff;font-size:12px;font-weight:700;padding:10px 20px;border-radius:100px;z-index:700;max-width:320px;text-align:center;line-height:1.5;box-shadow:0 4px 16px rgba(232,133,10,.4)';
-  el.textContent = '📢 運営より: ' + text.slice(0, 50) + (text.length > 50 ? '...' : '');
-  document.body.appendChild(el);
-  setTimeout(() => { el.style.transition = 'opacity .5s'; el.style.opacity = '0'; setTimeout(() => el.remove(), 500); }, 5000);
-}
-
-function buildCertHTML(idea, votesAtTime) {
-  const today = new Date(); const dateStr = today.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }); const timeStr = today.toLocaleTimeString('ja-JP', { hour:'2-digit', minute:'2-digit' });
+function showCertificate(idea, votesAtTime) {
+  document.getElementById('cert-modal-overlay')?.remove();
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  const timeStr = today.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
   const serial = 'AI-' + String(today.getMonth()+1).padStart(2,'0') + String(today.getDate()).padStart(2,'0');
   const userName = currentUser?.x_username ? '@' + currentUser.x_username : '@ユーザー';
-  const voteLabel = (votesAtTime + 1) + '票目'; const ideaName = idea.name.length > 16 ? idea.name.slice(0, 16) + '…' : idea.name;
   const isEarly = votesAtTime < 5;
-  const earlyBadge = isEarly ? `<div style="display:inline-flex;align-items:center;gap:4px;background:#fef9f0;border:1.5px solid #e8c84a;border-radius:20px;padding:3px 10px;margin-bottom:10px"><div style="width:5px;height:5px;border-radius:50%;background:#d97706"></div><span style="font-family:var(--mono);font-size:8px;color:#854f0b;font-weight:700;letter-spacing:.08em">EARLY INVESTOR</span></div>` : '';
-  return `<div class="cert-left"><div class="cert-brand" style="display:none"></div>${earlyBadge}<div class="cert-divider"><div class="cert-divider-line"></div><span class="cert-divider-txt">INVESTMENT CERTIFICATE</span><div class="cert-divider-line"></div></div><div style="display:grid;grid-template-columns:auto 1fr;gap:10px;margin-bottom:10px"><div><div class="cert-field-lbl">DATE</div><div class="cert-field-val" style="font-size:11px">${dateStr}</div><div style="font-family:var(--mono);font-size:9px;color:#a09080">${timeStr}</div></div><div><div class="cert-field-lbl">IDEA</div><div class="cert-field-val">${ideaName}</div></div></div><div style="display:flex;align-items:flex-start;gap:6px;flex-wrap:wrap"><div><div class="cert-field-lbl">TICKER</div><div class="cert-mono">${idea.ticker}</div></div><div style="width:.5px;height:28px;background:#d4c9b8;margin-top:10px"></div><div><div class="cert-field-lbl">HOLDER</div><div class="cert-mono">${userName}</div></div><div style="width:.5px;height:28px;background:#d4c9b8;margin-top:10px"></div><div><div class="cert-field-lbl">VOTES AT TIME</div><div class="cert-mono">${voteLabel}</div></div></div></div><div class="cert-right"><div style="text-align:center"><div style="font-family:var(--mono);font-size:7px;color:#a09080;letter-spacing:.08em;margin-bottom:4px">SERIAL</div><div style="font-family:var(--mono);font-size:9px;color:#1a1400;background:#e5ddd0;border-radius:3px;padding:2px 6px;letter-spacing:.03em">${serial}</div></div><div class="cert-stamp"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#c0392b" stroke-width="2" stroke-linecap="round"/></svg><span class="cert-stamp-txt">DONE</span></div><div style="text-align:center"><div style="display:flex;gap:1.5px;align-items:flex-end;margin-bottom:3px"><div style="width:2px;height:26px;background:#1a1400;border-radius:.5px"></div><div style="width:1px;height:22px;background:#1a1400;border-radius:.5px"></div><div style="width:3px;height:26px;background:#1a1400;border-radius:.5px"></div><div style="width:1px;height:18px;background:#1a1400;border-radius:.5px"></div><div style="width:2px;height:26px;background:#1a1400;border-radius:.5px"></div></div><div style="font-family:var(--mono);font-size:7px;color:#a09080;letter-spacing:.08em">あいぽ</div></div></div>`;
-}
-
-function showCertificate(idea, votesAtTime) {
-  const existing = document.getElementById('cert-modal'); if (existing) existing.remove();
-  const overlay = document.createElement('div'); overlay.id = 'cert-modal'; overlay.className = 'cert-modal-overlay';
-  overlay.innerHTML = `<div class="cert-modal-box"><div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px"></div><div style="font-size:14px;font-weight:700;text-align:center;margin-bottom:4px;color:var(--text)">株券が発行されました</div><div style="font-size:11px;color:var(--text3);text-align:center;margin-bottom:14px">応援の証として保存・シェアできます</div><div class="cert-wrap" id="cert-inner">${buildCertHTML(idea, votesAtTime)}</div><button class="cert-share-btn" id="cert-share-btn" onclick="openShareSheet('${idea.id}')"><svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M2 2l7.5 8.5L2 18h2l6.3-7.1L16 18h4L12 9.2 18.5 2h-2L10.6 8.6 5 2H2z"/></svg>Xでシェアする</button><button class="cert-close-btn" onclick="document.getElementById('cert-modal').remove()">閉じる</button></div>`;
+  const nameShort = idea.name.length > 18 ? idea.name.slice(0,18)+'…' : idea.name;
+  const voteLabel = (votesAtTime+1)+'票目';
+  const overlay = document.createElement('div');
+  overlay.className = 'cert-modal-overlay';
+  overlay.id = 'cert-modal-overlay';
+  overlay.onclick = e => { if(e.target===overlay) overlay.remove(); };
+  overlay.innerHTML = `
+    <div class="cert-modal-box">
+      <div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 20px"></div>
+      <div style="font-size:16px;font-weight:700;text-align:center;margin-bottom:4px;letter-spacing:-.02em">株券を受け取りました</div>
+      <div style="font-size:12px;color:var(--text3);text-align:center;margin-bottom:18px">図鑑に保存されます</div>
+      <div class="cert-wrap" id="cert-display">
+        <div class="cert-notch-t"></div><div class="cert-notch-b"></div>
+        <div class="cert-left">
+          <div class="cert-brand"><div class="cert-brand-ico"><svg width="12" height="12" viewBox="0 0 20 20" fill="none"><polyline points="3,13 7,8 10,11 14,5 17,2" stroke="#f5d68a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="17" cy="2" r="2.5" fill="#f5d68a"/></svg></div><span class="cert-brand-name">AIPO</span></div>
+          <div class="cert-divider"><div class="cert-divider-line"></div><span class="cert-divider-txt">INVESTMENT CERTIFICATE</span><div class="cert-divider-line"></div></div>
+          ${isEarly ? '<div class="cert-early"><div class="cert-early-dot"></div><span class="cert-early-txt">EARLY INVESTOR</span></div>' : ''}
+          <div style="margin:12px 0 12px"><div class="cert-field-lbl">IDEA</div><div class="cert-field-val">${nameShort}</div></div>
+          <div style="display:flex;gap:16px;margin-bottom:12px">
+            <div><div class="cert-field-lbl">TICKER</div><div class="cert-mono">${idea.ticker}</div></div>
+            <div><div class="cert-field-lbl">SCORE</div><div class="cert-mono" style="color:#1a7a4a">${parseFloat(idea.score||50).toFixed(1)}</div></div>
+            <div><div class="cert-field-lbl">VOTES AT TIME</div><div class="cert-mono">${voteLabel}</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">${buildAvatars(idea.id)}</div>
+          <div style="display:flex;gap:16px"><div><div class="cert-field-lbl">DATE</div><div class="cert-mono" style="font-size:9px">${dateStr} ${timeStr}</div></div><div><div class="cert-field-lbl">HOLDER</div><div class="cert-mono" style="font-size:9px">${userName}</div></div></div>
+        </div>
+        <div class="cert-right">
+          <div style="text-align:center"><div class="cert-field-lbl" style="text-align:center;margin-bottom:5px">SERIAL</div><div style="font-family:var(--mono);font-size:9px;font-weight:600;color:#1a1400;background:#ddd8ce;border-radius:4px;padding:3px 7px">${serial}</div></div>
+          <div class="cert-stamp"><svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#c0392b" stroke-width="2.2" stroke-linecap="round"/></svg><span class="cert-stamp-txt">INVESTED</span></div>
+          <div style="font-family:var(--mono);font-size:8px;color:#a09080;letter-spacing:.06em">あいぽ</div>
+        </div>
+      </div>
+      <button class="cert-share-btn" onclick="openShareSheetCert('${idea.id}','${idea.name.replace(/'/g,"\\'")}','${idea.ticker}')"><svg width="14" height="14" viewBox="0 0 20 20" fill="#fff"><path d="M2 2l7.5 8.5L2 18h2l6.3-7.1L16 18h4L12 9.2 18.5 2h-2L10.6 8.6 5 2H2z"/></svg>Xでシェアする</button>
+      <button class="cert-close-btn" onclick="document.getElementById('cert-modal-overlay').remove()">閉じる</button>
+    </div>`;
   document.body.appendChild(overlay);
-  _lastCertHTML = buildCertHTML(idea, votesAtTime);
-  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
-}
-
-async function shareCertificate(ideaId, encodedName, ticker) {
-  const btn = document.getElementById('cert-share-btn'); if (btn) { btn.innerHTML = '生成中...'; btn.disabled = true; }
-  try {
-    const ideaName = decodeURIComponent(encodedName);
-    let certHTML = _lastCertHTML;
-    if (!certHTML) { const idea = ideas.find(i => i.id === ideaId); if (idea) certHTML = buildCertHTML(idea, idea.votes || 0); }
-    if (!certHTML) { showToast('株券データがありません'); if(btn){btn.innerHTML='Xでシェアする';btn.disabled=false;} return; }
-    const wrap = document.createElement('div');
-    wrap.className = 'cert-wrap';
-    wrap.style.cssText = ['position:fixed','left:-9999px','top:0','z-index:-1','width:580px','background:#f5f1ea','border-radius:12px','border:1px solid #e0d8cc','display:flex','overflow:visible','margin:0'].join(';');
-    wrap.innerHTML = certHTML;
-    document.body.appendChild(wrap);
-    await new Promise(r => setTimeout(r, 250));
-    const certCanvas = await html2canvas(wrap, { scale: 3, backgroundColor: '#f5f1ea', useCORS: true, allowTaint: true, logging: false, windowWidth: 700 });
-    document.body.removeChild(wrap);
-    const PAD = 72, FOOT = 56, BG = '#ede8df';
-    const fw = certCanvas.width + PAD * 2, fh = certCanvas.height + PAD * 2 + FOOT;
-    const final = document.createElement('canvas');
-    final.width = fw; final.height = fh;
-    const ctx = final.getContext('2d');
-    ctx.fillStyle = BG; ctx.fillRect(0, 0, fw, fh);
-    ctx.shadowColor = 'rgba(0,0,0,0.14)'; ctx.shadowBlur = 40; ctx.shadowOffsetY = 10;
-    ctx.drawImage(certCanvas, PAD, PAD);
-    ctx.shadowColor = 'transparent';
-    ctx.fillStyle = 'rgba(26,20,0,0.28)'; ctx.font = '500 24px DM Mono,monospace'; ctx.textAlign = 'center';
-    ctx.fillText('AIPO — IDEA IPO MARKET  ·  aipo-tau.vercel.app', fw / 2, PAD * 2 + certCanvas.height + 28);
-    const shareUrl = 'https://aipo-tau.vercel.app/api/share?id=' + ideaId;
-    const tweetText = encodeURIComponent('「' + ideaName + '」に早期投資しました\n\nあいぽで株券をもらいました👇\n' + shareUrl + '\n\n#あいぽ #アイデアIPO');
-    const xUrl = 'https://twitter.com/intent/tweet?text=' + tweetText;
-    final.toBlob(async (blob) => {
-      const file = new File([blob], 'aipo-certificate-' + ticker + '.png', { type:'image/png' });
-      if (navigator.canShare && navigator.canShare({ files:[file] })) {
-        try { await navigator.share({ files:[file], title:'あいぽ株券', text:'「' + ideaName + '」に早期投資しました #あいぽ' }); setTimeout(() => window.open(xUrl, '_blank'), 800); return; }
-        catch(e) { if (e.name === 'AbortError') return; }
-      }
-      const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.download = 'aipo-certificate-' + ticker + '.png'; a.href = url;
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      setTimeout(() => { URL.revokeObjectURL(url); window.open(xUrl, '_blank'); }, 500);
-    }, 'image/png');
-  } catch(e) { console.error(e); showToast('画像生成に失敗しました: ' + e.message); }
-  finally { if (btn) { btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M2 2l7.5 8.5L2 18h2l6.3-7.1L16 18h4L12 9.2 18.5 2h-2L10.6 8.6 5 2H2z"/></svg> Xでシェアする'; btn.disabled = false; } }
-}
-
-const COLL_KEY = 'aipo-certificates';
-let _lastCertHTML = '';
-
-function cleanupDuplicateCerts() {
-  try {
-    const all = JSON.parse(localStorage.getItem('aipo-certificates') || '[]');
-    const seen = new Set();
-    const cleaned = all.filter(c => { const key = c.ideaId || c.id; if (!key || seen.has(key)) return false; seen.add(key); return true; });
-    if (cleaned.length !== all.length) localStorage.setItem('aipo-certificates', JSON.stringify(cleaned));
-  } catch(e) {}
 }
 
 function loadCerts() {
-  try {
-    const all = JSON.parse(localStorage.getItem(COLL_KEY) || '[]');
-    const seen = new Set();
-    const deduped = all.filter(c => { const key = c.ideaId || c.id; if (seen.has(key)) return false; seen.add(key); return true; });
-    if (deduped.length !== all.length) localStorage.setItem(COLL_KEY, JSON.stringify(deduped));
-    return deduped;
-  } catch(e) { return []; }
+  try { return JSON.parse(localStorage.getItem('aipo-certificates') || '[]'); } catch { return []; }
 }
 
-async function syncCertsFromCloud() {
-  if (!currentUser?.id) return;
-  try {
-    const { data } = await sb.from('user_certificates').select('cert_data').eq('user_id', currentUser.id);
-    if (!data || data.length === 0) return;
-    const cloudCerts = data.map(r => { try { return JSON.parse(r.cert_data); } catch { return null; } }).filter(Boolean);
-    const local = loadCerts();
-    const localIds = new Set(local.map(c => c.ideaId));
-    let changed = false;
-    cloudCerts.forEach(c => { if (!localIds.has(c.ideaId)) { local.push(c); changed = true; } });
-    if (changed) { local.sort((a,b) => (b.id > a.id ? 1 : -1)); localStorage.setItem(COLL_KEY, JSON.stringify(local)); renderCertCollection(); }
-  } catch(e) { console.error('syncCerts error:', e); }
-}
-
-async function saveCertToCollection(idea, votesAtTime) {
-  try {
-    const certs = loadCerts(); if (certs.find(c => c.ideaId === idea.id)) return;
-    const today = new Date();
-    const cert = { id: idea.id + '-' + Date.now(), ideaId: idea.id, ticker: idea.ticker || 'IDEA', name: idea.name || '', votesAtTime: votesAtTime + 1, score: idea.score || 50, date: today.toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'}), time: today.toLocaleTimeString('ja-JP', {hour:'2-digit',minute:'2-digit'}), serial: 'AI-' + String(today.getMonth()+1).padStart(2,'0') + String(today.getDate()).padStart(2,'0'), holder: (currentUser && currentUser.x_username) ? currentUser.x_username : 'user', isEarly: (votesAtTime + 1) <= 5, isFirst: votesAtTime === 0 };
-    certs.unshift(cert);
-    localStorage.setItem(COLL_KEY, JSON.stringify(certs));
-    if (currentUser?.id) { await sb.from('user_certificates').upsert({ user_id: currentUser.id, idea_id: idea.id, cert_data: JSON.stringify(cert) }, { onConflict: 'user_id,idea_id' }).catch(()=>{}); }
-  } catch(e) { console.error('saveCert error:', e); }
+function saveCertToCollection(idea, votesAtTime) {
+  if (!idea) return;
+  const certs = loadCerts();
+  if (certs.find(c => c.ideaId === idea.id)) return;
+  const today = new Date();
+  const cert = {
+    ideaId: idea.id, ticker: idea.ticker, ideaName: idea.name, score: idea.score, emoji: idea.emoji || '💡',
+    votesAtTime, dateStr: today.toLocaleDateString('ja-JP',{year:'numeric',month:'2-digit',day:'2-digit'}),
+    timeStr: today.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}),
+    isEarly: votesAtTime < 5, serial: 'AI-' + String(today.getMonth()+1).padStart(2,'0') + String(today.getDate()).padStart(2,'0'),
+  };
+  certs.push(cert);
+  localStorage.setItem('aipo-certificates', JSON.stringify(certs));
 }
 
 function renderCertCollection() {
-  const el = document.getElementById('cert-collection-section'); if (!el) return;
-  const certs = loadCerts(); const pinnedId = localStorage.getItem('aipo-pinned-cert');
-  const featured = certs.find(c => c.id === pinnedId) || certs[0] || null;
-  if (certs.length === 0) { el.innerHTML = `<div style="background:var(--surface);border-radius:var(--r-xl);padding:20px;text-align:center;margin-bottom:12px;border:1px solid var(--border)"><div style="font-size:28px;margin-bottom:8px">🎫</div><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">まだ株券がありません</div><div style="font-size:11px;color:var(--text3);line-height:1.65">マーケットでアイデアを応援すると<br>株券が発行されます</div></div>`; return; }
-  const c = featured;
-  const earlyStripe = c.isEarly ? `<div style="position:absolute;top:0;left:0;right:0;height:4px;border-radius:18px 18px 0 0" class="gold-shimmer-line"></div>` : '';
-  const earlyBadge = c.isEarly ? `<div style="display:inline-flex;align-items:center;gap:3px;background:#fef9f0;border:1px solid #fde68a;border-radius:20px;padding:2px 8px;margin-bottom:7px"><div style="width:3px;height:3px;border-radius:50%;background:#d97706"></div><span style="font-family:var(--mono);font-size:7px;color:#854f0b;font-weight:700;letter-spacing:.05em">EARLY INVESTOR</span></div>` : '';
-  el.innerHTML = `<div style="margin-bottom:12px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.07em">株券</div><div style="font-size:10px;color:var(--amber-mid);font-family:var(--mono)">${certs.length}枚所持</div></div><div onclick="openZukanBook()" style="cursor:pointer;position:relative;background:${c.isEarly?'#fffdf5':'#faf8f4'};border:1px solid ${c.isEarly?'#f0d080':'#e0d8cc'};border-radius:18px;overflow:hidden;display:flex;box-shadow:0 2px 10px rgba(0,0,0,.07)" onmousedown="this.style.transform='scale(.98)'" onmouseup="this.style.transform='scale(1)'">${earlyStripe}<div style="flex:1;padding:${c.isEarly?'16px':'13px'} 13px 13px 16px">${earlyBadge}<div style="font-family:var(--mono);font-size:7px;color:#a09080;letter-spacing:.1em;margin-bottom:4px">INVESTMENT CERTIFICATE</div><div style="font-size:15px;font-weight:700;color:#1a1400;line-height:1.35;margin-bottom:10px">${c.name.length>22?c.name.slice(0,22)+'…':c.name}</div><div style="display:flex;gap:16px;margin-bottom:7px"><div><div style="font-family:var(--mono);font-size:7px;color:#a09080;margin-bottom:2px">TICKER</div><div style="font-family:var(--mono);font-size:13px;font-weight:700;color:#1a1400">${c.ticker}</div></div><div><div style="font-family:var(--mono);font-size:7px;color:#a09080;margin-bottom:2px">VOTES AT TIME</div><div style="font-family:var(--mono);font-size:13px;font-weight:700;color:#1a1400">${c.votesAtTime}票目</div></div></div><div style="font-family:var(--mono);font-size:8px;color:#a09080">${c.date}</div></div><div style="width:72px;flex-shrink:0;border-left:2px dashed #d4c9b8;background:#ede9e0;border-radius:0 18px 18px 0;display:flex;flex-direction:column;align-items:center;justify-content:space-around;padding:14px 0"><div style="font-family:var(--mono);font-size:7px;color:#a09080;text-align:center;letter-spacing:.04em">SERIAL<br>${c.serial}</div><div style="width:42px;height:42px;border-radius:50%;border:2px solid #c0392b;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;background:#fff"><svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#c0392b" stroke-width="2" stroke-linecap="round"/></svg><span style="font-family:var(--mono);font-size:6px;color:#c0392b;letter-spacing:.04em">DONE</span></div><div style="font-family:var(--mono);font-size:7px;color:#a09080">あいぽ</div></div></div><div style="display:flex;align-items:center;justify-content:center;margin-top:8px;gap:4px;cursor:pointer" onclick="openZukanBook()"><svg width="10" height="10" viewBox="0 0 20 20" fill="none" stroke="var(--text3)" stroke-width="2"><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="11" y="3" width="6" height="6" rx="1"/><rect x="3" y="11" width="6" height="6" rx="1"/><rect x="11" y="11" width="6" height="6" rx="1"/></svg><div style="font-size:10px;color:var(--text3)">図鑑を開く</div></div></div>`;
+  const certs = loadCerts(); if (!certs.length) { document.getElementById('cert-collection-section').innerHTML = ''; return; }
+  const section = document.getElementById('cert-collection-section');
+  const ideas_map = Object.fromEntries(ideas.map(i => [i.id, i]));
+  section.innerHTML = `
+    <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.07em;margin-bottom:10px">株券コレクション（${certs.length}枚）</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+      ${certs.slice().reverse().map(c => {
+        const idea = ideas_map[c.ideaId];
+        const currentScore = idea ? parseFloat(idea.score||50).toFixed(1) : parseFloat(c.score||50).toFixed(1);
+        const nameShort = (c.ideaName||'').length > 12 ? (c.ideaName||'').slice(0,12)+'…' : (c.ideaName||'');
+        const isHot = (idea?.votes || 0) >= HOT_THRESHOLD;
+        return `<div onclick="showZukan('${c.ideaId}')" style="background:#faf8f4;border:1px solid #e0d8cc;border-radius:12px;padding:12px;cursor:pointer;transition:all .2s;position:relative;overflow:visible;${c.isEarly?'border-color:#f5d68a;background:#fffdf5':''}">
+          ${isHot ? '<div style="position:absolute;top:-4px;right:8px;font-size:8px;font-weight:700;color:var(--amber);background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:20px;padding:2px 6px">注目</div>' : ''}
+          ${c.isEarly ? '<div style="position:absolute;top:-4px;right:8px;font-size:8px;font-weight:700;color:#854f0b;background:#fef9f0;border:1px solid #fde68a;border-radius:20px;padding:2px 6px">早期</div>' : ''}
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <div style="font-family:var(--mono);font-size:8px;color:#a09080;letter-spacing:.06em">AIPO</div>
+            <div style="font-family:var(--mono);font-size:8px;color:#a09080">${c.serial||'AI-0000'}</div>
+          </div>
+          <div style="margin-bottom:8px">
+            <div style="font-family:var(--mono);font-size:7px;color:#a09080;margin-bottom:2px">IDEA</div>
+            <div style="font-size:11px;font-weight:700;color:#1a1400;line-height:1.3">${nameShort}</div>
+          </div>
+          <div style="display:flex;gap:10px;margin-bottom:8px">
+            <div><div style="font-family:var(--mono);font-size:7px;color:#a09080">TICKER</div><div style="font-family:var(--mono);font-size:11px;font-weight:700;color:#1a1400">${c.ticker}</div></div>
+            <div><div style="font-family:var(--mono);font-size:7px;color:#a09080">SCORE</div><div style="font-family:var(--mono);font-size:11px;font-weight:700;color:#1a7a4a">${currentScore}</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:5px;padding:4px 8px;background:#e8e3d8;border-radius:4px">
+            <div style="width:12px;height:12px;border-radius:50%;border:1.5px solid #c0392b;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="7" height="7" viewBox="0 0 20 20" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#c0392b" stroke-width="2.5" stroke-linecap="round"/></svg>
+            </div>
+            <div style="font-family:monospace;font-size:7px;color:#a09080;letter-spacing:.04em">INVESTED · ${(c.votesAtTime+1)}票目</div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
 }
 
-function openZukanBook() {
-  const certs = loadCerts();
-  const TOTAL = 32;
-  const slots = Array.from({length:TOTAL}, (_,i) => i < certs.length ? certs[i] : null);
-  const pinnedId = localStorage.getItem('aipo-pinned-cert');
-  let currentPage = 0;
-  const totalPages = Math.ceil(TOTAL / 5);
-
-  function slotHTML(cert, idx) {
-    if (cert) {
-      const isPinned = cert.id === pinnedId || (!pinnedId && idx === 0);
-      const earlyBar = cert.isEarly ? '<div style="position:absolute;top:0;left:0;right:0;height:2px;border-radius:10px 10px 0 0" class="gold-shimmer-line"></div>' : '';
-      const earlyBadge = cert.isEarly ? '<div style="display:inline-flex;align-items:center;gap:2px;background:#fef9f0;border:1px solid #fde68a;border-radius:20px;padding:1px 5px;margin-bottom:3px"><div style="width:3px;height:3px;border-radius:50%;background:#d97706"></div><span style="font-family:var(--mono);font-size:5px;color:#854f0b;font-weight:700;letter-spacing:.05em">EARLY INVESTOR</span></div>' : '';
-      const pin = isPinned ? '<div style="position:absolute;top:6px;right:50px;width:6px;height:6px;border-radius:50%;background:var(--amber-mid)"></div>' : '';
-      return '<div onclick="openZukanCert(\'' + cert.id + '\')" style="position:relative;flex-shrink:0;background:' + (cert.isEarly ? '#fffdf5' : '#faf8f4') + ';border:1.5px solid ' + (isPinned ? 'var(--amber-mid)' : cert.isEarly ? '#e8c84a' : '#d4cbbe') + ';border-radius:10px;overflow:hidden;display:flex;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.06)">' + earlyBar + '<div style="flex:1;padding:7px 8px 7px 10px;min-width:0">' + earlyBadge + '<div style="font-family:var(--mono);font-size:5px;color:#a09080;letter-spacing:.06em;margin-bottom:2px">INVESTMENT CERTIFICATE</div><div style="font-size:11px;font-weight:700;color:#1a1400;line-height:1.3;margin-bottom:4px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">' + cert.name + '</div><div style="display:flex;gap:10px;align-items:center"><div><div style="font-family:var(--mono);font-size:5px;color:#a09080">TICKER</div><div style="font-family:var(--mono);font-size:10px;font-weight:700;color:#1a1400">' + cert.ticker + '</div></div><div><div style="font-family:var(--mono);font-size:5px;color:#a09080">VOTES</div><div style="font-family:var(--mono);font-size:10px;font-weight:700;color:#1a1400">' + cert.votesAtTime + '票目</div></div><div style="font-family:var(--mono);font-size:5px;color:#a09080;margin-left:auto">' + cert.date + '</div></div></div><div style="width:44px;flex-shrink:0;border-left:1.5px dashed #d4c9b8;background:#ede9e0;border-radius:0 10px 10px 0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:6px 0"><div style="width:28px;height:28px;border-radius:50%;border:1.5px solid #c0392b;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#fff"><svg width="10" height="10" viewBox="0 0 20 20" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#c0392b" stroke-width="2" stroke-linecap="round"/></svg></div><div style="font-family:var(--mono);font-size:5px;color:#a09080;text-align:center">' + cert.serial + '</div></div>' + pin + '</div>';
-    }
-    const near = idx < certs.length + 3;
-    return '<div style="flex-shrink:0;background:' + (near ? 'rgba(232,133,10,.03)' : 'rgba(0,0,0,.02)') + ';border:1.5px dashed ' + (near ? 'rgba(232,133,10,.2)' : 'rgba(0,0,0,.08)') + ';border-radius:10px;height:58px;display:flex;align-items:center;justify-content:center;gap:6px"><div style="font-size:12px;color:' + (near ? 'rgba(232,133,10,.3)' : 'rgba(0,0,0,.1)') + '">+</div><div style="font-family:var(--mono);font-size:8px;color:' + (near ? 'rgba(232,133,10,.25)' : 'rgba(0,0,0,.07)') + '">' + String(idx+1).padStart(2,'0') + '</div></div>';
-  }
-
-  function renderPage(page) { return slots.slice(page*5, page*5+5).map((c,i) => slotHTML(c, page*5+i)).join(''); }
-  const dotsHTML = Array.from({length:totalPages}, (_,i) => '<div onclick="window._zukanGoPage(' + i + ')" style="width:' + (i===0?'20':'8') + 'px;height:4px;border-radius:2px;background:' + (i===0?'var(--amber-mid)':'rgba(0,0,0,.15)') + ';cursor:pointer;transition:all .3s" id="zdot-' + i + '"></div>').join('');
-
-  const overlay = document.getElementById('zukan-overlay'); if (!overlay) return;
-  overlay.style.display = 'block';
-  overlay.style.cssText = 'display:flex;position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.3);align-items:stretch;justify-content:center';
-  overlay.innerHTML = '<div style="width:100%;max-width:390px;height:100%;display:flex;flex-direction:column;animation:zukanSlideUp .4s cubic-bezier(.16,1,.3,1) both;background:var(--surface);margin:0 auto"><div style="background:var(--surface);padding:12px 14px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0"><div onclick="closeZukanBook()" style="cursor:pointer;color:var(--text2);display:flex;align-items:center"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 5l-5 5 5 5"/></svg></div><div><div style="font-size:15px;font-weight:700;color:var(--text)">株券図鑑</div><div style="font-size:9px;color:var(--text3)">Investment Certificate Book</div></div><div style="margin-left:auto;display:flex;align-items:center;gap:10px"><button onclick="shareZukan()" style="display:flex;align-items:center;gap:5px;background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:5px 12px;cursor:pointer;font-family:var(--sans);font-size:11px;font-weight:700;color:var(--text2)"><svg width="11" height="11" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="17" cy="3" r="2"/><circle cx="17" cy="17" r="2"/><circle cx="3" cy="10" r="2"/><path d="M5 10h9M15.3 4.5l-8.6 4M15.3 15.5l-8.6-4"/></svg>シェア</button><div style="display:flex;align-items:center;gap:4px"><div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--amber-mid)">' + certs.length + '</div><div style="font-size:9px;color:var(--text3)">/ ' + TOTAL + '枚</div></div></div></div><div style="padding:6px 12px;flex-shrink:0"><div style="background:rgba(0,0,0,.07);border-radius:4px;height:3px;overflow:hidden"><div style="background:linear-gradient(90deg,#f5d68a,#e8850a);height:100%;width:' + (certs.length/TOTAL*100).toFixed(1) + '%;border-radius:4px"></div></div><div style="display:flex;justify-content:space-between;margin-top:3px"><div style="font-size:9px;color:var(--text3)" id="zukan-page-label">PAGE 1 / ' + totalPages + '</div><div style="font-family:var(--mono);font-size:9px;color:var(--amber-mid)">' + (certs.length/TOTAL*100).toFixed(1) + '%</div></div></div><div style="flex:1;overflow:hidden;background:#f5f3ee;padding:8px 10px 0;display:flex;flex-direction:column;gap:6px" id="zukan-card-area"></div><div style="flex-shrink:0;padding:8px 16px 16px;background:#f5f3ee;display:flex;align-items:center;justify-content:space-between"><button id="zprev" onclick="window._zukanGoPage(window._zukanPage-1)" style="width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);opacity:0.3"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 5l-5 5 5 5"/></svg></button><div style="display:flex;gap:6px" id="zukan-dots">' + dotsHTML + '</div><button id="znext" onclick="window._zukanGoPage(window._zukanPage+1)" style="width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2)"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 5l5 5-5 5"/></svg></button></div></div>';
-
-  window._zukanPage = 0;
-  function goPage(n) {
-    currentPage = Math.max(0, Math.min(totalPages - 1, n)); window._zukanPage = currentPage;
-    const area = overlay.querySelector('#zukan-card-area'); if (area) area.innerHTML = renderPage(currentPage);
-    const lbl = overlay.querySelector('#zukan-page-label'); if (lbl) lbl.textContent = 'PAGE ' + (currentPage+1) + ' / ' + totalPages;
-    for (let i = 0; i < totalPages; i++) { const d = overlay.querySelector('#zdot-'+i); if (d) { d.style.background = i===currentPage ? 'var(--amber-mid)' : 'rgba(0,0,0,.15)'; d.style.width = i===currentPage ? '20px' : '8px'; } }
-    const prev = overlay.querySelector('#zprev'); const next = overlay.querySelector('#znext');
-    if (prev) prev.style.opacity = currentPage===0 ? '0.3' : '1';
-    if (next) next.style.opacity = currentPage===totalPages-1 ? '0.3' : '1';
-  }
-  window._zukanGoPage = goPage;
-  goPage(0);
-  let sx = 0, sy = 0, sw = false;
-  overlay.addEventListener('touchstart', e => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; sw = true; }, {passive:true});
-  overlay.addEventListener('touchend', e => {
-    if (!sw) return; sw = false;
-    const dx = e.changedTouches[0].clientX - sx; const dy = Math.abs(e.changedTouches[0].clientY - sy);
-    if (Math.abs(dx) > 50 && dy < 100) { if (dx < 0) goPage(currentPage+1); else goPage(currentPage-1); }
-  }, {passive:true});
+function showZukan(ideaId) {
+  const certObj = loadCerts().find(c => c.ideaId === ideaId);
+  if (!certObj) return;
+  const idea = ideas.find(i => i.id === ideaId);
+  const score = idea ? parseFloat(idea.score).toFixed(1) : parseFloat(certObj.score||50).toFixed(1);
+  const delta = idea ? (idea.score - idea.baseScore) : 0;
+  const ds = (delta>=0?'+':'')+delta.toFixed(1);
+  const scoreColor = delta>0.3?'#22a85f':delta<-0.3?'#c0392b':'#1a1400';
+  const percentile = idea ? calcPercentile(idea) : 50;
+  const earnedAt = certObj.isEarly ? '早期投資家' : '一般投資家';
+  const insightRank = getInsightRank(insightScore);
+  const voteLabel = (certObj.votesAtTime+1) + '票目';
+  const nameShort = certObj.ideaName.length > 20 ? certObj.ideaName.slice(0,20)+'…' : certObj.ideaName;
+  const zukanBox = document.createElement('div');
+  zukanBox.style.cssText = 'background:var(--surface);border-radius:24px 24px 0 0;padding:20px 16px 40px;width:100%;max-width:390px;animation:zukanSlideUp .35s cubic-bezier(.16,1,.3,1);max-height:88vh;overflow-y:auto';
+  zukanBox.innerHTML = `
+    <div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px"></div>
+    <div class="zukan-fadeup-1" style="font-size:17px;font-weight:700;text-align:center;margin-bottom:2px">株券図鑑</div>
+    <div class="zukan-fadeup-1" style="font-size:11px;color:var(--text3);text-align:center;margin-bottom:16px">あなたの投資記録</div>
+    <div class="zukan-cert-flip" style="background:#faf8f4;border:2px solid ${certObj.isEarly?'#f5d68a':'#e0d8cc'};border-radius:14px;padding:16px;margin-bottom:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="font-family:var(--mono);font-size:9px;color:#a09080;letter-spacing:.08em">INVESTMENT CERTIFICATE</div>
+        <div style="font-family:var(--mono);font-size:9px;color:#a09080">${certObj.serial||''}</div>
+      </div>
+      ${certObj.isEarly ? '<div style="display:inline-flex;align-items:center;gap:4px;background:#fef9f0;border:1px solid #fde68a;border-radius:20px;padding:2px 8px;margin-bottom:8px"><div style="width:4px;height:4px;border-radius:50%;background:#d97706"></div><span style="font-family:monospace;font-size:7px;color:#854f0b;letter-spacing:.08em;font-weight:700">EARLY INVESTOR</span></div>' : ''}
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px">
+        <div style="flex:1">
+          <div style="font-family:monospace;font-size:7px;color:#a09080;margin-bottom:2px">IDEA</div>
+          <div style="font-size:14px;font-weight:700;color:#1a1400;line-height:1.4">${nameShort}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:monospace;font-size:24px;font-weight:700;color:${scoreColor};line-height:1">${score}</div>
+          <div style="font-family:monospace;font-size:10px;color:${delta>=0?'#22a85f':'#c0392b'};margin-top:1px">${ds}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:14px;margin-bottom:10px">
+        <div><div style="font-family:monospace;font-size:7px;color:#a09080;margin-bottom:2px">TICKER</div><div style="font-family:monospace;font-size:12px;font-weight:700;color:#1a1400">${certObj.ticker}</div></div>
+        <div><div style="font-family:monospace;font-size:7px;color:#a09080;margin-bottom:2px">VOTES AT TIME</div><div style="font-family:monospace;font-size:12px;font-weight:700;color:#1a1400">${voteLabel}</div></div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding-top:8px;border-top:0.5px solid #d8d0c0">
+        <div style="font-family:monospace;font-size:8px;color:#a09080">${certObj.dateStr} ${certObj.timeStr}</div>
+        <div class="zukan-stamp-anim" style="width:44px;height:44px;border-radius:50%;border:2px solid #c0392b;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px">
+          <svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#c0392b" stroke-width="2.2" stroke-linecap="round"/></svg>
+          <span style="font-family:monospace;font-size:6px;color:#c0392b;letter-spacing:.04em">INVESTED</span>
+        </div>
+      </div>
+    </div>
+    <div class="zukan-fadeup-3" style="background:var(--surface2);border-radius:12px;padding:12px 14px;margin-bottom:12px">
+      <div style="font-size:9px;font-weight:700;color:var(--text3);letter-spacing:.08em;margin-bottom:10px">INVESTOR STATS</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="background:var(--surface);border-radius:8px;padding:9px 10px">
+          <div style="font-size:9px;color:var(--text3);margin-bottom:2px">全体順位</div>
+          <div style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--text)">上位 ${100-percentile+1<1?1:100-percentile+1}%</div>
+        </div>
+        <div style="background:var(--surface);border-radius:8px;padding:9px 10px">
+          <div style="font-size:9px;color:var(--text3);margin-bottom:2px">目利きスコア</div>
+          <div style="font-family:var(--mono);font-size:16px;font-weight:700;color:${insightRank.color}">${insightScore}</div>
+        </div>
+        <div style="background:var(--surface);border-radius:8px;padding:9px 10px">
+          <div style="font-size:9px;color:var(--text3);margin-bottom:2px">投資家ランク</div>
+          <div style="font-size:12px;font-weight:700;color:${insightRank.color}">${insightRank.label}</div>
+        </div>
+        <div style="background:var(--surface);border-radius:8px;padding:9px 10px">
+          <div style="font-size:9px;color:var(--text3);margin-bottom:2px">参加タイミング</div>
+          <div style="font-size:12px;font-weight:700;color:${certObj.isEarly?'var(--amber)':'var(--text2)'}">${earnedAt}</div>
+        </div>
+      </div>
+    </div>
+    <div class="zukan-fadeup-4" style="display:flex;gap:8px">
+      <button onclick="openShareSheetCert('${ideaId}','${certObj.ideaName.replace(/'/g,"\\'")}','${certObj.ticker}')" style="flex:1;padding:12px;background:#000;border:none;border-radius:12px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans);display:flex;align-items:center;justify-content:center;gap:6px"><svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path d="M2 2l7.5 8.5L2 18h2l6.3-7.1L16 18h4L12 9.2 18.5 2h-2L10.6 8.6 5 2H2z"/></svg>Xでシェア</button>
+      <button onclick="document.getElementById('zukan-overlay').style.display='none';document.getElementById('zukan-overlay').innerHTML=''" style="flex:1;padding:12px;background:var(--surface2);border:1px solid var(--border2);border-radius:12px;font-size:13px;font-weight:700;color:var(--text2);cursor:pointer;font-family:var(--sans)">閉じる</button>
+    </div>`;
+  const zoOverlay = document.getElementById('zukan-overlay');
+  zoOverlay.innerHTML = '';
+  zoOverlay.appendChild(zukanBox);
+  zoOverlay.style.display = 'flex';
+  zoOverlay.onclick = e => { if(e.target===zoOverlay){ zoOverlay.style.display='none'; zoOverlay.innerHTML=''; } };
 }
 
-function closeZukanBook() {
-  const overlay = document.getElementById('zukan-overlay'); if (!overlay) return;
-  overlay.style.animation = 'zukanSlideUp .25s cubic-bezier(.4,0,.8,1) reverse both';
-  setTimeout(() => { overlay.style.cssText = 'display:none;position:fixed;inset:0;z-index:50;background:var(--surface)'; overlay.innerHTML = ''; }, 250);
+function showPricingSheet() {
+  const existing = document.getElementById('pricing-sheet'); if (existing) { existing.remove(); return; }
+  const sheet = document.createElement('div');
+  sheet.id = 'pricing-sheet';
+  sheet.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:300;display:flex;align-items:flex-end;justify-content:center';
+  sheet.onclick = e => { if(e.target===sheet) sheet.remove(); };
+  sheet.innerHTML = `<div style="background:var(--surface);border-radius:24px 24px 0 0;padding:28px 24px 48px;width:100%;max-width:390px;max-height:88vh;overflow-y:auto"><div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 20px"></div><div style="font-size:18px;font-weight:700;text-align:center;margin-bottom:4px">プランを選ぶ</div><div style="font-size:13px;color:var(--text3);text-align:center;margin-bottom:24px">いつでも変更できます</div>
+<div style="background:linear-gradient(135deg,#fff8ed,#fde8b8);border:2px solid var(--amber-mid);border-radius:var(--r-lg);padding:18px;margin-bottom:12px;position:relative">
+<div id="pricing-founder-rem" style="position:absolute;top:12px;right:12px;background:var(--amber-mid);color:#fff;font-size:9px;font-weight:700;padding:3px 8px;border-radius:20px">先着100名</div>
+<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:12px"><span style="font-size:22px">👑</span><div style="flex:1"><div style="font-size:15px;font-weight:700;color:var(--text)">創設メンバー</div><div style="font-size:11px;color:var(--amber);margin-top:1px">永久称号・一度きりの支払い</div></div><div style="font-size:24px;font-weight:700;color:var(--amber)">¥980</div></div>
+<div style="font-size:12px;color:var(--text2);line-height:1.8;margin-bottom:14px">✓ 👑 創設メンバーバッジ（永久）<br>✓ コメント・上場 無制限<br>✓ 応援票 +1（4票/日）<br>✓ 買い切り・月額なし</div>
+<button onclick="upgradeFounder()" style="width:100%;padding:14px;background:var(--amber-mid);border:none;border-radius:var(--r-md);font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">👑 創設メンバーになる（¥980）</button></div>
+<div style="background:var(--surface2);border:1.5px solid var(--border2);border-radius:var(--r-lg);padding:18px;margin-bottom:12px">
+<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:12px"><span style="font-size:20px">⭐</span><div style="flex:1"><div style="font-size:15px;font-weight:700;color:var(--text)">あいぽ Pro</div><div style="font-size:11px;color:var(--text3);margin-top:1px">月額・いつでも解約可</div></div><div style="font-size:22px;font-weight:700;color:var(--text)">¥300<span style="font-size:11px;color:var(--text3);font-weight:400">/月</span></div></div>
+<div style="font-size:12px;color:var(--text2);line-height:1.8;margin-bottom:14px">✓ コメント・上場 無制限<br>✓ 応援票 +1（4票/日）</div>
+<button onclick="upgradePro()" style="width:100%;padding:14px;background:var(--text);border:none;border-radius:var(--r-md);font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">Proにアップグレード（¥300/月）</button></div>
+<button onclick="document.getElementById('pricing-sheet').remove()" style="width:100%;padding:14px;background:transparent;border:none;font-size:13px;color:var(--text3);cursor:pointer;font-family:var(--sans)">今はしない</button></div>`;
+  document.body.appendChild(sheet);
+  sb.from('profiles').select('id',{count:'exact',head:true}).eq('is_founder',true).then(({count}) => { if (count !== null) { const rem = Math.max(0, 100-count); const el = document.getElementById('pricing-founder-rem'); if(el) el.textContent = `残り${rem}枠`; } });
 }
-
-function spawnZukanParticles() {
-  const container = document.getElementById('zukan-particles'); if (!container) return;
-  const colors = ['#f5d68a','#e8850a','#fde68a','#bf6d00']; const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
-  for (let i = 0; i < 16; i++) {
-    const p = document.createElement('div'); const angle = (i / 16) * 360; const dist = 40 + Math.random() * 50;
-    const tx = Math.cos(angle * Math.PI/180) * dist + 'px'; const ty = Math.sin(angle * Math.PI/180) * dist + 'px';
-    p.style.cssText = `position:fixed;left:${cx}px;top:${cy}px;width:6px;height:6px;border-radius:50%;background:${colors[i%colors.length]};--tx:${tx};--ty:${ty};animation:particlePop .55s cubic-bezier(.4,0,.6,1) ${i*12}ms both;z-index:60;pointer-events:none;`;
-    container.appendChild(p); setTimeout(() => p.remove(), 700 + i*12);
-  }
-}
-
-function openZukanCert(certId) {
-  const certs = loadCerts(); const cert = certs.find(c => c.id === certId); if (!cert) return;
-  spawnZukanParticles();
-  const idea = ideas.find(i => i.id === cert.ideaId); const overlay = document.getElementById('zukan-overlay'); if (!overlay) return;
-  const score = idea ? idea.score.toFixed(1) : (cert.score||50).toFixed(1); const votes = idea ? idea.votes : (cert.votesAtTime||0); const genre = idea ? idea.genre : ''; const desc = idea?.desc || idea?.description || ''; const actions = idea?.actions || [];
-  overlay.style.cssText = 'display:flex;position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.3);align-items:stretch;justify-content:center';
-  overlay.innerHTML = `<div style="width:100%;max-width:390px;height:100%;display:flex;flex-direction:column;animation:zukanSlideUp .4s cubic-bezier(.16,1,.3,1) both;margin:0 auto"><div class="zukan-fadeup-1" style="background:var(--surface);padding:12px 14px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0"><div onclick="closeZukanCert()" style="cursor:pointer;color:var(--text2);display:flex;align-items:center"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 5l-5 5 5 5"/></svg></div><div style="font-size:13px;font-weight:700;color:var(--text)">${cert.ticker}</div><div style="font-size:9px;color:var(--text3);margin-left:2px">${cert.serial}</div><div style="margin-left:auto;display:flex;gap:6px"><button onclick="pinCertFromDetail('${cert.id}')" style="display:flex;align-items:center;gap:4px;border-radius:20px;padding:5px 11px;cursor:pointer;font-family:var(--sans);font-size:11px;font-weight:700;border:1px solid var(--amber-border);background:var(--amber-bg);color:var(--amber)"><svg width="10" height="10" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>ホームに表示</button><button onclick="openShareSheetCert('${cert.ideaId}','${cert.name}','${cert.ticker}')" style="display:flex;align-items:center;gap:4px;background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:5px 11px;cursor:pointer;font-family:var(--sans);font-size:11px;font-weight:700;color:var(--text2)"><svg width="10" height="10" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="17" cy="3" r="2"/><circle cx="17" cy="17" r="2"/><circle cx="3" cy="10" r="2"/><path d="M5 10h9M15.3 4.5l-8.6 4M15.3 15.5l-8.6-4"/></svg>シェア</button></div></div><div style="flex:1;overflow-y:auto;scrollbar-width:none;padding:12px 12px 20px;background:var(--surface2)"><div class="zukan-cert-flip" style="position:relative;background:${cert.isEarly?'#fffdf5':'#faf8f4'};border:1px solid ${cert.isEarly?'#e8c84a':'#d4cbbe'};border-radius:16px;overflow:hidden;display:flex;margin-bottom:12px;box-shadow:0 4px 18px rgba(0,0,0,.1)">${cert.isEarly?'<div style="position:absolute;top:0;left:0;right:0;height:4px;border-radius:16px 16px 0 0" class="gold-shimmer-line"></div>':''}<div style="flex:1;padding:${cert.isEarly?'16px':'12px'} 12px 12px 14px">${cert.isEarly?'<div style="display:inline-flex;align-items:center;gap:3px;background:#fef9f0;border:1px solid #fde68a;border-radius:20px;padding:2px 8px;margin-bottom:7px"><div style="width:3px;height:3px;border-radius:50%;background:#d97706"></div><span style="font-family:var(--mono);font-size:7px;color:#854f0b;font-weight:700;letter-spacing:.05em">EARLY INVESTOR</span></div>':''}<div style="font-family:var(--mono);font-size:7px;color:#a09080;letter-spacing:.1em;margin-bottom:4px">INVESTMENT CERTIFICATE</div><div style="font-size:14px;font-weight:700;color:#1a1400;line-height:1.35;margin-bottom:8px">${cert.name}</div><div style="display:flex;gap:14px;margin-bottom:6px"><div><div style="font-family:var(--mono);font-size:7px;color:#a09080;margin-bottom:1px">TICKER</div><div style="font-family:var(--mono);font-size:12px;font-weight:700;color:#1a1400">${cert.ticker}</div></div><div><div style="font-family:var(--mono);font-size:7px;color:#a09080;margin-bottom:1px">VOTES AT TIME</div><div style="font-family:var(--mono);font-size:12px;font-weight:700;color:#1a1400">${cert.votesAtTime}票目</div></div></div><div style="font-family:var(--mono);font-size:7px;color:#a09080">${cert.date}</div></div><div style="width:62px;flex-shrink:0;border-left:2px dashed #d4c9b8;background:#ede9e0;border-radius:0 16px 16px 0;display:flex;flex-direction:column;align-items:center;justify-content:space-around;padding:10px 0"><div style="font-family:var(--mono);font-size:6px;color:#a09080;text-align:center;letter-spacing:.04em">SERIAL<br>${cert.serial}</div><div class="zukan-stamp-anim" style="width:40px;height:40px;border-radius:50%;border:2px solid #c0392b;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;background:var(--surface)"><svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#c0392b" stroke-width="2" stroke-linecap="round"/></svg><span style="font-family:var(--mono);font-size:6px;color:#c0392b;letter-spacing:.04em">DONE</span></div><div style="font-family:var(--mono);font-size:7px;color:#a09080">あいぽ</div></div></div>${idea?`<div class="zukan-fadeup-2" style="background:var(--surface);border-radius:14px;padding:13px 14px;margin-bottom:10px;border:1px solid var(--border)"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.06em">SCORE</div><div style="font-family:var(--mono);font-size:22px;font-weight:700;color:var(--green-light);line-height:1">${score}<span style="font-size:10px;color:var(--text3);margin-left:3px">pt</span></div></div><div style="background:rgba(0,0,0,.07);border-radius:4px;height:5px;overflow:hidden;margin-bottom:10px"><div class="zukan-bar-anim" style="background:linear-gradient(90deg,var(--green-light),#16a34a);height:100%;width:${Math.min(100,parseFloat(score))}%;border-radius:4px"></div></div><div style="display:flex;justify-content:space-between"><div style="text-align:center"><div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text)">${votes}</div><div style="font-size:9px;color:var(--text3)">応援票</div></div><div style="text-align:center"><div style="font-size:11px;font-weight:700;color:var(--text)">${genre}</div><div style="font-size:9px;color:var(--text3)">ジャンル</div></div><div style="text-align:center"><div style="font-size:11px;font-weight:700;color:${cert.isEarly?'#854f0b':'var(--text3)'}">${cert.isEarly?'EARLY':'通常'}</div><div style="font-size:9px;color:var(--text3)">レア度</div></div></div></div>${desc?`<div class="zukan-fadeup-3" style="background:var(--surface);border-radius:14px;padding:13px 14px;margin-bottom:10px;border:1px solid var(--border)"><div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.06em;margin-bottom:6px">ABOUT</div>${renderDesc(desc)}</div>`:''}<div class="zukan-fadeup-3" style="background:var(--surface);border-radius:14px;padding:13px 14px;margin-bottom:10px;border:1px solid var(--border)"><div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.06em;margin-bottom:10px">PROGRESS</div><div style="display:flex;align-items:flex-start">${[0,1,2,3].map(i=>`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;position:relative">${i>0?`<div style="position:absolute;left:-50%;top:10px;right:50%;height:2px;background:${i<=(idea.progressStep||0)?'var(--amber-mid)':'rgba(0,0,0,.08)'}"></div>`:''}<div style="width:22px;height:22px;border-radius:50%;background:${i<=(idea.progressStep||0)?'var(--amber-mid)':'rgba(0,0,0,.07)'};display:flex;align-items:center;justify-content:center;position:relative;z-index:1">${i<=(idea.progressStep||0)?`<svg width="10" height="10" viewBox="0 0 20 20" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg>`:`<div style="width:5px;height:5px;border-radius:50%;background:rgba(0,0,0,.15)"></div>`}</div><div style="font-size:7px;color:${i<=(idea.progressStep||0)?'var(--amber-mid)':'var(--text3)'};text-align:center;font-weight:${i===(idea.progressStep||0)?'700':'400'};line-height:1.3">${['アイデア','開発中','テスト','リリース'][i]}</div></div>`).join('')}</div></div>${actions.length>0?`<div class="zukan-fadeup-4" style="background:var(--surface);border-radius:14px;padding:13px 14px;border:1px solid var(--border)"><div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.06em;margin-bottom:8px">NEXT ACTIONS</div>${actions.map((a,i)=>`<div style="display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:0.5px solid var(--border)"><div style="font-family:var(--mono);font-size:10px;color:var(--amber-mid);font-weight:700;min-width:18px;margin-top:1px">0${i+1}</div><div style="font-size:12px;color:var(--text);line-height:1.5">${a}</div></div>`).join('')}</div>`:''}`:`<div class="zukan-fadeup-2" style="background:var(--surface);border-radius:14px;padding:20px;text-align:center;border:1px solid var(--border)"><div style="font-size:12px;color:var(--text3)">アイデアの詳細を読み込めませんでした</div></div>`}</div></div>`;
-}
-
-function closeZukanCert() {
-  const overlay = document.getElementById('zukan-overlay'); if (!overlay) return;
-  overlay.style.animation = 'zukanSlideUp .25s cubic-bezier(.4,0,.8,1) reverse both';
-  setTimeout(() => { overlay.style.cssText = 'display:none;position:fixed;inset:0;z-index:50;background:var(--surface)'; overlay.innerHTML = ''; }, 250);
-}
-
-function pinCertFromDetail(certId) { pinCert(certId); }
-function pinCert(certId) { localStorage.setItem('aipo-pinned-cert', certId); showToast('ホームに表示する株券を変更しました'); renderCertCollection(); openZukanBook(); }
-
-function shareZukan() {
-  const certs = loadCerts(); if (certs.length === 0) { showToast('まだ株券がありません'); return; }
-  const lines = certs.slice(0,5).map(function(c) { return (c.isEarly ? '[EARLY] ' : '') + c.ticker + ' - ' + c.name.slice(0,20); }).join('\n');
-  const more = certs.length > 5 ? ('\n他' + (certs.length - 5) + '枚...') : '';
-  const body = 'あいぽ 株券図鑑\n\n' + certs.length + '枚コレクション中！\n\n' + lines + more + '\n\n#あいぽ #アイデアIPO\nhttps://aipo-tau.vercel.app';
-  window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(body), '_blank');
-}
-
-let selectedChargeAmount = 0;
 
 async function loadBalance() {
-  if (!currentUser) { document.getElementById('user-balance').textContent = '0'; return; }
-  try { const { data } = await sb.from('profiles').select('balance').eq('id', currentUser.id).single(); const bal = data?.balance ?? 0; document.getElementById('user-balance').textContent = bal.toLocaleString(); }
-  catch(e) { console.error('loadBalance:', e); }
+  if (!currentUser) return;
+  const { data } = await sb.from('profiles').select('balance').eq('id', currentUser.id).single();
+  const bal = data?.balance ?? 0;
+  const el = document.getElementById('user-balance'); if (el) el.textContent = bal.toLocaleString();
 }
 
-function openChargeModal() {
+async function openChargeModal() {
   if (!currentUser) { showToast('ログインしてください'); return; }
-  selectedChargeAmount = 0; document.getElementById('charge-modal-dyn')?.remove();
-  const overlay = document.createElement('div'); overlay.id = 'charge-modal-dyn'; overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;display:flex;align-items:flex-end;justify-content:center';
-  overlay.innerHTML = `<div style="background:#fff;border-radius:24px 24px 0 0;padding:24px 20px 44px;width:100%;max-width:390px"><div style="width:40px;height:4px;background:rgba(0,0,0,.12);border-radius:2px;margin:0 auto 20px"></div><div style="font-size:17px;font-weight:700;text-align:center;margin-bottom:4px">残高をチャージ</div><div style="font-size:12px;color:#b0aea6;text-align:center;margin-bottom:20px">チャージした残高で票や上場枠を購入できます</div><div id="copt-500" style="border:1.5px solid rgba(0,0,0,.12);border-radius:16px;padding:14px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;background:#fff"><div><div style="font-family:monospace;font-size:18px;font-weight:700">¥500</div><div style="font-size:11px;color:#b0aea6">ボーナスなし</div></div><span style="font-family:monospace;font-size:13px;color:#b0aea6">500円分</span></div><div id="copt-1000" style="border:1.5px solid rgba(0,0,0,.12);border-radius:16px;padding:14px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;background:#fff"><div><div style="font-family:monospace;font-size:18px;font-weight:700">¥1,000</div><div style="font-size:11px;color:#1a7a4a;font-weight:700">+50円ボーナス</div></div><span style="font-size:12px;color:#bf6d00;font-weight:700">1,050円分</span></div><div id="copt-3000" style="border:1.5px solid rgba(0,0,0,.12);border-radius:16px;padding:14px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;background:#fff"><div><div style="font-family:monospace;font-size:18px;font-weight:700">¥3,000</div><div style="font-size:11px;color:#1a7a4a;font-weight:700">+300円ボーナス 🎉</div></div><span style="font-size:12px;color:#bf6d00;font-weight:700">3,300円分</span></div><button id="charge-start-btn" style="margin-top:12px;width:100%;padding:15px;background:#ccc;border:none;border-radius:16px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;font-family:sans-serif">金額を選択してください ↑</button><button id="charge-cancel-btn" style="width:100%;padding:12px;background:transparent;border:none;font-size:14px;color:#b0aea6;cursor:pointer;font-family:sans-serif;margin-top:4px">キャンセル</button></div>`;
+  const { data } = await sb.from('profiles').select('balance').eq('id', currentUser.id).single();
+  const bal = data?.balance ?? 0;
+  const existing = document.getElementById('charge-modal-overlay'); if (existing) { existing.remove(); return; }
+  const overlay = document.createElement('div');
+  overlay.className = 'charge-modal-overlay'; overlay.id = 'charge-modal-overlay';
+  overlay.onclick = e => { if(e.target===overlay) overlay.remove(); };
+  overlay.innerHTML = `<div style="background:var(--surface);border-radius:24px 24px 0 0;padding:24px 20px 40px;width:100%;max-width:390px"><div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 18px"></div><div style="font-size:16px;font-weight:700;margin-bottom:4px">残高チャージ</div><div style="font-size:13px;color:var(--text3);margin-bottom:16px">現在の残高: <strong>${bal.toLocaleString()}円</strong></div><div class="charge-option selected" id="c500" onclick="selectCharge(500)"><div><div class="charge-option-amount">¥500</div><div class="charge-option-bonus">+50pt</div></div><div class="charge-option-total">550pt</div></div><div class="charge-option" id="c1000" onclick="selectCharge(1000)"><div><div class="charge-option-amount">¥1,000</div><div class="charge-option-bonus">+200pt おすすめ</div></div><div class="charge-option-total">1,200pt</div></div><div class="charge-option" id="c3000" onclick="selectCharge(3000)"><div><div class="charge-option-amount">¥3,000</div><div class="charge-option-bonus">+900pt お得</div></div><div class="charge-option-total">3,900pt</div></div><button onclick="chargeNow()" style="width:100%;margin-top:14px;padding:14px;background:var(--amber-mid);border:none;border-radius:var(--r-lg);font-size:15px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">チャージする</button></div>`;
   document.body.appendChild(overlay);
-  overlay.addEventListener('click', e => { if (e.target === overlay) closeChargeModal(); });
-  document.getElementById('copt-500').addEventListener('click', () => selectCharge(500));
-  document.getElementById('copt-1000').addEventListener('click', () => selectCharge(1000));
-  document.getElementById('copt-3000').addEventListener('click', () => selectCharge(3000));
-  document.getElementById('charge-start-btn').addEventListener('click', startCharge);
-  document.getElementById('charge-cancel-btn').addEventListener('click', closeChargeModal);
 }
 
-function closeChargeModal() { document.getElementById('charge-modal-dyn')?.remove(); }
-
+let selectedCharge = 500;
 function selectCharge(amount) {
-  selectedChargeAmount = amount;
-  ['500','1000','3000'].forEach(a => { const el = document.getElementById('copt-' + a); if (!el) return; if (a === String(amount)) { el.style.border = '2px solid #e8850a'; el.style.background = '#fff8ed'; } else { el.style.border = '1.5px solid rgba(0,0,0,.12)'; el.style.background = '#fff'; } });
-  const labels = { 500: '¥500 でチャージする →', 1000: '¥1,000 でチャージする（1,050円分）→', 3000: '¥3,000 でチャージする（3,300円分）→' };
-  const btn = document.getElementById('charge-start-btn'); if (btn) { btn.style.background = '#e8850a'; btn.textContent = labels[amount]; }
+  selectedCharge = amount; [500,1000,3000].forEach(a => { const el = document.getElementById('c'+a); if(el) { el.classList.toggle('selected', a===amount); } });
 }
-
-async function startCharge() {
-  if (!selectedChargeAmount) { alert('金額を選択してください'); return; }
-  if (!currentUser) { alert('ログインが必要です'); return; }
-  const btn = document.getElementById('charge-start-btn'); if (btn) { btn.textContent = '処理中...'; btn.style.background = '#aaa'; }
-  try {
-    const { data: { session } } = await sb.auth.getSession(); const token = session?.access_token;
-    const res = await fetch('/api/create-charge-session', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (token || '') }, body: JSON.stringify({ amount: selectedChargeAmount, userId: currentUser.id }) });
-    const text = await res.text(); let json; try { json = JSON.parse(text); } catch(pe) { throw new Error('API応答エラー(' + res.status + '): ' + text.slice(0,120)); }
-    if (json.url) { window.location.href = json.url; } else { alert('エラー: ' + (json.error || '不明なエラー')); if (btn) { btn.style.background = '#e8850a'; btn.textContent = '再試行する →'; } }
-  } catch(e) { console.error('startCharge error:', e); alert('エラー詳細: ' + e.message); if (btn) { btn.style.background = '#e8850a'; btn.textContent = '再試行する →'; } }
-}
+function chargeNow() { showToast('この機能は近日公開予定です'); document.getElementById('charge-modal-overlay')?.remove(); }
 
 async function buyWithBalance(type, cost) {
-  if (!currentUser) { showToast('ログインしてください'); return; }
-  const { data } = await sb.from('profiles').select('balance').eq('id', currentUser.id).single(); const bal = data?.balance ?? 0;
-  if (bal < cost) { showToast('残高が不足しています。チャージしてください'); openChargeModal(); return; }
-  const newBal = bal - cost; await sb.from('profiles').update({ balance: newBal }).eq('id', currentUser.id);
-  document.getElementById('user-balance').textContent = newBal.toLocaleString();
-  if (type === 'vote') { votesLeft++; document.getElementById('votes-left').textContent = votesLeft; showToast('追加票を購入しました！+1票 🗳'); }
-  else if (type === 'post') { dividendBonus.postRights++; showToast('上場枠を購入しました！アイデアを追加上場できます 🚀'); }
-  updatePlanBadge();
+  if (!currentUser) { showUpgradeModal('ログインしてください'); return; }
+  const { data } = await sb.from('profiles').select('balance').eq('id', currentUser.id).single();
+  const bal = data?.balance ?? 0;
+  if (bal < cost) { showToast('残高が不足しています'); return; }
+  const { error } = await sb.rpc('use_balance', { user_id_in: currentUser.id, amount: cost, type_in: type });
+  if (error) { showToast('エラーが発生しました'); return; }
+  if (type === 'vote') { votesLeft++; document.getElementById('votes-left').textContent = votesLeft; showToast('+1票を追加しました'); loadBalance(); }
 }
 
-function checkChargeSuccess() {
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('charge') === 'success') { showToast('チャージが完了しました！🎉'); window.history.replaceState({}, '', '/'); setTimeout(() => loadBalance(), 1000); }
-  else if (params.get('charge') === 'cancel') { showToast('チャージをキャンセルしました'); window.history.replaceState({}, '', '/'); }
+let hiroba_tag = '機能要望';
+function selHirobaTag(el) { document.querySelectorAll('.hiroba-tag').forEach(x=>x.classList.remove('sel')); el.classList.add('sel'); hiroba_tag = el.dataset.tag; }
+
+async function sendHiroba() {
+  const inp = document.getElementById('hiroba-input'); const text = inp?.value?.trim(); if (!text) return;
+  const anon = document.getElementById('hiroba-anon-check')?.checked;
+  const { error } = await sb.from('hiroba_comments').insert({ text, tag: hiroba_tag, user_id: anon ? null : (currentUser?.id || null), is_anon: anon, created_at: new Date().toISOString() });
+  if (error) { showToast('送信に失敗しました'); console.error(error); return; }
+  inp.value = ''; showToast('送信しました！ 💌');
+  const overlay = document.getElementById('postbox-overlay');
+  const sub = document.getElementById('postbox-sub');
+  overlay.classList.add('show'); overlay.style.display='flex';
+  if (sub) sub.style.opacity = '1';
+  setTimeout(() => { overlay.classList.remove('show'); overlay.style.display='none'; if(sub) sub.style.opacity='0'; loadHirobaList(); }, 2200);
+}
+
+async function loadHirobaList() {
+  const el = document.getElementById('msg-list'); if (!el) return;
+  if (!currentUser) { el.innerHTML = '<div style="padding:24px;text-align:center;font-size:12px;color:var(--text3)">ログインするとメッセージを受け取れます</div>'; return; }
+  const { data, error } = await sb.from('messages').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+  if (error || !data || data.length === 0) { el.innerHTML = '<div style="padding:24px;text-align:center;font-size:12px;color:var(--text3)">まだメッセージはありません</div>'; return; }
+  const unread = data.filter(m => !m.is_read).length;
+  const badge = document.getElementById('msg-unread-badge');
+  if (badge) { badge.textContent = unread > 0 ? `未読 ${unread}件` : ''; badge.style.display = unread > 0 ? 'inline-block' : 'none'; }
+  el.innerHTML = data.map(m => `<div style="padding:14px 16px;border-bottom:0.5px solid var(--border);${!m.is_read?'background:var(--amber-bg)':''}"><div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><div style="width:24px;height:24px;border-radius:50%;background:#1a1400;display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="font-size:10px">🤖</span></div><div style="font-size:12px;font-weight:700;color:var(--text)">あいぽ運営</div><div style="font-size:10px;color:var(--text3);margin-left:auto">${timeAgo(m.created_at)}</div>${!m.is_read?'<div style="width:7px;height:7px;border-radius:50%;background:var(--amber-mid);flex-shrink:0"></div>':''}</div><div style="font-size:13px;color:var(--text);line-height:1.7">${m.content}</div></div>`).join('');
+  data.filter(m => !m.is_read).forEach(m => { sb.from('messages').update({ is_read: true }).eq('id', m.id).then(() => {}); });
+}
+
+async function sendMsgReply() {
+  const inp = document.getElementById('msg-reply-input'); const text = inp?.value?.trim(); if (!text || !currentUser) return;
+  const { error } = await sb.from('hiroba_comments').insert({ text: '[返信] ' + text, tag: 'その他', user_id: currentUser.id, is_anon: false, created_at: new Date().toISOString() });
+  if (error) { showToast('送信に失敗しました'); return; }
+  inp.value = ''; showToast('返信を送信しました');
+}
+
+function editField(ideaId, field) {
+  if (field === 'desc') {
+    document.getElementById(`desc-view-${ideaId}`)?.style && (document.getElementById(`desc-view-${ideaId}`).style.display = 'none');
+    const edit = document.getElementById(`desc-edit-${ideaId}`); if (edit) { edit.style.display = 'block'; edit.focus(); }
+    const save = document.getElementById(`desc-save-${ideaId}`); if (save) save.style.display = 'block';
+  } else if (field === 'actions') {
+    document.getElementById(`actions-view-${ideaId}`)?.style && (document.getElementById(`actions-view-${ideaId}`).style.display = 'none');
+    const edit = document.getElementById(`actions-edit-${ideaId}`); if (edit) edit.style.display = 'block';
+  }
+}
+
+async function saveField(ideaId, field) {
+  const idea = ideas.find(i=>i.id===ideaId); if (!idea) return;
+  if (field === 'desc') {
+    const newDesc = document.getElementById(`desc-edit-${ideaId}`)?.value?.trim() || '';
+    idea.desc = newDesc; idea.score = calcScore(idea);
+    updateDescToDB(ideaId, newDesc);
+    document.getElementById(`desc-view-${ideaId}`).style.display = 'block';
+    document.getElementById(`desc-view-${ideaId}`).innerHTML = renderDesc(newDesc);
+    document.getElementById(`desc-edit-${ideaId}`).style.display = 'none';
+    document.getElementById(`desc-save-${ideaId}`).style.display = 'none';
+  } else if (field === 'actions') {
+    const newActions = [0,1,2].map(i => document.getElementById(`action-inp-${ideaId}-${i}`)?.value?.trim()).filter(Boolean);
+    idea.actions = newActions; idea.score = calcScore(idea);
+    await sb.from('actions').delete().eq('idea_id', ideaId);
+    if (newActions.length) await sb.from('actions').insert(newActions.map((text,i) => ({ idea_id: ideaId, text, order_num: i })));
+    document.getElementById(`actions-view-${ideaId}`).innerHTML = newActions.map((a,i)=>`<div class="action-row"><div class="action-num">0${i+1}</div><div class="action-text">${a}</div></div>`).join('');
+    document.getElementById(`actions-view-${ideaId}`).style.display = 'block';
+    document.getElementById(`actions-edit-${ideaId}`).style.display = 'none';
+  }
+  showToast('保存しました');
+}
+
+async function updateProgress(ideaId, step) {
+  const idea = ideas.find(i=>i.id===ideaId); if (!idea) return;
+  step = parseInt(step); idea.progress = step; idea.progressStep = step; idea.score = calcScore(idea);
+  await updateProgressToDB(ideaId, step);
+  const newScore = idea.score;
+  await sb.rpc('update_idea_score', { idea_id: ideaId, new_score: newScore });
+  showDetail(ideaId); showToast('進捗を更新しました！');
+}
+
+function renderDesc(text) {
+  if (!text) return '';
+  return '<div class="md-desc" style="font-size:13px;color:var(--text);line-height:1.75">' +
+    text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+       .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+       .replace(/\*(.+?)\*/g,'<em>$1</em>')
+       .replace(/`(.+?)`/g,'<code>$1</code>')
+       .replace(/^### (.+)$/gm,'<h3>$1</h3>').replace(/^## (.+)$/gm,'<h2>$1</h2>').replace(/^# (.+)$/gm,'<h1>$1</h1>')
+       .replace(/\[(.+?)\]\((.+?)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>')
+       .replace(/^[-*] (.+)$/gm,'<li>$1</li>').replace(/(<li>.*<\/li>)/s,'<ul>$1</ul>')
+       .replace(/\n/g,'<br>') + '</div>';
 }
 
 async function checkSimilarIdeas(title) {
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: '既存アイデアの中から新しいアイデアと類似するものを最大3つ選んでください。JSONのみで返してください。形式:[{"id":"...","name":"...","reason":"（一言で類似理由）"}] 類似なければ[]。新しいアイデア:' + title + ' 既存:' + JSON.stringify(ideas.slice(0,40).map(i=>({id:i.id,name:i.name,genre:i.genre}))) }]
-      })
+    const { data } = await sb.from('ideas').select('id, name, ticker, score').order('score', { ascending: false }).limit(30);
+    if (!data || data.length === 0) return [];
+    const t1 = title.replace(/[^\u3040-\u309f\u30a0-\u30ff\u4e00-\u9fafa-zA-Z]/g, '').toLowerCase();
+    if (t1.length < 3) return [];
+    return data.filter(idea => {
+      const t2 = idea.name.replace(/[^\u3040-\u309f\u30a0-\u30ff\u4e00-\u9fafa-zA-Z]/g, '').toLowerCase();
+      if (t1 === t2) return true;
+      const len = Math.min(t1.length, t2.length);
+      let common = 0;
+      for (let i = 0; i + 2 <= len; i++) { if (t2.includes(t1.slice(i, i+3))) common++; }
+      return common / (len / 3) > 0.6;
     });
-    const data = await res.json();
-    const text = data.content?.[0]?.text || '[]';
-    const clean = text.replace(/```json|```/g,'').trim();
-    return JSON.parse(clean);
   } catch(e) { return []; }
 }
 
 function showSimilarWarning(similar) {
   return new Promise(resolve => {
     const modal = document.createElement('div');
-    modal.style.cssText = 'position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center';
-    modal.innerHTML = `<div style="background:var(--surface);border-radius:24px 24px 0 0;padding:24px 20px 40px;width:100%;max-width:390px"><div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px"></div><div style="font-family:var(--mono);font-size:10px;color:var(--amber-mid);font-weight:700;margin-bottom:8px">類似アイデアが見つかりました</div><div style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6">以下のアイデアと似ている可能性があります。差別化ポイントを明確にすると票が集まりやすくなります。</div><div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">${similar.map(s=>`<div style="background:var(--surface2);border-radius:10px;padding:10px 12px;border:1px solid var(--border)"><div style="font-size:12px;font-weight:700;color:var(--text)">${s.name}</div><div style="font-size:11px;color:var(--text3);margin-top:3px">${s.reason||''}</div></div>`).join('')}</div><button id="sim-go" style="width:100%;padding:14px;background:var(--amber-mid);border:none;border-radius:100px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans);margin-bottom:8px">差別化できている → このまま上場</button><button id="sim-back" style="width:100%;padding:12px;background:transparent;border:none;font-size:13px;color:var(--text3);cursor:pointer;font-family:var(--sans)">見直す</button></div>`;
-    modal.querySelector('#sim-go').onclick = () => { modal.remove(); resolve(true); };
-    modal.querySelector('#sim-back').onclick = () => { modal.remove(); resolve(false); };
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:600;display:flex;align-items:flex-end;justify-content:center';
+    modal.innerHTML = `<div style="background:var(--surface);border-radius:24px 24px 0 0;padding:24px 20px 40px;width:100%;max-width:390px"><div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 18px"></div><div style="font-size:16px;font-weight:700;margin-bottom:6px">似たアイデアがあります</div><div style="font-size:13px;color:var(--text3);margin-bottom:12px">以下のアイデアと内容が似ています。このまま上場しますか？</div>${similar.slice(0,3).map(s=>`<div onclick="showDetail('${s.id}');modal.remove();resolve(false)" style="background:var(--bg);border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:pointer"><div style="font-size:12px;font-weight:700;color:var(--text)">${s.name}</div><div style="font-size:10px;color:var(--text3);margin-top:2px">${s.ticker} · スコア ${parseFloat(s.score||50).toFixed(1)}</div></div>`).join('')}<div style="display:flex;gap:8px;margin-top:14px"><button onclick="modal.remove();resolve(false)" style="flex:1;padding:13px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r-lg);font-size:14px;font-weight:700;color:var(--text2);cursor:pointer;font-family:var(--sans)">修正する</button><button onclick="modal.remove();resolve(true)" style="flex:1;padding:13px;background:var(--amber-mid);border:none;border-radius:var(--r-lg);font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">このまま上場</button></div></div>`;
+    modal.addEventListener('click', e => { if(e.target===modal) { modal.remove(); resolve(false); } });
     document.body.appendChild(modal);
   });
 }
 
-function showPricingSheet() {
-  const existing = document.getElementById('pricing-sheet'); if (existing) { existing.remove(); return; }
-  const sheet = document.createElement('div'); sheet.id = 'pricing-sheet';
-  sheet.style.cssText = 'position:fixed;inset:0;z-index:500;display:flex;align-items:flex-end;justify-content:center';
-  const planLabel = currentUser?.isFounder ? '👑 創設メンバー' : (isPro ? 'PRO' : '無料プラン');
-  const isFounder = currentUser?.isFounder;
-  sheet.innerHTML = `<div style="position:absolute;inset:0;background:rgba(0,0,0,.45)" onclick="document.getElementById('pricing-sheet').remove()"></div><div style="position:relative;background:var(--surface);border-radius:24px 24px 0 0;padding:20px 20px 40px;width:100%;max-width:390px;max-height:88vh;overflow-y:auto"><div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px"></div><div style="font-family:var(--mono);font-size:10px;color:var(--amber-mid);letter-spacing:.1em;font-weight:700;margin-bottom:4px">現在のプラン</div><div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:16px">${planLabel}</div>${isFounder ? '<div style="background:var(--amber-bg);border:1.5px solid var(--amber-border);border-radius:14px;padding:14px 16px;margin-bottom:10px"><div style="font-size:11px;font-weight:700;color:var(--amber);margin-bottom:8px">👑 創設メンバー特典</div><div style="font-size:13px;color:var(--text2);line-height:1.8">✓ 上場・コメント無制限<br>✓ 1日4票<br>✓ 創設メンバーバッジ永久<br>✓ 番号付き称号</div></div>' : !isPro ? '<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:10px"><div style="background:var(--amber-bg);border:2px solid var(--amber-mid);border-radius:14px;padding:14px 16px;position:relative"><div style="position:absolute;top:-8px;left:14px;background:var(--amber-mid);color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:100px">おすすめ</div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:14px;font-weight:700;color:var(--text)">👑 創設メンバー</div><div style="font-size:18px;font-weight:700;color:var(--amber)">¥980</div></div><div style="font-size:12px;color:var(--text2);line-height:1.8;margin-bottom:10px">✓ 上場・コメント無制限<br>✓ 1日4票<br>✓ バッジ永久付与<br>✓ 買い切り・月額なし</div><button onclick="upgradeFounder()" style="width:100%;padding:12px;background:var(--amber-mid);border:none;border-radius:100px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">創設メンバーになる</button></div><div style="background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:14px 16px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:14px;font-weight:700;color:var(--text)">Pro</div><div style="font-size:16px;font-weight:700;color:var(--text)">¥300<span style="font-size:11px;font-weight:400;color:var(--text3)">/月</span></div></div><div style="font-size:12px;color:var(--text2);line-height:1.8;margin-bottom:10px">✓ 上場・コメント無制限<br>✓ 1日4票<br>✓ いつでも解約可</div><button onclick="upgradePro()" style="width:100%;padding:12px;background:var(--ink);border:none;border-radius:100px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">Proにアップグレード</button></div></div>' : '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:10px"><div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:8px">Pro 特典</div><div style="font-size:13px;color:var(--text2);line-height:1.8">✓ 上場・コメント無制限<br>✓ 1日4票</div></div>'}<div onclick="window.open('https://aipo-tau.vercel.app/pricing.html','_blank')" style="text-align:center;padding:12px;font-size:13px;color:var(--amber);cursor:pointer;font-weight:600">料金・ルール詳細を見る →</div></div>`;
-  document.body.appendChild(sheet);
+let guideStep = 0;
+const GUIDE_TOTAL = 6;
+
+function guideNext() {
+  if (guideStep === GUIDE_TOTAL - 1) { guideFinish(); return; }
+  const curr = document.getElementById('gs-'+guideStep); const next = document.getElementById('gs-'+(guideStep+1));
+  if (curr) { curr.classList.add('exit'); setTimeout(()=>{ curr.classList.remove('active','exit'); },400); }
+  guideStep++;
+  if (next) { setTimeout(()=>next.classList.add('active'),50); }
+  document.querySelectorAll('.guide-dot').forEach((d,i)=>d.classList.toggle('active',i===guideStep));
+  const btn = document.getElementById('guide-next-btn'); if (btn) btn.textContent = guideStep===GUIDE_TOTAL-1?'はじめる':'次へ';
 }
 
-let hirobaTag = 'その他';
-function selHirobaTag(el){document.querySelectorAll('.hiroba-tag').forEach(t=>t.classList.remove('sel'));el.classList.add('sel');hirobaTag=el.dataset.tag;}
-async function sendHiroba(){
-  const text=document.getElementById('hiroba-input')?.value?.trim();
-  if(!text){showToast('内容を入力してください');return;}
-  const isAnon=document.getElementById('hiroba-anon-check')?.checked;
-  const userName=isAnon?'匿名':(currentUser?.display_name||currentUser?.x_username||'匿名');
-  const overlay=document.getElementById('postbox-overlay');
-  if(overlay){overlay.style.display='flex';}
-  try{ await sb.from('hiroba_voices').insert({user_id:isAnon?null:currentUser?.id,user_name:userName,text:text,tag:hirobaTag,ai_reply:null}); }catch(e){console.warn(e);}
-  setTimeout(()=>{
-    if(overlay){overlay.style.display='none';}
-    document.getElementById('hiroba-input').value='';
-    loadHirobaList();
-    showToast('届きました！');
-  },2000);
-}
-
-async function loadMessages() {
-  const list = document.getElementById('msg-list');
-  const badge = document.getElementById('msg-unread-badge');
-  if (!list) return;
-  if (!currentUser) {
-    list.innerHTML = '<div style="padding:20px;text-align:center;font-size:12px;color:var(--text3);">ログインするとメッセージが届きます</div>';
-    return;
-  }
-  try {
-    const { data } = await sb.from('messages')
-      .select('*')
-      .or(`to_id.eq.${currentUser.id},is_announcement.eq.true`)
-      .order('created_at', { ascending: false })
-      .limit(30);
-
-    if (!data || !data.length) {
-      list.innerHTML = '<div style="padding:24px;text-align:center;font-size:12px;color:var(--text3);">まだメッセージはありません</div>';
-      return;
-    }
-
-    const unread = data.filter(m => !m.is_read).length;
-    if (unread > 0) {
-      badge.textContent = unread + '件未読';
-      badge.style.display = 'block';
-      // 既読にする
-      await sb.from('messages').update({ is_read: true })
-        .or(`to_id.eq.${currentUser.id},is_announcement.eq.true`)
-        .eq('is_read', false);
-    } else {
-      badge.style.display = 'none';
-    }
-
-    // 返信フォーム表示（個別メッセージがあれば）
-    const hasPersonal = data.some(m => m.to_id === currentUser.id);
-    document.getElementById('msg-reply-form').style.display = hasPersonal ? 'block' : 'none';
-
-    list.innerHTML = data.map(m => {
-      const mins = Math.floor((Date.now() - new Date(m.created_at).getTime()) / 60000);
-      const t = mins < 1 ? 'たった今' : mins < 60 ? mins + '分前' : Math.floor(mins/60) + '時間前';
-      const isPersonal = m.to_id === currentUser.id;
-      const isUnread = !m.is_read;
-      return `<div style="display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-bottom:0.5px solid var(--border);${isUnread?'background:var(--amber-bg)':''}">
-        <div style="width:34px;height:34px;border-radius:50%;background:${isPersonal?'var(--amber-bg)':'var(--green-bg)'};border:0.5px solid ${isPersonal?'var(--amber-border)':'var(--green-border)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${isPersonal?'var(--amber-mid)':'var(--green-light)'}" stroke-width="1.8" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        </div>
-        <div style="flex:1;min-width:0;">
-          <div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;">
-            <span style="font-size:12px;font-weight:700;color:var(--text);">あいぽ運営</span>
-            <span style="font-size:9px;padding:1px 6px;border-radius:3px;background:${isPersonal?'var(--amber-bg)':'var(--green-bg)'};color:${isPersonal?'var(--amber)':'var(--green)'};border:0.5px solid ${isPersonal?'var(--amber-border)':'var(--green-border)'};">${isPersonal?'個別':'全体'}</span>
-            <span style="font-size:10px;color:var(--text3);margin-left:auto;">${t}</span>
-            ${isUnread?'<div style="width:7px;height:7px;border-radius:50%;background:var(--amber-mid);"></div>':''}
-          </div>
-          <div style="font-size:13px;color:var(--text);line-height:1.65;">${m.body}</div>
-        </div>
-      </div>`;
-    }).join('');
-  } catch(e) {
-    list.innerHTML = '<div style="padding:20px;text-align:center;font-size:12px;color:var(--text3);">読み込みに失敗しました</div>';
-  }
-}
-
-async function sendMsgReply() {
-  const input = document.getElementById('msg-reply-input');
-  if (!input || !input.value.trim()) return;
-  if (!currentUser) { showToast('ログインが必要です'); return; }
-  const body = input.value.trim();
-  const ADMIN_ID = '7f3162ec-c281-435f-8e8e-3b6d65b8b1c9';
-  try {
-    const { error } = await sb.from('messages').insert({
-      from_id: currentUser.id,
-      to_id: ADMIN_ID,
-      body,
-      is_announcement: false,
-      is_read: false,
-    });
-    if (error) throw error;
-    input.value = '';
-    showToast('送信しました');
-  } catch(e) {
-    showToast('送信に失敗しました');
-  }
-}
-
-async function loadHirobaList(){
-  const list=document.getElementById('hiroba-list');
-  if(!list)return;
-  try{
-    const{data}=await sb.from('hiroba_voices').select('*').order('created_at',{ascending:false}).limit(30);
-    if(!data||!data.length){list.innerHTML='<div class="empty"><div class="empty-txt">まだ投稿がありません</div></div>';return;}
-    const ADMIN='7f3162ec-c281-435f-8e8e-3b6d65b8b1c9';
-    list.innerHTML=data.map(v=>{
-      const isA=v.user_id===ADMIN||v.is_announcement;
-      const mins=Math.floor((Date.now()-new Date(v.created_at).getTime())/60000);
-      const t=mins<1?'たった今':mins<60?mins+'分前':Math.floor(mins/60)+'時間前';
-            return '<div style="display:flex;gap:8px;align-items:flex-start;padding:10px 14px;border-bottom:0.5px solid var(--border);'+(isA?'background:var(--amber-bg)':'')+'">'+ 
-        '<div style="width:24px;height:24px;border-radius:50%;background:'+(isA?'var(--amber-mid)':'var(--bg)')+';border:0.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:'+(isA?'#fff':'var(--text2)')+';flex-shrink:0;">'+(isA?'運':(v.user_name||'匿').slice(0,1))+'</div>'+
-        '<div style="min-width:0;flex:1;">'+
-        '<div style="display:flex;align-items:center;gap:5px;margin-bottom:2px;">'+
-        '<span style="font-size:11px;font-weight:700;color:var(--text);">'+(isA?'あいぽ運営':(v.user_name||'匿名'))+'</span>'+
-        '<span style="font-size:9px;padding:1px 6px;border-radius:3px;background:var(--bg);color:var(--text3);border:0.5px solid var(--border2);">'+(isA?'お知らせ':(v.tag||'その他'))+'</span>'+
-        '<span style="font-size:9px;color:var(--text3);margin-left:auto;">'+t+'</span></div>'+
-        '<div style="font-size:12px;color:var(--text2);line-height:1.55;">'+v.text+'</div>'+
-        (v.ai_reply?'<div style="background:var(--amber-bg);border:0.5px solid var(--amber-border);border-radius:6px;padding:6px 8px;margin-top:5px;display:flex;gap:5px;"><span style="font-family:var(--mono);font-size:8px;color:var(--amber);font-weight:700;white-space:nowrap;">AI</span><span style="font-size:11px;color:var(--amber);line-height:1.5;">'+v.ai_reply+'</span></div>':'')+
-        '</div></div>';
-    }).join('');
-  }catch(e){list.innerHTML='<div class="empty"><div class="empty-txt">読み込みに失敗しました</div></div>';}
-}
-
-// ★★★ パッチ⑤: renderDesc + プロフィール関数 ★★★
-function renderDesc(raw) {
-  if (!raw || !raw.trim()) return '<span style="font-size:12px;color:var(--text3)">説明なし</span>';
-  let t = raw.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  t = t.replace(/^### (.+)$/gm,'<h3>$1</h3>');
-  t = t.replace(/^## (.+)$/gm,'<h2>$1</h2>');
-  t = t.replace(/^# (.+)$/gm,'<h1>$1</h1>');
-  t = t.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
-  t = t.replace(/\*(.+?)\*/g,'<em>$1</em>');
-  t = t.replace(/`(.+?)`/g,'<code>$1</code>');
-  t = t.replace(/\[(.+?)\]\((https?:\/\/.+?)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
-  t = t.replace(/^[-*]\s(.+)$/gm,'<li>$1</li>');
-  t = t.replace(/(<li>[\s\S]*?<\/li>\n?)+/g,m=>`<ul>${m}</ul>`);
-  t = t.replace(/\n/g,'<br>');
-  return `<div class="md-desc" style="font-size:13px;color:var(--text2);line-height:1.75">${t}</div>`;
-}
+function guideFinish() { localStorage.setItem('guide-done','1'); document.getElementById('guide-screen').classList.remove('active'); }
 
 async function openProfileModal() {
-  document.getElementById('profile-overlay')?.remove();
+  const existing = document.getElementById('profile-overlay');
+  if (existing) { existing.remove(); return; }
+  if (!currentUser) { showToast('ログインしてください'); return; }
+  const { data: prof } = await sb.from('profiles').select('x_username, display_name, avatar_url').eq('id', currentUser.id).single();
+  const xUsername = prof?.x_username || currentUser.x_username || '';
+  const displayName = prof?.display_name || currentUser.user_metadata?.full_name || '';
+  const avatarUrl = prof?.avatar_url || currentUser.user_metadata?.avatar_url || '';
+  const initials = (displayName || xUsername || '?').slice(0,2).toUpperCase();
   const overlay = document.createElement('div');
-  overlay.id = 'profile-overlay'; overlay.className = 'profile-overlay';
-  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
-  overlay.innerHTML = `<div class="profile-sheet"><div class="profile-handle"></div><div id="profile-sheet-content" style="display:flex;flex-direction:column;align-items:center"><div style="font-size:11px;color:var(--text3);padding:20px 0">読み込み中...</div></div></div>`;
+  overlay.className = 'profile-overlay';
+  overlay.id = 'profile-overlay';
+  overlay.onclick = e => { if(e.target===overlay) overlay.remove(); };
+  overlay.innerHTML = `<div class="profile-sheet"><div class="profile-handle"></div><div style="font-size:16px;font-weight:700;text-align:center;margin-bottom:16px">プロフィール設定</div>
+<div class="profile-avatar-wrap">${avatarUrl ? `<img class="profile-avatar" src="${avatarUrl}" alt="avatar" onerror="this.style.display='none'">` : `<div class="profile-avatar-placeholder">${initials}</div>`}</div>
+<div class="profile-field"><div class="profile-label">X（Twitter）ユーザー名</div><input class="profile-input" id="prof-xusername" type="text" placeholder="例: your_username" value="${xUsername}" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"><div style="font-size:11px;color:var(--text3);margin-top:5px">@なしで入力してください。株券のHOLDER欄に表示されます。</div></div>
+<div class="profile-field"><div class="profile-label">表示名</div><input class="profile-input" id="prof-displayname" type="text" placeholder="例: Koki Nakagawa" value="${displayName}" autocomplete="off"><div style="font-size:11px;color:var(--text3);margin-top:5px">コメントやプロフィールに表示されます。</div></div>
+<div class="profile-field"><div class="profile-label">メールアドレス</div><input class="profile-input" id="prof-email" type="text" value="${currentUser.email || ''}" readonly></div>
+<div style="font-size:11px;color:var(--text3);line-height:1.7;margin-bottom:18px;padding:10px 12px;background:var(--bg);border-radius:10px">アカウント：${currentUser.email || ''}<br>${currentUser.isFounder ? '👑 創設メンバー #' + (currentUser.founderNumber===0?'00':String(currentUser.founderNumber).padStart(2,'0')) : isPro ? '⭐ Proプラン' : '無料プラン'}</div>
+<button class="profile-save-btn" id="prof-save-btn" onclick="saveProfile()">保存する</button>
+<div class="profile-status" id="prof-status"></div>
+<button class="profile-close-btn" onclick="document.getElementById('profile-overlay').remove()">閉じる</button>
+<div style="margin-top:12px;padding-top:12px;border-top:0.5px solid var(--border)"><button onclick="doLogout()" style="width:100%;padding:12px;background:transparent;border:1px solid rgba(192,57,43,.3);border-radius:12px;font-size:13px;font-weight:700;color:var(--red);cursor:pointer;font-family:var(--sans)">ログアウト</button></div>
+</div>`;
   document.body.appendChild(overlay);
-  await _renderProfileContent();
-  _updateProfileBtnAvatar();
 }
 
-async function _renderProfileContent() {
-  const content = document.getElementById('profile-sheet-content'); if (!content) return;
-  if (!currentUser) { content.innerHTML = '<div style="font-size:13px;color:var(--text3);padding:20px 0">ログインしていません</div>'; return; }
-  const meta = currentUser.user_metadata || {};
-  const avatarUrl = meta.avatar_url || meta.picture || '';
-  const googleName = meta.full_name || meta.name || '';
-  const { data: profile } = await sb.from('profiles').select('x_username, is_pro, is_founder, founder_number').eq('id', currentUser.id).single();
-  const isFounder = profile?.is_founder; const founderNum = profile?.founder_number; const currentX = profile?.x_username || '';
-  let planBadge = '';
-  if (isFounder) { const num = founderNum === 0 ? '00' : String(founderNum||0).padStart(2,'0'); planBadge = `<span style="display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;background:#fef3c7;color:#854f0b;border:1px solid #fde68a;margin-bottom:18px">👑 創設メンバー #${num}</span>`; }
-  else if (profile?.is_pro) { planBadge = `<span style="display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;margin-bottom:18px">⭐ あいぽ Pro</span>`; }
-  else { planBadge = `<span style="display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;background:var(--bg);color:var(--text3);border:1px solid var(--border);margin-bottom:18px">FREE</span>`; }
-  const avatarHtml = avatarUrl ? `<img class="profile-avatar" src="${avatarUrl}" alt="avatar" referrerpolicy="no-referrer">` : `<div class="profile-avatar-placeholder">${(currentX||googleName||'U').slice(0,2).toUpperCase()}</div>`;
-  const planDetail = isFounder ? `<div style="font-size:13px;font-weight:700;color:var(--text)">👑 創設メンバー #${founderNum===0?'00':String(founderNum||0).padStart(2,'0')}</div><div style="font-size:11px;color:var(--text3);margin-top:3px">応援票 4票/日 ・ コメント無制限 ・ 永久バッジ</div>` : profile?.is_pro ? `<div style="font-size:13px;font-weight:700;color:var(--text)">⭐ あいぽ Pro</div><div style="font-size:11px;color:var(--text3);margin-top:3px">応援票 4票/日 ・ コメント無制限</div>` : `<div style="font-size:13px;font-weight:700;color:var(--text)">Free プラン</div><div style="font-size:11px;color:var(--text3);margin-top:3px">応援票 3票/日</div>`;
-  content.innerHTML = `<div class="profile-avatar-wrap">${avatarHtml}</div>${planBadge}<div style="width:100%"><div class="profile-field"><div class="profile-label">Google アカウント名</div><input class="profile-input" readonly value="${_escAttr(googleName)}" placeholder="（Google名）"></div><div class="profile-field"><div class="profile-label">あいぽでの表示名（X / ニックネーム）</div><input class="profile-input" id="profile-x-input" value="${_escAttr(currentX)}" placeholder="例: morulabo" maxlength="30" style="font-family:'Space Mono',monospace"><div style="font-size:11px;color:var(--text3);margin-top:5px;line-height:1.6">アプリ内でこの名前が表示されます。@は不要です。</div></div><div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:16px"><div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--text3);letter-spacing:.1em;margin-bottom:8px">PLAN</div>${planDetail}</div><button class="profile-save-btn" id="profile-save-btn" onclick="_saveProfile()">保存する</button><div class="profile-status" id="profile-status"></div><a href="https://x.com/aideaipo" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:12px;background:var(--ink);border-radius:12px;font-size:13px;font-weight:700;color:#fff;margin-top:12px;text-decoration:none;font-family:var(--sans)">𝕏 公式Xをフォローする (@aideaipo)</a><button class="profile-close-btn" onclick="document.getElementById('profile-overlay').remove()">閉じる</button></div>`;
+async function saveProfile() {
+  const btn = document.getElementById('prof-save-btn'); const status = document.getElementById('prof-status');
+  if (btn) { btn.textContent = '保存中...'; btn.disabled = true; }
+  const xUsername = document.getElementById('prof-xusername')?.value?.trim().replace(/^@/,'') || '';
+  const displayName = document.getElementById('prof-displayname')?.value?.trim() || '';
+  const { error } = await sb.from('profiles').upsert({ id: currentUser.id, x_username: xUsername, display_name: displayName, updated_at: new Date() }, { onConflict: 'id' });
+  if (error) { if (status) { status.textContent = '保存に失敗しました。'; status.style.color = 'var(--red)'; } if (btn) { btn.textContent = '保存する'; btn.disabled = false; } return; }
+  currentUser.x_username = xUsername;
+  if (status) { status.textContent = '✓ 保存しました'; status.style.color = 'var(--green)'; }
+  if (btn) { btn.textContent = '保存する'; btn.disabled = false; }
+  const icoEl = document.getElementById('profile-btn-ico');
+  if (icoEl) { if (xUsername) { icoEl.textContent = '@' + xUsername.slice(0,2).toUpperCase(); icoEl.style.fontSize = '10px'; icoEl.style.fontWeight = '700'; icoEl.style.color = 'var(--amber-mid)'; } }
+  setTimeout(() => { if (status) status.textContent = ''; document.getElementById('profile-overlay')?.remove(); }, 1500);
 }
 
-async function _saveProfile() {
-  const btn = document.getElementById('profile-save-btn'); const status = document.getElementById('profile-status'); const xInput = document.getElementById('profile-x-input');
-  if (!btn || !xInput) return;
-  const newX = xInput.value.trim().replace(/^@/, '');
-  btn.disabled = true; btn.textContent = '保存中...'; status.textContent = ''; status.style.color = '';
-  try {
-    if (!currentUser) throw new Error('ログインが必要です');
-    const { error } = await sb.from('profiles').update({ x_username: newX }).eq('id', currentUser.id);
-    if (error) throw error;
-    currentUser.x_username = newX;
-    status.textContent = '✓ 保存しました'; status.style.color = 'var(--green-light)';
-    btn.textContent = '保存する'; btn.disabled = false;
-    _updateProfileBtnAvatar();
-    setTimeout(() => document.getElementById('profile-overlay')?.remove(), 1800);
-  } catch(e) { status.textContent = 'エラー: ' + e.message; status.style.color = '#dc2626'; btn.textContent = '保存する'; btn.disabled = false; }
+async function doLogin() {
+  const { error } = await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin + '/' } });
+  if (error) showToast('ログインに失敗しました');
 }
 
-function _updateProfileBtnAvatar() {
-  if (!currentUser) return;
-  const avatar = currentUser.user_metadata?.avatar_url || currentUser.user_metadata?.picture;
-  const ico = document.getElementById('profile-btn-ico');
-  if (avatar && ico) ico.outerHTML = `<img src="${avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" referrerpolicy="no-referrer">`;
+async function doLogout() {
+  await sb.auth.signOut(); currentUser = null; myIdeas.clear(); votedIds.clear(); favIdeas.clear(); votesLeft = 3; isPro = false;
+  document.getElementById('votes-left').textContent = 3; document.getElementById('profile-overlay')?.remove();
+  updatePlanBadge(); showToast('ログアウトしました'); goTo('feed');
 }
 
-function _escAttr(str) { return String(str??'').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+async function ensureProfile(user) {
+  const { data } = await sb.from('profiles').select('id, x_username, is_founder, founder_number').eq('id', user.id).maybeSingle();
+  const xName = data?.x_username || user.user_metadata?.preferred_username || user.user_metadata?.user_name || '';
+  if (!data) { await sb.from('profiles').insert({ id: user.id, x_username: xName, is_founder: false, balance: 0, is_pro: false }); }
+  else { const updates = {}; if (!data.x_username && xName) updates.x_username = xName; if (Object.keys(updates).length > 0) await sb.from('profiles').update(updates).eq('id', user.id); }
+  if (xName) currentUser.x_username = xName;
+  if (data?.is_founder) { currentUser.isFounder = true; currentUser.founderNumber = data.founder_number ?? 0; }
+  const icoEl = document.getElementById('profile-btn-ico');
+  if (icoEl && xName) { icoEl.textContent = '@' + xName.slice(0,2).toUpperCase(); icoEl.style.fontSize = '10px'; icoEl.style.fontWeight = '700'; icoEl.style.color = 'var(--amber-mid)'; }
+}
 
 async function init() {
+  setViewMode(viewMode);
   const splash = document.getElementById('splash');
+  const loginScreen = document.getElementById('login-screen');
+  const guideScreen = document.getElementById('guide-screen');
   const hasSession = await checkSession();
-  if (hasSession) {
-    const { data: prof } = await sb.from('profiles').select('x_username,is_pro,is_founder,founder_number').eq('id', currentUser.id).single();
-    if (!prof) { await sb.from('profiles').insert({ id: currentUser.id, x_username: currentUser.user_metadata?.user_name || currentUser.email?.split('@')[0] || 'user' }); }
-    else { if (prof.x_username) currentUser.x_username = prof.x_username; if (prof.is_founder) { currentUser.isFounder = true; currentUser.founderNumber = prof.founder_number ?? 0; } }
+  await fetchIdeas();
+  setTimeout(()=>{ splash.classList.add('hide'); setTimeout(()=>splash.style.display='none',500); }, 800);
+  if (hasSession && currentUser) {
+    await ensureProfile(currentUser); await checkProStatus(); await loadVotedIds(); await loadInsightScore(); await loadDividends();
     trackReferrer(currentUser.id);
+    const guideDone = localStorage.getItem('guide-done');
+    if (!guideDone) { setTimeout(() => { guideScreen.classList.add('active'); }, 1200); }
+  } else {
+    const guideDone = localStorage.getItem('guide-done');
+    if (!guideDone) { setTimeout(() => { guideScreen.classList.add('active'); }, 1200); }
   }
-  setTimeout(() => {
-    if (splash) { splash.classList.add('hide'); setTimeout(()=>splash.style.display='none', 500); }
-    const gsDone = localStorage.getItem('guide-done');
-    if (!gsDone) { document.getElementById('guide-screen').classList.add('active'); }
-    else if (!hasSession) { document.getElementById('login-screen').classList.add('active'); }
-  }, 800);
-  cleanupDuplicateCerts(); if (hasSession) { await checkProStatus(); await loadVotedIds(); syncCertsFromCloud(); await loadInsightScore(); await loadDividends(); }
-  initEmojiPicker(); setViewMode(viewMode); checkUpgradeSuccess(); checkChargeSuccess();
-  await fetchIdeas(); startRealtime(); updatePlanBadge();
-  if (hasSession) { const founderEl = document.getElementById('founder-remaining'); if (founderEl) loadFounderCount(); }
-  if (hasSession) { loadInsightScore(); }
+  checkUpgradeSuccess();
+  updateXBonus();
 }
 
 init();
-
-// URLパラメータ ?id=xxx で直接銘柄を開く
-(function(){
-  const params = new URLSearchParams(window.location.search);
-  const ideaId = params.get('id') || params.get('idea');
-  if (!ideaId) return;
-  const tryOpen = (n) => {
-    if (n > 20) return;
-    const idea = (ideas||[]).find(i => i.id === ideaId);
-    if (idea) { showDetail(ideaId); }
-    else { setTimeout(() => tryOpen(n+1), 300); }
-  };
-  setTimeout(() => tryOpen(0), 800);
-})();
 </script>
 </body>
 </html>
