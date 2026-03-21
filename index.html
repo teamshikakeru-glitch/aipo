@@ -1547,9 +1547,14 @@ async function _shareX() {
       finalOgUrl = _shareOgUrl + '&img=' + encodeURIComponent(imgUrl);
     }
   }
-  const u = 'https://twitter.com/intent/tweet?text='+encodeURIComponent(_shareText)+'&url='+encodeURIComponent(finalOgUrl);
   document.getElementById('share-sheet-overlay')?.remove();
-  window.location.href = u;
+  const tweetText = encodeURIComponent(_shareText);
+  const tweetUrl  = encodeURIComponent(finalOgUrl);
+  // Xアプリを起動 → 300ms後にWebフォールバック
+  window.location.href = `twitter://post?message=${tweetText}%0A${tweetUrl}`;
+  setTimeout(() => {
+    window.location.href = `https://twitter.com/intent/tweet?text=${tweetText}&url=${tweetUrl}`;
+  }, 300);
 }
 function _shareFb()   { const u='https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(_shareOgUrl); document.getElementById('share-sheet-overlay')?.remove(); window.location.href=u; }
 function _shareCopy() { navigator.clipboard.writeText(_shareOgUrl).then(()=>showToast('URLをコピーしました')).catch(()=>showToast('コピーできませんでした')); }
