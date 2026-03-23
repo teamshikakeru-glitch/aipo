@@ -594,19 +594,42 @@ function updateTimestamp() {
   setText('lastUpdated', hh+':'+mm+':'+ss);
 }
 
+// ── Debug helper ─────────────────────────────────────────
+function dbgShow(msg, color) {
+  color = color || '#555';
+  const el = document.getElementById('action-section');
+  if (!el) return;
+  const d = document.createElement('div');
+  d.style.cssText = 'color:'+color+';font-size:11px;padding:4px 8px;background:#fff;border-radius:6px;margin-bottom:4px;word-break:break-all;font-family:monospace';
+  d.textContent = msg;
+  el.appendChild(d);
+}
+
 // ── Auth ─────────────────────────────────────────────────
 async function authGuard() {
+  document.getElementById('action-section').innerHTML = '';
+  dbgShow('① getSession を呼び出し中...');
   try {
-    const { data } = await sb.auth.getSession();
-    const user = data?.session?.user;
-    if (!user || user.id !== ADMIN_UUID) {
-      window.location.replace('index.html');
+    const { data, error } = await sb.auth.getSession();
+    if (error) {
+      dbgShow('❌ getSession エラー: ' + JSON.stringify(error), '#e53e3e');
       return false;
     }
+    const user = data?.session?.user;
+    if (!user) {
+      dbgShow('❌ セッションなし → index.html にリダイレクトします', '#e53e3e');
+      setTimeout(() => window.location.replace('index.html'), 1500);
+      return false;
+    }
+    if (user.id !== ADMIN_UUID) {
+      dbgShow('❌ 権限なし (id: ' + user.id + ')', '#e53e3e');
+      setTimeout(() => window.location.replace('index.html'), 1500);
+      return false;
+    }
+    dbgShow('✅ 認証 OK: ' + (user.email || user.id), '#22a85f');
     return true;
   } catch(e) {
-    console.error('authGuard error:', e);
-    window.location.replace('index.html');
+    dbgShow('❌ 例外: ' + String(e), '#e53e3e');
     return false;
   }
 }
@@ -853,6 +876,15 @@ function renderActionCard(data) {
 }
 
 async function loadAll() {
+  dbgShow('② DB接続テスト中...');
+  const { data: testData, error: testErr } = await sb.from('profiles').select('id').limit(1);
+  if (testErr) {
+    dbgShow('❌ DB接続失敗: ' + JSON.stringify(testErr), '#e53e3e');
+    updateTimestamp();
+    return;
+  }
+  dbgShow('✅ DB接続 OK → データ読み込み開始', '#22a85f');
+
   loadKPI();
   loadRanking();
   loadActivity();
@@ -1106,8 +1138,7 @@ async function loadLog(filter) {
     await loadAll();
   } catch(e) {
     console.error('Init error:', e);
-    const el = document.getElementById('action-section');
-    if (el) el.innerHTML = '<div style="color:var(--red);font-size:12px;padding:8px;background:#fff;border-radius:8px">初期化エラー: ' + esc(String(e.message||e)) + '</div>';
+    dbgShow('❌ 初期化エラー: ' + String(e.message||e), '#e53e3e');
     updateTimestamp();
   }
 })();
