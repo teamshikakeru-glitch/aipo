@@ -2,1103 +2,1105 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>あいぽ COMMAND</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AIPO CONTROL TOWER</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-:root{
-  --bg:#eceae4;--surface:#fff;--ink:#1a1814;--ink2:#4a4640;--ink3:#9a9088;--ink4:#ccc8c0;
-  --amber:#e8850a;--amber-d:#c4700a;--amber-l:#fff3e0;--amber-b:#fde68a;
-  --green:#22a85f;--green-l:#e8f8ef;--green-b:#a7f3d0;
-  --red:#dc3545;--red-l:#fff0f0;
-  --border:#e0dbd4;--border2:#ccc8c0;--line-green:#06C755;
-  --mono:'Space Mono',monospace;--sans:'Noto Sans JP',sans-serif;
-  --r:16px;--rs:10px;--rx:22px;
-  --sh:0 1px 4px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04);
-  --sh-m:0 4px 16px rgba(0,0,0,.1),0 2px 6px rgba(0,0,0,.06);
-}
-html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* LOGIN */
-#gate{position:fixed;inset:0;background:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;padding:32px}
-.gate-mark{width:56px;height:56px;background:var(--amber);border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:28px;box-shadow:0 8px 24px rgba(232,133,10,.4)}
-.gate-mark svg{width:24px;height:24px}
-.gate-sub{font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.35);letter-spacing:.2em;text-transform:uppercase;margin-bottom:12px}
-.gate-title{font-size:26px;font-weight:700;color:#fff;letter-spacing:-.03em;margin-bottom:6px}
-.gate-desc{font-size:12px;color:rgba(255,255,255,.35);margin-bottom:40px}
-.gate-btn{display:flex;align-items:center;gap:10px;padding:14px 24px;background:var(--surface);border:none;border-radius:var(--r);font-size:14px;font-weight:700;color:var(--ink);cursor:pointer;font-family:var(--sans);box-shadow:var(--sh-m);transition:transform .1s}
-.gate-btn:active{transform:scale(.97)}
-.gate-err{display:none;margin-top:16px;font-size:12px;color:#f87171;font-family:var(--mono)}
+  :root {
+    --amber-mid: #e8850a;
+    --amber-light: #f5a623;
+    --surface: #ffffff;
+    --bg: #eceae4;
+    --green-light: #22a85f;
+    --red: #e53e3e;
+    --text: #1a1a1a;
+    --text-muted: #888;
+  }
 
-/* TOP BAR */
-.topbar{height:52px;background:var(--ink);display:flex;align-items:center;padding:0 16px;gap:10px;position:sticky;top:0;z-index:50}
-.tb-logo{font-family:var(--mono);font-size:13px;font-weight:700;color:#fff;letter-spacing:.06em}
-.tb-dot{width:4px;height:4px;background:var(--amber);border-radius:50%}
-.tb-label{font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.3);letter-spacing:.12em;text-transform:uppercase}
-.tb-spacer{flex:1}
-.tb-live{display:flex;align-items:center;gap:5px;padding:4px 10px;border:1px solid rgba(34,168,95,.4);border-radius:20px}
-.tb-live-dot{width:5px;height:5px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.tb-live-txt{font-family:var(--mono);font-size:8px;color:var(--green);letter-spacing:.08em}
-.tb-refresh{width:32px;height:32px;background:rgba(255,255,255,.08);border:none;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:rgba(255,255,255,.5);font-size:15px;transition:background .15s}
-.tb-refresh:hover{background:rgba(255,255,255,.15);color:#fff}
-.spin{animation:spin .7s linear infinite;display:inline-block}
-@keyframes spin{to{transform:rotate(360deg)}}
+  html, body {
+    width: 100%;
+    max-width: 390px;
+    margin: 0 auto;
+    overflow-x: hidden;
+    background: var(--bg);
+    font-family: 'Noto Sans JP', sans-serif;
+    color: var(--text);
+    font-size: 14px;
+    min-height: 100vh;
+  }
 
-/* PAGE */
-.page{max-width:390px;margin:0 auto;padding:20px 14px 80px}
-.sec-lbl{font-family:var(--mono);font-size:8px;color:var(--ink3);letter-spacing:.16em;text-transform:uppercase;margin:24px 0 10px;display:flex;align-items:center;gap:8px}
-.sec-lbl:first-child{margin-top:0}
-.sec-lbl::after{content:'';flex:1;height:1px;background:var(--border)}
+  .header {
+    background: linear-gradient(135deg, #c96a00 0%, var(--amber-mid) 50%, var(--amber-light) 100%);
+    color: #fff;
+    padding: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-back {
+    font-size: 12px;
+    color: rgba(255,255,255,0.8);
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: 8px;
+  }
+  .header-back:hover { color: #fff; }
+  .header-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  .header-subtitle {
+    font-size: 11px;
+    opacity: 0.8;
+    margin-top: 2px;
+  }
+  .header-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
+  }
+  .last-updated {
+    font-size: 11px;
+    opacity: 0.85;
+    font-family: 'Space Mono', monospace;
+  }
+  .refresh-btn {
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.4);
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+  .refresh-btn:active { background: rgba(255,255,255,0.35); }
 
-/* EXPAND PANEL */
-.exp-row{cursor:pointer;user-select:none;-webkit-tap-highlight-color:rgba(0,0,0,.04);transition:background .12s}
-.exp-row:hover{background:rgba(0,0,0,.02)}
-.exp-row:active{background:rgba(0,0,0,.04)}
-.exp-arrow{font-family:var(--mono);font-size:9px;color:var(--ink4);transition:transform .25s;flex-shrink:0}
-.exp-row.open .exp-arrow{transform:rotate(180deg)}
-.exp-panel{max-height:0;overflow:hidden;transition:max-height .3s cubic-bezier(.4,0,.2,1)}
-.exp-panel.open{max-height:600px}
-.exp-inner{padding:12px 14px 14px;background:var(--bg);border-top:1px solid var(--border)}
-.exp-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
-.exp-stat{background:var(--surface);border-radius:8px;padding:10px;text-align:center;border:1px solid var(--border)}
-.exp-stat-num{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--ink);line-height:1;margin-bottom:2px}
-.exp-stat-lbl{font-size:9px;color:var(--ink3)}
-.exp-desc{font-size:12px;color:var(--ink2);line-height:1.75;margin-bottom:8px}
-.exp-tag{display:inline-block;font-family:var(--mono);font-size:8px;padding:2px 7px;border-radius:4px;background:var(--amber-l);color:var(--amber);border:1px solid var(--amber-b);margin-right:4px}
-.exp-user-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)}
-.exp-user-row:last-child{border-bottom:none}
-.exp-user-av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#64748b,#94a3b8);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
-.exp-user-av.founder{background:linear-gradient(135deg,#d97706,#f59e0b)}
-.exp-user-av.pro{background:linear-gradient(135deg,var(--green),#10b981)}
-.exp-user-name{flex:1;font-size:12px;font-weight:600;color:var(--ink)}
-.exp-user-sub{font-family:var(--mono);font-size:9px;color:var(--ink3)}
-.exp-action-btn{width:100%;margin-top:10px;padding:10px;background:var(--ink);border:none;border-radius:8px;font-size:12px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans);transition:opacity .15s}
-.exp-action-btn:hover{opacity:.85}
-.exp-action-btn.ghost{background:transparent;border:1px solid var(--border2);color:var(--ink2)}
+  .main {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
 
-/* REVENUE HERO */
-.rev-hero{background:var(--ink);border-radius:var(--rx);overflow:hidden;margin-bottom:10px;cursor:pointer}
-.rev-hero-main{padding:22px 20px;position:relative}
-.rev-hero-main::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(232,133,10,.18),transparent 70%);pointer-events:none}
-.rev-eyebrow{font-family:var(--mono);font-size:8px;color:rgba(255,255,255,.3);letter-spacing:.16em;text-transform:uppercase;margin-bottom:10px}
-.rev-amount-row{display:flex;align-items:baseline;gap:4px;margin-bottom:18px}
-.rev-amount{font-family:var(--mono);font-size:48px;font-weight:700;color:#fff;letter-spacing:-.04em;line-height:1}
-.rev-unit{font-family:var(--mono);font-size:18px;color:rgba(255,255,255,.35)}
-.rev-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.rev-item{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:12px;cursor:pointer;transition:background .15s}
-.rev-item:hover{background:rgba(255,255,255,.09)}
-.rev-item-ico{font-size:14px;margin-bottom:6px}
-.rev-item-val{font-family:var(--mono);font-size:22px;font-weight:700;color:#fff;line-height:1;margin-bottom:3px}
-.rev-item-lbl{font-size:10px;color:rgba(255,255,255,.35)}
-.rev-item-sub{font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.2);margin-top:2px}
-.rev-expand{background:rgba(255,255,255,.04);border-top:1px solid rgba(255,255,255,.07);max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.4,0,.2,1)}
-.rev-expand.open{max-height:800px}
-.rev-expand-inner{padding:14px 20px 18px}
-.rev-expand-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)}
-.rev-expand-row:last-child{border-bottom:none}
-.rev-expand-av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#d97706,#f59e0b);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
-.rev-expand-av.pro{background:linear-gradient(135deg,var(--green),#10b981)}
-.rev-expand-name{flex:1;font-size:12px;font-weight:600;color:rgba(255,255,255,.8)}
-.rev-expand-badge{font-family:var(--mono);font-size:8px;padding:2px 6px;border-radius:4px}
-.rev-expand-badge.founder{background:rgba(232,133,10,.2);color:var(--amber)}
-.rev-expand-badge.pro{background:rgba(34,168,95,.2);color:var(--green)}
-.rev-expand-tip{display:flex;align-items:center;justify-content:center;gap:4px;padding:8px;font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.25)}
-.rev-expand-tip.open .exp-arrow{transform:rotate(180deg)}
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
 
-/* TODAY GRID */
-.today-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:0}
-.today-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);cursor:pointer}
-.today-card-main{padding:14px 12px;position:relative}
-.today-card-main::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:var(--r) 0 0 var(--r)}
-.today-card.amber .today-card-main::before{background:var(--amber)}
-.today-card.green .today-card-main::before{background:var(--green)}
-.today-card.blue .today-card-main::before{background:#4f8ef7}
-.today-ico{font-size:16px;margin-bottom:8px}
-.today-num{font-family:var(--mono);font-size:28px;font-weight:700;color:var(--ink);line-height:1;margin-bottom:4px}
-.today-lbl{font-size:9px;color:var(--ink3);font-weight:500;margin-bottom:5px}
-.today-badge{font-family:var(--mono);font-size:8px;font-weight:700;padding:2px 6px;border-radius:4px;display:inline-block}
-.today-badge.up{background:var(--green-l);color:var(--green)}
-.today-badge.down{background:var(--red-l);color:var(--red)}
-.today-badge.flat{background:var(--bg);color:var(--ink3)}
-.today-expand{background:var(--bg);border-top:1px solid var(--border);max-height:0;overflow:hidden;transition:max-height .3s cubic-bezier(.4,0,.2,1)}
-.today-expand.open{max-height:400px}
-.today-expand-inner{padding:10px 12px 12px}
+  .card {
+    background: var(--surface);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    padding: 14px;
+  }
 
-/* FOUNDER COUNTDOWN */
-.founder-bar-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);cursor:pointer}
-.fc-main{padding:16px;position:relative}
-.fc-main::after{content:'';position:absolute;right:-20px;top:-20px;width:80px;height:80px;background:radial-gradient(circle,rgba(232,133,10,.08),transparent 70%);pointer-events:none}
-.fc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.fc-title{font-size:12px;font-weight:700;color:var(--ink)}
-.fc-slots-big{font-family:var(--mono);font-size:32px;font-weight:700;color:var(--amber);line-height:1}
-.fc-slots-sub{font-family:var(--mono);font-size:9px;color:var(--ink3);margin-top:2px}
-.fc-bar-wrap{height:8px;background:var(--bg);border-radius:4px;overflow:hidden;margin-bottom:8px;border:1px solid var(--border)}
-.fc-bar-fill{height:100%;border-radius:4px;transition:width 1.2s cubic-bezier(.4,0,.2,1);background:linear-gradient(90deg,var(--amber-d),var(--amber))}
-.fc-labels{display:flex;justify-content:space-between}
-.fc-label-txt{font-family:var(--mono);font-size:9px;color:var(--ink3)}
-.fc-urgency{font-family:var(--mono);font-size:10px;font-weight:700;padding:4px 10px;border-radius:6px;display:inline-block;margin-top:8px}
-.fc-urgency.safe{background:var(--green-l);color:var(--green)}
-.fc-urgency.warn{background:#fff8e1;color:#b45309}
-.fc-urgency.hot{background:var(--red-l);color:var(--red)}
-.fc-expand{background:var(--bg);border-top:1px solid var(--border);max-height:0;overflow:hidden;transition:max-height .3s cubic-bezier(.4,0,.2,1)}
-.fc-expand.open{max-height:900px}
-.fc-expand-inner{padding:12px 16px 14px}
-.fc-tip{display:flex;align-items:center;justify-content:flex-end;gap:4px;padding:6px 16px 0;font-family:var(--mono);font-size:9px;color:var(--ink4)}
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .kpi-card {
+    background: var(--surface);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    padding: 12px;
+    border-top: 3px solid var(--amber-mid);
+    min-width: 0;
+  }
+  .kpi-value {
+    font-family: 'Space Mono', monospace;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .kpi-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.3;
+  }
+  .kpi-sub {
+    font-size: 10px;
+    color: var(--amber-mid);
+    margin-top: 3px;
+    font-family: 'Space Mono', monospace;
+  }
 
-/* RETENTION */
-.retention-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
-.ret-main{padding:16px;cursor:pointer}
-.ret-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-.ret-item{background:var(--bg);border-radius:10px;padding:12px;text-align:center}
-.ret-num{font-family:var(--mono);font-size:26px;font-weight:700;color:var(--ink);line-height:1;margin-bottom:3px}
-.ret-num.green{color:var(--green)}
-.ret-num.amber{color:var(--amber)}
-.ret-num.red{color:var(--red)}
-.ret-lbl{font-size:9px;color:var(--ink3);font-weight:500}
-.ret-bar-row{margin-bottom:8px}
-.ret-bar-lbl{display:flex;justify-content:space-between;margin-bottom:4px}
-.ret-bar-txt{font-size:10px;color:var(--ink2);font-weight:600}
-.ret-bar-pct{font-family:var(--mono);font-size:10px;color:var(--ink3)}
-.ret-bar{height:6px;background:var(--bg);border-radius:3px;overflow:hidden;border:1px solid var(--border)}
-.ret-bar-fill{height:100%;border-radius:3px;transition:width .8s}
-.ret-insight{font-size:11px;color:var(--ink2);line-height:1.6;padding:10px;background:var(--bg);border-radius:8px;border-left:3px solid var(--green);margin-top:10px}
-.ret-expand{background:var(--bg);border-top:1px solid var(--border);max-height:0;overflow:hidden;transition:max-height .3s cubic-bezier(.4,0,.2,1)}
-.ret-expand.open{max-height:700px}
-.ret-expand-inner{padding:12px 16px 14px}
+  .skeleton {
+    background: linear-gradient(90deg, #e8e6e0 25%, #f0ede8 50%, #e8e6e0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+    border-radius: 4px;
+    height: 28px;
+    width: 60%;
+    display: block;
+  }
+  .skeleton-line {
+    background: linear-gradient(90deg, #e8e6e0 25%, #f0ede8 50%, #e8e6e0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+    border-radius: 4px;
+    height: 14px;
+    margin-bottom: 10px;
+    display: block;
+  }
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
 
-/* DORMANT */
-.dormant-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
-.dormant-head{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
-.dormant-title{font-size:12px;font-weight:700;color:var(--ink)}
-.dormant-count-badge{font-family:var(--mono);font-size:11px;font-weight:700;padding:3px 10px;background:var(--red-l);color:var(--red);border-radius:8px}
-.dormant-bc-btn{width:100%;padding:12px;background:var(--ink);border:none;font-size:12px;font-weight:700;color:#fff;font-family:var(--sans);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s;border-top:1px solid rgba(255,255,255,.08)}
-.dormant-bc-btn:hover{opacity:.88}
-.dormant-row{cursor:pointer;border-bottom:1px solid var(--border)}
-.dormant-row:last-of-type{border-bottom:none}
-.dormant-row-main{display:flex;align-items:center;gap:10px;padding:11px 16px;transition:background .1s}
-.dormant-row-main:hover{background:var(--bg)}
-.dormant-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#64748b,#94a3b8);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
-.dormant-av.founder{background:linear-gradient(135deg,#d97706,#f59e0b)}
-.dormant-name{flex:1;font-size:12px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.dormant-days{font-family:var(--mono);font-size:9px;color:var(--ink3);flex-shrink:0}
-.dormant-more{padding:12px 16px;font-size:11px;color:var(--ink3);text-align:center;border-top:1px solid var(--border)}
+  .rank-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0ede8;
+  }
+  .rank-item:last-child { border-bottom: none; }
+  .rank-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: #e8e6e0;
+    color: var(--text-muted);
+  }
+  .rank-badge.gold { background: var(--amber-mid); color: #fff; }
+  .rank-badge.silver { background: #aaa; color: #fff; }
+  .rank-badge.bronze { background: #a07040; color: #fff; }
+  .rank-info { flex: 1; min-width: 0; }
+  .rank-name {
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .rank-meta { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+  .rank-score {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--amber-mid);
+    flex-shrink: 0;
+  }
 
-/* WEEKLY TREND */
-.trend-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
-.trend-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
-.trend-item{padding:14px;cursor:pointer;border-bottom:1px solid var(--border);border-right:1px solid var(--border);overflow:hidden}
-.trend-item:nth-child(2n){border-right:none}
-.trend-item:nth-child(3),.trend-item:nth-child(4){border-bottom:none}
-.trend-item-main{display:flex;flex-direction:column}
-.trend-ico{font-size:14px;margin-bottom:6px}
-.trend-num{font-family:var(--mono);font-size:24px;font-weight:700;color:var(--ink);line-height:1;margin-bottom:3px}
-.trend-lbl{font-size:9px;color:var(--ink3);margin-bottom:5px;font-weight:500}
-.trend-diff{font-family:var(--mono);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px}
-.trend-diff.up{background:var(--green-l);color:var(--green)}
-.trend-diff.down{background:var(--red-l);color:var(--red)}
-.trend-diff.flat{background:var(--bg);color:var(--ink3);border:1px solid var(--border)}
-.trend-expand{background:var(--bg);border-top:1px solid var(--border);max-height:0;overflow:hidden;transition:max-height .3s cubic-bezier(.4,0,.2,1);grid-column:1/-1}
-.trend-expand.open{max-height:500px}
-.trend-expand-inner{padding:12px 14px 14px}
+  .gauge-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    margin-bottom: 6px;
+  }
+  .gauge-count { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .gauge-remaining { color: var(--text-muted); }
+  .gauge-warning { color: var(--red); font-weight: 700; }
+  .gauge-bar-bg {
+    background: #e8e6e0;
+    border-radius: 6px;
+    height: 14px;
+    overflow: hidden;
+  }
+  .gauge-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #c96a00, var(--amber-light));
+    border-radius: 6px;
+    transition: width 0.6s ease;
+  }
 
-/* HOURLY */
-.hourly-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);cursor:pointer}
-.hourly-main{padding:16px}
-.hourly-bars{display:flex;align-items:flex-end;gap:2px;height:56px;margin-bottom:4px}
-.hourly-bar{flex:1;border-radius:2px 2px 0 0;min-height:2px;transition:height .5s}
-.hourly-lbls{display:flex;gap:2px}
-.hourly-lbl{flex:1;text-align:center;font-family:var(--mono);font-size:7px;color:var(--ink4)}
-.hourly-peak{font-size:11px;color:var(--ink2);margin-top:8px;padding:8px;background:var(--bg);border-radius:8px}
-.hourly-expand{background:var(--bg);border-top:1px solid var(--border);max-height:0;overflow:hidden;transition:max-height .3s cubic-bezier(.4,0,.2,1)}
-.hourly-expand.open{max-height:500px}
-.hourly-expand-inner{padding:12px 16px 14px}
-.hourly-detail-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)}
-.hourly-detail-row:last-child{border-bottom:none}
+  .activity-item {
+    display: flex;
+    gap: 8px;
+    padding: 7px 0;
+    border-bottom: 1px solid #f0ede8;
+    align-items: flex-start;
+  }
+  .activity-item:last-child { border-bottom: none; }
+  .activity-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+  .activity-body { flex: 1; min-width: 0; }
+  .activity-text { font-size: 12px; line-height: 1.5; }
+  .activity-user {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--amber-mid);
+  }
+  .activity-idea {
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 130px;
+    display: inline-block;
+    vertical-align: bottom;
+  }
+  .activity-time { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
 
-/* RANKING */
-.ranking-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
-.ranking-row{border-bottom:1px solid var(--border)}
-.ranking-row:last-child{border-bottom:none}
-.ranking-row-main{display:flex;align-items:center;gap:10px;padding:11px 16px;cursor:pointer;transition:background .1s}
-.ranking-row-main:hover{background:var(--bg)}
-.rank-num{font-family:var(--mono);font-size:10px;color:var(--ink4);min-width:22px;text-align:center}
-.rank-num.top{color:var(--amber);font-weight:700}
-.rank-ticker{font-family:var(--mono);font-size:8px;color:var(--amber);background:var(--amber-l);border:1px solid var(--amber-b);border-radius:4px;padding:2px 6px;flex-shrink:0}
-.rank-name{flex:1;font-size:12px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rank-score{font-family:var(--mono);font-size:13px;font-weight:700}
-.rank-score.high{color:var(--green)}
-.rank-score.mid{color:var(--amber)}
-.rank-score.low{color:var(--ink3)}
+  .error-text { color: var(--red); font-size: 12px; }
 
-/* ACTIVITY */
-.activity-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
-.act-row{border-bottom:1px solid var(--border)}
-.act-row:last-child{border-bottom:none}
-.act-row-main{display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;transition:background .1s}
-.act-row-main:hover{background:var(--bg)}
-.act-type{font-family:var(--mono);font-size:8px;font-weight:700;padding:2px 6px;border-radius:4px;flex-shrink:0}
-.act-type.vote{background:var(--amber-l);color:var(--amber);border:1px solid var(--amber-b)}
-.act-type.list{background:var(--green-l);color:var(--green);border:1px solid var(--green-b)}
-.act-type.view{background:var(--bg);color:var(--ink3);border:1px solid var(--border)}
-.act-info{flex:1;min-width:0}
-.act-idea{font-size:11px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.act-user{font-size:10px;color:var(--ink3)}
-.act-time{font-family:var(--mono);font-size:9px;color:var(--ink4);flex-shrink:0;text-align:right}
+  .footer {
+    padding: 20px 16px;
+    text-align: center;
+  }
+  .footer a {
+    font-size: 13px;
+    color: var(--amber-mid);
+    text-decoration: none;
+  }
+  .footer a:hover { text-decoration: underline; }
 
-/* TALK LIST */
-.talk-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
-.talk-card-head{background:var(--ink);padding:11px 16px;display:flex;align-items:center;gap:8px}
-.talk-card-title{font-size:12px;font-weight:700;color:#fff;flex:1;font-family:var(--sans)}
-.talk-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s}
-.talk-item:last-child{border-bottom:none}
-.talk-item:hover{background:var(--bg)}
-.talk-av{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;flex-shrink:0;position:relative}
-.av-bc{background:linear-gradient(135deg,var(--line-green),#00a040)}
-.av-founder{background:linear-gradient(135deg,#d97706,#f59e0b)}
-.av-pro{background:linear-gradient(135deg,var(--green),#10b981)}
-.av-default{background:linear-gradient(135deg,#64748b,#94a3b8)}
-.talk-unread{position:absolute;top:-2px;right:-2px;min-width:17px;height:17px;border-radius:9px;background:#e53e3e;color:#fff;font-family:var(--mono);font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 3px;border:2px solid #fff}
-.talk-body{flex:1;min-width:0}
-.talk-name-row{display:flex;align-items:center;gap:5px;margin-bottom:2px}
-.talk-name{font-size:12px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:130px}
-.tb-founder{font-size:7px;padding:1px 5px;border-radius:3px;background:var(--amber-l);color:var(--amber);border:1px solid var(--amber-b);font-family:var(--mono);font-weight:700;flex-shrink:0}
-.tb-pro{font-size:7px;padding:1px 5px;border-radius:3px;background:var(--green-l);color:var(--green);border:1px solid var(--green-b);font-family:var(--mono);font-weight:700;flex-shrink:0}
-.tb-bc{font-size:7px;padding:1px 5px;border-radius:3px;background:var(--green-l);color:var(--green);border:1px solid var(--green-b);font-family:var(--mono);font-weight:700;flex-shrink:0}
-.talk-preview{font-size:10px;color:var(--ink3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.talk-preview.unread{color:var(--ink);font-weight:600}
-.talk-meta{flex-shrink:0;text-align:right}
-.talk-time{font-family:var(--mono);font-size:8px;color:var(--ink4)}
-.bc-pct{margin-top:4px;font-family:var(--mono);font-size:8px;color:var(--green)}
-.talk-skel{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border)}
-.sk-av{width:44px;height:44px;border-radius:50%;background:linear-gradient(90deg,var(--bg) 25%,var(--border) 50%,var(--bg) 75%);background-size:200% 100%;animation:sk 1.4s infinite;flex-shrink:0}
-.sk-line{border-radius:4px;background:linear-gradient(90deg,var(--bg) 25%,var(--border) 50%,var(--bg) 75%);background-size:200% 100%;animation:sk 1.4s infinite}
-@keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
+  /* ── AI Action Card ── */
+  .action-card {
+    background: linear-gradient(135deg, #c96a00 0%, var(--amber-mid) 100%);
+    border-radius: 14px;
+    padding: 16px;
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(232,133,10,0.3);
+  }
+  .action-priority {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    margin-bottom: 8px;
+    opacity: 0.9;
+    font-family: 'Space Mono', monospace;
+  }
+  .action-label {
+    font-size: 10px;
+    opacity: 0.75;
+    margin-bottom: 4px;
+    letter-spacing: 0.5px;
+  }
+  .action-main {
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.45;
+    margin-bottom: 10px;
+  }
+  .action-reason {
+    font-size: 12px;
+    opacity: 0.88;
+    line-height: 1.65;
+    background: rgba(0,0,0,0.12);
+    border-radius: 8px;
+    padding: 8px 10px;
+  }
+  .action-cta {
+    margin-top: 12px;
+    background: rgba(255,255,255,0.25);
+    border: 1px solid rgba(255,255,255,0.4);
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif;
+    width: 100%;
+    text-align: center;
+  }
+  .action-cta:active { background: rgba(255,255,255,0.35); }
 
-/* LINE MODAL */
-.lm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:300;display:flex;align-items:flex-end;justify-content:center}
-.lm-modal{background:#b2c6cf;width:100%;max-width:390px;height:90vh;display:flex;flex-direction:column;border-radius:18px 18px 0 0;overflow:hidden;box-shadow:0 -8px 32px rgba(0,0,0,.2)}
-.lm-header{background:var(--line-green);height:56px;padding:0 14px;display:flex;align-items:center;gap:10px;flex-shrink:0}
-.lm-back{background:none;border:none;color:#fff;font-size:28px;cursor:pointer;line-height:1;padding:0 4px;font-weight:300}
-.lm-av{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;border:2px solid rgba(255,255,255,.4)}
-.lm-name{flex:1;font-size:15px;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.lm-sub{font-size:9px;color:rgba(255,255,255,.7)}
-.lm-msgs{flex:1;overflow-y:auto;padding:12px 10px;display:flex;flex-direction:column}
-.lm-msgs::-webkit-scrollbar{width:3px}
-.lm-msgs::-webkit-scrollbar-thumb{background:rgba(0,0,0,.2);border-radius:2px}
-.lm-date{display:flex;justify-content:center;margin:12px 0 8px}
-.lm-date-lbl{font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.9);background:rgba(0,0,0,.25);border-radius:10px;padding:3px 14px}
-.lm-row{display:flex;align-items:flex-end;gap:6px;margin-bottom:8px}
-.lm-row.sent{justify-content:flex-end}
-.lm-recv-av{width:30px;height:30px;border-radius:50%;background:#e0d8ce;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--ink);flex-shrink:0;align-self:flex-end}
-.lm-recv-av.sp{visibility:hidden}
-.lm-bubble{max-width:74%;padding:9px 13px;font-size:13px;line-height:1.65;word-break:break-word;white-space:pre-wrap}
-.lm-bubble.sent{background:var(--line-green);color:#fff;border-radius:18px 18px 4px 18px}
-.lm-bubble.recv{background:#fff;color:var(--ink);border-radius:4px 18px 18px 18px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
-.lm-sent-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:1px;align-self:flex-end;padding-bottom:1px}
-.lm-recv-wrap{display:flex;flex-direction:column;gap:2px}
-.lm-ts{font-family:var(--mono);font-size:8px;color:rgba(0,0,0,.35);white-space:nowrap}
-.lm-ts-r{margin-left:4px}
-.lm-read{font-family:var(--mono);font-size:8px;color:rgba(0,0,0,.4)}
-.lm-tag{display:inline-block;font-family:var(--mono);font-size:7px;color:rgba(0,0,0,.35);background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px;margin-top:3px}
-.lm-bar{background:#f0ece4;border-top:1px solid #d4cec4;padding:10px 12px;display:flex;gap:8px;align-items:center;flex-shrink:0}
-.lm-input{flex:1;background:#fff;border:1.5px solid #e0dbd4;border-radius:22px;padding:9px 14px;font-size:13px;font-family:var(--sans);color:var(--ink);outline:none;transition:border-color .15s}
-.lm-input:focus{border-color:var(--line-green)}
-.lm-send{width:38px;height:38px;background:var(--line-green);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:opacity .15s,transform .1s}
-.lm-send:hover{opacity:.88}
-.lm-send:active{transform:scale(.92)}
-.lm-send:disabled{opacity:.3;cursor:not-allowed}
-.lm-empty{text-align:center;padding:40px 20px;color:rgba(255,255,255,.55);font-size:12px;line-height:2}
+  /* ── AI Comment Box ── */
+  .ai-comment {
+    background: #f5f3ef;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 12px;
+    color: #555;
+    line-height: 1.75;
+    margin-top: 12px;
+    border-left: 3px solid var(--amber-mid);
+  }
 
-/* MISC */
-.empty{padding:28px 16px;text-align:center}
-.empty-ico{font-size:24px;opacity:.3;margin-bottom:8px}
-.empty-txt{font-size:11px;color:var(--ink3);line-height:1.8}
-.skel-line{border-radius:4px;background:linear-gradient(90deg,var(--bg) 25%,var(--border) 50%,var(--bg) 75%);background-size:200% 100%;animation:sk 1.4s infinite;height:12px;margin-bottom:8px}
-.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:12px;font-weight:700;padding:9px 20px;border-radius:20px;z-index:9999;font-family:var(--sans);box-shadow:var(--sh-m);white-space:nowrap}
+  /* ── CV Funnel ── */
+  .funnel-step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 0;
+    border-bottom: 1px solid #f0ede8;
+  }
+  .funnel-step:last-child { border-bottom: none; }
+  .funnel-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    min-width: 48px;
+    color: var(--text);
+  }
+  .funnel-label { font-size: 12px; color: var(--text-muted); flex: 1; }
+  .funnel-rate {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--amber-mid);
+    text-align: right;
+    min-width: 70px;
+  }
+  .funnel-rate.danger { color: var(--red); }
+  .funnel-arrow {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 11px;
+    padding: 1px 0 1px 56px;
+  }
+  .warn-badge {
+    font-size: 10px;
+    color: var(--red);
+    font-weight: 700;
+    display: block;
+    margin-top: 1px;
+  }
+
+  /* ── Retention ── */
+  .retention-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .ret-card {
+    background: #f5f3ef;
+    border-radius: 10px;
+    padding: 10px 6px;
+    text-align: center;
+  }
+  .ret-value {
+    font-family: 'Space Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .ret-label { font-size: 10px; color: var(--text-muted); line-height: 1.4; }
+
+  /* ── Health ── */
+  .health-summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .health-card {
+    border-radius: 10px;
+    padding: 10px 8px;
+    text-align: center;
+  }
+  .health-card.critical { background: #fff0f0; }
+  .health-card.warning  { background: #fffbf0; }
+  .health-card.healthy  { background: #f0fff5; }
+  .health-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 3px;
+  }
+  .health-card.critical .health-num { color: var(--red); }
+  .health-card.warning  .health-num { color: #d97706; }
+  .health-card.healthy  .health-num { color: var(--green-light); }
+  .health-label { font-size: 10px; color: var(--text-muted); }
+
+  .risk-item {
+    padding: 8px 0;
+    border-bottom: 1px solid #f0ede8;
+  }
+  .risk-item:last-child { border-bottom: none; }
+  .risk-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+  .risk-name {
+    font-size: 12px;
+    font-weight: 500;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    flex: 1;
+  }
+  .risk-meta { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+  .risk-link {
+    font-size: 11px;
+    color: var(--amber-mid);
+    text-decoration: none;
+    flex-shrink: 0;
+    font-weight: 700;
+  }
+
+  /* ── Revenue ── */
+  .rev-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .rev-card {
+    background: #f5f3ef;
+    border-radius: 10px;
+    padding: 12px;
+    min-width: 0;
+  }
+  .rev-value {
+    font-family: 'Space Mono', monospace;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--amber-mid);
+    line-height: 1;
+    margin-bottom: 5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .rev-label { font-size: 10px; color: var(--text-muted); line-height: 1.5; }
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
-<div id="gate">
-  <div class="gate-mark">
-    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round">
-      <polyline points="3,17 8,12 12,14 17,7 21,9"/>
-      <circle cx="21" cy="9" r="2" fill="#fff" stroke="none"/>
-    </svg>
+<div class="header">
+  <a href="index.html" class="header-back">← あいぽに戻る</a>
+  <div class="header-title">AIPO CONTROL TOWER</div>
+  <div class="header-subtitle">管理者ダッシュボード</div>
+  <div class="header-meta">
+    <span class="last-updated" id="lastUpdated">最終更新：--:--:--</span>
+    <button class="refresh-btn" onclick="loadAll()">🔄 更新</button>
   </div>
-  <div class="gate-sub">Aipo · Command Center</div>
-  <div class="gate-title">管理ダッシュボード</div>
-  <div class="gate-desc">中川さん専用</div>
-  <button class="gate-btn" onclick="doLogin()">
-    <svg width="16" height="16" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-    Googleでログイン
-  </button>
-  <div class="gate-err" id="gate-err">⚠ アクセス権限がありません</div>
 </div>
 
-<!-- DASHBOARD -->
-<div id="dash" style="display:none">
-  <div class="topbar">
-    <span class="tb-logo">aipo</span>
-    <span class="tb-dot"></span>
-    <span class="tb-label">command</span>
-    <div class="tb-spacer"></div>
-    <div class="tb-live"><div class="tb-live-dot"></div><span class="tb-live-txt">LIVE</span></div>
-    <button class="tb-refresh" onclick="loadAll()" id="refresh-btn"><span id="refresh-ico">↺</span></button>
+<div class="main">
+
+  <!-- KPI -->
+  <div>
+    <div class="section-title">KPI サマリー</div>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-users"><span class="skeleton" style="width:50%;height:24px;"></span></div>
+        <div class="kpi-label">総ユーザー数</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-founders"><span class="skeleton" style="width:50%;height:24px;"></span></div>
+        <div class="kpi-label">創設メンバー数</div>
+        <div class="kpi-sub" id="kpi-founders-sub"></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-ideas"><span class="skeleton" style="width:50%;height:24px;"></span></div>
+        <div class="kpi-label">総アイデア数</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpi-votes"><span class="skeleton" style="width:50%;height:24px;"></span></div>
+        <div class="kpi-label">総投票数</div>
+      </div>
+    </div>
   </div>
 
-  <div class="page">
-
-    <!-- 売上 -->
-    <div class="sec-lbl">💰 売上</div>
-    <div class="rev-hero" id="rev-hero">
-      <div class="rev-hero-main">
-        <div class="rev-eyebrow">TOTAL REVENUE — 概算</div>
-        <div class="rev-amount-row">
-          <div class="rev-amount" id="rev-total">—</div>
-          <div class="rev-unit">円</div>
-        </div>
-        <div class="rev-grid">
-          <div class="rev-item" onclick="toggleRevExpand('founder',event)">
-            <div class="rev-item-ico">👑</div>
-            <div class="rev-item-val" id="rev-founder-val">—</div>
-            <div class="rev-item-lbl">創設メンバー</div>
-            <div class="rev-item-sub" id="rev-founder-sub">— 人 × ¥980</div>
-          </div>
-          <div class="rev-item" onclick="toggleRevExpand('pro',event)">
-            <div class="rev-item-ico">🥃</div>
-            <div class="rev-item-val" id="rev-pro-val">—</div>
-            <div class="rev-item-lbl">Pro（月額）</div>
-            <div class="rev-item-sub" id="rev-pro-sub">— 人 × ¥300</div>
-          </div>
-        </div>
-      </div>
-      <div class="rev-expand" id="rev-expand">
-        <div class="rev-expand-inner" id="rev-expand-inner"><div style="font-size:11px;color:rgba(255,255,255,.3);text-align:center;padding:8px">読み込み中...</div></div>
+  <!-- AI Action（KPI直下） -->
+  <div>
+    <div class="section-title">🤖 今日のアクション指示</div>
+    <div id="action-section">
+      <div class="action-card">
+        <div style="color:rgba(255,255,255,0.7);font-size:12px">データ取得中...</div>
       </div>
     </div>
-
-    <!-- 今日の成長 -->
-    <div class="sec-lbl">📊 今日の成長</div>
-    <div class="today-grid">
-      <div class="today-card amber" onclick="toggleTodayExpand('users')">
-        <div class="today-card-main">
-          <div class="today-ico">🆕</div>
-          <div class="today-num" id="today-users">—</div>
-          <div class="today-lbl">新規ユーザー</div>
-          <div id="today-users-badge"></div>
-        </div>
-        <div class="today-expand" id="today-expand-users">
-          <div class="today-expand-inner" id="today-expand-users-inner"><div class="skel-line" style="margin:0"></div></div>
-        </div>
-      </div>
-      <div class="today-card green" onclick="toggleTodayExpand('votes')">
-        <div class="today-card-main">
-          <div class="today-ico">🗳</div>
-          <div class="today-num" id="today-votes">—</div>
-          <div class="today-lbl">応援票</div>
-          <div id="today-votes-badge"></div>
-        </div>
-        <div class="today-expand" id="today-expand-votes">
-          <div class="today-expand-inner" id="today-expand-votes-inner"><div class="skel-line" style="margin:0"></div></div>
-        </div>
-      </div>
-      <div class="today-card blue" onclick="toggleTodayExpand('ideas')">
-        <div class="today-card-main">
-          <div class="today-ico">💡</div>
-          <div class="today-num" id="today-ideas">—</div>
-          <div class="today-lbl">新規上場</div>
-          <div id="today-ideas-badge"></div>
-        </div>
-        <div class="today-expand" id="today-expand-ideas">
-          <div class="today-expand-inner" id="today-expand-ideas-inner"><div class="skel-line" style="margin:0"></div></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 創設メンバー残枠 -->
-    <div class="sec-lbl">👑 創設メンバー 残枠</div>
-    <div class="founder-bar-card" onclick="toggleExpand('fc')">
-      <div class="fc-main">
-        <div class="fc-top">
-          <div>
-            <div class="fc-title">先着100名限定</div>
-            <div class="fc-slots-sub">残り枠数</div>
-          </div>
-          <div style="text-align:right">
-            <div class="fc-slots-big" id="fc-slots">—</div>
-            <div class="fc-slots-sub" id="fc-filled">—/100名</div>
-          </div>
-        </div>
-        <div class="fc-bar-wrap">
-          <div class="fc-bar-fill" id="fc-bar" style="width:0%"></div>
-        </div>
-        <div class="fc-labels">
-          <span class="fc-label-txt">0</span>
-          <span class="fc-label-txt" id="fc-pct-lbl">0%埋まり</span>
-          <span class="fc-label-txt">100名</span>
-        </div>
-        <div id="fc-urgency-badge"></div>
-      </div>
-      <div class="fc-tip"><span>タップでメンバー一覧</span><span class="exp-arrow" id="fc-arrow">▼</span></div>
-      <div class="fc-expand" id="fc-expand">
-        <div class="fc-expand-inner" id="fc-expand-inner"><div class="skel-line"></div></div>
-      </div>
-    </div>
-
-    <!-- トーク -->
-    <div class="sec-lbl">
-      💬 トーク
-      <span id="talk-unread-all" style="display:none;background:#e53e3e;color:#fff;font-family:var(--mono);font-size:8px;font-weight:700;padding:1px 7px;border-radius:8px;margin-left:2px"></span>
-    </div>
-    <div class="talk-card">
-      <div class="talk-card-head">
-        <span class="talk-card-title">メッセージ</span>
-        <span id="talk-count-lbl" style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,.35)">読込中…</span>
-      </div>
-      <div id="talk-list">
-        <div class="talk-skel"><div class="sk-av"></div><div style="flex:1"><div class="sk-line" style="width:55%;height:10px;margin-bottom:6px"></div><div class="sk-line" style="width:75%;height:8px"></div></div></div>
-        <div class="talk-skel"><div class="sk-av"></div><div style="flex:1"><div class="sk-line" style="width:45%;height:10px;margin-bottom:6px"></div><div class="sk-line" style="width:65%;height:8px"></div></div></div>
-      </div>
-    </div>
-
-    <!-- リテンション -->
-    <div class="sec-lbl">🔄 リテンション</div>
-    <div class="retention-card">
-      <div class="ret-main" onclick="toggleExpand('ret')">
-        <div class="ret-grid" id="ret-grid">
-          <div class="ret-item"><div class="skel-line" style="height:28px;margin-bottom:4px"></div><div class="skel-line" style="width:60%;height:8px"></div></div>
-          <div class="ret-item"><div class="skel-line" style="height:28px;margin-bottom:4px"></div><div class="skel-line" style="width:60%;height:8px"></div></div>
-        </div>
-        <div id="ret-bars"></div>
-        <div id="ret-insight"></div>
-        <div style="text-align:right;padding-top:6px"><span class="exp-arrow" id="ret-arrow">▼</span></div>
-      </div>
-      <div class="ret-expand" id="ret-expand">
-        <div class="ret-expand-inner" id="ret-expand-inner"><div class="skel-line"></div></div>
-      </div>
-    </div>
-
-    <!-- 休眠ユーザー -->
-    <div class="sec-lbl">😴 未アクティブユーザー（一度も投票なし）</div>
-    <div class="dormant-card">
-      <div class="dormant-head">
-        <span class="dormant-title">休眠ユーザー</span>
-        <span class="dormant-count-badge" id="dormant-count">—人</span>
-      </div>
-      <div id="dormant-list"><div style="padding:16px"><div class="skel-line"></div><div class="skel-line" style="width:75%"></div></div></div>
-      <button class="dormant-bc-btn" onclick="showBroadcastToNew()">
-        <span>📢</span><span>この人たちに全体通知を送る</span>
-      </button>
-    </div>
-
-    <!-- 週次トレンド -->
-    <div class="sec-lbl">📈 週次トレンド（今週 vs 先週）</div>
-    <div class="trend-card">
-      <div class="trend-grid" id="trend-grid">
-        <div class="ret-item"><div class="skel-line" style="height:24px;margin-bottom:4px"></div><div class="skel-line" style="width:60%;height:8px"></div></div>
-        <div class="ret-item"><div class="skel-line" style="height:24px;margin-bottom:4px"></div><div class="skel-line" style="width:60%;height:8px"></div></div>
-        <div class="ret-item"><div class="skel-line" style="height:24px;margin-bottom:4px"></div><div class="skel-line" style="width:60%;height:8px"></div></div>
-        <div class="ret-item"><div class="skel-line" style="height:24px;margin-bottom:4px"></div><div class="skel-line" style="width:60%;height:8px"></div></div>
-      </div>
-      <div class="trend-expand" id="trend-expand">
-        <div class="trend-expand-inner" id="trend-expand-inner"></div>
-      </div>
-    </div>
-
-    <!-- 時間別閲覧 -->
-    <div class="sec-lbl">⏱ 今日の時間別閲覧</div>
-    <div class="hourly-card" onclick="toggleExpand('hourly')">
-      <div class="hourly-main">
-        <div class="hourly-bars" id="hourly-bars"><div style="font-size:11px;color:var(--ink3)">読み込み中...</div></div>
-        <div class="hourly-lbls" id="hourly-lbls"></div>
-        <div id="hourly-peak" class="hourly-peak" style="display:none"></div>
-        <div style="text-align:right;padding-top:6px"><span class="exp-arrow" id="hourly-arrow">▼</span></div>
-      </div>
-      <div class="hourly-expand" id="hourly-expand">
-        <div class="hourly-expand-inner" id="hourly-expand-inner"><div class="skel-line"></div></div>
-      </div>
-    </div>
-
-    <!-- アイデアランキング -->
-    <div class="sec-lbl">🏆 アイデアランキング（スコア順）</div>
-    <div class="ranking-card" id="ranking-list">
-      <div style="padding:16px"><div class="skel-line"></div><div class="skel-line" style="width:80%"></div><div class="skel-line" style="width:70%"></div></div>
-    </div>
-
-    <!-- 最新アクティビティ -->
-    <div class="sec-lbl">🔔 最新アクティビティ</div>
-    <div class="activity-card" id="activity-list">
-      <div style="padding:16px"><div class="skel-line"></div><div class="skel-line" style="width:75%"></div></div>
-    </div>
-
   </div>
+
+  <!-- Ranking -->
+  <div>
+    <div class="section-title">アイデア スコアランキング TOP10</div>
+    <div class="card">
+      <div id="ranking-list">
+        <span class="skeleton-line" style="width:100%"></span>
+        <span class="skeleton-line" style="width:90%"></span>
+        <span class="skeleton-line" style="width:80%"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Founder gauge -->
+  <div>
+    <div class="section-title">創設メンバー 残枠ゲージ</div>
+    <div class="card">
+      <div class="gauge-labels">
+        <span class="gauge-count" id="gauge-count">— / 100</span>
+        <span id="gauge-remaining" class="gauge-remaining">残り — 名</span>
+      </div>
+      <div class="gauge-bar-bg">
+        <div class="gauge-bar-fill" id="gauge-fill" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Activity -->
+  <div>
+    <div class="section-title">最近の活動ログ（直近20件）</div>
+    <div class="card">
+      <div id="activity-list">
+        <span class="skeleton-line" style="width:100%"></span>
+        <span class="skeleton-line" style="width:88%"></span>
+        <span class="skeleton-line" style="width:75%"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CV率ファネル -->
+  <div>
+    <div class="section-title">CV率ファネル</div>
+    <div class="card">
+      <div id="funnel-content">
+        <span class="skeleton-line" style="width:100%"></span>
+        <span class="skeleton-line" style="width:85%"></span>
+        <span class="skeleton-line" style="width:70%"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- リテンション分析 -->
+  <div>
+    <div class="section-title">リテンション分析</div>
+    <div class="card">
+      <div id="retention-content">
+        <span class="skeleton-line" style="width:100%"></span>
+        <span class="skeleton-line" style="width:85%"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- アイデア健康状態 -->
+  <div>
+    <div class="section-title">アイデア健康状態（死滅リスク検知）</div>
+    <div class="card">
+      <div id="health-content">
+        <span class="skeleton-line" style="width:100%"></span>
+        <span class="skeleton-line" style="width:80%"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 収益予測 -->
+  <div>
+    <div class="section-title">収益予測</div>
+    <div class="card">
+      <div id="revenue-content">
+        <span class="skeleton-line" style="width:100%"></span>
+        <span class="skeleton-line" style="width:80%"></span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <a href="index.html">← あいぽに戻る</a>
 </div>
 
 <script>
-const SUPABASE_URL='https://qjffvspnnxyykoyhnazm.supabase.co';
-const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqZmZ2c3Bubnh5eWtveWhuYXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzMTIxMzMsImV4cCI6MjA4Njg4ODEzM30.OqeeMZs73RjKY5POW-naf0dB8sFWfZDUKaKvE99EiBo';
-const ADMIN_ID='7f3162ec-c281-435f-8e8e-3b6d65b8b1c9';
-const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
+const SUPABASE_URL = 'https://qjffvspnnxyykoyhnazm.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqZmZ2c3Bubnh5eWtveWhuYXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzMTIxMzMsImV4cCI6MjA4Njg4ODEzM30.OqeeMZs73RjKY5POW-naf0dB8sFWfZDUKaKvE99EiBo';
+const ADMIN_UUID = '7f3162ec-c281-435f-8e8e-3b6d65b8b1c9';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-/* HELPERS */
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function now9(){return new Date(Date.now()+9*3600000);}
-function todayStr(){const d=now9();return d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0');}
-function parseJST(s){if(!s)return null;const d=new Date(s.endsWith('Z')?s:s+'Z');return isNaN(d)?null:new Date(d.getTime()+9*3600000);}
-function fmtTalkTime(s){const d=parseJST(s);if(!d)return'';const n=now9();const same=d.getUTCFullYear()===n.getUTCFullYear()&&d.getUTCMonth()===n.getUTCMonth()&&d.getUTCDate()===n.getUTCDate();return same?String(d.getUTCHours()).padStart(2,'0')+':'+String(d.getUTCMinutes()).padStart(2,'0'):(d.getUTCMonth()+1)+'/'+d.getUTCDate();}
-function fmtTime(s){const d=parseJST(s);if(!d)return'';return String(d.getUTCHours()).padStart(2,'0')+':'+String(d.getUTCMinutes()).padStart(2,'0');}
-function fmtDateLabel(s){const d=parseJST(s);if(!d)return'';return d.getUTCFullYear()+'年'+(d.getUTCMonth()+1)+'月'+d.getUTCDate()+'日';}
-function fmtAgo(s){const d=new Date(s.endsWith('Z')?s:s+'Z');const m=Math.floor((Date.now()-d)/60000);if(m<1)return'たった今';if(m<60)return m+'分前';if(m<1440)return Math.floor(m/60)+'時間前';return Math.floor(m/1440)+'日前';}
-function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2500);}
-function diffBadge(t,l){if(l===0)return`<span class="today-badge flat">—</span>`;const d=t-l,p=Math.round(d/l*100);if(d>0)return`<span class="today-badge up">↑${p}%</span>`;if(d<0)return`<span class="today-badge down">↓${Math.abs(p)}%</span>`;return`<span class="today-badge flat">±0</span>`;}
-function trendBadge(t,l){if(l===0)return`<span class="trend-diff flat">—</span>`;const d=t-l;if(d>0)return`<span class="trend-diff up">+${d}</span>`;if(d<0)return`<span class="trend-diff down">${d}</span>`;return`<span class="trend-diff flat">±0</span>`;}
-function set(id,v){const el=document.getElementById(id);if(el)el.textContent=v;}
-
-/* EXPAND TOGGLE */
-function toggleExpand(key){
-  const panel=document.getElementById(key+'-expand');
-  const arrow=document.getElementById(key+'-arrow');
-  if(!panel)return;
-  const isOpen=panel.classList.toggle('open');
-  if(arrow)arrow.style.transform=isOpen?'rotate(180deg)':'';
-}
-
-/* AUTH */
-async function doLogin(){const{error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:'https://aipo-tau.vercel.app/dashboard.html'}});if(error)alert('ログイン失敗: '+error.message);}
-
-/* REVENUE */
-let _revData=null;
-async function loadRevenue(){
-  const{data}=await sb.from('profiles').select('id,x_username,is_founder,is_pro,founder_number');
-  if(!data)return;
-  _revData=data;
-  const founders=data.filter(p=>p.is_founder&&p.id!==ADMIN_ID);
-  const pros=data.filter(p=>p.is_pro&&!p.is_founder&&p.id!==ADMIN_ID);
-  const total=founders.length*980+pros.length*300;
-  set('rev-total',total.toLocaleString());
-  set('rev-founder-val','¥'+String(founders.length*980).replace(/\B(?=(\d{3})+(?!\d))/g,','));
-  set('rev-pro-val','¥'+String(pros.length*300).replace(/\B(?=(\d{3})+(?!\d))/g,','));
-  set('rev-founder-sub',founders.length+'人 × ¥980');
-  set('rev-pro-sub',pros.length+'人 × ¥300');
-}
-function toggleRevExpand(type,e){
-  e.stopPropagation();
-  const panel=document.getElementById('rev-expand');
-  const inner=document.getElementById('rev-expand-inner');
-  if(!panel||!inner||!_revData)return;
-  const isOpen=panel.classList.toggle('open');
-  if(!isOpen)return;
-  const list=type==='founder'
-    ?_revData.filter(p=>p.is_founder&&p.id!==ADMIN_ID).sort((a,b)=>(a.founder_number||99)-(b.founder_number||99))
-    :_revData.filter(p=>p.is_pro&&!p.is_founder&&p.id!==ADMIN_ID);
-  const title=type==='founder'?'👑 創設メンバー一覧':'🥃 Proメンバー一覧';
-  const badge=type==='founder'?'founder':'pro';
-  inner.innerHTML=`<div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.35);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px">${title}</div>`
-    +(list.length===0?'<div style="font-size:11px;color:rgba(255,255,255,.3);text-align:center;padding:8px">まだいません</div>'
-    :list.map(p=>`<div class="rev-expand-row">
-      <div class="rev-expand-av ${badge}">${esc((p.x_username||'?').charAt(0).toUpperCase())}</div>
-      <span class="rev-expand-name">${esc(p.x_username||'匿名')}</span>
-      ${type==='founder'?`<span class="rev-expand-badge founder">#${String(p.founder_number||0).padStart(2,'0')}</span>`:'<span class="rev-expand-badge pro">PRO</span>'}
-    </div>`).join(''));
-}
-
-/* TODAY */
-let _todayData={users:[],votes:[],ideas:[],profiles:{}};
-async function loadToday(){
-  const today=todayStr();
-  const yday=new Date(Date.now()-86400000+9*3600000);
-  const ydayStr=yday.getUTCFullYear()+'-'+String(yday.getUTCMonth()+1).padStart(2,'0')+'-'+String(yday.getUTCDate()).padStart(2,'0');
-  const[uT,uY,vT,vY,iT,iY,profilesR,ideasR]=await Promise.all([
-    sb.from('profiles').select('id,x_username,is_founder,created_at').gte('created_at',today+'T00:00:00Z').neq('id',ADMIN_ID),
-    sb.from('profiles').select('id',{count:'exact',head:true}).gte('created_at',ydayStr+'T00:00:00Z').lt('created_at',today+'T00:00:00Z').neq('id',ADMIN_ID),
-    sb.from('votes').select('id,user_id,idea_id,created_at').gte('created_at',today+'T00:00:00Z'),
-    sb.from('votes').select('id',{count:'exact',head:true}).gte('created_at',ydayStr+'T00:00:00Z').lt('created_at',today+'T00:00:00Z'),
-    sb.from('ideas').select('id,name,ticker,user_id,created_at').gte('created_at',today+'T00:00:00Z'),
-    sb.from('ideas').select('id',{count:'exact',head:true}).gte('created_at',ydayStr+'T00:00:00Z').lt('created_at',today+'T00:00:00Z'),
-    sb.from('profiles').select('id,x_username,is_founder'),
-    sb.from('ideas').select('id,name,ticker'),
-  ]);
-  const pm={};(profilesR.data||[]).forEach(p=>pm[p.id]=p);
-  const im={};(ideasR.data||[]).forEach(i=>im[i.id]=i);
-  _todayData={users:uT.data||[],votes:vT.data||[],ideas:iT.data||[],pm,im};
-  set('today-users',uT.data?.length??0);
-  set('today-votes',vT.data?.length??0);
-  set('today-ideas',iT.data?.length??0);
-  document.getElementById('today-users-badge').innerHTML=diffBadge(uT.data?.length||0,uY.count||0);
-  document.getElementById('today-votes-badge').innerHTML=diffBadge(vT.data?.length||0,vY.count||0);
-  document.getElementById('today-ideas-badge').innerHTML=diffBadge(iT.data?.length||0,iY.count||0);
-}
-function toggleTodayExpand(type){
-  const panel=document.getElementById('today-expand-'+type);
-  const inner=document.getElementById('today-expand-'+type+'-inner');
-  if(!panel||!inner)return;
-  const isOpen=panel.classList.toggle('open');
-  if(!isOpen)return;
-  const{users,votes,ideas,pm,im}=_todayData;
-  if(type==='users'){
-    inner.innerHTML=users.length===0?'<div style="font-size:10px;color:var(--ink3);text-align:center;padding:4px">今日の登録なし</div>'
-      :users.map(u=>`<div style="display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--border)"><div style="width:24px;height:24px;border-radius:50%;background:${u.is_founder?'linear-gradient(135deg,#d97706,#f59e0b)':'linear-gradient(135deg,#64748b,#94a3b8)'};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0">${esc((u.x_username||'?').charAt(0))}</div><span style="font-size:11px;font-weight:600;color:var(--ink);flex:1">${esc(u.x_username||'匿名')}</span>${u.is_founder?'<span style="font-family:var(--mono);font-size:7px;padding:1px 5px;border-radius:3px;background:var(--amber-l);color:var(--amber);border:1px solid var(--amber-b)">👑創設</span>':''}</div>`).join('');
-  }else if(type==='votes'){
-    const grouped={};(votes||[]).forEach(v=>{grouped[v.idea_id]=(grouped[v.idea_id]||0)+1;});
-    const sorted=Object.entries(grouped).sort((a,b)=>b[1]-a[1]);
-    inner.innerHTML=sorted.length===0?'<div style="font-size:10px;color:var(--ink3);text-align:center;padding:4px">今日の投票なし</div>'
-      :sorted.map(([id,cnt])=>{const idea=im[id];return`<div style="display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--border)"><span style="font-family:var(--mono);font-size:7px;color:var(--amber);background:var(--amber-l);border:1px solid var(--amber-b);border-radius:3px;padding:1px 5px;flex-shrink:0">${esc(idea?.ticker||'—')}</span><span style="font-size:10px;font-weight:600;color:var(--ink);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(idea?.name||'不明')}</span><span style="font-family:var(--mono);font-size:10px;font-weight:700;color:var(--amber);flex-shrink:0">+${cnt}票</span></div>`;}).join('');
-  }else{
-    inner.innerHTML=ideas.length===0?'<div style="font-size:10px;color:var(--ink3);text-align:center;padding:4px">今日の上場なし</div>'
-      :ideas.map(i=>`<div style="display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--border)"><span style="font-family:var(--mono);font-size:7px;color:var(--amber);background:var(--amber-l);border:1px solid var(--amber-b);border-radius:3px;padding:1px 5px;flex-shrink:0">${esc(i.ticker||'—')}</span><span style="font-size:10px;font-weight:600;color:var(--ink);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(i.name)}</span><span style="font-family:var(--mono);font-size:9px;color:var(--ink3);flex-shrink:0">${esc(pm[i.user_id]?.x_username||'匿名')}</span></div>`).join('');
+async function authGuard() {
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user || user.id !== ADMIN_UUID) {
+    window.location.replace('index.html');
+    return false;
   }
+  return true;
 }
 
-/* FOUNDER COUNTDOWN */
-let _founderList=[];
-async function loadFounderCountdown(){
-  const{data,count}=await sb.from('profiles').select('id,x_username,founder_number',{count:'exact'}).eq('is_founder',true).neq('id',ADMIN_ID).order('founder_number',{ascending:true});
-  _founderList=data||[];
-  const filled=count||0,slots=Math.max(0,100-filled),pct=Math.round(filled/100*100);
-  set('fc-slots',slots);set('fc-filled',filled+'/100名');set('fc-pct-lbl',pct+'%埋まり');
-  const bar=document.getElementById('fc-bar');if(bar)bar.style.width=pct+'%';
-  const urg=document.getElementById('fc-urgency-badge');
-  if(urg){if(slots<=10)urg.innerHTML=`<span class="fc-urgency hot">🔥 残り${slots}枠！今すぐXで告知を</span>`;else if(slots<=30)urg.innerHTML=`<span class="fc-urgency warn">⚡ 残り${slots}枠 — 告知のタイミング</span>`;else urg.innerHTML=`<span class="fc-urgency safe">✓ まだ${slots}枠余裕あり</span>`;}
-  // expand内容を先に準備
-  const inner=document.getElementById('fc-expand-inner');
-  if(inner)inner.innerHTML=_founderList.length===0?'<div style="font-size:11px;color:var(--ink3);text-align:center;padding:8px">まだ創設メンバーがいません</div>'
-    :_founderList.map(p=>`<div class="exp-user-row"><div class="exp-user-av founder">${esc((p.x_username||'?').charAt(0).toUpperCase())}</div><span class="exp-user-name">${esc(p.x_username||'匿名')}</span><span class="exp-user-sub">#${String(p.founder_number||0).padStart(2,'0')}</span></div>`).join('');
+function setText(id, val) {
+  document.getElementById(id).textContent = val;
 }
 
-/* RETENTION */
-let _retData={weekActive:0,monthActive:0,totalUsers:0,weekUsers:[],monthUsers:[]};
-async function loadRetention(){
-  const d7=new Date(Date.now()-7*86400000),d14=new Date(Date.now()-14*86400000),d30=new Date(Date.now()-30*86400000);
-  const[total,wk,mth,wkPrev]=await Promise.all([
-    sb.from('profiles').select('id',{count:'exact',head:true}).neq('id',ADMIN_ID),
-    sb.from('idea_views').select('user_id').gte('viewed_at',d7.toISOString().slice(0,10)+'T00:00:00Z').neq('user_id',ADMIN_ID),
-    sb.from('idea_views').select('user_id').gte('viewed_at',d30.toISOString().slice(0,10)+'T00:00:00Z').neq('user_id',ADMIN_ID),
-    sb.from('idea_views').select('user_id').gte('viewed_at',d14.toISOString().slice(0,10)+'T00:00:00Z').lt('viewed_at',d7.toISOString().slice(0,10)+'T00:00:00Z').neq('user_id',ADMIN_ID),
-  ]);
-  const totalUsers=total.count||0;
-  const wkIds=new Set((wk.data||[]).map(r=>r.user_id).filter(Boolean));
-  const mthIds=new Set((mth.data||[]).map(r=>r.user_id).filter(Boolean));
-  const prevWkActive=new Set((wkPrev.data||[]).map(r=>r.user_id).filter(Boolean)).size;
-  _retData={weekActive:wkIds.size,monthActive:mthIds.size,totalUsers,weekUserIds:[...wkIds],prevWkActive};
-  const wkRet=totalUsers>0?Math.round(wkIds.size/totalUsers*100):0;
-  const mthRet=totalUsers>0?Math.round(mthIds.size/totalUsers*100):0;
-  const retColor=wkRet>=40?'green':wkRet>=20?'amber':'red';
-  const wkDiff=wkIds.size-prevWkActive;
-  const grid=document.getElementById('ret-grid');
-  if(grid)grid.innerHTML=`
-    <div class="ret-item"><div class="ret-num ${retColor}">${wkIds.size}</div><div class="ret-lbl">週間アクティブ<br><span style="font-family:var(--mono);font-size:9px">(7日以内)</span></div></div>
-    <div class="ret-item"><div class="ret-num">${mthIds.size}</div><div class="ret-lbl">月間アクティブ<br><span style="font-family:var(--mono);font-size:9px">(30日以内)</span></div></div>`;
-  const bars=document.getElementById('ret-bars');
-  if(bars)bars.innerHTML=`
-    <div class="ret-bar-row"><div class="ret-bar-lbl"><span class="ret-bar-txt">週間リテンション率</span><span class="ret-bar-pct">${wkIds.size}/${totalUsers}人 (${wkRet}%)</span></div><div class="ret-bar"><div class="ret-bar-fill" style="width:${wkRet}%;background:${retColor==='green'?'var(--green)':retColor==='amber'?'var(--amber)':'var(--red)'}"></div></div></div>
-    <div class="ret-bar-row" style="margin-top:8px"><div class="ret-bar-lbl"><span class="ret-bar-txt">月間リテンション率</span><span class="ret-bar-pct">${mthIds.size}/${totalUsers}人 (${mthRet}%)</span></div><div class="ret-bar"><div class="ret-bar-fill" style="width:${mthRet}%;background:var(--amber)"></div></div></div>`;
-  let insightTxt=wkRet<20?`⚠ 週間リテンション${wkRet}%は低め。登録後の体験を改善するとよいかも。`:wkRet<40?`→ 週間リテンション${wkRet}%。先週比${wkDiff>=0?'+':''}${wkDiff}人。`:`✓ 週間リテンション${wkRet}%は好調！`;
-  const insight=document.getElementById('ret-insight');
-  if(insight)insight.innerHTML=`<div class="ret-insight">${insightTxt}</div>`;
-  // expand内容を準備（ユーザーリスト）
-  const inner=document.getElementById('ret-expand-inner');
-  if(inner&&_retData.weekUserIds.length>0){
-    const{data:profData}=await sb.from('profiles').select('id,x_username,is_founder').in('id',_retData.weekUserIds.slice(0,30));
-    if(profData){
-      inner.innerHTML=`<div style="font-family:var(--mono);font-size:9px;color:var(--ink3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">今週アクティブなユーザー（${profData.length}人）</div>`
-        +profData.map(p=>`<div class="exp-user-row"><div class="exp-user-av ${p.is_founder?'founder':''}">${esc((p.x_username||'?').charAt(0).toUpperCase())}</div><span class="exp-user-name">${esc(p.x_username||'匿名')}</span>${p.is_founder?'<span style="font-family:var(--mono);font-size:8px;color:var(--amber)">👑</span>':''}</div>`).join('');
-    }
-  }else if(inner){inner.innerHTML='<div style="font-size:11px;color:var(--ink3);text-align:center;padding:8px">アクティブユーザーなし</div>';}
+function setError(id) {
+  document.getElementById(id).innerHTML = '<span class="error-text">取得失敗</span>';
 }
 
-/* DORMANT */
-async function loadDormant(){
-  const[profiles,votes]=await Promise.all([
-    sb.from('profiles').select('id,x_username,is_founder,created_at').neq('id',ADMIN_ID),
-    sb.from('votes').select('user_id'),
-  ]);
-  if(!profiles.data)return;
-  const voters=new Set((votes.data||[]).map(v=>v.user_id));
-  const dormant=profiles.data.filter(p=>!voters.has(p.id));
-  dormant.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
-  set('dormant-count',dormant.length+'人');
-  const list=document.getElementById('dormant-list');
-  if(!list)return;
-  if(dormant.length===0){list.innerHTML='<div class="empty"><div class="empty-ico">🎉</div><div class="empty-txt">全員が1回以上投票しています！</div></div>';return;}
-  const shown=dormant.slice(0,8),rest=dormant.length-shown.length;
-  list.innerHTML=shown.map(u=>{
-    const name=u.x_username||'匿名';
-    const days=Math.floor((Date.now()-new Date(u.created_at))/86400000);
-    const uid=u.id,safeName=esc(name).replace(/'/g,"&#39;");
-    return`<div class="dormant-row" id="drow-${uid}">
-      <div class="dormant-row-main exp-row" onclick="toggleDormantRow('${uid}','${safeName}')">
-        <div class="dormant-av ${u.is_founder?'founder':''}">${esc(name.charAt(0).toUpperCase())}</div>
-        <div class="dormant-name">${esc(name)}</div>
-        <div class="dormant-days">登録${days}日前</div>
-        <span class="exp-arrow" id="darrow-${uid}" style="margin-left:6px">▼</span>
-      </div>
-      <div class="exp-panel" id="dpanel-${uid}">
-        <div class="exp-inner">
-          <div id="dcontent-${uid}"><div class="skel-line"></div></div>
-          <button class="exp-action-btn" onclick="showTalkModal('${uid}','${safeName}');event.stopPropagation()">💬 メッセージを送る</button>
-        </div>
-      </div>
-    </div>`;
-  }).join('')+(rest>0?`<div class="dormant-more">他 ${rest}人</div>`:'');
-}
-async function toggleDormantRow(uid,name){
-  const panel=document.getElementById('dpanel-'+uid);
-  const arrow=document.getElementById('darrow-'+uid);
-  const row=document.getElementById('drow-'+uid)?.querySelector('.exp-row');
-  if(!panel)return;
-  const isOpen=panel.classList.toggle('open');
-  if(arrow)arrow.style.transform=isOpen?'rotate(180deg)':'';
-  if(row)row.classList.toggle('open',isOpen);
-  if(!isOpen)return;
-  const content=document.getElementById('dcontent-'+uid);
-  if(!content)return;
-  const[ideasR,viewsR]=await Promise.all([
-    sb.from('ideas').select('id,name,ticker,score').eq('user_id',uid),
-    sb.from('idea_views').select('id',{count:'exact',head:true}).eq('user_id',uid),
-  ]);
-  const ideas=ideasR.data||[],viewCount=viewsR.count||0;
-  content.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px">
-    <div class="exp-stat"><div class="exp-stat-num">${ideas.length}</div><div class="exp-stat-lbl">上場数</div></div>
-    <div class="exp-stat"><div class="exp-stat-num">0</div><div class="exp-stat-lbl">投票数</div></div>
-    <div class="exp-stat"><div class="exp-stat-num">${viewCount}</div><div class="exp-stat-lbl">閲覧数</div></div>
-  </div>`
-  +(ideas.length>0?ideas.map(i=>`<div style="display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--border)"><span style="font-family:var(--mono);font-size:7px;color:var(--amber);background:var(--amber-l);border:1px solid var(--amber-b);border-radius:3px;padding:1px 5px">${esc(i.ticker||'—')}</span><span style="font-size:10px;font-weight:600;color:var(--ink);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(i.name)}</span><span style="font-family:var(--mono);font-size:9px;color:var(--green)">${parseFloat(i.score||50).toFixed(1)}</span></div>`).join(''):'<div style="font-size:10px;color:var(--ink3);padding:4px 0">上場したアイデアなし</div>');
+function esc(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-/* WEEKLY TREND */
-let _trendData=[];
-async function loadTrend(){
-  const now=new Date();
-  const thisMon=new Date(now);thisMon.setDate(now.getDate()-((now.getDay()+6)%7));
-  const thisMStr=thisMon.toISOString().slice(0,10);
-  const lastMon=new Date(thisMon);lastMon.setDate(thisMon.getDate()-7);
-  const lastMStr=lastMon.toISOString().slice(0,10);
-  const[uT,uL,vT,vL,iT,iL,lpT,lpL]=await Promise.all([
-    sb.from('profiles').select('id',{count:'exact',head:true}).gte('created_at',thisMStr+'T00:00:00Z').neq('id',ADMIN_ID),
-    sb.from('profiles').select('id',{count:'exact',head:true}).gte('created_at',lastMStr+'T00:00:00Z').lt('created_at',thisMStr+'T00:00:00Z').neq('id',ADMIN_ID),
-    sb.from('votes').select('id',{count:'exact',head:true}).gte('created_at',thisMStr+'T00:00:00Z'),
-    sb.from('votes').select('id',{count:'exact',head:true}).gte('created_at',lastMStr+'T00:00:00Z').lt('created_at',thisMStr+'T00:00:00Z'),
-    sb.from('ideas').select('id',{count:'exact',head:true}).gte('created_at',thisMStr+'T00:00:00Z'),
-    sb.from('ideas').select('id',{count:'exact',head:true}).gte('created_at',lastMStr+'T00:00:00Z').lt('created_at',thisMStr+'T00:00:00Z'),
-    sb.from('user_events').select('id',{count:'exact',head:true}).eq('utm_source','lp').gte('created_at',thisMStr+'T00:00:00Z'),
-    sb.from('user_events').select('id',{count:'exact',head:true}).eq('utm_source','lp').gte('created_at',lastMStr+'T00:00:00Z').lt('created_at',thisMStr+'T00:00:00Z'),
-  ]);
-  _trendData=[
-    {ico:'👤',lbl:'新規ユーザー',t:uT.count||0,l:uL.count||0,key:'users'},
-    {ico:'🗳',lbl:'応援票',t:vT.count||0,l:vL.count||0,key:'votes'},
-    {ico:'💡',lbl:'新規上場',t:iT.count||0,l:iL.count||0,key:'ideas'},
-    {ico:'📄',lbl:'LP流入',t:lpT.count||0,l:lpL.count||0,key:'lp'},
-  ];
-  const grid=document.getElementById('trend-grid');
-  if(!grid)return;
-  grid.innerHTML=_trendData.map((r,i)=>`
-    <div class="trend-item exp-row" onclick="toggleTrendExpand(${i})">
-      <div class="trend-item-main">
-        <div class="trend-ico">${r.ico}</div>
-        <div class="trend-num">${r.t}</div>
-        <div class="trend-lbl">${r.lbl}</div>
-        <div style="display:flex;align-items:center;justify-content:space-between">
-          ${trendBadge(r.t,r.l)}
-          <span class="exp-arrow" id="tarrow-${i}" style="font-size:8px;color:var(--ink4)">▼</span>
-        </div>
-      </div>
-    </div>`).join('')
-    +`<div class="trend-expand" id="trend-expand"><div class="trend-expand-inner" id="trend-expand-inner"></div></div>`;
-}
-function toggleTrendExpand(idx){
-  const panel=document.getElementById('trend-expand');
-  const inner=document.getElementById('trend-expand-inner');
-  [0,1,2,3].forEach(i=>{const a=document.getElementById('tarrow-'+i);if(a)a.style.transform=i===idx&&!panel.classList.contains('open')?'rotate(180deg)':'';});
-  const r=_trendData[idx];
-  if(!panel||!r)return;
-  // 同じ項目を再クリックで閉じる
-  const currentKey=panel.dataset.key;
-  if(currentKey===r.key&&panel.classList.contains('open')){panel.classList.remove('open');panel.dataset.key='';return;}
-  panel.dataset.key=r.key;
-  panel.classList.add('open');
-  const diff=r.t-r.l,pct=r.l>0?Math.round(diff/r.l*100):0;
-  inner.innerHTML=`<div style="font-family:var(--mono);font-size:9px;color:var(--ink3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">${r.ico} ${r.lbl}</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-      <div class="exp-stat"><div class="exp-stat-num" style="color:var(--ink)">${r.t}</div><div class="exp-stat-lbl">今週</div></div>
-      <div class="exp-stat"><div class="exp-stat-num" style="color:var(--ink3)">${r.l}</div><div class="exp-stat-lbl">先週</div></div>
-    </div>
-    <div style="margin-top:10px;padding:8px;background:var(--surface);border-radius:8px;font-size:11px;color:var(--ink2)">
-      ${diff>0?`↑ 先週より +${diff} (${pct}%増)`:diff<0?`↓ 先週より ${diff} (${Math.abs(pct)}%減)`:'先週と同じ'}
-    </div>`;
+function fmt(n) {
+  return Number(n).toLocaleString('ja-JP');
 }
 
-/* HOURLY */
-let _hourlyData=[];
-async function loadHourly(){
-  const today=todayStr();
-  const{data}=await sb.from('idea_views').select('viewed_at').gte('viewed_at',today+'T00:00:00Z');
-  const hours=Array(24).fill(0);
-  (data||[]).forEach(v=>{const h=parseJST(v.viewed_at);if(h)hours[h.getUTCHours()]++;});
-  _hourlyData=hours;
-  const max=Math.max(...hours,1),nowH=now9().getUTCHours();
-  const bars=document.getElementById('hourly-bars');
-  const lbls=document.getElementById('hourly-lbls');
-  if(bars)bars.innerHTML=hours.map((v,h)=>`<div class="hourly-bar" style="height:${Math.max(v/max*54,2)}px;background:${h===nowH?'var(--green)':v>0?'var(--amber)':'var(--border)'}"></div>`).join('');
-  if(lbls)lbls.innerHTML=hours.map((_,h)=>`<div class="hourly-lbl">${h%6===0?h+':':'·'}</div>`).join('');
-  const peakH=hours.indexOf(Math.max(...hours));
-  const peakEl=document.getElementById('hourly-peak');
-  if(peakEl&&max>0){peakEl.style.display='block';peakEl.textContent=`🕐 ピーク → ${peakH}:00台（${hours[peakH]}件）`;}
-  // expand内容（時間帯一覧）
-  const inner=document.getElementById('hourly-expand-inner');
-  if(inner){
-    const nonZero=hours.map((v,h)=>({h,v})).filter(x=>x.v>0).sort((a,b)=>b.v-a.v);
-    inner.innerHTML=nonZero.length===0?'<div style="font-size:11px;color:var(--ink3);text-align:center;padding:8px">今日の閲覧データなし</div>'
-      :`<div style="font-family:var(--mono);font-size:9px;color:var(--ink3);margin-bottom:8px;letter-spacing:.1em;text-transform:uppercase">時間帯別詳細</div>`
-      +nonZero.map(({h,v})=>`<div class="hourly-detail-row"><span style="font-family:var(--mono);font-size:10px;font-weight:700;color:var(--ink);min-width:50px">${String(h).padStart(2,'0')}:00</span><div style="flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin:0 8px"><div style="height:100%;width:${Math.round(v/max*100)}%;background:var(--amber);border-radius:2px"></div></div><span style="font-family:var(--mono);font-size:10px;font-weight:700;color:var(--amber);min-width:28px;text-align:right">${v}</span></div>`).join('');
-  }
-}
-
-/* RANKING */
-async function loadRanking(){
-  const{data}=await sb.from('ideas').select('id,ticker,name,description,genre,score,votes,user_id').order('score',{ascending:false}).limit(10);
-  const list=document.getElementById('ranking-list');
-  if(!list)return;
-  if(!data||data.length===0){list.innerHTML='<div class="empty"><div class="empty-ico">💡</div><div class="empty-txt">アイデアなし</div></div>';return;}
-  const userIds=[...new Set(data.map(i=>i.user_id).filter(Boolean))];
-  const{data:profData}=userIds.length>0?await sb.from('profiles').select('id,x_username,is_founder').in('id',userIds):{data:[]};
-  const pm={};(profData||[]).forEach(p=>pm[p.id]=p);
-  const{data:viewsData}=await sb.from('idea_views').select('idea_id');
-  const vm={};(viewsData||[]).forEach(v=>vm[v.idea_id]=(vm[v.idea_id]||0)+1);
-
-  list.innerHTML=data.map((idea,i)=>{
-    const score=parseFloat(idea.score||0).toFixed(1);
-    const cls=score>=70?'high':score>=50?'mid':'low';
-    const poster=pm[idea.user_id];
-    const vid='rank-'+idea.id;
-    return`<div class="ranking-row">
-      <div class="ranking-row-main exp-row" onclick="togglePanel('${vid}')">
-        <span class="rank-num ${i<3?'top':''}">${['🥇','🥈','🥉'][i]||String(i+1).padStart(2,'0')}</span>
-        <span class="rank-ticker">${esc(idea.ticker||'—')}</span>
-        <span class="rank-name">${esc(idea.name)}</span>
-        <span style="font-family:var(--mono);font-size:9px;color:var(--ink3);margin-right:4px">${idea.votes}票</span>
-        <span class="rank-score ${cls}">${score}</span>
-        <span class="exp-arrow" id="${vid}-arrow">▼</span>
-      </div>
-      <div class="exp-panel" id="${vid}">
-        <div class="exp-inner">
-          <div class="exp-grid">
-            <div class="exp-stat"><div class="exp-stat-num ${cls}">${score}</div><div class="exp-stat-lbl">スコア</div></div>
-            <div class="exp-stat"><div class="exp-stat-num" style="color:var(--amber)">${idea.votes}</div><div class="exp-stat-lbl">応援票</div></div>
-            <div class="exp-stat"><div class="exp-stat-num">${vm[idea.id]||0}</div><div class="exp-stat-lbl">閲覧数</div></div>
-          </div>
-          ${idea.genre?`<div style="margin-bottom:6px"><span class="exp-tag">${esc(idea.genre)}</span></div>`:''}
-          ${idea.description?`<div class="exp-desc">${esc(idea.description)}</div>`:''}
-          <div style="font-size:11px;color:var(--ink3)">上場者: <strong style="color:var(--ink)">${esc(poster?.x_username||'匿名')}</strong>${poster?.is_founder?'  👑':''}</div>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-/* ACTIVITY */
-async function loadActivity(){
-  const[vR,voR,iR]=await Promise.all([
-    sb.from('votes').select('idea_id,user_id,created_at').order('created_at',{ascending:false}).limit(10),
-    sb.from('idea_views').select('idea_id,user_id,viewed_at').order('viewed_at',{ascending:false}).limit(8),
-    sb.from('ideas').select('id,name,ticker,created_at,user_id').order('created_at',{ascending:false}).limit(6),
-  ]);
-  const[ideasR,profilesR]=await Promise.all([
-    sb.from('ideas').select('id,name,ticker,description,genre,score,votes'),
-    sb.from('profiles').select('id,x_username,is_founder'),
-  ]);
-  const im={};(ideasR.data||[]).forEach(i=>im[i.id]=i);
-  const pm={};(profilesR.data||[]).forEach(p=>pm[p.id]=p);
-  const items=[
-    ...(vR.data||[]).map(v=>({type:'vote',at:v.created_at,ideaId:v.idea_id,userId:v.user_id})),
-    ...(voR.data||[]).map(v=>({type:'view',at:v.viewed_at,ideaId:v.idea_id,userId:v.user_id})),
-    ...(iR.data||[]).map(i=>({type:'list',at:i.created_at,ideaId:i.id,userId:i.user_id})),
-  ].sort((a,b)=>new Date(b.at)-new Date(a.at)).slice(0,18);
-  const el=document.getElementById('activity-list');
-  if(!el)return;
-  if(!items.length){el.innerHTML='<div class="empty"><div class="empty-ico">📭</div><div class="empty-txt">まだアクティビティがありません</div></div>';return;}
-  const typeMap={vote:{lbl:'応援',cls:'vote'},view:{lbl:'閲覧',cls:'view'},list:{lbl:'上場',cls:'list'}};
-  el.innerHTML=items.map((item,idx)=>{
-    const idea=im[item.ideaId];
-    const p=item.userId?pm[item.userId]:null;
-    const tc=typeMap[item.type];
-    const vid='act-'+idx;
-    return`<div class="act-row">
-      <div class="act-row-main exp-row" onclick="togglePanel('${vid}')">
-        <span class="act-type ${tc.cls}">${tc.lbl}</span>
-        <div class="act-info">
-          <div class="act-idea">${idea?esc(idea.name):'—'}</div>
-          <div class="act-user">${esc(p?.x_username||'匿名')}${p?.is_founder?' 👑':''}</div>
-        </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
-          <span class="act-time">${fmtAgo(item.at)}</span>
-          <span class="exp-arrow" id="${vid}-arrow">▼</span>
-        </div>
-      </div>
-      <div class="exp-panel" id="${vid}">
-        <div class="exp-inner">
-          ${idea?`<div class="exp-grid">
-            <div class="exp-stat"><div class="exp-stat-num ${parseFloat(idea.score||0)>=70?'high':parseFloat(idea.score||0)>=50?'mid':'low'}" style="font-size:16px">${parseFloat(idea.score||0).toFixed(1)}</div><div class="exp-stat-lbl">スコア</div></div>
-            <div class="exp-stat"><div class="exp-stat-num" style="color:var(--amber);font-size:16px">${idea.votes||0}</div><div class="exp-stat-lbl">票</div></div>
-            <div class="exp-stat"><div class="exp-stat-num" style="font-size:14px">${esc(idea.ticker||'—')}</div><div class="exp-stat-lbl">ticker</div></div>
-          </div>
-          ${idea.description?`<div class="exp-desc">${esc(idea.description.slice(0,80))}${idea.description.length>80?'…':''}</div>`:''}`:''}
-          ${p?`<div style="font-size:11px;color:var(--ink3)">ユーザー: <strong style="color:var(--ink)">${esc(p.x_username||'匿名')}</strong>${p.is_founder?'  👑':''}</div>`:''}
-          <div style="font-family:var(--mono);font-size:9px;color:var(--ink4);margin-top:4px">${fmtAgo(item.at)} — ${item.at.slice(0,16).replace('T',' ')}</div>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-/* GENERIC PANEL TOGGLE */
-function togglePanel(id){
-  const panel=document.getElementById(id);
-  const arrow=document.getElementById(id+'-arrow');
-  const row=panel?.previousElementSibling;
-  if(!panel)return;
-  const isOpen=panel.classList.toggle('open');
-  if(arrow)arrow.style.transform=isOpen?'rotate(180deg)':'';
-  if(row)row.classList.toggle('open',isOpen);
-}
-
-/* TALK LIST */
-async function loadTalkList(){
-  const body=document.getElementById('talk-list');
-  const countEl=document.getElementById('talk-count-lbl');
-  if(!body)return;
-  try{
-    const[msgR,voiceR,profileR,bcR,totalR]=await Promise.all([
-      sb.from('messages').select('id,from_id,to_id,body,created_at,is_read').or('from_id.eq.'+ADMIN_ID+',to_id.eq.'+ADMIN_ID).eq('is_announcement',false).order('created_at',{ascending:false}),
-      sb.from('hiroba_voices').select('id,user_id,text,created_at,ai_reply,tag').eq('is_announcement',false).order('created_at',{ascending:false}),
-      sb.from('profiles').select('id,x_username,is_founder,is_pro').neq('id',ADMIN_ID),
-      sb.from('messages').select('id,is_read,body,created_at').eq('is_announcement',true).order('created_at',{ascending:false}),
-      sb.from('profiles').select('id',{count:'exact',head:true}).neq('id',ADMIN_ID),
+// ── 既存: KPI ──────────────────────────────────────────
+async function loadKPI() {
+  try {
+    const [usersRes, foundersRes, ideasRes, votesRes] = await Promise.all([
+      sb.from('profiles').select('id', { count: 'exact', head: true }),
+      sb.from('profiles').select('id', { count: 'exact', head: true }).eq('is_founder', true),
+      sb.from('ideas').select('id', { count: 'exact', head: true }),
+      sb.from('votes').select('id', { count: 'exact', head: true }),
     ]);
-    const msgs=msgR.data||[],voices=voiceR.data||[],profiles=profileR.data||[];
-    const bcMsgs=bcR.data||[],totalUsers=totalR.count||0;
-    const pm={};profiles.forEach(p=>pm[p.id]=p);
-    const ut={};
-    function eu(uid){if(!ut[uid])ut[uid]={userId:uid,unread:0,lastTime:0,lastPreview:''};}
-    msgs.forEach(m=>{const other=m.from_id===ADMIN_ID?m.to_id:m.from_id;if(!other||other===ADMIN_ID)return;eu(other);const t=new Date(m.created_at).getTime();if(t>ut[other].lastTime){ut[other].lastTime=t;ut[other].lastPreview=(m.from_id===ADMIN_ID?'自分: ':'')+String(m.body||'').slice(0,30);}if(m.from_id!==ADMIN_ID&&!m.is_read)ut[other].unread++;});
-    voices.forEach(v=>{if(!v.user_id||v.user_id===ADMIN_ID)return;eu(v.user_id);const t=new Date(v.created_at).getTime();if(t>ut[v.user_id].lastTime){ut[v.user_id].lastTime=t;ut[v.user_id].lastPreview=String(v.text||'').slice(0,30);}if(!v.ai_reply)ut[v.user_id].unread++;});
-    const sorted=Object.values(ut).sort((a,b)=>b.lastTime-a.lastTime);
-    const totalUnread=sorted.reduce((s,u)=>s+u.unread,0);
-    const badge=document.getElementById('talk-unread-all');
-    if(badge){badge.textContent=totalUnread>99?'99+':totalUnread;badge.style.display=totalUnread>0?'inline':'none';}
-    if(countEl)countEl.textContent=sorted.length+'件';
-    const lastBc=bcMsgs[0];
-    const bcReadPct=totalUsers>0?Math.round(bcMsgs.filter(b=>b.is_read).length/totalUsers*100):0;
-    const bcPreview=lastBc?esc(String(lastBc.body||'').slice(0,28)):'まだ通知なし';
-    let html=`<div class="talk-item" onclick="showBroadcastRoom()">
-      <div class="talk-av av-bc">📢</div>
-      <div class="talk-body">
-        <div class="talk-name-row"><span class="talk-name">全体通知</span><span class="tb-bc">BROADCAST</span></div>
-        <div class="talk-preview">${bcPreview}</div>
-        ${totalUsers>0?`<div style="display:flex;align-items:center;gap:6px;margin-top:3px"><span class="bc-pct">既読 ${bcReadPct}%</span><div style="flex:1;height:2px;background:var(--border);border-radius:1px;overflow:hidden;max-width:60px"><div style="height:100%;width:${bcReadPct}%;background:var(--line-green)"></div></div></div>`:''}
-      </div>
-      <div class="talk-meta"><span class="talk-time">${lastBc?fmtTalkTime(lastBc.created_at):''}</span></div>
-    </div>`;
-    if(sorted.length===0){html+='<div class="empty"><div class="empty-ico">💬</div><div class="empty-txt">まだメッセージなし</div></div>';}
-    else{sorted.forEach(u=>{const p=pm[u.userId];const name=p?.x_username||u.userId.slice(0,8)+'…';const initial=name.charAt(0).toUpperCase();const avCls=p?.is_founder?'av-founder':p?.is_pro?'av-pro':'av-default';const badges=(p?.is_founder?'<span class="tb-founder">👑 創設</span>':p?.is_pro?'<span class="tb-pro">PRO</span>':'');const preview=esc(u.lastPreview||'メッセージなし');const unreadBadge=u.unread>0?`<div class="talk-unread">${u.unread>99?'99+':u.unread}</div>`:'';const safeName=esc(name).replace(/'/g,"&#39;");html+=`<div class="talk-item" onclick="showTalkModal('${u.userId}','${safeName}')"><div class="talk-av ${avCls}">${esc(initial)}${unreadBadge}</div><div class="talk-body"><div class="talk-name-row"><span class="talk-name">${esc(name)}</span>${badges}</div><div class="talk-preview${u.unread>0?' unread':''}">${preview}</div></div><div class="talk-meta"><span class="talk-time">${u.lastTime?fmtTalkTime(new Date(u.lastTime).toISOString()):''}</span></div></div>`;});}
-    body.innerHTML=html;
-  }catch(e){if(body)body.innerHTML=`<div style="padding:14px;font-size:11px;color:var(--red)">読み込み失敗: ${esc(e.message)}</div>`;}
+
+    setText('kpi-users', usersRes.count != null ? usersRes.count : '—');
+
+    const fc = foundersRes.count != null ? foundersRes.count : 0;
+    setText('kpi-founders', fc);
+    document.getElementById('kpi-founders-sub').textContent = '残り ' + (100 - fc) + ' 枠';
+
+    setText('kpi-ideas', ideasRes.count != null ? ideasRes.count : '—');
+    setText('kpi-votes', votesRes.count != null ? votesRes.count : '—');
+
+    const pct = Math.min((fc / 100) * 100, 100);
+    document.getElementById('gauge-fill').style.width = pct + '%';
+    document.getElementById('gauge-count').textContent = fc + ' / 100';
+    const remaining = 100 - fc;
+    const remEl = document.getElementById('gauge-remaining');
+    remEl.textContent = '残り ' + remaining + ' 名';
+    remEl.className = remaining <= 20 ? 'gauge-warning' : 'gauge-remaining';
+  } catch (e) {
+    ['kpi-users', 'kpi-founders', 'kpi-ideas', 'kpi-votes'].forEach(setError);
+  }
 }
 
-/* BROADCAST ROOM */
-async function showBroadcastRoom(){
-  _openLineModal('📢','全体通知',null,async(modal)=>{
-    const msgs=modal.querySelector('#lm-msgs-body');
-    const sub=modal.querySelector('#lm-sub-lbl');
-    const[bcR,totalR]=await Promise.all([sb.from('messages').select('*').eq('is_announcement',true).order('created_at',{ascending:true}),sb.from('profiles').select('id',{count:'exact',head:true}).neq('id',ADMIN_ID)]);
-    const list=bcR.data||[],totalUsers=totalR.count||0;
-    const readCount=list.filter(m=>m.is_read).length;
-    if(sub)sub.textContent=`全${totalUsers}人 · 既読${readCount}人（${totalUsers>0?Math.round(readCount/totalUsers*100):0}%）`;
-    if(!list.length){msgs.innerHTML='<div class="lm-empty">まだ通知はありません</div>';return;}
-    let lastDate='',html='';
-    list.forEach(m=>{const dl=fmtDateLabel(m.created_at);if(dl!==lastDate){html+=`<div class="lm-date"><span class="lm-date-lbl">${dl}</span></div>`;lastDate=dl;}html+=`<div class="lm-row sent"><div class="lm-sent-wrap"><span class="lm-ts">${fmtTime(m.created_at)}</span></div><div><div class="lm-bubble sent">${esc(m.body)}</div><div style="text-align:right;font-family:var(--mono);font-size:7px;color:rgba(0,0,0,.35);margin-top:2px">全${totalUsers}人に配信</div></div></div>`;});
-    msgs.innerHTML=html;msgs.scrollTop=msgs.scrollHeight;
-  },async(text)=>{
-    await Promise.all([sb.from('messages').insert({from_id:ADMIN_ID,to_id:null,body:text,is_announcement:true,is_read:false}),sb.from('hiroba_voices').insert({user_id:ADMIN_ID,user_name:'あいぽ運営',text,tag:'お知らせ',is_announcement:true,ai_reply:null})]);
-    toast('✓ 全体通知を送信しました');loadTalkList();
+// ── 既存: ランキング ────────────────────────────────────
+async function loadRanking() {
+  const el = document.getElementById('ranking-list');
+  try {
+    const { data, error } = await sb
+      .from('ideas')
+      .select('id, name, emoji, ticker, score, votes, comments')
+      .order('score', { ascending: false })
+      .limit(10);
+    if (error) throw error;
+    if (!data || data.length === 0) { el.textContent = 'データなし'; return; }
+
+    el.innerHTML = data.map(function(idea, i) {
+      const rank = i + 1;
+      const badgeClass = rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : '';
+      const score = parseFloat(idea.score || 0).toFixed(1);
+      return '<div class="rank-item">'
+        + '<div class="rank-badge ' + badgeClass + '">' + rank + '</div>'
+        + '<div class="rank-info">'
+        + '<div class="rank-name">' + esc(idea.emoji) + ' ' + esc(idea.name) + '</div>'
+        + '<div class="rank-meta">👍 ' + (idea.votes || 0) + ' 票 &nbsp;💬 ' + (idea.comments || 0) + ' 件</div>'
+        + '</div>'
+        + '<div class="rank-score">' + score + 'pt</div>'
+        + '</div>';
+    }).join('');
+  } catch (e) {
+    el.innerHTML = '<span class="error-text">取得失敗</span>';
+  }
+}
+
+// ── 既存: 活動ログ ───────────────────────────────────────
+async function loadActivity() {
+  const el = document.getElementById('activity-list');
+  try {
+    const [votesRes, commentsRes] = await Promise.all([
+      sb.from('votes').select('user_id, idea_id, created_at, ideas(name)').order('created_at', { ascending: false }).limit(10),
+      sb.from('comments').select('user_id, idea_id, created_at, ideas(name)').order('created_at', { ascending: false }).limit(10),
+    ]);
+
+    const events = [];
+    (votesRes.data || []).forEach(function(v) {
+      events.push({ type: 'vote', user_id: v.user_id, idea: v.ideas ? v.ideas.name : v.idea_id, created_at: v.created_at });
+    });
+    (commentsRes.data || []).forEach(function(c) {
+      events.push({ type: 'comment', user_id: c.user_id, idea: c.ideas ? c.ideas.name : c.idea_id, created_at: c.created_at });
+    });
+
+    events.sort(function(a, b) { return new Date(b.created_at) - new Date(a.created_at); });
+    const items = events.slice(0, 20);
+
+    if (items.length === 0) { el.textContent = '活動なし'; return; }
+
+    el.innerHTML = items.map(function(ev) {
+      const icon = ev.type === 'vote' ? '🗳' : '💬';
+      const action = ev.type === 'vote' ? 'に投票' : 'にコメント';
+      const uid = ev.user_id ? ev.user_id.slice(0, 8) : '匿名';
+      return '<div class="activity-item">'
+        + '<div class="activity-icon">' + icon + '</div>'
+        + '<div class="activity-body">'
+        + '<div class="activity-text"><span class="activity-user">' + uid + '</span> が <span class="activity-idea" title="' + esc(ev.idea) + '">' + esc(ev.idea || '—') + '</span>' + action + '</div>'
+        + '<div class="activity-time">' + relativeTime(ev.created_at) + '</div>'
+        + '</div></div>';
+    }).join('');
+  } catch (e) {
+    el.innerHTML = '<span class="error-text">取得失敗</span>';
+  }
+}
+
+function relativeTime(iso) {
+  const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+  if (diff < 60) return diff + '秒前';
+  if (diff < 3600) return Math.floor(diff / 60) + '分前';
+  if (diff < 86400) return Math.floor(diff / 3600) + '時間前';
+  return Math.floor(diff / 86400) + '日前';
+}
+
+// ── 新規: CV率ファネル ────────────────────────────────────
+async function loadFunnel() {
+  const el = document.getElementById('funnel-content');
+  try {
+    const [usersRes, votersRes, foundersRes, proRes] = await Promise.all([
+      sb.from('profiles').select('id', { count: 'exact', head: true }),
+      sb.from('votes').select('user_id').limit(10000),
+      sb.from('profiles').select('id', { count: 'exact', head: true }).eq('is_founder', true),
+      sb.from('profiles').select('id', { count: 'exact', head: true }).eq('is_pro', true),
+    ]);
+
+    const totalUsers  = usersRes.count || 0;
+    const voterIds    = new Set((votersRes.data || []).map(v => v.user_id));
+    const totalVoters = voterIds.size;
+    const founders    = foundersRes.count || 0;
+    const proUsers    = proRes.count || 0;
+
+    const r1 = totalUsers  > 0 ? Math.round(totalVoters / totalUsers  * 100) : 0;
+    const r2 = totalVoters > 0 ? Math.round(founders    / totalVoters * 100) : 0;
+    const r3 = founders    > 0 ? Math.round(proUsers    / founders    * 100) : 0;
+
+    function rateHtml(rate, label) {
+      const isDanger = rate < 30;
+      return '<span class="funnel-rate' + (isDanger ? ' danger' : '') + '">'
+        + rate + '%'
+        + (isDanger ? '<span class="warn-badge">⚠️ 要改善</span>' : '')
+        + '</span>';
+    }
+
+    el.innerHTML =
+      '<div class="funnel-step">'
+        + '<div class="funnel-num">' + fmt(totalUsers) + '</div>'
+        + '<div class="funnel-label">登録ユーザー</div>'
+        + '<span class="funnel-rate" style="color:var(--text-muted)">100%</span>'
+      + '</div>'
+      + '<div class="funnel-arrow">↓ 登録→投票 転換率</div>'
+      + '<div class="funnel-step">'
+        + '<div class="funnel-num">' + fmt(totalVoters) + '</div>'
+        + '<div class="funnel-label">投票経験者</div>'
+        + rateHtml(r1, '登録→投票')
+      + '</div>'
+      + '<div class="funnel-arrow">↓ 投票→課金 転換率</div>'
+      + '<div class="funnel-step">'
+        + '<div class="funnel-num">' + fmt(founders) + '</div>'
+        + '<div class="funnel-label">創設メンバー</div>'
+        + rateHtml(r2, '投票→課金')
+      + '</div>'
+      + '<div class="funnel-arrow">↓ 課金継続率</div>'
+      + '<div class="funnel-step">'
+        + '<div class="funnel-num">' + fmt(proUsers) + '</div>'
+        + '<div class="funnel-label">Proユーザー</div>'
+        + rateHtml(r3, '課金継続')
+      + '</div>'
+      + funnelComment(r1, r2);
+
+    return { cvRate: r2 };
+  } catch (e) {
+    el.innerHTML = '<span class="error-text">データ取得中...</span>';
+    return { cvRate: 0 };
+  }
+}
+
+function funnelComment(r1, r2) {
+  let msg = '';
+  if (r1 < 30) {
+    msg = 'マーケットの閲覧UXを改善するか、投票のハードルを下げる施策が必要です。';
+  } else if (r2 < 5) {
+    msg = '創設メンバーの希少性訴求が不足しています。残枠を目立たせてください。';
+  } else {
+    msg = 'ファネルは健全です。このまま上部流入を増やすことに集中してください。';
+  }
+  return '<div class="ai-comment">🤖 ' + msg + '</div>';
+}
+
+// ── 新規: リテンション分析 ────────────────────────────────
+async function loadRetention() {
+  const el = document.getElementById('retention-content');
+  try {
+    const { data: allVotes } = await sb.from('votes').select('user_id, created_at').limit(10000);
+    if (!allVotes || allVotes.length === 0) {
+      el.innerHTML = '<div style="color:var(--text-muted);font-size:12px">投票データなし</div>';
+      return { retentionRate: 0 };
+    }
+
+    const userMap = {};
+    allVotes.forEach(v => {
+      if (!userMap[v.user_id]) userMap[v.user_id] = [];
+      userMap[v.user_id].push(new Date(v.created_at).getTime());
+    });
+
+    const userIds = Object.keys(userMap);
+    let repeaters = 0;
+    let within7 = 0;
+    let totalReturnDays = 0;
+    let returnCount = 0;
+
+    userIds.forEach(uid => {
+      const times = userMap[uid].sort((a, b) => a - b);
+      if (times.length >= 2) {
+        repeaters++;
+        const firstReturn = (times[1] - times[0]) / 86400000;
+        totalReturnDays += firstReturn;
+        returnCount++;
+        if (firstReturn <= 7) within7++;
+      }
+    });
+
+    const totalVoters    = userIds.length;
+    const retentionRate  = totalVoters > 0 ? Math.round(repeaters / totalVoters * 100) : 0;
+    const within7Rate    = repeaters  > 0 ? Math.round(within7   / repeaters   * 100) : 0;
+    const avgReturnDays  = returnCount > 0 ? (totalReturnDays / returnCount).toFixed(1) : '—';
+
+    el.innerHTML =
+      '<div class="retention-grid">'
+        + '<div class="ret-card"><div class="ret-value">' + avgReturnDays + '</div><div class="ret-label">平均リターン<br>日数</div></div>'
+        + '<div class="ret-card"><div class="ret-value">' + retentionRate + '%</div><div class="ret-label">リピーター<br>率</div></div>'
+        + '<div class="ret-card"><div class="ret-value">' + within7Rate + '%</div><div class="ret-label">7日以内<br>リピート率</div></div>'
+      + '</div>'
+      + retentionComment(retentionRate, parseFloat(avgReturnDays) || 0);
+
+    return { retentionRate };
+  } catch (e) {
+    el.innerHTML = '<span class="error-text">データ取得中...</span>';
+    return { retentionRate: 0 };
+  }
+}
+
+function retentionComment(rate, avgDays) {
+  let msg = '';
+  if (rate < 40) {
+    msg = '1回投票して終わるユーザーが多い状態です。投票後の配当・目利きスコアの通知を強化してください。';
+  } else if (avgDays > 7) {
+    msg = '1週間以上帰ってこないユーザーが多い。週次のメール通知やXでのランキング発表が効果的です。';
+  } else {
+    msg = 'リテンションは良好です。このユーザー体験を新規にも提供することが優先課題です。';
+  }
+  return '<div class="ai-comment">🤖 ' + msg + '</div>';
+}
+
+// ── 新規: アイデア健康状態 ────────────────────────────────
+async function loadHealth() {
+  const el = document.getElementById('health-content');
+  try {
+    const { data: allIdeas } = await sb.from('ideas')
+      .select('id, name, emoji, score, votes, updated_at, created_at')
+      .order('score', { ascending: true })
+      .limit(200);
+
+    if (!allIdeas || allIdeas.length === 0) {
+      el.innerHTML = '<div style="color:var(--text-muted);font-size:12px">アイデアなし</div>';
+      return { criticalIdeas: 0 };
+    }
+
+    function getRiskLevel(idea) {
+      const ref = idea.updated_at || idea.created_at;
+      const daysSince = (Date.now() - new Date(ref)) / 86400000;
+      if (daysSince > 14 && (idea.votes || 0) < 5)  return 'critical';
+      if (daysSince > 7  && (idea.votes || 0) < 10) return 'warning';
+      if ((idea.score || 0) < 30)                    return 'warning';
+      return 'healthy';
+    }
+
+    let critical = [], warning = [], healthy = [];
+    allIdeas.forEach(idea => {
+      const lvl = getRiskLevel(idea);
+      if (lvl === 'critical') critical.push(idea);
+      else if (lvl === 'warning') warning.push(idea);
+      else healthy.push(idea);
+    });
+
+    const criticalCount = critical.length;
+    let html =
+      '<div class="health-summary">'
+        + '<div class="health-card critical"><div class="health-num">' + criticalCount + '</div><div class="health-label">🔴 危険</div></div>'
+        + '<div class="health-card warning"><div class="health-num">' + warning.length + '</div><div class="health-label">🟡 注意</div></div>'
+        + '<div class="health-card healthy"><div class="health-num">' + healthy.length + '</div><div class="health-label">🟢 健全</div></div>'
+      + '</div>';
+
+    if (critical.length > 0) {
+      html += '<div style="font-size:11px;font-weight:700;color:var(--red);margin-bottom:6px">危険アイデア（最大5件）</div>';
+      critical.slice(0, 5).forEach(idea => {
+        const ref = idea.updated_at || idea.created_at;
+        const days = Math.floor((Date.now() - new Date(ref)) / 86400000);
+        html += '<div class="risk-item">'
+          + '<div class="risk-row">'
+          + '<div class="risk-name">' + esc(idea.emoji || '') + ' ' + esc(idea.name || '—') + '</div>'
+          + '<a href="index.html" class="risk-link">→ 見る</a>'
+          + '</div>'
+          + '<div class="risk-meta">最終更新 ' + days + '日前 · スコア ' + parseFloat(idea.score || 0).toFixed(1) + 'pt · 👍' + (idea.votes || 0) + '票</div>'
+          + '</div>';
+      });
+    }
+
+    html += healthComment(criticalCount);
+    el.innerHTML = html;
+    return { criticalIdeas: criticalCount };
+  } catch (e) {
+    el.innerHTML = '<span class="error-text">データ取得中...</span>';
+    return { criticalIdeas: 0 };
+  }
+}
+
+function healthComment(critCount) {
+  let msg = '';
+  if (critCount >= 3) {
+    msg = '複数のアイデアが死滅リスクにあります。Xで注目アイデアとして紹介し、投票を促してください。';
+  } else if (critCount === 0) {
+    msg = '全アイデアが活発な状態です。新規アイデアの流入を増やすタイミングです。';
+  } else {
+    msg = critCount + '件のアイデアが危険な状態です。個別に投票を促す施策を検討してください。';
+  }
+  return '<div class="ai-comment">🤖 ' + msg + '</div>';
+}
+
+// ── 新規: 収益予測 ────────────────────────────────────────
+async function loadRevenue() {
+  const el = document.getElementById('revenue-content');
+  try {
+    const [foundersRes, proRes] = await Promise.all([
+      sb.from('profiles').select('id', { count: 'exact', head: true }).eq('is_founder', true),
+      sb.from('profiles').select('id', { count: 'exact', head: true }).eq('is_pro', true),
+    ]);
+
+    const founderCount     = foundersRes.count || 0;
+    const proCount         = proRes.count || 0;
+    const FOUNDER_TOTAL    = 100;
+    const FOUNDER_PRICE    = 980;
+    const PRO_MONTHLY      = 300;
+
+    const founderRemaining    = FOUNDER_TOTAL - founderCount;
+    const maxFounderRevenue   = founderRemaining * FOUNDER_PRICE;
+    const currentMonthly      = proCount * PRO_MONTHLY;
+    const projectedAnnual     = currentMonthly * 12;
+    const totalFounderRevenue = FOUNDER_TOTAL * FOUNDER_PRICE;
+
+    el.innerHTML =
+      '<div class="rev-grid">'
+        + '<div class="rev-card"><div class="rev-value">¥' + fmt(maxFounderRevenue) + '</div><div class="rev-label">創設メンバー残枠<br>最大収益</div></div>'
+        + '<div class="rev-card"><div class="rev-value">¥' + fmt(currentMonthly)  + '</div><div class="rev-label">現在の月次収益<br>（Pro）</div></div>'
+        + '<div class="rev-card"><div class="rev-value">¥' + fmt(projectedAnnual) + '</div><div class="rev-label">年間収益予測<br>（現状維持）</div></div>'
+        + '<div class="rev-card"><div class="rev-value">¥' + fmt(totalFounderRevenue) + '</div><div class="rev-label">創設メンバー<br>完売時の総収益</div></div>'
+      + '</div>'
+      + revenueComment(founderRemaining, proCount);
+
+    return { founderRemaining, proCount };
+  } catch (e) {
+    el.innerHTML = '<span class="error-text">データ取得中...</span>';
+    return { founderRemaining: 100, proCount: 0 };
+  }
+}
+
+function revenueComment(remaining, proCount) {
+  let msg = '';
+  if (remaining > 80) {
+    msg = '創設メンバーの認知が足りていません。モルラボ記事・X投稿で告知を強化してください。';
+  } else if (remaining < 20) {
+    msg = '希少性が高まっています。「残り' + remaining + '名」を全面に出した緊急訴求が効果的です。';
+  } else if (proCount < 5) {
+    msg = 'Proプランの価値訴求が不足しています。月300円で得られる具体的なメリットを見直してください。';
+  } else {
+    msg = '収益基盤は安定しています。創設メンバーの残枠消化を加速させましょう。';
+  }
+  return '<div class="ai-comment">🤖 ' + msg + '</div>';
+}
+
+// ── 新規: AIアクション指示（総合判断）─────────────────────
+function getTodayAction(data) {
+  if (data.founderRemaining > 80) {
+    return {
+      priority: '🔴 最優先',
+      action: '創設メンバーの告知をXに投稿する',
+      reason: '残枠' + data.founderRemaining + '名。認知拡大が最優先課題です。',
+      cta: '告知文を生成する',
+    };
+  }
+  if (data.criticalIdeas > 2) {
+    return {
+      priority: '🟡 重要',
+      action: '危険アイデアをXで紹介して投票を促す',
+      reason: data.criticalIdeas + '件のアイデアが死滅リスクにあります。',
+      cta: '紹介ポストを生成する',
+    };
+  }
+  if (data.retentionRate < 40) {
+    return {
+      priority: '🟡 重要',
+      action: '投票後の体験を改善する（配当・目利きスコアの通知）',
+      reason: 'リピーター率' + data.retentionRate + '%。1回で離脱するユーザーが多い状態です。',
+      cta: null,
+    };
+  }
+  if (data.cvRate < 5) {
+    return {
+      priority: '🟢 推奨',
+      action: '創設メンバーの残枠カウントダウンをトップに表示する',
+      reason: '課金転換率' + data.cvRate + '%。希少性の演出が不足しています。',
+      cta: null,
+    };
+  }
+  return {
+    priority: '✅ 良好',
+    action: '新規ユーザー獲得に集中する',
+    reason: '現在の指標は全て健全な状態です。',
+    cta: null,
+  };
+}
+
+function renderActionCard(data) {
+  const act = getTodayAction(data);
+  const el = document.getElementById('action-section');
+  el.innerHTML = '<div class="action-card">'
+    + '<div class="action-priority">' + act.priority + '</div>'
+    + '<div class="action-label">今日やること</div>'
+    + '<div class="action-main">「' + esc(act.action) + '」</div>'
+    + '<div class="action-reason">' + esc(act.reason) + '</div>'
+    + (act.cta ? '<button class="action-cta" onclick="alert(\'この機能は準備中です\')">' + esc(act.cta) + '</button>' : '')
+    + '</div>';
+}
+
+// ── タイムスタンプ ─────────────────────────────────────────
+function updateTimestamp() {
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2, '0');
+  const mm = String(now.getMinutes()).padStart(2, '0');
+  const ss = String(now.getSeconds()).padStart(2, '0');
+  document.getElementById('lastUpdated').textContent = '最終更新：' + hh + ':' + mm + ':' + ss;
+}
+
+// ── 全ロード ───────────────────────────────────────────────
+async function loadAll() {
+  const [, , , funnelData, retData, healthData, revData] = await Promise.all([
+    loadKPI(),
+    loadRanking(),
+    loadActivity(),
+    loadFunnel(),
+    loadRetention(),
+    loadHealth(),
+    loadRevenue(),
+  ]);
+  renderActionCard({
+    cvRate:           funnelData.cvRate,
+    retentionRate:    retData.retentionRate,
+    criticalIdeas:    healthData.criticalIdeas,
+    founderRemaining: revData.founderRemaining,
   });
+  updateTimestamp();
 }
 
-/* INDIVIDUAL TALK */
-async function showTalkModal(userId,userName){
-  const initial=(userName||'?').charAt(0).toUpperCase();
-  _openLineModal(initial,userName,async()=>{await sb.from('messages').update({is_read:true}).eq('from_id',userId).eq('to_id',ADMIN_ID).eq('is_read',false);loadTalkList();},
-  async(modal)=>{
-    const msgs=modal.querySelector('#lm-msgs-body');
-    const[mR,vR]=await Promise.all([sb.from('messages').select('*').or(`and(from_id.eq.${userId},to_id.eq.${ADMIN_ID}),and(from_id.eq.${ADMIN_ID},to_id.eq.${userId})`).order('created_at',{ascending:true}).limit(100),sb.from('hiroba_voices').select('*').eq('user_id',userId).eq('is_announcement',false).order('created_at',{ascending:true}).limit(60)]);
-    const items=[];
-    (mR.data||[]).forEach(m=>items.push({isAdmin:m.from_id===ADMIN_ID,body:m.body,at:m.created_at,read:m.is_read,tag:null,src:'msg'}));
-    (vR.data||[]).forEach(v=>{items.push({isAdmin:false,body:v.text,at:v.created_at,read:!!v.ai_reply,tag:v.tag,src:'voice'});if(v.ai_reply)items.push({isAdmin:true,body:v.ai_reply.replace(/^【運営(リンク)?】/,''),at:v.created_at,read:true,tag:null,src:'voice-reply'});});
-    items.sort((a,b)=>new Date(a.at)-new Date(b.at));
-    if(!items.length){msgs.innerHTML='<div class="lm-empty">まだメッセージはありません</div>';return;}
-    let lastDate='',html='';
-    items.forEach((m,i)=>{const dl=fmtDateLabel(m.at);if(dl!==lastDate){html+=`<div class="lm-date"><span class="lm-date-lbl">${dl}</span></div>`;lastDate=dl;}const prev=i>0?items[i-1]:null;const samePrev=prev&&prev.isAdmin===m.isAdmin;const tagP=m.tag?`<div class="lm-tag">${esc(m.tag)}</div>`:'';const srcP=m.src==='voice'?'<div class="lm-tag">広場</div>':'';if(m.isAdmin){html+=`<div class="lm-row sent"><div class="lm-sent-wrap">${m.read?'<span class="lm-read">既読</span>':''}<span class="lm-ts">${fmtTime(m.at)}</span></div><div class="lm-bubble sent">${esc(m.body)}</div></div>`;}else{html+=`<div class="lm-row recv"><div class="lm-recv-av ${samePrev?'sp':''}">${esc(initial)}</div><div class="lm-recv-wrap"><div class="lm-bubble recv">${esc(m.body)}${tagP}${srcP}</div><span class="lm-ts lm-ts-r">${fmtTime(m.at)}</span></div></div>`;}});
-    msgs.innerHTML=html;msgs.scrollTop=msgs.scrollHeight;
-  },async(text)=>{await sb.from('messages').insert({from_id:ADMIN_ID,to_id:userId,body:text,is_announcement:false,is_read:false});});
-}
-
-/* LINE MODAL FACTORY */
-function _openLineModal(avText,name,onOpen,onLoad,onSend){
-  const overlay=document.createElement('div');overlay.className='lm-overlay';overlay.onclick=e=>{if(e.target===overlay)overlay.remove();};
-  const modal=document.createElement('div');modal.className='lm-modal';
-  modal.innerHTML=`<div class="lm-header"><button class="lm-back" onclick="this.closest('.lm-overlay').remove()">‹</button><div class="lm-av">${esc(avText)}</div><div style="flex:1;min-width:0"><div class="lm-name">${esc(name)}</div><div class="lm-sub" id="lm-sub-lbl"></div></div></div><div class="lm-msgs" id="lm-msgs-body"><div class="lm-empty">読み込み中…</div></div><div class="lm-bar"><input class="lm-input" id="lm-inp" type="text" placeholder="メッセージを入力…"><button class="lm-send" id="lm-send-btn"><svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M2.5 10L17.5 3.5L11.5 18L9 11.5L2.5 10Z" fill="white"/></svg></button></div>`;
-  overlay.appendChild(modal);document.body.appendChild(overlay);
-  async function doSend(){const inp=document.getElementById('lm-inp');const btn=document.getElementById('lm-send-btn');const text=inp?.value?.trim();if(!text)return;inp.value='';if(btn)btn.disabled=true;try{await onSend(text);await onLoad(modal);const msgs=document.getElementById('lm-msgs-body');if(msgs)msgs.scrollTop=msgs.scrollHeight;}catch(e){toast('エラー: '+e.message);inp.value=text;}finally{if(btn)btn.disabled=false;inp?.focus();}}
-  document.getElementById('lm-inp')?.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing)doSend();});
-  document.getElementById('lm-send-btn')?.addEventListener('click',doSend);
-  if(onOpen)onOpen(modal);
-  onLoad(modal);
-}
-
-/* BROADCAST TO DORMANT */
-async function showBroadcastToNew(){
-  const msg='あいぽにまだ投票したことがない方へ：気になるアイデアに応援票を入れてみませんか？あなたの1票がアイデアを育てます 🌱';
-  const overlay=document.createElement('div');overlay.className='lm-overlay';overlay.onclick=e=>{if(e.target===overlay)overlay.remove();};
-  overlay.innerHTML=`<div style="background:var(--surface);border-radius:18px 18px 0 0;padding:24px 20px 40px;width:100%;max-width:390px"><div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:8px">休眠ユーザーへ通知を送る</div><div style="font-size:12px;color:var(--ink3);margin-bottom:16px;line-height:1.7">全ユーザーへの全体通知として配信されます</div><textarea id="bc-dormant-txt" style="width:100%;padding:12px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:var(--sans);color:var(--ink);outline:none;resize:vertical;min-height:100px;line-height:1.7">${msg}</textarea><div style="display:flex;gap:10px;margin-top:14px"><button onclick="this.closest('.lm-overlay').remove()" style="flex:1;padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:10px;font-size:13px;font-weight:700;color:var(--ink);cursor:pointer;font-family:var(--sans)">キャンセル</button><button onclick="sendDormantBC()" style="flex:1;padding:12px;background:var(--ink);border:none;border-radius:10px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">📢 送信</button></div></div>`;
-  document.body.appendChild(overlay);
-}
-async function sendDormantBC(){
-  const txt=document.getElementById('bc-dormant-txt')?.value?.trim();if(!txt)return;
-  try{await Promise.all([sb.from('messages').insert({from_id:ADMIN_ID,to_id:null,body:txt,is_announcement:true,is_read:false}),sb.from('hiroba_voices').insert({user_id:ADMIN_ID,user_name:'あいぽ運営',text:txt,tag:'お知らせ',is_announcement:true,ai_reply:null})]);document.querySelector('.lm-overlay')?.remove();toast('✓ 通知を送信しました');loadTalkList();}
-  catch(e){toast('エラー: '+e.message);}
-}
-
-/* REALTIME */
-function startRealtime(){
-  sb.channel('aipo-cmd')
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'ideas'},()=>{loadRanking();loadActivity();loadToday();})
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'votes'},()=>{loadActivity();loadToday();loadRetention();loadDormant();})
-    .on('postgres_changes',{event:'*',schema:'public',table:'profiles'},()=>{loadRevenue();loadFounderCountdown();loadRetention();loadDormant();loadToday();})
-    .on('postgres_changes',{event:'*',schema:'public',table:'hiroba_voices'},()=>loadTalkList())
-    .on('postgres_changes',{event:'*',schema:'public',table:'messages'},()=>loadTalkList())
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'idea_views'},()=>{loadHourly();loadRetention();})
-    .subscribe();
-  setInterval(loadAll,4*60*1000);
-}
-
-/* LOAD ALL */
-async function loadAll(){
-  const ico=document.getElementById('refresh-ico');if(ico)ico.classList.add('spin');
-  try{await Promise.allSettled([loadRevenue(),loadToday(),loadFounderCountdown(),loadTalkList(),loadRetention(),loadDormant(),loadTrend(),loadHourly(),loadRanking(),loadActivity()]);}
-  finally{if(ico)ico.classList.remove('spin');}
-}
-
-/* INIT */
-async function init(){
-  if(window.location.hash?.includes('access_token')){await new Promise(r=>setTimeout(r,600));window.history.replaceState({},'',window.location.pathname);}
-  const{data:{session}}=await sb.auth.getSession();
-  if(session){if(session.user.id===ADMIN_ID){document.getElementById('gate').style.display='none';document.getElementById('dash').style.display='block';loadAll();startRealtime();}else{document.getElementById('gate-err').style.display='block';}}
-}
-init();
+(async function() {
+  const ok = await authGuard();
+  if (!ok) return;
+  await loadAll();
+})();
 </script>
 </body>
 </html>
