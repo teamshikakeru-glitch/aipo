@@ -521,6 +521,7 @@ input[type=file] { display: none; }
 <div class="screen" id="screen-match" style="padding-bottom:90px">
   <div class="sub-header" style="border-bottom:0.5px solid var(--border)">
     <div style="font-size:16px;font-weight:700;color:var(--text);padding:0 4px">マッチング</div>
+    <button onclick="match_openSkillModal()" style="margin-left:auto;background:var(--amber-mid);border:none;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans);white-space:nowrap;flex-shrink:0">✏️ スキルを編集</button>
   </div>
   <div style="padding:14px;overflow-y:auto">
     <div id="match-my-skills" style="margin-bottom:14px"></div>
@@ -2942,6 +2943,70 @@ async function match_saveSkills() {
   );
   if (error) { showToast('保存に失敗しました'); return; }
   showToast('スキルを保存しました');
+}
+
+async function match_openSkillModal() {
+  if (!currentUser) { showLoginSheet(); return; }
+  document.getElementById('match-skill-modal')?.remove();
+  const { data: prof } = await sb.from('skill_profiles').select('skills').eq('user_id', currentUser.id).single();
+  if (prof?.skills) match_mySkills = prof.skills;
+  let selected = [...match_mySkills];
+  const overlay = document.createElement('div');
+  overlay.id = 'match-skill-modal';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:flex-end;justify-content:center';
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+  overlay.innerHTML = '<div style="background:var(--surface);border-radius:24px 24px 0 0;padding:24px 20px 36px;width:100%;max-width:390px">'
+    + '<div style="width:40px;height:4px;background:var(--border2,#e0ddd6);border-radius:2px;margin:0 auto 18px"></div>'
+    + '<div style="font-size:16px;font-weight:700;margin-bottom:4px">スキルを編集</div>'
+    + '<div style="font-size:12px;color:var(--text3,#999);margin-bottom:16px">複数選択できます</div>'
+    + '<div id="match-skill-modal-tags" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px">'
+    + MATCH_SKILLS.map(s =>
+        '<span id="mst-' + s.key + '" onclick="match_toggleModalTag(\'' + s.key + '\')" '
+        + 'style="display:inline-flex;align-items:center;gap:4px;padding:8px 14px;border-radius:20px;font-size:13px;font-weight:700;border:1.5px solid ' + (selected.includes(s.key) ? 'var(--amber-mid);background:var(--amber-mid);color:#fff' : 'var(--border2,#e0ddd6);background:var(--surface2,#f5f3ef);color:var(--text3,#999)') + ';cursor:pointer;font-family:var(--sans);transition:all .15s">'
+        + s.label + '</span>'
+      ).join('')
+    + '</div>'
+    + '<button onclick="match_saveSkillModal()" style="width:100%;padding:14px;background:var(--amber-mid);border:none;border-radius:12px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">保存する</button>'
+    + '<button onclick="document.getElementById(\'match-skill-modal\').remove()" style="width:100%;padding:12px;background:none;border:none;font-size:13px;color:var(--text3,#999);cursor:pointer;font-family:var(--sans);margin-top:4px">キャンセル</button>'
+    + '</div>';
+  document.body.appendChild(overlay);
+  overlay._selected = selected;
+}
+
+function match_toggleModalTag(key) {
+  const overlay = document.getElementById('match-skill-modal');
+  if (!overlay) return;
+  const sel = overlay._selected;
+  const el = document.getElementById('mst-' + key);
+  if (!el) return;
+  const idx = sel.indexOf(key);
+  if (idx >= 0) {
+    sel.splice(idx, 1);
+    el.style.background = 'var(--surface2,#f5f3ef)';
+    el.style.borderColor = 'var(--border2,#e0ddd6)';
+    el.style.color = 'var(--text3,#999)';
+  } else {
+    sel.push(key);
+    el.style.background = 'var(--amber-mid)';
+    el.style.borderColor = 'var(--amber-mid)';
+    el.style.color = '#fff';
+  }
+}
+
+async function match_saveSkillModal() {
+  if (!currentUser) return;
+  const overlay = document.getElementById('match-skill-modal');
+  if (!overlay) return;
+  const skills = overlay._selected || [];
+  const { error } = await sb.from('skill_profiles').upsert(
+    { user_id: currentUser.id, skills, updated_at: new Date().toISOString() },
+    { onConflict: 'user_id' }
+  );
+  if (error) { showToast('保存に失敗しました'); return; }
+  match_mySkills = [...skills];
+  overlay.remove();
+  showToast('保存しました');
+  match_renderFeed();
 }
 
 // ─── Phase A-2: アイデア詳細の募集セクション ───────────────
