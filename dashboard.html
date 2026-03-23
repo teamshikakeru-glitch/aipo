@@ -277,6 +277,79 @@
   .msg-send-btn { background: var(--amber-mid); border: none; border-radius: 10px; padding: 10px 14px; font-size: 13px; font-weight: 700; color: #fff; cursor: pointer; font-family: 'Noto Sans JP', sans-serif; flex-shrink: 0; }
 
   /* ── Toast ── */
+  /* ── Broadcast modal ── */
+  #broadcast-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    max-width: 390px;
+    margin: 0 auto;
+    z-index: 300;
+    background: var(--bg);
+    overflow-y: auto;
+  }
+  .broadcast-header {
+    background: var(--surface);
+    border-bottom: 0.5px solid #e0ddd6;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .broadcast-close {
+    background: none; border: none; cursor: pointer;
+    padding: 4px; display: flex; align-items: center; color: var(--text);
+  }
+  .broadcast-send-btn {
+    width: 100%;
+    background: var(--amber-mid);
+    border: none;
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif;
+    margin-top: 12px;
+  }
+  .broadcast-send-btn:disabled { opacity: 0.5; }
+  .broadcast-textarea {
+    width: 100%;
+    border: 1.5px solid #e0ddd6;
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 14px;
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--surface);
+    color: var(--text);
+    resize: none;
+    outline: none;
+    line-height: 1.6;
+    min-height: 120px;
+  }
+  .broadcast-textarea:focus { border-color: var(--amber-mid); }
+  .user-list-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .broadcast-btn {
+    background: var(--amber-mid);
+    border: none;
+    border-radius: 8px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+
   .dash-toast {
     position: fixed; bottom: 24px; left: 50%;
     transform: translateX(-50%) translateY(20px);
@@ -420,7 +493,10 @@
 <div class="tab-content" id="tab-1">
   <div class="main">
     <div>
-      <div class="section-title">ユーザー一覧</div>
+      <div class="user-list-header">
+        <div class="section-title" style="margin-bottom:0">ユーザー一覧（新着順）</div>
+        <button class="broadcast-btn" onclick="openBroadcast()">📢 一斉送信</button>
+      </div>
       <div id="user-list-body">
         <span class="skeleton-line" style="width:100%"></span>
         <span class="skeleton-line" style="width:90%"></span>
@@ -448,6 +524,26 @@
       oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,80)+'px'"
       onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAdminMessage();}"></textarea>
     <button class="msg-send-btn" onclick="sendAdminMessage()">送信</button>
+  </div>
+</div>
+
+<!-- ══ 一斉送信モーダル ══════════════════════════════════════ -->
+<div id="broadcast-modal">
+  <div class="broadcast-header">
+    <button class="broadcast-close" onclick="closeBroadcast()">
+      <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 5l-5 5 5 5"/></svg>
+    </button>
+    <div style="font-size:15px;font-weight:700">📢 一斉送信</div>
+  </div>
+  <div style="padding:14px">
+    <div style="background:var(--surface);border-radius:12px;padding:14px;margin-bottom:14px;box-shadow:0 1px 6px rgba(0,0,0,.06)">
+      <div style="font-size:12px;color:var(--text-muted);line-height:1.7">全ユーザーの受信ボックスに同じメッセージが届きます。送信後の取り消しはできません。</div>
+    </div>
+    <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">メッセージ内容</div>
+    <textarea id="broadcast-input" class="broadcast-textarea" maxlength="400" placeholder="ここにメッセージを入力..." oninput="updateBroadcastCount(this)"></textarea>
+    <div style="text-align:right;font-size:11px;color:var(--text-muted);margin-top:4px"><span id="broadcast-count">0</span> / 400文字</div>
+    <div id="broadcast-target" style="font-size:12px;color:var(--text-muted);margin-top:10px;text-align:center">送信先: — 名</div>
+    <button class="broadcast-send-btn" id="broadcast-send-btn" onclick="sendBroadcast()">全ユーザーに送信する</button>
   </div>
 </div>
 
@@ -970,6 +1066,71 @@ function closeUserDetail() {
   if (msgSub) { try { msgSub.unsubscribe(); } catch(e){} msgSub = null; }
   currentDetailUserId = null;
   if (currentTab === 1) loadUsers();
+}
+
+// ══ 一斉送信 ═════════════════════════════════════════════
+
+let broadcastProfiles = [];
+
+async function openBroadcast() {
+  const modal = document.getElementById('broadcast-modal');
+  modal.style.display = 'block';
+  document.getElementById('broadcast-input').value = '';
+  document.getElementById('broadcast-count').textContent = '0';
+  document.getElementById('broadcast-target').textContent = '送信先: 取得中...';
+  document.getElementById('broadcast-send-btn').disabled = true;
+
+  try {
+    const { data, error } = await sb.from('profiles').select('id').neq('id', ADMIN_UUID);
+    if (error) throw error;
+    broadcastProfiles = data || [];
+    document.getElementById('broadcast-target').textContent = '送信先: ' + broadcastProfiles.length + ' 名';
+    document.getElementById('broadcast-send-btn').disabled = broadcastProfiles.length === 0;
+  } catch(e) {
+    document.getElementById('broadcast-target').textContent = '取得失敗';
+  }
+}
+
+function closeBroadcast() {
+  document.getElementById('broadcast-modal').style.display = 'none';
+  broadcastProfiles = [];
+}
+
+function updateBroadcastCount(el) {
+  document.getElementById('broadcast-count').textContent = el.value.length;
+}
+
+async function sendBroadcast() {
+  const text = document.getElementById('broadcast-input').value.trim();
+  if (!text) { showDashToast('メッセージを入力してください'); return; }
+  if (broadcastProfiles.length === 0) { showDashToast('送信先がいません'); return; }
+
+  const btn = document.getElementById('broadcast-send-btn');
+  btn.disabled = true;
+  btn.textContent = '送信中...';
+
+  try {
+    const messages = broadcastProfiles.map(p => ({
+      from_user_id: ADMIN_UUID,
+      to_user_id: p.id,
+      text,
+      is_read: false,
+    }));
+
+    const chunkSize = 50;
+    for (let i = 0; i < messages.length; i += chunkSize) {
+      const chunk = messages.slice(i, i + chunkSize);
+      const { error } = await sb.from('admin_messages').insert(chunk);
+      if (error) throw error;
+    }
+
+    showDashToast(broadcastProfiles.length + ' 名に送信しました ✓');
+    closeBroadcast();
+  } catch(e) {
+    showDashToast('送信失敗: ' + (e.message || String(e)));
+    btn.disabled = false;
+    btn.textContent = '全ユーザーに送信する';
+  }
 }
 
 // ── Init ──────────────────────────────────────────────────
