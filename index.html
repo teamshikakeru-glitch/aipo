@@ -27,6 +27,35 @@
   --r-xl: 22px;--r-lg: 16px;--r-md: 10px;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; max-width: 100%; }
+html, body { overflow-x: hidden !important; width: 100%; max-width: 100vw; position: relative; }<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>あいぽ — アイデアIPO市場</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="あいぽ">
+<meta name="theme-color" content="#fff8ed">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script defer src="/_vercel/insights/script.js"></script>
+<style>
+:root {
+  --bg: #eceae4;--surface: #ffffff;--surface2: #f7f6f3;
+  --border: rgba(0,0,0,0.07);--border2: rgba(0,0,0,0.12);
+  --text: #1a1916;--text2: #6b6860;--text3: #b0aea6;
+  --amber: #bf6d00;--amber-bg: #fff8ed;--amber-mid: #e8850a;--amber-border: #f5d68a;
+  --green: #1a7a4a;--green-light: #22a85f;--green-bg: #edf7f2;--green-border: #9de0cc;
+  --red: #c0392b;--teal: #0f7a5e;
+  --mono: 'Space Mono', monospace;--sans: 'Noto Sans JP', sans-serif;
+  --r-xl: 22px;--r-lg: 16px;--r-md: 10px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; max-width: 100%; }
 html, body { overflow-x: hidden !important; width: 100%; max-width: 100vw; position: relative; }
 html { overflow-x: hidden; }
 body { background: var(--bg); color: var(--text); font-family: var(--sans); overflow-x: hidden !important; overflow-y: auto; width: 100%; touch-action: pan-y pinch-zoom; }
@@ -3387,7 +3416,16 @@ function devOpenDetail(idx) {
     +'</div>'
   ).join('');
   const skills = (d.skills||[]).map(s=>'<span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px;background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)">'+bEsc(s)+'</span>').join('');
-  const xUrl = d.x_id ? 'https://x.com/'+encodeURIComponent(d.x_id.replace(/^@/,'')) : null;
+  let xUrl = 'https://x.com/aideaipo';
+  if (d.x_id) {
+    const raw = d.x_id.trim();
+    if (/^https?:\/\//i.test(raw)) {
+      const m = raw.match(/x\.com\/([^/?#]+)/i) || raw.match(/twitter\.com\/([^/?#]+)/i);
+      xUrl = m ? 'https://x.com/'+m[1] : 'https://x.com/aideaipo';
+    } else {
+      xUrl = 'https://x.com/'+raw.replace(/^@/,'');
+    }
+  }
   const founderBadgeDetail = d.is_founder
     ? '<div style="display:inline-flex;align-items:center;gap:4px;background:linear-gradient(135deg,#fffbe6,#fff3cd);border:1px solid #f5c842;border-radius:20px;padding:4px 12px;font-size:11px;font-weight:800;color:#b8860b;margin-bottom:14px">👑 創設メンバー'+(d.founder_number?'<span style="color:var(--text3);font-weight:600"> #'+d.founder_number+'</span>':'')+'</div>'
     : '';
