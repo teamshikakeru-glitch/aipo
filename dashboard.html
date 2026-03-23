@@ -908,13 +908,31 @@ async function loadUsers() {
   }
 
   let unreadSet = new Set();
+  let latestMsgMap = {};
   try {
-    const unreadRes = await sb.from('admin_messages').select('from_user_id').eq('to_user_id',ADMIN_UUID).eq('is_read',false);
-    if (!unreadRes.error) unreadSet = new Set((unreadRes.data||[]).map(u=>u.from_user_id));
+    const unreadRes = await sb.from('admin_messages')
+      .select('from_user_id,created_at')
+      .eq('to_user_id', ADMIN_UUID)
+      .eq('is_read', false)
+      .order('created_at', {ascending: false});
+    if (!unreadRes.error) {
+      (unreadRes.data||[]).forEach(u => {
+        unreadSet.add(u.from_user_id);
+        if (!latestMsgMap[u.from_user_id]) latestMsgMap[u.from_user_id] = u.created_at;
+      });
+    }
   } catch(e) {}
 
   const dot = document.getElementById('dot-1');
   if (dot) dot.style.display = unreadSet.size > 0 ? 'block' : 'none';
+
+  // 未読メッセージありのユーザーを上位に、その中は最新メッセージ順、残りは新着順
+  profiles.sort((a, b) => {
+    const au = unreadSet.has(a.id), bu = unreadSet.has(b.id);
+    if (bu !== au) return (bu ? 1 : 0) - (au ? 1 : 0);
+    if (au && bu) return new Date(latestMsgMap[b.id]) - new Date(latestMsgMap[a.id]);
+    return new Date(b.created_at) - new Date(a.created_at);
+  });
 
   if (profiles.length===0) { el.innerHTML='<div style="color:var(--text-muted);font-size:13px;padding:12px 0">ユーザーなし</div>'; return; }
   el.innerHTML = profiles.map(p => {
@@ -926,10 +944,11 @@ async function loadUsers() {
     if (p.is_founder) badges.push('<span style="font-size:10px;font-weight:700;color:var(--amber-mid);background:#fff8ee;border:1px solid #f0c36a;border-radius:4px;padding:1px 6px">👑 #'+String(p.founder_number||0).padStart(2,'0')+'</span>');
     if (p.is_pro) badges.push('<span style="font-size:10px;font-weight:700;color:#fff;background:var(--green-light);border-radius:4px;padding:1px 6px">Pro</span>');
     const hasMsg = unreadSet.has(p.id);
-    return '<div class="user-card" onclick="openUserDetail(\''+p.id+'\')">'
+    const msgTime = hasMsg && latestMsgMap[p.id] ? relativeTime(latestMsgMap[p.id]) : null;
+    return '<div class="user-card" onclick="openUserDetail(\''+p.id+'\')" style="'+(hasMsg?'border-left:3px solid var(--red);':'')+'">'
       +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">'
       +'<div style="font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(uname)+'</div>'
-      +(hasMsg?'<span style="min-width:8px;height:8px;background:var(--red);border-radius:50%;flex-shrink:0;margin-left:6px;display:block"></span>':'')
+      +(hasMsg?'<span style="font-size:10px;font-weight:700;color:var(--red);flex-shrink:0;margin-left:6px;white-space:nowrap">📩 '+(msgTime||'')+'</span>':'')
       +'</div>'
       +'<div style="font-size:11px;color:var(--text-muted);margin-bottom:3px">入会：'+join+'</div>'
       +'<div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">投票：'+vc+'回 ｜ 最終：'+last+'</div>'
@@ -948,68 +967,73 @@ async function openUserDetail(userId) {
   document.getElementById('user-detail-body').innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted)">読み込み中...</div>';
   document.getElementById('user-messages-body').innerHTML = '';
 
-  try {
-    const [profRes, vcRes, ccRes, lvRes, lcRes] = await Promise.all([
-      sb.from('profiles').select('*').eq('id',userId).single(),
-      sb.from('votes').select('id',{count:'exact',head:true}).eq('user_id',userId),
-      sb.from('comments').select('id',{count:'exact',head:true}).eq('user_id',userId),
-      sb.from('votes').select('idea_id,created_at,ideas(name)').eq('user_id',userId).order('created_at',{ascending:false}).limit(5),
-      sb.from('comments').select('idea_id,created_at,ideas(name)').eq('user_id',userId).order('created_at',{ascending:false}).limit(5),
-    ]);
-    const p = profRes.data;
-    const vc = vcRes.count||0, cc = ccRes.count||0;
-    const uname = p?.x_username ? '@'+p.x_username : '匿名';
-    setText('user-detail-name', uname);
-
-    const activity = [];
-    (lvRes.data||[]).forEach(v => activity.push({type:'vote',    name:v.ideas?.name||v.idea_id, created_at:v.created_at}));
-    (lcRes.data||[]).forEach(c => activity.push({type:'comment', name:c.ideas?.name||c.idea_id, created_at:c.created_at}));
-    activity.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
-
-    let html = '<div style="background:var(--surface);border-radius:12px;padding:14px;margin-bottom:12px;box-shadow:0 1px 6px rgba(0,0,0,.06)">'
-      +'<div style="font-size:17px;font-weight:700;margin-bottom:6px">'+esc(uname)+'</div>'
-      +(p?.is_founder?'<div style="font-size:12px;color:var(--amber-mid);font-weight:700;margin-bottom:8px">👑 創設メンバー #'+String(p.founder_number||0).padStart(2,'0')+'</div>':'')
-      +(p?.is_pro?'<div style="display:inline-block;font-size:11px;font-weight:700;color:#fff;background:var(--green-light);border-radius:4px;padding:2px 8px;margin-bottom:8px">Pro</div>':'')
-      +'<div class="detail-row"><span class="detail-label">入会日</span><span>'+(p?.created_at?new Date(p.created_at).toLocaleDateString('ja-JP'):'—')+'</span></div>'
-      +'<div class="detail-row"><span class="detail-label">総投票数</span><span>'+vc+'回</span></div>'
-      +'<div class="detail-row"><span class="detail-label">総コメント数</span><span>'+cc+'件</span></div>'
-      +'</div>';
-
-    html += '<div style="background:var(--surface);border-radius:12px;padding:14px;margin-bottom:12px;box-shadow:0 1px 6px rgba(0,0,0,.06)">'
-      +'<div class="section-title">アクティビティ履歴（直近10件）</div>';
-    if (activity.length===0) {
-      html += '<div style="color:var(--text-muted);font-size:12px;padding:8px 0">活動なし</div>';
-    } else {
-      html += activity.slice(0,10).map(ev => {
-        const icon = ev.type==='vote'?'🗳':'💬';
-        const act = ev.type==='vote'?'に投票':'にコメント';
-        return '<div class="activity-item"><div class="activity-icon">'+icon+'</div><div class="activity-body">'
-          +'<div class="activity-text"><span style="font-weight:500">'+esc(ev.name||'—')+'</span>'+act+'</div>'
-          +'<div class="activity-time">'+relativeTime(ev.created_at)+'</div>'
-          +'</div></div>';
-      }).join('');
-    }
-    html += '</div>';
-    document.getElementById('user-detail-body').innerHTML = html;
-
-    await sb.from('admin_messages').update({is_read:true, read_at:new Date().toISOString()}).eq('from_user_id',userId).eq('to_user_id',ADMIN_UUID).eq('is_read',false).catch(()=>{});
-    await loadUserMessages(userId);
-
-    if (msgSub) { try { msgSub.unsubscribe(); } catch(e){} }
-    msgSub = sb.channel('admin_chat_'+userId)
-      .on('postgres_changes', {event:'INSERT', schema:'public', table:'admin_messages'}, async payload => {
-        const msg = payload.new;
-        const isOurs = (msg.from_user_id===userId&&msg.to_user_id===ADMIN_UUID)||(msg.from_user_id===ADMIN_UUID&&msg.to_user_id===userId);
-        if (!isOurs) return;
-        if (msg.sender_id !== ADMIN_UUID) appendAdminMessage(msg);
-        if (msg.from_user_id===userId) {
-          await sb.from('admin_messages').update({is_read:true, read_at:new Date().toISOString()}).eq('id',msg.id).catch(()=>{});
-        }
-      })
-      .subscribe();
-  } catch(e) {
-    document.getElementById('user-detail-body').innerHTML = '<div style="padding:20px;color:var(--red)">読み込みに失敗しました</div>';
+  // プロフィール取得（必須）
+  const profRes = await sb.from('profiles').select('*').eq('id', userId).single();
+  if (profRes.error || !profRes.data) {
+    document.getElementById('user-detail-body').innerHTML = '<div style="padding:20px;color:var(--red)">プロフィールの取得に失敗しました</div>';
+    return;
   }
+  const p = profRes.data;
+  const uname = p.x_username ? '@'+p.x_username : '匿名';
+  setText('user-detail-name', uname);
+
+  // 投票・コメント集計（個別にエラー吸収）
+  const [vcRes, ccRes, lvRes, lcRes] = await Promise.allSettled([
+    sb.from('votes').select('id',{count:'exact',head:true}).eq('user_id',userId),
+    sb.from('comments').select('id',{count:'exact',head:true}).eq('user_id',userId),
+    sb.from('votes').select('idea_id,created_at,ideas(name)').eq('user_id',userId).order('created_at',{ascending:false}).limit(5),
+    sb.from('comments').select('idea_id,created_at,ideas(name)').eq('user_id',userId).order('created_at',{ascending:false}).limit(5),
+  ]);
+  const vc = vcRes.status==='fulfilled' ? (vcRes.value.count||0) : 0;
+  const cc = ccRes.status==='fulfilled' ? (ccRes.value.count||0) : 0;
+
+  const activity = [];
+  if (lvRes.status==='fulfilled') (lvRes.value.data||[]).forEach(v => activity.push({type:'vote',    name:v.ideas?.name||v.idea_id, created_at:v.created_at}));
+  if (lcRes.status==='fulfilled') (lcRes.value.data||[]).forEach(c => activity.push({type:'comment', name:c.ideas?.name||c.idea_id, created_at:c.created_at}));
+  activity.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+
+  let html = '<div style="background:var(--surface);border-radius:12px;padding:14px;margin-bottom:12px;box-shadow:0 1px 6px rgba(0,0,0,.06)">'
+    +'<div style="font-size:17px;font-weight:700;margin-bottom:6px">'+esc(uname)+'</div>'
+    +(p.is_founder?'<div style="font-size:12px;color:var(--amber-mid);font-weight:700;margin-bottom:8px">👑 創設メンバー #'+String(p.founder_number||0).padStart(2,'0')+'</div>':'')
+    +(p.is_pro?'<div style="display:inline-block;font-size:11px;font-weight:700;color:#fff;background:var(--green-light);border-radius:4px;padding:2px 8px;margin-bottom:8px">Pro</div>':'')
+    +'<div class="detail-row"><span class="detail-label">入会日</span><span>'+(p.created_at?new Date(p.created_at).toLocaleDateString('ja-JP'):'—')+'</span></div>'
+    +'<div class="detail-row"><span class="detail-label">総投票数</span><span>'+vc+'回</span></div>'
+    +'<div class="detail-row"><span class="detail-label">総コメント数</span><span>'+cc+'件</span></div>'
+    +'</div>';
+
+  html += '<div style="background:var(--surface);border-radius:12px;padding:14px;margin-bottom:12px;box-shadow:0 1px 6px rgba(0,0,0,.06)">'
+    +'<div class="section-title">アクティビティ履歴（直近10件）</div>';
+  if (activity.length===0) {
+    html += '<div style="color:var(--text-muted);font-size:12px;padding:8px 0">活動なし</div>';
+  } else {
+    html += activity.slice(0,10).map(ev => {
+      const icon = ev.type==='vote'?'🗳':'💬';
+      const act = ev.type==='vote'?'に投票':'にコメント';
+      return '<div class="activity-item"><div class="activity-icon">'+icon+'</div><div class="activity-body">'
+        +'<div class="activity-text"><span style="font-weight:500">'+esc(ev.name||'—')+'</span>'+act+'</div>'
+        +'<div class="activity-time">'+relativeTime(ev.created_at)+'</div>'
+        +'</div></div>';
+    }).join('');
+  }
+  html += '</div>';
+  document.getElementById('user-detail-body').innerHTML = html;
+
+  // admin_messages（テーブルなくても続行）
+  await sb.from('admin_messages').update({is_read:true, read_at:new Date().toISOString()}).eq('from_user_id',userId).eq('to_user_id',ADMIN_UUID).eq('is_read',false).catch(()=>{});
+  await loadUserMessages(userId);
+
+  if (msgSub) { try { msgSub.unsubscribe(); } catch(e){} }
+  msgSub = sb.channel('admin_chat_'+userId)
+    .on('postgres_changes', {event:'INSERT', schema:'public', table:'admin_messages'}, async payload => {
+      const msg = payload.new;
+      const isOurs = (msg.from_user_id===userId&&msg.to_user_id===ADMIN_UUID)||(msg.from_user_id===ADMIN_UUID&&msg.to_user_id===userId);
+      if (!isOurs) return;
+      if (msg.sender_id !== ADMIN_UUID) appendAdminMessage(msg);
+      if (msg.from_user_id===userId) {
+        await sb.from('admin_messages').update({is_read:true, read_at:new Date().toISOString()}).eq('id',msg.id).catch(()=>{});
+      }
+    })
+    .subscribe();
 }
 
 async function loadUserMessages(userId) {
