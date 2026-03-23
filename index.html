@@ -495,7 +495,15 @@ input[type=file] { display: none; }
     </div>
   </div>
   <div style="padding:14px 12px 0;overflow-y:auto;padding-bottom:90px" id="portfolio-scroll">
+    <div id="notif-entry-btn" style="display:none;background:var(--surface);border:1.5px solid var(--amber-border);border-radius:var(--r-lg);padding:12px 16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="openNotifSheet()">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--amber-mid);animation:blink 1.8s infinite"></div>
+        <span style="font-size:13px;font-weight:700;color:var(--text)">新しい通知があります</span>
+      </div>
+      <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="var(--text3)" stroke-width="2"><path d="M7 5l5 5-5 5"/></svg>
+    </div>
     <div id="portfolio-founder-badge"></div>
+    <div id="realized-products-section"></div>
     <div id="cert-collection-section"></div>
     <div id="portfolio-list"></div>
     <div id="zukan-overlay" style="display:none;position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.4);display:none;align-items:flex-end;justify-content:center"></div>
@@ -507,7 +515,7 @@ input[type=file] { display: none; }
   <div class="nav-item active" id="nav-feed" onclick="goTo('feed')"><div class="nav-icon-box"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="6" height="6" rx="1.5"/><rect x="11" y="3" width="6" height="6" rx="1.5"/><rect x="3" y="11" width="6" height="6" rx="1.5"/><rect x="11" y="11" width="6" height="6" rx="1.5"/></svg></div>マーケット</div>
   <div class="nav-item" id="nav-post-tab" onclick="goTo('post')"><div class="nav-icon-box" style="background:var(--amber-mid);border-color:var(--amber-mid);box-shadow:0 2px 8px rgba(232,133,10,.35)"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2.5"><path d="M10 15V5M5 9l5-5 5 5"/></svg></div>上場</div>
   <div class="nav-item" id="nav-hiroba-btn" onclick="goTo('hiroba')"><div class="nav-icon-box"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M2 5h16M2 10h10M2 15h7"/><circle cx="16" cy="15" r="2.5"/><path d="M16 13v-3"/></svg></div>広場</div>
-  <div class="nav-item" id="nav-portfolio" onclick="goTo('portfolio')"><div class="nav-icon-box"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3L3 7v10h14V7L10 3z"/></svg></div>ホーム</div>
+  <div class="nav-item" id="nav-portfolio" onclick="goTo('portfolio')"><div class="nav-icon-box" style="position:relative"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3L3 7v10h14V7L10 3z"/></svg><div id="notif-badge" style="display:none;position:absolute;top:-4px;right:-4px;min-width:14px;height:14px;background:#c0392b;border-radius:7px;border:1.5px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;padding:0 3px;line-height:1"></div></div>ホーム</div>
 </div>
 
 <div class="postbox-overlay" id="postbox-overlay">
@@ -638,8 +646,13 @@ async function voteIdeaToDB(ideaId, votesAtTime) {
     const { error: scoreError } = await sb.rpc('update_idea_score', { idea_id: ideaId, new_score: newScore });
     if (scoreError) { console.error('update_idea_score error:', scoreError); }
   }
-  const { data: current } = await sb.from('ideas').select('votes').eq('id', ideaId).single();
+  const { data: current } = await sb.from('ideas').select('votes, user_id, name').eq('id', ideaId).single();
   if ((current?.votes || 0) >= 20) checkMilestone(ideaId);
+  // アイデアオーナーに投票通知
+  if (current?.user_id && current.user_id !== currentUser?.id) {
+    _sendNotification(current.user_id, 'vote', ideaId,
+      `「${(current.name||'').slice(0,20)}」に応援が入りました`);
+  }
   return true;
 }
 
@@ -944,7 +957,7 @@ setInterval(() => {
     ideas.forEach(idea => {
       idea.postedDaysAgo += 1800/86400;
       const prev = idea.score; idea.score = calcScore(idea); idea.history = [...idea.history.slice(-11), idea.score]; idea.lastDelta = idea.score - prev;
-      if (idea.lastDelta > 0.5) { idea.lastReason = 'スコアが上昇しました'; if (myIdeas.has(idea.id)) showScoreUpToast(idea); }
+      if (idea.lastDelta > 0.5) { idea.lastReason = 'スコアが上昇しました'; if (myIdeas.has(idea.id)) { showScoreUpToast(idea); if(currentUser) _sendNotification(currentUser.id,'score_up',idea.id,`「${idea.name.slice(0,20)}」のスコアが${idea.score.toFixed(1)}に上昇しました`); } }
       else if (idea.lastDelta < -0.5) idea.lastReason = '時間経過により微減しました';
     });
     nextSec = 1800;
@@ -975,6 +988,7 @@ function goTo(s) {
 }
 
 function renderPortfolio() {
+  loadRealizedProducts();
   const greetEl = document.getElementById('portfolio-greeting');
   if (greetEl && currentUser?.x_username) greetEl.textContent = 'おかえり、' + currentUser.x_username;
   else if (greetEl && currentUser) greetEl.textContent = 'おかえり';
@@ -1828,6 +1842,11 @@ async function _incrementShares(ideaId) {
     await sb.rpc('increment_idea_shares', { idea_id: ideaId });
     // スコアも更新
     await sb.rpc('update_idea_score', { idea_id: ideaId, new_score: idea.score });
+    // オーナーにシェア通知
+    const { data: ideaRow } = await sb.from('ideas').select('user_id, name').eq('id', ideaId).single();
+    if (ideaRow?.user_id && ideaRow.user_id !== currentUser?.id) {
+      _sendNotification(ideaRow.user_id, 'share', ideaId, `「${(ideaRow.name||'').slice(0,20)}」がシェアされました`);
+    }
   } catch(e) {
     console.error('incrementShares error:', e);
   }
@@ -1896,6 +1915,118 @@ function saveCertToCollection(idea, votesAtTime) {
   };
   certs.push(cert);
   localStorage.setItem('aipo-certificates', JSON.stringify(certs));
+}
+
+async function loadRealizedProducts() {
+  const section = document.getElementById('realized-products-section');
+  if (!section) return;
+  try {
+    const { data, error } = await sb
+      .from('ideas')
+      .select('id, name, ticker, emoji, score, votes, realized_url, realized_at, realized_desc')
+      .not('realized_url', 'is', null)
+      .order('realized_at', { ascending: false });
+    if (error || !data || data.length === 0) { section.innerHTML = ''; return; }
+    section.innerHTML = `
+      <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.07em;margin-bottom:10px;display:flex;align-items:center;gap:6px">
+        <div style="width:7px;height:7px;border-radius:50%;background:var(--green-light)"></div>
+        実現プロダクト（${data.length}件）
+      </div>
+      <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:12px;scrollbar-width:none;margin:-2px -12px 14px;padding-left:14px;padding-right:14px">
+        ${data.map(p => {
+          const nameShort = p.name.length > 14 ? p.name.slice(0,14)+'…' : p.name;
+          return `<div onclick="showRealizedDetail('${p.id}')" style="flex-shrink:0;width:140px;background:var(--surface);border:1.5px solid var(--green-border);border-radius:14px;padding:12px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden">
+            <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--green-light),#4ade80)"></div>
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+              <div style="width:28px;height:28px;border-radius:8px;background:var(--green-bg);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">${p.emoji||'💡'}</div>
+              <div style="font-size:8px;font-weight:700;color:var(--green);background:var(--green-bg);border:1px solid var(--green-border);border-radius:20px;padding:2px 7px;white-space:nowrap">✅ 実現</div>
+            </div>
+            <div style="font-size:11px;font-weight:700;color:var(--text);line-height:1.4;margin-bottom:6px">${nameShort}</div>
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <div style="font-family:var(--mono);font-size:9px;color:var(--text3)">${p.ticker}</div>
+              <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:var(--green)">${parseFloat(p.score||50).toFixed(1)}</div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>`;
+  } catch(e) {
+    console.error('loadRealizedProducts error:', e);
+  }
+}
+
+function showRealizedDetail(ideaId) {
+  document.getElementById('realized-sheet-overlay')?.remove();
+  // DBから再取得 or ローカルのideasから検索
+  sb.from('ideas')
+    .select('id, name, ticker, emoji, score, votes, realized_url, realized_at, realized_desc, genre, user_id')
+    .eq('id', ideaId)
+    .single()
+    .then(({ data: p }) => {
+      if (!p) return;
+      const nameShort = p.name.length > 24 ? p.name.slice(0,24)+'…' : p.name;
+      // 上場からの経過
+      let elapsedStr = '';
+      if (p.realized_at) {
+        const idea = ideas.find(i => i.id === ideaId);
+        const startDate = idea?.created_at ? new Date(idea.created_at) : null;
+        const endDate = new Date(p.realized_at);
+        if (startDate) {
+          const days = Math.round((endDate - startDate) / 86400000);
+          elapsedStr = days < 30 ? days + '日' : Math.round(days/30) + 'ヶ月';
+        }
+      }
+      const overlay = document.createElement('div');
+      overlay.id = 'realized-sheet-overlay';
+      overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:400;display:flex;align-items:flex-end;justify-content:center';
+      overlay.onclick = e => { if(e.target===overlay) overlay.remove(); };
+      overlay.innerHTML = `
+        <div style="background:var(--surface);border-radius:24px 24px 0 0;padding:0 0 calc(32px + env(safe-area-inset-bottom,0px));width:100%;max-width:390px;animation:slideUp .35s cubic-bezier(.16,1,.3,1)">
+          <!-- グリーンバー -->
+          <div style="height:4px;background:linear-gradient(90deg,var(--green-light),#4ade80);border-radius:24px 24px 0 0"></div>
+          <div style="padding:20px 20px 0">
+            <div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 18px"></div>
+            <!-- ヘッダー -->
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
+              <div style="width:48px;height:48px;border-radius:14px;background:var(--green-bg);border:1.5px solid var(--green-border);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">${p.emoji||'💡'}</div>
+              <div style="flex:1;min-width:0">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
+                  <span style="font-size:9px;font-weight:700;color:var(--green);background:var(--green-bg);border:1px solid var(--green-border);border-radius:20px;padding:2px 8px">✅ 実現済み</span>
+                  <span style="font-family:var(--mono);font-size:9px;color:var(--text3)">${p.ticker}</span>
+                </div>
+                <div style="font-size:15px;font-weight:700;color:var(--text);line-height:1.3">${nameShort}</div>
+              </div>
+            </div>
+            <!-- スタッツ -->
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px">
+              <div style="background:var(--surface2);border-radius:10px;padding:10px;text-align:center">
+                <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--green)">${parseFloat(p.score||50).toFixed(1)}</div>
+                <div style="font-size:9px;color:var(--text3);margin-top:2px">上場時スコア</div>
+              </div>
+              <div style="background:var(--surface2);border-radius:10px;padding:10px;text-align:center">
+                <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--amber-mid)">${p.votes||0}</div>
+                <div style="font-size:9px;color:var(--text3);margin-top:2px">応援者数</div>
+              </div>
+              <div style="background:var(--surface2);border-radius:10px;padding:10px;text-align:center">
+                <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--text)">${elapsedStr||'—'}</div>
+                <div style="font-size:9px;color:var(--text3);margin-top:2px">実現まで</div>
+              </div>
+            </div>
+            ${p.realized_desc ? `
+            <div style="background:var(--green-bg);border:1px solid var(--green-border);border-radius:12px;padding:12px 14px;margin-bottom:16px;font-size:13px;color:var(--text);line-height:1.7">${p.realized_desc}</div>
+            ` : ''}
+            <!-- ボタン -->
+            <div style="display:flex;flex-direction:column;gap:8px;padding-bottom:4px">
+              <a href="${p.realized_url}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;background:var(--green-light);border-radius:var(--r-lg);font-size:15px;font-weight:700;color:#fff;text-decoration:none;box-sizing:border-box">
+                <svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M10 3H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-5M14 3h3v3M10 10l7-7"/></svg>
+                サービスを見る
+              </a>
+              <button onclick="document.getElementById('realized-sheet-overlay').remove();showDetail('${p.id}')" style="width:100%;padding:13px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r-lg);font-size:13px;font-weight:700;color:var(--text2);cursor:pointer;font-family:var(--sans)">あいぽの元ページを見る</button>
+              <button onclick="document.getElementById('realized-sheet-overlay').remove()" style="width:100%;padding:12px;background:transparent;border:none;font-size:13px;color:var(--text3);cursor:pointer;font-family:var(--sans)">閉じる</button>
+            </div>
+          </div>
+        </div>`;
+      document.body.appendChild(overlay);
+    });
 }
 
 function renderCertCollection() {
@@ -2276,7 +2407,7 @@ async function init() {
   await fetchIdeas();
   setTimeout(()=>{ splash.classList.add('hide'); setTimeout(()=>splash.style.display='none',500); }, 800);
   if (hasSession && currentUser) {
-    await ensureProfile(currentUser); await checkProStatus(); await loadVotedIds(); await loadInsightScore(); await loadDividends();
+    await ensureProfile(currentUser); await checkProStatus(); await loadVotedIds(); await loadInsightScore(); await loadDividends(); loadNotifBadge();
     trackReferrer(currentUser.id);
     const guideDone = localStorage.getItem('guide-done');
     if (!guideDone) { setTimeout(() => { guideScreen.classList.add('active'); }, 1200); }
@@ -2288,6 +2419,125 @@ async function init() {
   updateXBonus();
 }
 
+
+// ─── 通知システム ───────────────────────────────────────
+async function _sendNotification(userId, type, ideaId, message) {
+  try {
+    await sb.from('notifications').insert({
+      user_id: userId, type, idea_id: ideaId, message,
+      is_read: false, created_at: new Date().toISOString()
+    });
+    if (userId === currentUser?.id) loadNotifBadge();
+  } catch(e) { console.error('_sendNotification error:', e); }
+}
+
+async function loadNotifBadge() {
+  if (!currentUser) return;
+  try {
+    const { count } = await sb.from('notifications')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', currentUser.id)
+      .eq('is_read', false);
+    const badge = document.getElementById('notif-badge');
+    if (!badge) return;
+    if (count && count > 0) {
+      badge.textContent = count > 99 ? '99+' : count;
+      badge.style.display = 'flex';
+    } else {
+      badge.style.display = 'none';
+    }
+  } catch(e) {}
+}
+
+async function openNotifSheet() {
+  document.getElementById('notif-sheet-overlay')?.remove();
+  if (!currentUser) { showToast('ログインしてください'); return; }
+
+  const { data, error } = await sb.from('notifications')
+    .select('*')
+    .eq('user_id', currentUser.id)
+    .order('created_at', { ascending: false })
+    .limit(30);
+
+  // 全件既読
+  if (data && data.length > 0) {
+    const unreadIds = data.filter(n => !n.is_read).map(n => n.id);
+    if (unreadIds.length > 0) {
+      await sb.from('notifications').update({ is_read: true }).in('id', unreadIds);
+      const badge = document.getElementById('notif-badge');
+      if (badge) badge.style.display = 'none';
+    }
+  }
+
+  const typeLabel = {
+    vote:     '投票',
+    score_up: 'スコア上昇',
+    share:    'シェア',
+    milestone:'注目銘柄',
+    admin:    'お知らせ',
+  };
+  const typeColor = {
+    vote:     'var(--green)',
+    score_up: 'var(--amber-mid)',
+    share:    '#185FA5',
+    milestone:'var(--amber-mid)',
+    admin:    'var(--text2)',
+  };
+  const typeBg = {
+    vote:     'var(--green-bg)',
+    score_up: 'var(--amber-bg)',
+    share:    '#f0f7ff',
+    milestone:'var(--amber-bg)',
+    admin:    'var(--surface2)',
+  };
+
+  const overlay = document.createElement('div');
+  overlay.id = 'notif-sheet-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;display:flex;align-items:flex-end;justify-content:center';
+  overlay.onclick = e => { if(e.target===overlay) overlay.remove(); };
+
+  const listHTML = (!data || data.length === 0)
+    ? '<div style="padding:32px;text-align:center;font-size:13px;color:var(--text3)">通知はありません</div>'
+    : data.map(n => {
+        const lbl  = typeLabel[n.type]  || n.type;
+        const col  = typeColor[n.type]  || 'var(--text2)';
+        const bg   = typeBg[n.type]    || 'var(--surface2)';
+        const ago  = timeAgo(n.created_at);
+        const unread = !n.is_read;
+        return `<div onclick="onNotifTap('${n.idea_id||''}','${n.type}')" style="display:flex;align-items:flex-start;gap:10px;padding:13px 18px;border-bottom:0.5px solid var(--border);cursor:pointer;background:${unread?'var(--amber-bg)':'transparent'};transition:background .15s">
+          <div style="min-width:44px;padding-top:2px">
+            <div style="font-size:9px;font-weight:700;color:${col};background:${bg};border-radius:5px;padding:2px 7px;text-align:center;white-space:nowrap">${lbl}</div>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;color:var(--text);line-height:1.55">${n.message}</div>
+            <div style="font-size:10px;color:var(--text3);margin-top:3px">${ago}</div>
+          </div>
+          ${unread ? '<div style="width:6px;height:6px;border-radius:50%;background:var(--amber-mid);flex-shrink:0;margin-top:5px"></div>' : ''}
+        </div>`;
+      }).join('');
+
+  overlay.innerHTML = `
+    <div style="background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:390px;max-height:80vh;display:flex;flex-direction:column;animation:slideUp .35s cubic-bezier(.16,1,.3,1)">
+      <div style="padding:16px 18px 12px;border-bottom:0.5px solid var(--border);flex-shrink:0">
+        <div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 14px"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--text);letter-spacing:.06em">NOTIFICATIONS</div>
+          <button onclick="document.getElementById('notif-sheet-overlay').remove()" style="background:none;border:none;font-size:18px;color:var(--text3);cursor:pointer;line-height:1">&times;</button>
+        </div>
+      </div>
+      <div style="overflow-y:auto;flex:1">${listHTML}</div>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+
+function onNotifTap(ideaId, type) {
+  document.getElementById('notif-sheet-overlay')?.remove();
+  if (ideaId && ideaId !== 'null' && ideaId !== '') {
+    const idea = ideas.find(i => i.id === ideaId);
+    if (idea) showDetail(ideaId);
+  }
+}
+// ───────────────────────────────────────────────────────
 // X(Twitter)アプリ内ブラウザ検出 → 外部ブラウザへ誘導
 function checkInAppBrowser() {
   const ua = navigator.userAgent || '';
