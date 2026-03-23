@@ -315,6 +315,13 @@ input[type=file] { display: none; }
 .profile-save-btn:disabled{opacity:.5;cursor:not-allowed}
 .profile-close-btn{width:100%;padding:13px;background:transparent;border:none;font-size:13px;color:var(--text3);cursor:pointer;margin-top:8px;font-family:'Noto Sans JP',sans-serif}
 .profile-status{font-size:12px;text-align:center;margin-top:10px;min-height:18px}
+.match-card{background:var(--surface);border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.07);margin-bottom:10px;padding:14px;overflow:hidden}
+.skill-tag{display:inline-flex;align-items:center;gap:4px;padding:5px 11px;border-radius:20px;font-size:12px;font-weight:700;border:1.5px solid var(--border2);background:var(--surface2);color:var(--text3);cursor:pointer;transition:all .15s;white-space:nowrap;font-family:var(--sans)}
+.skill-tag.active{background:var(--amber-mid);border-color:var(--amber-mid);color:#fff}
+.skill-tags-wrap{display:flex;flex-wrap:wrap;gap:6px;padding:4px 0}
+.chat-bubble-self{background:var(--amber-mid);color:#fff;border-radius:16px 16px 4px 16px;padding:9px 13px;font-size:13px;max-width:75%;word-break:break-word;line-height:1.5;align-self:flex-end}
+.chat-bubble-other{background:var(--surface2);color:var(--text);border-radius:16px 16px 16px 4px;padding:9px 13px;font-size:13px;max-width:75%;word-break:break-word;line-height:1.5;align-self:flex-start}
+.chat-time{font-size:9px;color:var(--text3);margin-top:2px}
 </style>
 </head>
 <body>
@@ -511,11 +518,23 @@ input[type=file] { display: none; }
   </div>
 </div>
 
+<div class="screen" id="screen-match" style="padding-bottom:90px">
+  <div class="sub-header" style="border-bottom:0.5px solid var(--border)">
+    <div style="font-size:16px;font-weight:700;color:var(--text);padding:0 4px">マッチング</div>
+  </div>
+  <div style="padding:14px;overflow-y:auto">
+    <div id="match-my-skills" style="margin-bottom:14px"></div>
+    <div id="match-chats-section" style="margin-bottom:14px"></div>
+    <div id="match-feed-body"></div>
+  </div>
+</div>
+
 <div class="bottom-nav">
   <div class="nav-item active" id="nav-feed" onclick="goTo('feed')"><div class="nav-icon-box"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="6" height="6" rx="1.5"/><rect x="11" y="3" width="6" height="6" rx="1.5"/><rect x="3" y="11" width="6" height="6" rx="1.5"/><rect x="11" y="11" width="6" height="6" rx="1.5"/></svg></div>マーケット</div>
   <div class="nav-item" id="nav-post-tab" onclick="goTo('post')"><div class="nav-icon-box" style="background:var(--amber-mid);border-color:var(--amber-mid);box-shadow:0 2px 8px rgba(232,133,10,.35)"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2.5"><path d="M10 15V5M5 9l5-5 5 5"/></svg></div>上場</div>
   <div class="nav-item" id="nav-hiroba-btn" onclick="goTo('hiroba')"><div class="nav-icon-box"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M2 5h16M2 10h10M2 15h7"/><circle cx="16" cy="15" r="2.5"/><path d="M16 13v-3"/></svg></div>広場</div>
   <div class="nav-item" id="nav-portfolio" onclick="goTo('portfolio')"><div class="nav-icon-box" style="position:relative"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3L3 7v10h14V7L10 3z"/></svg><div id="notif-badge" style="display:none;position:absolute;top:-4px;right:-4px;min-width:14px;height:14px;background:#c0392b;border-radius:7px;border:1.5px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;padding:0 3px;line-height:1"></div></div>ホーム</div>
+  <div class="nav-item" id="nav-match" onclick="goTo('match')"><div class="nav-icon-box"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="7" cy="7" r="3"/><circle cx="13" cy="13" r="3"/><path d="M10 7h4M6 13H2" stroke-linecap="round"/></svg></div>マッチ</div>
 </div>
 
 <div class="postbox-overlay" id="postbox-overlay">
@@ -1108,6 +1127,7 @@ function goTo(s) {
     if (s === 'portfolio') { const el = document.getElementById('nav-portfolio'); if(el) el.classList.add('active'); renderPortfolio(); }
     if (s === 'hiroba') { const el = document.getElementById('nav-hiroba'); if(el) el.classList.add('active'); loadHirobaList(); }
     if (s === 'post') { const el = document.getElementById('nav-post-tab'); if(el) el.classList.add('active'); resetPost(); }
+    if (s === 'match') { const el = document.getElementById('nav-match'); if(el) el.classList.add('active'); match_renderFeed(); }
     window.scrollTo(0,0);
   } catch(e) { console.error('goTo error:', s, e); }
 }
@@ -1225,7 +1245,7 @@ function buildRow(idea) {
   const delta = idea.score - idea.baseScore; const ds = (delta>=0?'+':'')+delta.toFixed(1);
   const scoreColor = delta>0.3?'#22a85f':delta<-0.3?'#c0392b':'var(--text)'; const deltaColor = delta>0.3?'#22a85f':delta<-0.3?'#c0392b':'#999'; const deltaBg = delta>0.3?'rgba(34,168,95,.12)':delta<-0.3?'rgba(192,57,43,.1)':'rgba(0,0,0,.05)';
   const isHot = idea.votes >= HOT_THRESHOLD; const voted = votedIds.has(idea.id); const fb = founderBadgeHTML(idea.userId); const isFav = favIdeas.has(idea.id);
-  return `<div id="row-${idea.id}" onclick="showDetail('${idea.id}')" style="border-bottom:0.5px solid var(--border);cursor:pointer;position:relative;display:grid;grid-template-columns:64px 1fr auto;align-items:center;padding:10px 12px;gap:10px">${isFav ? '<div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#e8850a,#bf6d00);border-radius:0 2px 2px 0"></div>' : ''}<div style="text-align:center;flex-shrink:0"><div style="font-family:var(--mono);font-size:20px;font-weight:700;color:${scoreColor};line-height:1;letter-spacing:-.02em">${idea.score.toFixed(1)} <span style="font-size:10px;font-weight:700;color:${scoreGrade(idea.score).color};background:${scoreGrade(idea.score).bg};padding:1px 5px;border-radius:3px;vertical-align:middle">${scoreGrade(idea.score).label}</span></div><div style="font-family:var(--mono);font-size:9px;font-weight:700;color:${deltaColor};background:${deltaBg};padding:1px 5px;border-radius:4px;margin-top:3px;display:inline-block">${ds}</div></div><div style="min-width:0"><div style="display:flex;align-items:center;gap:4px;margin-bottom:1px"><span style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.04em">${idea.ticker}</span><button onclick="event.stopPropagation();toggleFav('${idea.id}')" style="background:none;border:none;cursor:pointer;padding:0;line-height:1;display:flex;align-items:center"><svg width="12" height="12" viewBox="0 0 24 24" fill="${isFav?'#e8850a':'none'}" stroke="${isFav?'#e8850a':'#ccc'}" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></button>${fb ? fb : ''}</div><div style="font-size:13px;font-weight:700;color:var(--text);line-height:1.35;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin-bottom:2px">${idea.name}</div><div style="font-size:10px;color:var(--text3)">${idea.genre} · ${idea.votes}票</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">${(()=>{ const dp=getDividendPreview(idea); return dp&&!voted?`<div style="font-size:9px;font-weight:700;color:${dp.color};background:${dp.bg};border:1px solid ${dp.border};border-radius:4px;padding:2px 6px;white-space:nowrap">${dp.text}</div>`:''; })()}<button onclick="event.stopPropagation();voteIdea('${idea.id}')" style="background:${voted?'var(--surface2)':'rgba(34,168,95,.1)'};color:${voted?'var(--text3)':'var(--green)'};border:none;border-radius:14px;padding:7px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans);white-space:nowrap">${voted?'済み':'応援'}</button></div></div>`;
+  return `<div id="row-${idea.id}" onclick="showDetail('${idea.id}')" style="border-bottom:0.5px solid var(--border);cursor:pointer;position:relative;display:grid;grid-template-columns:64px 1fr auto;align-items:center;padding:10px 12px;gap:10px">${isFav ? '<div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#e8850a,#bf6d00);border-radius:0 2px 2px 0"></div>' : ''}<div style="text-align:center;flex-shrink:0"><div style="font-family:var(--mono);font-size:20px;font-weight:700;color:${scoreColor};line-height:1;letter-spacing:-.02em">${idea.score.toFixed(1)} <span style="font-size:10px;font-weight:700;color:${scoreGrade(idea.score).color};background:${scoreGrade(idea.score).bg};padding:1px 5px;border-radius:3px;vertical-align:middle">${scoreGrade(idea.score).label}</span></div><div style="font-family:var(--mono);font-size:9px;font-weight:700;color:${deltaColor};background:${deltaBg};padding:1px 5px;border-radius:4px;margin-top:3px;display:inline-block">${ds}</div></div><div style="min-width:0"><div style="display:flex;align-items:center;gap:4px;margin-bottom:1px"><span style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.04em">${idea.ticker}</span><button onclick="event.stopPropagation();toggleFav('${idea.id}')" style="background:none;border:none;cursor:pointer;padding:0;line-height:1;display:flex;align-items:center"><svg width="12" height="12" viewBox="0 0 24 24" fill="${isFav?'#e8850a':'none'}" stroke="${isFav?'#e8850a':'#ccc'}" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></button>${fb ? fb : ''}</div><div style="font-size:13px;font-weight:700;color:var(--text);line-height:1.35;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin-bottom:2px">${idea.name}</div><div style="font-size:10px;color:var(--text3)">${idea.genre} · ${idea.votes}票${(idea.seeking_skills||[]).length>0?' · 🤝 募集中':''}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">${(()=>{ const dp=getDividendPreview(idea); return dp&&!voted?`<div style="font-size:9px;font-weight:700;color:${dp.color};background:${dp.bg};border:1px solid ${dp.border};border-radius:4px;padding:2px 6px;white-space:nowrap">${dp.text}</div>`:''; })()}<button onclick="event.stopPropagation();voteIdea('${idea.id}')" style="background:${voted?'var(--surface2)':'rgba(34,168,95,.1)'};color:${voted?'var(--text3)':'var(--green)'};border:none;border-radius:14px;padding:7px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans);white-space:nowrap">${voted?'済み':'応援'}</button></div></div>`;
 }
 
 async function fetchScoreHistory(ideaId) {
@@ -1493,8 +1513,11 @@ async function showDetail(id) {
         <textarea id="comment-inp-${idea.id}" class="inp inp-sm" rows="2" placeholder="コメントを書く..." style="flex:1;resize:none"></textarea>
         <button onclick="postComment('${idea.id}')" style="background:var(--amber-mid);border:none;border-radius:var(--r-md);padding:10px 14px;font-size:12px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans);white-space:nowrap;flex-shrink:0">送信</button>
       </div>
-    </div>`;
+    </div>
+    <div id="match-detail-${idea.id}" style="padding:0 14px 14px"></div>`;
+  match_currentDetailIdeaId = idea.id;
   goTo('detail');
+  match_loadDetailSection(idea.id);
   setTimeout(()=>{
     // バーアニメーション
     setTimeout(()=>{ const b1=document.getElementById('db1'); if(b1) b1.style.width=(v1/30*100)+'%'; const b2=document.getElementById('db2'); if(b2) b2.style.width=(v2/20*100)+'%'; const b3=document.getElementById('db3'); if(b3) b3.style.width=(v3/30*100)+'%'; },100);
@@ -2538,10 +2561,12 @@ async function openProfileModal() {
 <div style="font-size:11px;color:var(--text3);line-height:1.7;margin-bottom:18px;padding:10px 12px;background:var(--bg);border-radius:10px">アカウント：${currentUser.email || ''}<br>${currentUser.isFounder ? '👑 創設メンバー #' + (currentUser.founderNumber===0?'00':String(currentUser.founderNumber).padStart(2,'0')) : isPro ? '⭐ Proプラン' : '無料プラン'}</div>
 <button class="profile-save-btn" id="prof-save-btn" onclick="saveProfile()">保存する</button>
 <div class="profile-status" id="prof-status"></div>
+<div id="prof-skill-section"></div>
 <button class="profile-close-btn" onclick="document.getElementById('profile-overlay').remove()">閉じる</button>
 <div style="margin-top:12px;padding-top:12px;border-top:0.5px solid var(--border)"><button onclick="doLogout()" style="width:100%;padding:12px;background:transparent;border:1px solid rgba(192,57,43,.3);border-radius:12px;font-size:13px;font-weight:700;color:var(--red);cursor:pointer;font-family:var(--sans)">ログアウト</button></div>
 </div>`;
   document.body.appendChild(overlay);
+  match_initSkillSection();
   } catch(e) {
     console.error('openProfileModal error:', e);
     // エラー時でもログアウトできるようフォールバック
@@ -2819,6 +2844,375 @@ function _showExtBrowserBanner(url) {
       'style="background:none;border:none;color:rgba(255,255,255,.45);font-size:20px;' +
       'cursor:pointer;padding:0;flex-shrink:0;line-height:1">\u00d7</button>';
   document.body.prepend(banner);
+}
+
+
+// ═══════════════════════════════════════════════════════
+// SQL — Supabase SQL Editorで先に実行してください
+// ALTER TABLE ideas ADD COLUMN IF NOT EXISTS seeking_skills text[] DEFAULT '{}';
+// CREATE TABLE IF NOT EXISTS skill_profiles (
+//   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+//   user_id uuid REFERENCES auth.users NOT NULL UNIQUE,
+//   skills text[] DEFAULT '{}', bio text DEFAULT '', available boolean DEFAULT true,
+//   updated_at timestamptz DEFAULT now());
+// ALTER TABLE skill_profiles ENABLE ROW LEVEL SECURITY;
+// CREATE POLICY "sp_sel" ON skill_profiles FOR SELECT USING (true);
+// CREATE POLICY "sp_ins" ON skill_profiles FOR INSERT WITH CHECK (auth.uid()=user_id);
+// CREATE POLICY "sp_upd" ON skill_profiles FOR UPDATE USING (auth.uid()=user_id);
+// CREATE TABLE IF NOT EXISTS help_requests (
+//   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+//   idea_id uuid REFERENCES ideas NOT NULL, from_user_id uuid REFERENCES auth.users NOT NULL,
+//   message text DEFAULT '', status text DEFAULT 'pending', created_at timestamptz DEFAULT now());
+// ALTER TABLE help_requests ENABLE ROW LEVEL SECURITY;
+// CREATE POLICY "hr_sel" ON help_requests FOR SELECT USING (auth.uid()=from_user_id OR auth.uid()=(SELECT user_id FROM ideas WHERE id=idea_id));
+// CREATE POLICY "hr_ins" ON help_requests FOR INSERT WITH CHECK (auth.uid()=from_user_id);
+// CREATE POLICY "hr_upd" ON help_requests FOR UPDATE USING (auth.uid()=(SELECT user_id FROM ideas WHERE id=idea_id));
+// CREATE TABLE IF NOT EXISTS chat_rooms (
+//   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+//   idea_id uuid REFERENCES ideas NOT NULL, owner_id uuid REFERENCES auth.users NOT NULL,
+//   helper_id uuid REFERENCES auth.users NOT NULL, created_at timestamptz DEFAULT now());
+// ALTER TABLE chat_rooms ENABLE ROW LEVEL SECURITY;
+// CREATE POLICY "cr_sel" ON chat_rooms FOR SELECT USING (auth.uid()=owner_id OR auth.uid()=helper_id);
+// CREATE POLICY "cr_ins" ON chat_rooms FOR INSERT WITH CHECK (auth.uid()=owner_id);
+// CREATE TABLE IF NOT EXISTS chat_messages (
+//   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+//   room_id uuid REFERENCES chat_rooms NOT NULL, sender_id uuid REFERENCES auth.users NOT NULL,
+//   text text NOT NULL, created_at timestamptz DEFAULT now());
+// ALTER TABLE chat_messages ENABLE ROW LEVEL SECURITY;
+// CREATE POLICY "cm_sel" ON chat_messages FOR SELECT USING (auth.uid() IN (SELECT owner_id FROM chat_rooms WHERE id=room_id UNION SELECT helper_id FROM chat_rooms WHERE id=room_id));
+// CREATE POLICY "cm_ins" ON chat_messages FOR INSERT WITH CHECK (auth.uid() IN (SELECT owner_id FROM chat_rooms WHERE id=room_id UNION SELECT helper_id FROM chat_rooms WHERE id=room_id));
+// ═══════════════════════════════════════════════════════
+
+const MATCH_SKILLS = [
+  { key: 'engineer',  label: '💻 エンジニア' },
+  { key: 'designer',  label: '🎨 デザイナー' },
+  { key: 'marketer',  label: '📣 マーケター' },
+  { key: 'investor',  label: '💰 資金・投資' },
+  { key: 'other',     label: '🤝 その他' },
+];
+
+let match_mySkills = [];
+let match_seekingBuffer = {};
+let match_chatSub = null;
+let match_currentRoomId = null;
+let match_currentDetailIdeaId = null;
+
+// ─── Phase A: スキル登録（プロフィールモーダル内）───────────
+async function match_initSkillSection() {
+  const el = document.getElementById('prof-skill-section');
+  if (!el || !currentUser) { if (el) el.innerHTML = ''; return; }
+  el.innerHTML = '<div style="margin-top:16px;padding-top:16px;border-top:0.5px solid var(--border)">'
+    + '<div class="profile-label" style="margin-bottom:8px">スキル登録</div>'
+    + '<div class="skill-tags-wrap" id="prof-skill-tags"></div>'
+    + '<div class="profile-label" style="margin-top:12px;margin-bottom:6px">一言自己紹介</div>'
+    + '<textarea id="prof-skill-bio" class="inp inp-sm" rows="2" maxlength="100" placeholder="100文字以内で自己紹介..." style="width:100%;resize:none;margin-bottom:8px"></textarea>'
+    + '<label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:12px;cursor:pointer">'
+    + '<input type="checkbox" id="prof-skill-available" style="width:18px;height:18px;accent-color:var(--amber-mid)">今すぐ手伝える</label>'
+    + '<button onclick="match_saveSkills()" style="width:100%;padding:13px;background:var(--amber-mid);border:none;border-radius:12px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">スキルを保存</button>'
+    + '</div>';
+  const { data } = await sb.from('skill_profiles').select('skills,bio,available').eq('user_id', currentUser.id).single();
+  match_mySkills = data?.skills || [];
+  const bioEl = document.getElementById('prof-skill-bio');
+  if (bioEl && data?.bio) bioEl.value = data.bio;
+  const availEl = document.getElementById('prof-skill-available');
+  if (availEl) availEl.checked = data?.available !== false;
+  const wrap = document.getElementById('prof-skill-tags');
+  if (wrap) wrap.innerHTML = MATCH_SKILLS.map(s =>
+    '<span class="skill-tag' + (match_mySkills.includes(s.key) ? ' active' : '') + '" onclick="match_toggleSkillTag(this,\'' + s.key + '\')">' + s.label + '</span>'
+  ).join('');
+}
+
+function match_toggleSkillTag(el, key) {
+  if (match_mySkills.includes(key)) {
+    match_mySkills = match_mySkills.filter(k => k !== key);
+    el.classList.remove('active');
+  } else {
+    match_mySkills.push(key);
+    el.classList.add('active');
+  }
+}
+
+async function match_saveSkills() {
+  if (!currentUser) { showToast('ログインが必要です'); return; }
+  const bio = document.getElementById('prof-skill-bio')?.value?.trim() || '';
+  const available = document.getElementById('prof-skill-available')?.checked ?? true;
+  const { error } = await sb.from('skill_profiles').upsert(
+    { user_id: currentUser.id, skills: match_mySkills, bio, available, updated_at: new Date().toISOString() },
+    { onConflict: 'user_id' }
+  );
+  if (error) { showToast('保存に失敗しました'); return; }
+  showToast('スキルを保存しました');
+}
+
+// ─── Phase A-2: アイデア詳細の募集セクション ───────────────
+async function match_loadDetailSection(ideaId) {
+  const el = document.getElementById('match-detail-' + ideaId);
+  if (!el) return;
+  const idea = ideas.find(i => i.id === ideaId);
+  if (!idea) return;
+  const isOwner = currentUser && myIdeas.has(ideaId);
+  let html = '';
+  if (isOwner) {
+    const seeking = idea.seeking_skills || [];
+    html += '<div style="padding:14px;background:var(--surface);border-radius:12px;margin-bottom:10px">'
+      + '<div style="font-size:12px;font-weight:700;color:var(--text3);letter-spacing:.06em;margin-bottom:8px">仲間を募集する</div>'
+      + '<div class="skill-tags-wrap" id="detail-seek-tags">'
+      + MATCH_SKILLS.map(s => '<span class="skill-tag' + (seeking.includes(s.key) ? ' active' : '') + '" onclick="match_toggleSeekTag(this,\'' + ideaId + '\',\'' + s.key + '\')">' + s.label + '</span>').join('')
+      + '</div>'
+      + '<button onclick="match_saveSeekSkills(\'' + ideaId + '\')" style="margin-top:8px;width:100%;padding:11px;background:var(--amber-mid);border:none;border-radius:10px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">募集を開始する</button>'
+      + '</div>';
+    const { data: reqs } = await sb.from('help_requests')
+      .select('id,from_user_id,message,status,profiles(x_username)')
+      .eq('idea_id', ideaId)
+      .order('created_at', { ascending: false });
+    if (reqs && reqs.length > 0) {
+      html += '<div style="padding:14px;background:var(--surface);border-radius:12px;margin-bottom:10px">'
+        + '<div style="font-size:12px;font-weight:700;color:var(--text3);letter-spacing:.06em;margin-bottom:8px">📬 手伝いの申し出 ' + reqs.length + '件</div>';
+      reqs.forEach(r => {
+        const uname = r.profiles?.x_username ? '@' + r.profiles.x_username : r.from_user_id.slice(0, 8) + '...';
+        const statusBadge = r.status === 'accepted'
+          ? '<span style="font-size:10px;color:#22a85f;font-weight:700">✅ 承認済み</span>'
+          : r.status === 'rejected'
+          ? '<span style="font-size:10px;color:var(--text3)">❌ お断り済み</span>'
+          : '<span style="font-size:10px;color:var(--amber-mid);font-weight:700">⏳ 未対応</span>';
+        const btns = r.status === 'pending'
+          ? '<div style="display:flex;gap:6px;margin-top:8px">'
+            + '<button onclick="match_acceptRequest(\'' + r.id + '\',\'' + ideaId + '\',\'' + r.from_user_id + '\')" style="flex:1;padding:9px;background:#22a85f;border:none;border-radius:8px;font-size:12px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">✅ 承認</button>'
+            + '<button onclick="match_rejectRequest(\'' + r.id + '\')" style="flex:1;padding:9px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;font-size:12px;font-weight:700;color:var(--text3);cursor:pointer;font-family:var(--sans)">❌ お断り</button>'
+            + '</div>'
+          : '';
+        html += '<div style="background:var(--bg);border-radius:10px;padding:10px 12px;margin-bottom:8px">'
+          + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
+          + '<span style="font-size:12px;font-weight:700;color:var(--text)">' + uname + '</span>' + statusBadge
+          + '</div>'
+          + '<div style="font-size:12px;color:var(--text3);line-height:1.5">' + (r.message || '').replace(/</g, '&lt;') + '</div>'
+          + btns + '</div>';
+      });
+      html += '</div>';
+    }
+  } else if (currentUser) {
+    const seeking = idea.seeking_skills || [];
+    if (seeking.length > 0) {
+      html += '<div style="padding:14px;background:var(--surface);border-radius:12px;margin-bottom:10px">'
+        + '<div style="font-size:12px;font-weight:700;color:var(--text3);letter-spacing:.06em;margin-bottom:8px">🤝 仲間を募集中</div>'
+        + '<div class="skill-tags-wrap">'
+        + MATCH_SKILLS.filter(s => seeking.includes(s.key)).map(s => '<span class="skill-tag active" style="pointer-events:none">' + s.label + '</span>').join('')
+        + '</div>'
+        + '<button onclick="match_openHelpModal(\'' + ideaId + '\')" style="margin-top:10px;width:100%;padding:13px;background:var(--amber-mid);border:none;border-radius:10px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">🙋 手伝いたい！</button>'
+        + '</div>';
+    }
+  }
+  el.innerHTML = html;
+}
+
+function match_toggleSeekTag(el, ideaId, key) {
+  if (!match_seekingBuffer[ideaId]) {
+    const idea = ideas.find(i => i.id === ideaId);
+    match_seekingBuffer[ideaId] = [...(idea?.seeking_skills || [])];
+  }
+  const arr = match_seekingBuffer[ideaId];
+  if (arr.includes(key)) { match_seekingBuffer[ideaId] = arr.filter(k => k !== key); el.classList.remove('active'); }
+  else { arr.push(key); el.classList.add('active'); }
+}
+
+async function match_saveSeekSkills(ideaId) {
+  if (!currentUser) return;
+  const skills = match_seekingBuffer[ideaId] ?? (ideas.find(i => i.id === ideaId)?.seeking_skills || []);
+  const { error } = await sb.from('ideas').update({ seeking_skills: skills }).eq('id', ideaId);
+  if (error) { showToast('保存に失敗しました'); return; }
+  const idea = ideas.find(i => i.id === ideaId);
+  if (idea) idea.seeking_skills = skills;
+  showToast('募集スキルを保存しました');
+}
+
+function match_openHelpModal(ideaId) {
+  if (!currentUser) { showLoginSheet(); return; }
+  document.getElementById('match-help-modal')?.remove();
+  const overlay = document.createElement('div');
+  overlay.id = 'match-help-modal';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:flex-end;justify-content:center';
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+  overlay.innerHTML = '<div style="background:var(--surface);border-radius:24px 24px 0 0;padding:24px 20px 36px;width:100%;max-width:390px">'
+    + '<div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 18px"></div>'
+    + '<div style="font-size:16px;font-weight:700;margin-bottom:12px">手伝いのメッセージ</div>'
+    + '<textarea id="match-help-msg" class="inp inp-sm" rows="4" maxlength="200" placeholder="自己紹介と、どんな形で手伝えるかを書いてください..." style="width:100%;resize:none;margin-bottom:12px"></textarea>'
+    + '<button onclick="match_sendHelpRequest(\'' + ideaId + '\')" style="width:100%;padding:14px;background:var(--amber-mid);border:none;border-radius:12px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">申し出る</button>'
+    + '<button onclick="document.getElementById(\'match-help-modal\').remove()" style="width:100%;padding:12px;background:none;border:none;font-size:13px;color:var(--text3);cursor:pointer;font-family:var(--sans);margin-top:4px">キャンセル</button>'
+    + '</div>';
+  document.body.appendChild(overlay);
+}
+
+async function match_sendHelpRequest(ideaId) {
+  if (!currentUser) return;
+  const msg = document.getElementById('match-help-msg')?.value?.trim() || '';
+  const { data: existing } = await sb.from('help_requests').select('id').eq('idea_id', ideaId).eq('from_user_id', currentUser.id).single();
+  if (existing) { showToast('すでに申し出済みです'); return; }
+  const { error } = await sb.from('help_requests').insert({ idea_id: ideaId, from_user_id: currentUser.id, message: msg });
+  if (error) { showToast('送信に失敗しました'); return; }
+  document.getElementById('match-help-modal')?.remove();
+  showToast('申し出を送りました！');
+}
+
+async function match_acceptRequest(reqId, ideaId, helperId) {
+  const { error: e1 } = await sb.from('help_requests').update({ status: 'accepted' }).eq('id', reqId);
+  if (e1) { showToast('エラーが発生しました'); return; }
+  const { error: e2 } = await sb.from('chat_rooms').insert({ idea_id: ideaId, owner_id: currentUser.id, helper_id: helperId });
+  if (e2 && !e2.message.includes('unique')) { showToast('チャット作成に失敗しました'); return; }
+  showToast('承認しました！チャットを開始できます');
+  match_loadDetailSection(ideaId);
+}
+
+async function match_rejectRequest(reqId) {
+  await sb.from('help_requests').update({ status: 'rejected' }).eq('id', reqId);
+  showToast('お断りしました');
+  if (match_currentDetailIdeaId) match_loadDetailSection(match_currentDetailIdeaId);
+}
+
+// ─── Phase B: マッチングフィード ──────────────────────────
+async function match_renderFeed() {
+  const el = document.getElementById('match-feed-body');
+  if (!el) return;
+  if (!currentUser) {
+    el.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--text3);font-size:13px">ログインするとマッチング機能を使えます</div>';
+    const skillsEl = document.getElementById('match-my-skills');
+    if (skillsEl) skillsEl.innerHTML = '';
+    const chatsEl = document.getElementById('match-chats-section');
+    if (chatsEl) chatsEl.innerHTML = '';
+    return;
+  }
+  await match_renderChats();
+  const { data: skillProf } = await sb.from('skill_profiles').select('skills,bio').eq('user_id', currentUser.id).single();
+  const mySkills = skillProf?.skills || [];
+  const skillsEl = document.getElementById('match-my-skills');
+  if (skillsEl) {
+    if (mySkills.length === 0) {
+      skillsEl.innerHTML = '<div style="background:var(--surface);border-radius:12px;padding:14px;font-size:13px;color:var(--text3)">スキルが未登録です。<a href="#" onclick="openProfileModal();return false;" style="color:var(--amber-mid);font-weight:700">プロフィールで登録</a>してください。</div>';
+    } else {
+      skillsEl.innerHTML = '<div style="background:var(--surface);border-radius:12px;padding:12px 14px">'
+        + '<div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.06em;margin-bottom:8px">あなたのスキル</div>'
+        + '<div class="skill-tags-wrap">' + MATCH_SKILLS.filter(s => mySkills.includes(s.key)).map(s => '<span class="skill-tag active" style="pointer-events:none">' + s.label + '</span>').join('') + '</div>'
+        + '</div>';
+    }
+  }
+  if (mySkills.length === 0) { el.innerHTML = ''; return; }
+  el.innerHTML = '<div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.06em;margin-bottom:10px">あなたのスキルを求めているアイデア</div>';
+  const { data: matchIdeas } = await sb.from('ideas').select('id,name,emoji,ticker,score,votes,seeking_skills,user_id').order('score', { ascending: false }).limit(50);
+  const filtered = (matchIdeas || []).filter(i => {
+    const ss = i.seeking_skills || [];
+    return ss.length > 0 && ss.some(s => mySkills.includes(s)) && i.user_id !== currentUser.id;
+  });
+  if (filtered.length === 0) {
+    el.innerHTML += '<div style="text-align:center;padding:30px 20px;color:var(--text3);font-size:13px">マッチするアイデアはまだありません</div>';
+    return;
+  }
+  filtered.forEach(idea => {
+    const seeklabels = MATCH_SKILLS.filter(s => (idea.seeking_skills || []).includes(s.key))
+      .map(s => '<span class="skill-tag active" style="pointer-events:none;font-size:11px;padding:3px 9px">' + s.label + '</span>').join('');
+    const card = document.createElement('div');
+    card.className = 'match-card';
+    card.innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;cursor:pointer" onclick="showDetail(\'' + idea.id + '\')">'
+      + '<span style="font-size:22px">' + (idea.emoji || '💡') + '</span>'
+      + '<div style="flex:1;min-width:0">'
+      + '<div style="font-size:14px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + (idea.name || '').replace(/</g, '&lt;') + '</div>'
+      + '<div style="font-size:10px;color:var(--text3);font-family:var(--mono)">' + (idea.ticker || '') + ' · ' + parseFloat(idea.score || 50).toFixed(1) + 'pt · 👍 ' + (idea.votes || 0) + '</div>'
+      + '</div></div>'
+      + '<div class="skill-tags-wrap">' + seeklabels + '</div>'
+      + '<button onclick="match_openHelpModal(\'' + idea.id + '\')" style="margin-top:10px;width:100%;padding:11px;background:var(--amber-mid);border:none;border-radius:10px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">🙋 手伝いたい！</button>';
+    el.appendChild(card);
+  });
+}
+
+async function match_renderChats() {
+  const el = document.getElementById('match-chats-section');
+  if (!el || !currentUser) { if (el) el.innerHTML = ''; return; }
+  const { data: rooms } = await sb.from('chat_rooms')
+    .select('id,idea_id,owner_id,helper_id,ideas(name),created_at')
+    .or('owner_id.eq.' + currentUser.id + ',helper_id.eq.' + currentUser.id)
+    .order('created_at', { ascending: false });
+  if (!rooms || rooms.length === 0) { el.innerHTML = ''; return; }
+  let html = '<div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.06em;margin-bottom:10px">💬 進行中のチャット ' + rooms.length + '件</div>';
+  rooms.forEach(room => {
+    const ideaName = room.ideas?.name || '—';
+    html += '<div onclick="match_openChat(\'' + room.id + '\',\'' + ideaName.replace(/'/g, "\\'") + '\')" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--surface);border-radius:12px;margin-bottom:8px;cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,.06)">'
+      + '<div><div style="font-size:13px;font-weight:700;color:var(--text)">' + ideaName.replace(/</g, '&lt;') + '</div>'
+      + '<div style="font-size:11px;color:var(--text3);margin-top:2px">タップしてチャットを開く</div></div>'
+      + '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="var(--text3)" stroke-width="2"><path d="M7 5l5 5-5 5"/></svg>'
+      + '</div>';
+  });
+  el.innerHTML = html;
+}
+
+// ─── Phase C: チャット ──────────────────────────────────
+function match_openChat(roomId, ideaName) {
+  match_currentRoomId = roomId;
+  if (match_chatSub) { try { match_chatSub.unsubscribe(); } catch(e){} match_chatSub = null; }
+  document.getElementById('match-chat-screen')?.remove();
+  const screen = document.createElement('div');
+  screen.id = 'match-chat-screen';
+  screen.style.cssText = 'position:fixed;inset:0;z-index:150;background:var(--bg);display:flex;flex-direction:column;max-width:390px;margin:0 auto;left:50%;transform:translateX(-50%)';
+  screen.innerHTML = '<div style="background:var(--surface);border-bottom:0.5px solid var(--border);padding:14px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0">'
+    + '<button onclick="match_closeChat()" style="background:none;border:none;cursor:pointer;padding:4px;display:flex;align-items:center"><svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 5l-5 5 5 5"/></svg></button>'
+    + '<div style="font-size:15px;font-weight:700;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + (ideaName || '').replace(/</g, '&lt;') + '</div>'
+    + '</div>'
+    + '<div id="chat-msg-list" style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px"></div>'
+    + '<div style="background:var(--surface);border-top:0.5px solid var(--border);padding:10px 14px;display:flex;gap:8px;align-items:flex-end;flex-shrink:0">'
+    + '<textarea id="chat-input" rows="1" style="flex:1;border:1.5px solid var(--border);border-radius:10px;padding:9px 12px;font-size:13px;font-family:var(--sans);color:var(--text);background:var(--surface2);resize:none;outline:none;line-height:1.5;max-height:80px;overflow-y:auto" placeholder="メッセージを送る..." oninput="this.style.height=\'auto\';this.style.height=Math.min(this.scrollHeight,80)+\'px\'" onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();match_sendMessage();}"></textarea>'
+    + '<button onclick="match_sendMessage()" style="background:var(--amber-mid);border:none;border-radius:10px;padding:10px 16px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans);flex-shrink:0">送信</button>'
+    + '</div>';
+  document.body.appendChild(screen);
+  match_loadMessages(roomId);
+  try {
+    match_chatSub = sb.channel('chat_room_' + roomId)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: 'room_id=eq.' + roomId }, payload => {
+        if (payload.new.sender_id !== currentUser?.id) match_appendMessage(payload.new);
+      })
+      .subscribe();
+  } catch(e) { console.error('chat sub error', e); }
+}
+
+function match_closeChat() {
+  if (match_chatSub) { try { match_chatSub.unsubscribe(); } catch(e){} match_chatSub = null; }
+  match_currentRoomId = null;
+  document.getElementById('match-chat-screen')?.remove();
+}
+
+async function match_loadMessages(roomId) {
+  const { data } = await sb.from('chat_messages').select('id,sender_id,text,created_at').eq('room_id', roomId).order('created_at', { ascending: true });
+  const el = document.getElementById('chat-msg-list');
+  if (!el) return;
+  el.innerHTML = '';
+  (data || []).forEach(m => match_appendMessage(m));
+}
+
+function match_appendMessage(msg) {
+  const el = document.getElementById('chat-msg-list');
+  if (!el) return;
+  const isSelf = msg.sender_id === currentUser?.id;
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'display:flex;flex-direction:column;align-items:' + (isSelf ? 'flex-end' : 'flex-start');
+  const bubble = document.createElement('div');
+  bubble.className = isSelf ? 'chat-bubble-self' : 'chat-bubble-other';
+  bubble.textContent = msg.text;
+  const time = document.createElement('div');
+  time.className = 'chat-time';
+  time.textContent = new Date(msg.created_at).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+  wrap.appendChild(bubble);
+  wrap.appendChild(time);
+  el.appendChild(wrap);
+  el.scrollTop = el.scrollHeight;
+}
+
+async function match_sendMessage() {
+  if (!currentUser || !match_currentRoomId) return;
+  const inp = document.getElementById('chat-input');
+  const text = inp?.value?.trim();
+  if (!text) return;
+  inp.value = '';
+  inp.style.height = 'auto';
+  const optimistic = { sender_id: currentUser.id, text, created_at: new Date().toISOString() };
+  match_appendMessage(optimistic);
+  const { error } = await sb.from('chat_messages').insert({ room_id: match_currentRoomId, sender_id: currentUser.id, text });
+  if (error) { showToast('送信に失敗しました'); }
 }
 
 checkInAppBrowser();
