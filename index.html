@@ -330,8 +330,8 @@ input[type=file] { display: none; }
 .board-skill-btn.active{background:var(--amber-mid);border-color:var(--amber-mid);color:#fff}
 .board-form-label{font-family:'Space Mono',monospace;font-size:9px;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
 .board-skeleton{background:linear-gradient(90deg,var(--surface2) 25%,var(--border) 50%,var(--surface2) 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;border-radius:12px;height:100px;margin-bottom:10px}
-.board-sheet{background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:390px;animation:slideUp .3s cubic-bezier(.16,1,.3,1);display:flex;flex-direction:column}
-.board-handle{width:40px;height:4px;background:var(--border2);border-radius:2px;margin:12px auto 6px}
+.board-sheet{background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:390px;animation:slideUp .3s cubic-bezier(.16,1,.3,1);display:flex;flex-direction:column;max-height:88vh;overflow:hidden}
+.board-handle{width:40px;height:4px;background:var(--border2);border-radius:2px;margin:12px auto 6px;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -553,7 +553,7 @@ input[type=file] { display: none; }
     </div>
     <div id="dev-list-body"></div>
   </div>
-  <button id="board-fab" onclick="boardOpenForm()" style="position:fixed;bottom:80px;right:calc(50% - 185px);width:48px;height:48px;border-radius:50%;background:var(--amber-mid);border:none;box-shadow:0 4px 16px rgba(232,133,10,.4);font-size:24px;cursor:pointer;z-index:20;color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--sans)">＋</button>
+  <button id="board-fab" onclick="boardOpenForm()" style="position:fixed;bottom:calc(72px + env(safe-area-inset-bottom,0px));right:16px;width:52px;height:52px;border-radius:50%;background:var(--amber-mid);border:none;box-shadow:0 4px 16px rgba(232,133,10,.4);font-size:26px;cursor:pointer;z-index:25;color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--sans)">＋</button>
 </div>
 
 <div class="bottom-nav">
@@ -3034,7 +3034,12 @@ function boardSetSubTab(tab) {
 async function board_init() {
   if (board_initialized) return;
   board_initialized = true;
-  await Promise.all([board_loadPosts(), dev_loadDevs()]);
+  try {
+    await Promise.all([board_loadPosts(), dev_loadDevs()]);
+  } catch(e) {
+    board_initialized = false;
+    console.error('board_init error:', e);
+  }
 }
 
 // ─── 掲示板 ───────────────────────────────────────────────
@@ -3047,7 +3052,9 @@ async function board_loadPosts() {
     .select('*,board_comments(count)')
     .order('created_at', { ascending: false });
   if (error || !data) {
-    body.innerHTML = '<div style="text-align:center;color:var(--text3);padding:30px">読み込みに失敗しました</div>';
+    board_initialized = false;
+    body.innerHTML = '<div style="text-align:center;color:var(--text3);padding:30px;font-size:13px">読み込みに失敗しました<br><br>'
+      +'<button onclick="board_initialized=false;board_init()" style="background:var(--amber-mid);border:none;border-radius:10px;padding:8px 18px;font-size:12px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">再読込</button></div>';
     return;
   }
   board_posts = data;
@@ -3085,7 +3092,7 @@ function boardOpenDetail(p) {
     +'<div style="font-size:17px;font-weight:700;color:var(--text);line-height:1.4;margin-bottom:4px">'+bEsc(p.title)+'</div>'
     +'<div style="font-size:12px;color:var(--text3)">投稿者: '+bEsc(p.author_name)+'</div>'
     +'</div>'
-    +'<div style="flex:1;overflow-y:auto;padding:16px">'
+    +'<div style="flex:1;min-height:0;overflow-y:auto;padding:16px">'
     +'<div style="font-size:13px;color:var(--text);line-height:1.7;margin-bottom:20px;white-space:pre-wrap">'+bEsc(p.body)+'</div>'
     +'<div style="font-size:11px;font-weight:700;color:var(--text3);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em">コメント</div>'
     +'<div id="board-cmts-'+p.id+'"><div style="text-align:center;padding:20px;color:var(--text3);font-size:12px">読み込み中...</div></div>'
@@ -3142,7 +3149,7 @@ function boardOpenForm() {
     +'<div style="font-size:16px;font-weight:700">新規投稿</div>'
     +'<button onclick="document.getElementById(\'board-form-ov\').remove()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text3);line-height:1">×</button>'
     +'</div>'
-    +'<div style="flex:1;overflow-y:auto;padding:16px">'
+    +'<div style="flex:1;min-height:0;overflow-y:auto;padding:16px">'
     +'<div style="margin-bottom:14px"><div class="board-form-label">タグ</div>'
     +'<div style="display:flex;gap:8px;flex-wrap:wrap">'+['相談','雑談','募集','実績'].map(t=>'<button class="board-tag-btn" onclick="boardSelectTag(this,\''+t+'\')">'+t+'</button>').join('')+'</div></div>'
     +'<div style="margin-bottom:14px"><div class="board-form-label">タイトル</div>'
@@ -3237,7 +3244,9 @@ function dev_renderDevs() {
 }
 
 function devOpenDetail(d) {
+  document.getElementById('dev-detail-ov')?.remove();
   const ov = document.createElement('div');
+  ov.id = 'dev-detail-ov';
   ov.style.cssText = 'position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;justify-content:flex-end;background:rgba(0,0,0,.5)';
   const worksHtml = (d.works||[]).filter(w=>w.name).map(w=>
     '<div style="background:var(--bg);border-radius:10px;padding:12px;margin-bottom:8px">'
@@ -3250,7 +3259,7 @@ function devOpenDetail(d) {
   const xUrl = d.x_id ? 'https://x.com/'+encodeURIComponent(d.x_id.replace(/^@/,'')) : null;
   ov.innerHTML = bSheet(
     '<div class="board-handle"></div>'
-    +'<div style="flex:1;overflow-y:auto;padding:16px">'
+    +'<div style="flex:1;min-height:0;overflow-y:auto;padding:16px">'
     +'<div style="display:flex;gap:12px;align-items:center;margin-bottom:14px">'
     +bAvatar(d.name||'?')
     +'<div><div style="font-size:18px;font-weight:700;color:var(--text)">'+bEsc(d.name)+'</div>'
@@ -3262,7 +3271,7 @@ function devOpenDetail(d) {
     +(xUrl?'<a href="'+xUrl+'" target="_blank" rel="noopener" style="display:block;width:100%;padding:14px;background:var(--text);border-radius:12px;text-align:center;font-size:14px;font-weight:700;color:#fff;text-decoration:none;margin-top:16px">💬 相談する（X のDMへ）</a>':'')
     +'</div>'
     +'<div style="padding:12px 16px;border-top:0.5px solid var(--border);flex-shrink:0">'
-    +'<button onclick="this.closest(\'div[style*=\\\"position:fixed\\\"]\').remove()" style="width:100%;padding:13px;background:none;border:none;font-size:13px;color:var(--text3);cursor:pointer;font-family:var(--sans)">閉じる</button>'
+    +'<button onclick="document.getElementById(\'dev-detail-ov\').remove()" style="width:100%;padding:13px;background:none;border:none;font-size:13px;color:var(--text3);cursor:pointer;font-family:var(--sans)">閉じる</button>'
     +'</div>'
   );
   ov.onclick = e => { if (e.target === ov) ov.remove(); };
@@ -3288,7 +3297,7 @@ function devOpenForm() {
     +'<div style="font-size:16px;font-weight:700">開発者登録</div>'
     +'<button onclick="document.getElementById(\'dev-form-ov\').remove()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text3);line-height:1">×</button>'
     +'</div>'
-    +'<div style="flex:1;overflow-y:auto;padding:16px">'
+    +'<div style="flex:1;min-height:0;overflow-y:auto;padding:16px">'
     +'<div style="display:flex;flex-direction:column;gap:12px">'
     +'<div><div class="board-form-label">名前</div><input id="dev-f-name" class="inp inp-sm" placeholder="名前" maxlength="30" style="width:100%"></div>'
     +'<div><div class="board-form-label">ハンドル名</div><input id="dev-f-handle" class="inp inp-sm" placeholder="@username" maxlength="30" style="width:100%"></div>'
