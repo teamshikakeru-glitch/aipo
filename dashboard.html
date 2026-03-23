@@ -2,1575 +2,1050 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <title>あいぽ COMMAND</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  --bg:#f7f6f3;--white:#ffffff;--surface:#fafaf8;--ink:#18160f;--ink2:#5a5446;--ink3:#a09888;--ink4:#d4cec4;
-  --amber:#d97706;--amber-light:#fef3c7;--amber-border:#fde68a;--amber-bright:#f59e0b;
-  --green:#059669;--green-light:#ecfdf5;--green-border:#a7f3d0;
-  --red:#dc2626;--red-light:#fef2f2;--red-border:rgba(220,38,38,.2);
-  --border:#e8e4dc;--border2:#d4cec4;
-  --shadow-sm:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
-  --shadow:0 4px 12px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.04);
-  --shadow-lg:0 8px 24px rgba(0,0,0,.1),0 4px 8px rgba(0,0,0,.06);
-  --mono:'DM Mono',monospace;--sans:'DM Sans','Noto Sans JP',sans-serif;
-  --r:14px;--rs:8px;--rx:20px;
+  --bg:#eceae4;
+  --surface:#ffffff;
+  --ink:#1a1814;
+  --ink2:#4a4640;
+  --ink3:#9a9088;
+  --ink4:#ccc8c0;
+  --amber:#e8850a;
+  --amber-d:#c4700a;
+  --amber-l:#fff3e0;
+  --amber-b:#fde68a;
+  --green:#22a85f;
+  --green-l:#e8f8ef;
+  --green-b:#a7f3d0;
+  --red:#dc3545;
+  --red-l:#fff0f0;
+  --border:#e0dbd4;
+  --border2:#ccc8c0;
   --line-green:#06C755;
+  --mono:'Space Mono',monospace;
+  --sans:'Noto Sans JP',sans-serif;
+  --r:16px;--rs:10px;--rx:22px;
+  --sh:0 1px 4px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04);
+  --sh-m:0 4px 16px rgba(0,0,0,.1),0 2px 6px rgba(0,0,0,.06);
 }
-html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-height:100vh;-webkit-font-smoothing:antialiased}
+html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 
-/* ===== LOGIN ===== */
-#login-gate{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;padding:32px}
-.lg-logo{width:60px;height:60px;border-radius:18px;background:var(--ink);display:flex;align-items:center;justify-content:center;margin-bottom:24px;box-shadow:var(--shadow-lg)}
-.lg-logo svg{width:26px;height:26px}
-.lg-eyebrow{font-family:var(--mono);font-size:9px;color:var(--amber);letter-spacing:.18em;text-transform:uppercase;margin-bottom:10px}
-.lg-title{font-size:24px;font-weight:700;color:var(--ink);margin-bottom:6px;letter-spacing:-.03em}
-.lg-sub{font-size:13px;color:var(--ink3);margin-bottom:36px;text-align:center;line-height:1.7}
-.lg-btn{width:100%;max-width:280px;padding:14px 20px;background:var(--ink);border:none;border-radius:var(--r);color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--sans);display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:var(--shadow);transition:transform .1s,box-shadow .1s}
-.lg-btn:active{transform:scale(.98);box-shadow:var(--shadow-sm)}
-.lg-err{display:none;margin-top:14px;font-size:12px;color:var(--red);text-align:center}
+/* ── LOGIN ── */
+#gate{position:fixed;inset:0;background:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;padding:32px}
+.gate-mark{width:56px;height:56px;background:var(--amber);border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:28px;box-shadow:0 8px 24px rgba(232,133,10,.4)}
+.gate-mark svg{width:24px;height:24px}
+.gate-sub{font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.35);letter-spacing:.2em;text-transform:uppercase;margin-bottom:12px}
+.gate-title{font-size:26px;font-weight:700;color:#fff;letter-spacing:-.03em;margin-bottom:6px}
+.gate-desc{font-size:12px;color:rgba(255,255,255,.35);margin-bottom:40px}
+.gate-btn{display:flex;align-items:center;gap:10px;padding:14px 24px;background:var(--surface);border:none;border-radius:var(--r);font-size:14px;font-weight:700;color:var(--ink);cursor:pointer;font-family:var(--sans);box-shadow:var(--sh-m);transition:transform .1s}
+.gate-btn:active{transform:scale(.97)}
+.gate-err{display:none;margin-top:16px;font-size:12px;color:#f87171;font-family:var(--mono)}
 
-/* ===== TOP BAR ===== */
-.topbar{height:52px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:10px;position:sticky;top:0;z-index:50;box-shadow:var(--shadow-sm)}
-.tb-logo{font-family:var(--mono);font-size:14px;font-weight:500;color:var(--ink);letter-spacing:.04em}
-.tb-dot-sep{width:4px;height:4px;border-radius:50%;background:var(--border2)}
-.tb-label{font-size:11px;color:var(--ink3);font-weight:500}
+/* ── TOP BAR ── */
+.topbar{height:52px;background:var(--ink);display:flex;align-items:center;padding:0 16px;gap:10px;position:sticky;top:0;z-index:50}
+.tb-logo{font-family:var(--mono);font-size:13px;font-weight:700;color:#fff;letter-spacing:.06em}
+.tb-dot{width:4px;height:4px;background:var(--amber);border-radius:50%}
+.tb-label{font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.3);letter-spacing:.12em;text-transform:uppercase}
 .tb-spacer{flex:1}
-.tb-live{display:flex;align-items:center;gap:5px;background:var(--green-light);border:1px solid var(--green-border);border-radius:20px;padding:4px 10px}
-.tb-live-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}
-.tb-live-txt{font-family:var(--mono);font-size:9px;color:var(--green);letter-spacing:.06em;font-weight:500}
-.tb-refresh{width:32px;height:32px;border-radius:var(--rs);background:transparent;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:var(--ink2);transition:all .15s}
-.tb-refresh:hover{border-color:var(--border2);background:var(--bg);color:var(--ink)}
-.spinning{animation:spin .6s linear infinite;display:inline-block}
+.tb-live{display:flex;align-items:center;gap:5px;padding:4px 10px;border:1px solid rgba(34,168,95,.4);border-radius:20px}
+.tb-live-dot{width:5px;height:5px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.tb-live-txt{font-family:var(--mono);font-size:8px;color:var(--green);letter-spacing:.08em}
+.tb-refresh{width:32px;height:32px;background:rgba(255,255,255,.08);border:none;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:rgba(255,255,255,.5);font-size:15px;transition:background .15s}
+.tb-refresh:hover{background:rgba(255,255,255,.15);color:#fff}
+.spin{animation:spin .7s linear infinite;display:inline-block}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* ===== TABS ===== */
-.tab-wrap{background:var(--white);border-bottom:1px solid var(--border);display:flex;overflow-x:auto;scrollbar-width:none;padding:0 12px}
-.tab-wrap::-webkit-scrollbar{display:none}
-.tab-btn{background:transparent;border:none;border-bottom:2.5px solid transparent;padding:12px 14px;font-size:12px;font-weight:600;color:var(--ink3);cursor:pointer;font-family:var(--sans);white-space:nowrap;transition:color .15s,border-color .15s;letter-spacing:.01em}
-.tab-btn:hover{color:var(--ink2)}
-.tab-btn.active{color:var(--amber);border-bottom-color:var(--amber)}
-.main{padding:20px 16px 80px;max-width:720px;margin:0 auto}
+/* ── PAGE ── */
+.page{max-width:390px;margin:0 auto;padding:20px 14px 80px}
 
-/* ===== SECTION HEADER ===== */
-.sec{font-family:var(--mono);font-size:9px;color:var(--ink3);letter-spacing:.14em;text-transform:uppercase;margin:20px 0 10px;display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none}
-.sec:first-child{margin-top:0}
-.sec:hover{opacity:.75}
-.sec::after{content:'';flex:1;height:1px;background:var(--border)}
-.sec-arrow{font-family:var(--mono);font-size:10px;color:var(--ink3);transition:transform .2s;flex-shrink:0;margin-left:4px}
-.sec-arrow.collapsed{transform:rotate(-90deg)}
-.sec-body.collapsed{display:none}
+/* ── SECTION LABEL ── */
+.sec-lbl{font-family:var(--mono);font-size:8px;color:var(--ink3);letter-spacing:.16em;text-transform:uppercase;margin:24px 0 10px;display:flex;align-items:center;gap:8px}
+.sec-lbl:first-child{margin-top:0}
+.sec-lbl::after{content:'';flex:1;height:1px;background:var(--border)}
 
-/* ===== REVENUE HERO ===== */
-.rev-hero{background:var(--ink);border-radius:var(--rx);padding:22px;margin-bottom:12px;position:relative;overflow:hidden}
-.rev-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(245,158,11,.2),transparent 70%);pointer-events:none}
-.rev-eyebrow{font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.4);letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px}
-.rev-amount{font-size:44px;font-weight:700;color:#fff;letter-spacing:-.03em;line-height:1;margin-bottom:4px;font-family:var(--mono)}
-.rev-sub{font-size:11px;color:rgba(255,255,255,.4);margin-bottom:18px}
-.rev-breakdown{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.rev-item{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:var(--r);padding:12px}
-.rev-item-lbl{font-size:10px;color:rgba(255,255,255,.45);margin-bottom:6px}
-.rev-item-val{font-family:var(--mono);font-size:20px;font-weight:500;color:#fff;margin-bottom:2px}
-.rev-item-detail{font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.3)}
+/* ── REVENUE HERO ── */
+.rev-hero{background:var(--ink);border-radius:var(--rx);padding:22px 20px;position:relative;overflow:hidden;margin-bottom:10px}
+.rev-hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(232,133,10,.18) 0%,transparent 70%);pointer-events:none}
+.rev-eyebrow{font-family:var(--mono);font-size:8px;color:rgba(255,255,255,.3);letter-spacing:.16em;text-transform:uppercase;margin-bottom:10px}
+.rev-amount-row{display:flex;align-items:baseline;gap:4px;margin-bottom:18px}
+.rev-amount{font-family:var(--mono);font-size:48px;font-weight:700;color:#fff;letter-spacing:-.04em;line-height:1}
+.rev-unit{font-family:var(--mono);font-size:18px;color:rgba(255,255,255,.35)}
+.rev-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.rev-item{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:12px}
+.rev-item-ico{font-size:14px;margin-bottom:6px}
+.rev-item-val{font-family:var(--mono);font-size:22px;font-weight:700;color:#fff;line-height:1;margin-bottom:3px}
+.rev-item-lbl{font-size:10px;color:rgba(255,255,255,.35)}
+.rev-item-sub{font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.2);margin-top:2px}
 
-/* ===== KPI ===== */
-.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-.kpi{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:16px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden}
-.kpi::after{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--border2);border-radius:var(--r) 0 0 var(--r)}
-.kpi.amber::after{background:var(--amber-bright)}
-.kpi.green::after{background:var(--green)}
-.kpi.dim::after{background:var(--border)}
-.kpi-lbl{font-size:10px;color:var(--ink3);margin-bottom:8px;line-height:1.4;font-weight:500}
-.kpi-num{font-family:var(--mono);font-size:32px;font-weight:500;color:var(--ink);line-height:1;margin-bottom:4px}
-.kpi-num.amber{color:var(--amber)}
-.kpi-num.green{color:var(--green)}
-.kpi-num.red{color:var(--red)}
-.kpi-detail{font-size:10px;color:var(--ink3);line-height:1.4}
-.kpi-clickable{cursor:pointer;transition:transform .12s,box-shadow .12s}
-.kpi-clickable:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,.08)}
-.kpi-clickable:active{transform:scale(.97)}
+/* ── TODAY GRID ── */
+.today-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:0}
+.today-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 12px;position:relative;overflow:hidden;box-shadow:var(--sh)}
+.today-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:var(--r) 0 0 var(--r)}
+.today-card.amber::before{background:var(--amber)}
+.today-card.green::before{background:var(--green)}
+.today-card.blue::before{background:#4f8ef7}
+.today-ico{font-size:16px;margin-bottom:8px}
+.today-num{font-family:var(--mono);font-size:28px;font-weight:700;color:var(--ink);line-height:1;margin-bottom:4px}
+.today-lbl{font-size:9px;color:var(--ink3);font-weight:500;margin-bottom:5px}
+.today-badge{font-family:var(--mono);font-size:8px;font-weight:700;padding:2px 6px;border-radius:4px;display:inline-block}
+.today-badge.up{background:var(--green-l);color:var(--green)}
+.today-badge.down{background:var(--red-l);color:var(--red)}
+.today-badge.flat{background:var(--bg);color:var(--ink3)}
 
-/* ===== CARDS ===== */
-.card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);margin-bottom:12px;box-shadow:var(--shadow-sm);overflow:hidden}
-.card-head{padding:13px 16px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.card-title{font-family:var(--mono);font-size:9px;color:var(--ink);letter-spacing:.1em;font-weight:500;text-transform:uppercase}
-.card-meta{font-family:var(--mono);font-size:9px;color:var(--ink3)}
-.card-body{padding:14px 16px}
+/* ── FOUNDER COUNTDOWN ── */
+.founder-bar-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;box-shadow:var(--sh);overflow:hidden;position:relative}
+.founder-bar-card::after{content:'';position:absolute;right:-20px;top:-20px;width:80px;height:80px;background:radial-gradient(circle,rgba(232,133,10,.08),transparent 70%);pointer-events:none}
+.fc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.fc-title{font-size:12px;font-weight:700;color:var(--ink)}
+.fc-slots-big{font-family:var(--mono);font-size:32px;font-weight:700;color:var(--amber);line-height:1}
+.fc-slots-sub{font-family:var(--mono);font-size:9px;color:var(--ink3);margin-top:2px}
+.fc-bar-wrap{height:8px;background:var(--bg);border-radius:4px;overflow:hidden;margin-bottom:8px;border:1px solid var(--border)}
+.fc-bar-fill{height:100%;border-radius:4px;transition:width 1.2s cubic-bezier(.4,0,.2,1);background:linear-gradient(90deg,var(--amber-d),var(--amber))}
+.fc-labels{display:flex;justify-content:space-between}
+.fc-label-txt{font-family:var(--mono);font-size:9px;color:var(--ink3)}
+.fc-urgency{font-family:var(--mono);font-size:10px;font-weight:700;padding:4px 10px;border-radius:6px;display:inline-block;margin-top:8px}
+.fc-urgency.safe{background:var(--green-l);color:var(--green)}
+.fc-urgency.warn{background:#fff8e1;color:#b45309}
+.fc-urgency.hot{background:var(--red-l);color:var(--red)}
 
-/* ===== TALK LIST (LINE-style) ===== */
-.talk-list-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow-sm);margin-bottom:14px}
-.talk-list-head{background:var(--ink);padding:11px 16px;display:flex;align-items:center;gap:10px}
-.talk-list-head-title{font-size:12px;font-weight:700;color:#fff;font-family:var(--sans);letter-spacing:.02em;flex:1}
-.talk-list-head-badge{background:#e53e3e;color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px;font-family:var(--mono);animation:badge-pop .3s ease}
-@keyframes badge-pop{0%{transform:scale(0)}70%{transform:scale(1.15)}100%{transform:scale(1)}}
-.talk-item{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s;position:relative;-webkit-tap-highlight-color:rgba(0,0,0,.04)}
+/* ── RETENTION ── */
+.retention-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;box-shadow:var(--sh)}
+.ret-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.ret-item{background:var(--bg);border-radius:10px;padding:12px;text-align:center}
+.ret-num{font-family:var(--mono);font-size:26px;font-weight:700;color:var(--ink);line-height:1;margin-bottom:3px}
+.ret-num.green{color:var(--green)}
+.ret-num.amber{color:var(--amber)}
+.ret-num.red{color:var(--red)}
+.ret-lbl{font-size:9px;color:var(--ink3);font-weight:500}
+.ret-bar-row{margin-bottom:8px}
+.ret-bar-lbl{display:flex;justify-content:space-between;margin-bottom:4px}
+.ret-bar-txt{font-size:10px;color:var(--ink2);font-weight:600}
+.ret-bar-pct{font-family:var(--mono);font-size:10px;color:var(--ink3)}
+.ret-bar{height:6px;background:var(--bg);border-radius:3px;overflow:hidden;border:1px solid var(--border)}
+.ret-bar-fill{height:100%;border-radius:3px;transition:width .8s}
+.ret-insight{font-size:11px;color:var(--ink2);line-height:1.6;padding:10px;background:var(--bg);border-radius:8px;border-left:3px solid var(--green)}
+
+/* ── DORMANT ── */
+.dormant-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
+.dormant-head{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.dormant-title{font-size:12px;font-weight:700;color:var(--ink)}
+.dormant-count-badge{font-family:var(--mono);font-size:11px;font-weight:700;padding:3px 10px;background:var(--red-l);color:var(--red);border-radius:8px}
+.dormant-bc-btn{width:100%;padding:12px;background:var(--ink);border:none;font-size:12px;font-weight:700;color:#fff;font-family:var(--sans);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s;border-top:1px solid rgba(255,255,255,.08)}
+.dormant-bc-btn:hover{opacity:.88}
+.dormant-bc-btn:active{opacity:.75}
+.dormant-row{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s}
+.dormant-row:last-of-type{border-bottom:none}
+.dormant-row:hover{background:var(--bg)}
+.dormant-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#64748b,#94a3b8);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
+.dormant-name{flex:1;font-size:12px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dormant-days{font-family:var(--mono);font-size:9px;color:var(--ink3)}
+.dormant-more{padding:12px 16px;font-size:11px;color:var(--ink3);text-align:center;border-top:1px solid var(--border)}
+
+/* ── WEEKLY TREND ── */
+.trend-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;box-shadow:var(--sh)}
+.trend-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.trend-item{background:var(--bg);border-radius:10px;padding:12px}
+.trend-ico{font-size:14px;margin-bottom:6px}
+.trend-num{font-family:var(--mono);font-size:24px;font-weight:700;color:var(--ink);line-height:1;margin-bottom:3px}
+.trend-lbl{font-size:9px;color:var(--ink3);margin-bottom:5px;font-weight:500}
+.trend-diff{font-family:var(--mono);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px}
+.trend-diff.up{background:var(--green-l);color:var(--green)}
+.trend-diff.down{background:var(--red-l);color:var(--red)}
+.trend-diff.flat{background:var(--bg);color:var(--ink3);border:1px solid var(--border)}
+
+/* ── HOURLY ── */
+.hourly-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;box-shadow:var(--sh)}
+.hourly-bars{display:flex;align-items:flex-end;gap:2px;height:56px;margin-bottom:4px}
+.hourly-bar{flex:1;border-radius:2px 2px 0 0;min-height:2px;transition:height .5s}
+.hourly-lbls{display:flex;gap:2px}
+.hourly-lbl{flex:1;text-align:center;font-family:var(--mono);font-size:7px;color:var(--ink4)}
+.hourly-peak{font-size:11px;color:var(--ink2);margin-top:8px;padding:8px;background:var(--bg);border-radius:8px}
+
+/* ── RANKING ── */
+.ranking-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
+.ranking-row{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--border)}
+.ranking-row:last-child{border-bottom:none}
+.rank-num{font-family:var(--mono);font-size:10px;color:var(--ink4);min-width:20px;text-align:center}
+.rank-num.top{color:var(--amber);font-weight:700}
+.rank-ticker{font-family:var(--mono);font-size:8px;color:var(--amber);background:var(--amber-l);border:1px solid var(--amber-b);border-radius:4px;padding:2px 6px;flex-shrink:0}
+.rank-name{flex:1;font-size:12px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rank-score{font-family:var(--mono);font-size:13px;font-weight:700}
+.rank-score.high{color:var(--green)}
+.rank-score.mid{color:var(--amber)}
+.rank-score.low{color:var(--ink3)}
+
+/* ── ACTIVITY ── */
+.activity-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
+.act-row{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border)}
+.act-row:last-child{border-bottom:none}
+.act-type{font-family:var(--mono);font-size:8px;font-weight:700;padding:2px 6px;border-radius:4px;flex-shrink:0}
+.act-type.vote{background:var(--amber-l);color:var(--amber);border:1px solid var(--amber-b)}
+.act-type.list{background:var(--green-l);color:var(--green);border:1px solid var(--green-b)}
+.act-type.view{background:var(--bg);color:var(--ink3);border:1px solid var(--border)}
+.act-info{flex:1;min-width:0}
+.act-idea{font-size:11px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.act-user{font-size:10px;color:var(--ink3)}
+.act-time{font-family:var(--mono);font-size:9px;color:var(--ink4);flex-shrink:0;text-align:right}
+
+/* ── TALK LIST ── */
+.talk-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
+.talk-card-head{background:var(--ink);padding:11px 16px;display:flex;align-items:center;gap:8px}
+.talk-card-title{font-size:12px;font-weight:700;color:#fff;flex:1;font-family:var(--sans)}
+.talk-unread-all{background:#e53e3e;color:#fff;font-family:var(--mono);font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px}
+.talk-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s}
 .talk-item:last-child{border-bottom:none}
-.talk-item:hover{background:#fafaf6}
-.talk-item:active{background:#f3f2ee}
-.talk-avatar{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:#fff;flex-shrink:0;position:relative}
-.talk-av-broadcast{background:linear-gradient(135deg,var(--line-green) 0%,#00a040 100%)}
-.talk-av-founder{background:linear-gradient(135deg,#d97706 0%,#f59e0b 100%)}
-.talk-av-pro{background:linear-gradient(135deg,#059669 0%,#10b981 100%)}
-.talk-av-default{background:linear-gradient(135deg,#64748b 0%,#94a3b8 100%)}
-.talk-av-pending{background:linear-gradient(135deg,#dc2626 0%,#f87171 100%)}
-.talk-unread-dot{position:absolute;top:-2px;right:-2px;min-width:18px;height:18px;border-radius:9px;background:#e53e3e;color:#fff;font-size:9px;font-weight:700;font-family:var(--mono);display:flex;align-items:center;justify-content:center;padding:0 4px;border:2px solid #fff}
-.talk-info{flex:1;min-width:0}
-.talk-name-row{display:flex;align-items:center;gap:5px;margin-bottom:3px;flex-wrap:wrap}
-.talk-name{font-size:13px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:140px}
-.talk-badge{font-size:8px;padding:1px 5px;border-radius:3px;font-family:var(--mono);font-weight:700;flex-shrink:0}
-.talk-badge-founder{background:var(--amber-light);color:var(--amber);border:1px solid var(--amber-border)}
-.talk-badge-pro{background:var(--green-light);color:var(--green);border:1px solid var(--green-border)}
-.talk-badge-broadcast{background:#e8f5e9;color:var(--green);border:1px solid var(--green-border);font-size:8px;padding:1px 5px;border-radius:3px;font-family:var(--mono);font-weight:700}
-.talk-preview{font-size:11px;color:var(--ink3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.4}
-.talk-preview.has-unread{color:var(--ink);font-weight:600}
-.talk-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;min-width:48px}
-.talk-time{font-family:var(--mono);font-size:9px;color:var(--ink3);white-space:nowrap}
-.talk-read-info{font-family:var(--mono);font-size:8px;color:var(--ink3);white-space:nowrap}
-.talk-empty{padding:32px 16px;text-align:center}
-.talk-empty-ico{font-size:28px;margin-bottom:10px;opacity:.3}
-.talk-empty-txt{font-size:11px;color:var(--ink3);line-height:1.8}
-.talk-skel{padding:13px 16px;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:center}
-.talk-skel-av{width:48px;height:48px;border-radius:50%;background:linear-gradient(90deg,var(--bg) 25%,var(--border) 50%,var(--bg) 75%);background-size:200% 100%;animation:sh 1.3s infinite;flex-shrink:0}
-.talk-skel-info{flex:1}
-.talk-skel-line{height:10px;background:linear-gradient(90deg,var(--bg) 25%,var(--border) 50%,var(--bg) 75%);background-size:200% 100%;animation:sh 1.3s infinite;border-radius:4px;margin-bottom:7px}
+.talk-item:hover{background:var(--bg)}
+.talk-av{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;flex-shrink:0;position:relative}
+.av-bc{background:linear-gradient(135deg,var(--line-green),#00a040)}
+.av-founder{background:linear-gradient(135deg,#d97706,#f59e0b)}
+.av-pro{background:linear-gradient(135deg,var(--green),#10b981)}
+.av-default{background:linear-gradient(135deg,#64748b,#94a3b8)}
+.talk-unread{position:absolute;top:-2px;right:-2px;min-width:17px;height:17px;border-radius:9px;background:#e53e3e;color:#fff;font-family:var(--mono);font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 3px;border:2px solid #fff}
+.talk-body{flex:1;min-width:0}
+.talk-name-row{display:flex;align-items:center;gap:5px;margin-bottom:2px}
+.talk-name{font-size:12px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:130px}
+.tb-founder{font-size:7px;padding:1px 5px;border-radius:3px;background:var(--amber-l);color:var(--amber);border:1px solid var(--amber-b);font-family:var(--mono);font-weight:700;flex-shrink:0}
+.tb-pro{font-size:7px;padding:1px 5px;border-radius:3px;background:var(--green-l);color:var(--green);border:1px solid var(--green-b);font-family:var(--mono);font-weight:700;flex-shrink:0}
+.tb-bc{font-size:7px;padding:1px 5px;border-radius:3px;background:var(--green-l);color:var(--green);border:1px solid var(--green-b);font-family:var(--mono);font-weight:700;flex-shrink:0}
+.talk-preview{font-size:10px;color:var(--ink3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.talk-preview.unread{color:var(--ink);font-weight:600}
+.talk-meta{flex-shrink:0;text-align:right}
+.talk-time{font-family:var(--mono);font-size:8px;color:var(--ink4)}
+.bc-pct{margin-top:4px;font-family:var(--mono);font-size:8px;color:var(--green)}
+.talk-skel{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border)}
+.sk-av{width:44px;height:44px;border-radius:50%;background:linear-gradient(90deg,var(--bg) 25%,var(--border) 50%,var(--bg) 75%);background-size:200% 100%;animation:sk 1.4s infinite;flex-shrink:0}
+.sk-line{border-radius:4px;background:linear-gradient(90deg,var(--bg) 25%,var(--border) 50%,var(--bg) 75%);background-size:200% 100%;animation:sk 1.4s infinite}
+@keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-/* ===== LINE CHAT MODAL ===== */
-.line-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:300;display:flex;align-items:flex-end;justify-content:center}
-.line-modal{background:#b2c6cf;width:100%;max-width:720px;height:90vh;display:flex;flex-direction:column;border-radius:18px 18px 0 0;overflow:hidden;box-shadow:0 -8px 32px rgba(0,0,0,.2)}
-.line-header{background:var(--line-green);padding:0 14px;display:flex;align-items:center;height:56px;gap:10px;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.15)}
-.line-back{color:#fff;background:none;border:none;font-size:28px;cursor:pointer;padding:0 4px;line-height:1;font-weight:300;margin-top:-2px;display:flex;align-items:center}
-.line-hdr-avatar{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0;border:2px solid rgba(255,255,255,.4)}
-.line-header-name{flex:1;font-size:15px;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.line-header-sub{font-size:10px;color:rgba(255,255,255,.75);font-weight:400}
-.line-msgs{flex:1;overflow-y:auto;padding:12px 10px;display:flex;flex-direction:column;gap:0}
-.line-msgs::-webkit-scrollbar{width:3px}
-.line-msgs::-webkit-scrollbar-thumb{background:rgba(0,0,0,.2);border-radius:2px}
-.line-date-sep{font-size:10px;color:rgba(255,255,255,.95);background:rgba(0,0,0,.28);border-radius:10px;padding:3px 14px;display:inline-block;font-family:var(--mono);letter-spacing:.04em}
-.line-msg-row{display:flex;align-items:flex-end;gap:6px;margin-bottom:8px}
-.line-msg-row.sent{justify-content:flex-end}
-.line-msg-row.recv{justify-content:flex-start}
-.line-recv-avatar{width:32px;height:32px;border-radius:50%;background:#e0d8ce;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--ink);flex-shrink:0;align-self:flex-end}
-.line-recv-avatar.spacer{visibility:hidden}
-.line-bubble{max-width:72%;padding:9px 13px;font-size:13px;line-height:1.65;word-break:break-word;white-space:pre-wrap}
-.line-bubble.sent{background:var(--line-green);color:#fff;border-radius:18px 18px 4px 18px}
-.line-bubble.recv{background:#fff;color:var(--ink);border-radius:4px 18px 18px 18px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
-.line-bubble.system{background:rgba(0,0,0,.2);color:rgba(255,255,255,.9);border-radius:12px;font-size:11px;text-align:center;padding:6px 14px;max-width:90%;margin:0 auto}
-.line-sent-meta{display:flex;flex-direction:column;align-items:flex-end;gap:1px;align-self:flex-end;padding-bottom:2px}
-.line-recv-block{display:flex;flex-direction:column;gap:3px}
-.line-time-sent{font-size:9px;color:rgba(0,0,0,.35);white-space:nowrap;font-family:var(--mono)}
-.line-time-recv{font-size:9px;color:rgba(0,0,0,.35);white-space:nowrap;font-family:var(--mono);margin-left:4px}
-.line-read{font-size:9px;color:rgba(0,0,0,.45);font-family:var(--mono)}
-.line-tag-pill{display:inline-block;font-family:var(--mono);font-size:8px;color:rgba(0,0,0,.4);background:rgba(0,0,0,.06);border-radius:4px;padding:1px 6px;margin-top:4px}
-.line-input-bar{background:#f0ece4;border-top:1px solid #d4cec4;padding:10px 12px;display:flex;align-items:center;gap:8px;flex-shrink:0}
-.line-input{flex:1;background:#fff;border:1.5px solid #e0dbd4;border-radius:22px;padding:9px 16px;font-size:13px;font-family:var(--sans);color:var(--ink);outline:none;line-height:1.4;transition:border-color .15s}
-.line-input:focus{border-color:var(--line-green)}
-.line-send-btn{width:40px;height:40px;background:var(--line-green);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:opacity .15s,transform .1s}
-.line-send-btn:hover{opacity:.88}
-.line-send-btn:active{transform:scale(.92)}
-.line-send-btn:disabled{opacity:.35;cursor:not-allowed}
-.line-empty{text-align:center;padding:40px 20px;color:rgba(255,255,255,.65);font-size:12px;line-height:1.9}
+/* ── LINE MODAL ── */
+.lm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:300;display:flex;align-items:flex-end;justify-content:center}
+.lm-modal{background:#b2c6cf;width:100%;max-width:390px;height:90vh;display:flex;flex-direction:column;border-radius:18px 18px 0 0;overflow:hidden;box-shadow:0 -8px 32px rgba(0,0,0,.2)}
+.lm-header{background:var(--line-green);height:56px;padding:0 14px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.lm-back{background:none;border:none;color:#fff;font-size:28px;cursor:pointer;line-height:1;padding:0 4px;font-weight:300}
+.lm-av{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;border:2px solid rgba(255,255,255,.4)}
+.lm-name{flex:1;font-size:15px;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lm-sub{font-size:9px;color:rgba(255,255,255,.7)}
+.lm-msgs{flex:1;overflow-y:auto;padding:12px 10px;display:flex;flex-direction:column}
+.lm-msgs::-webkit-scrollbar{width:3px}
+.lm-msgs::-webkit-scrollbar-thumb{background:rgba(0,0,0,.2);border-radius:2px}
+.lm-date{display:flex;justify-content:center;margin:12px 0 8px}
+.lm-date-lbl{font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.9);background:rgba(0,0,0,.25);border-radius:10px;padding:3px 14px}
+.lm-row{display:flex;align-items:flex-end;gap:6px;margin-bottom:8px}
+.lm-row.sent{justify-content:flex-end}
+.lm-row.recv{justify-content:flex-start}
+.lm-recv-av{width:30px;height:30px;border-radius:50%;background:#e0d8ce;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--ink);flex-shrink:0;align-self:flex-end}
+.lm-recv-av.sp{visibility:hidden}
+.lm-bubble{max-width:74%;padding:9px 13px;font-size:13px;line-height:1.65;word-break:break-word;white-space:pre-wrap}
+.lm-bubble.sent{background:var(--line-green);color:#fff;border-radius:18px 18px 4px 18px}
+.lm-bubble.recv{background:#fff;color:var(--ink);border-radius:4px 18px 18px 18px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.lm-sent-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:1px;align-self:flex-end;padding-bottom:1px}
+.lm-recv-wrap{display:flex;flex-direction:column;gap:2px}
+.lm-ts{font-family:var(--mono);font-size:8px;color:rgba(0,0,0,.35);white-space:nowrap}
+.lm-ts-r{margin-left:4px}
+.lm-read{font-family:var(--mono);font-size:8px;color:rgba(0,0,0,.4)}
+.lm-tag{display:inline-block;font-family:var(--mono);font-size:7px;color:rgba(0,0,0,.35);background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px;margin-top:3px}
+.lm-bar{background:#f0ece4;border-top:1px solid #d4cec4;padding:10px 12px;display:flex;gap:8px;align-items:center;flex-shrink:0}
+.lm-input{flex:1;background:#fff;border:1.5px solid #e0dbd4;border-radius:22px;padding:9px 14px;font-size:13px;font-family:var(--sans);color:var(--ink);outline:none;transition:border-color .15s}
+.lm-input:focus{border-color:var(--line-green)}
+.lm-send{width:38px;height:38px;background:var(--line-green);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:opacity .15s,transform .1s}
+.lm-send:hover{opacity:.88}
+.lm-send:active{transform:scale(.92)}
+.lm-send:disabled{opacity:.3;cursor:not-allowed}
+.lm-empty{text-align:center;padding:40px 20px;color:rgba(255,255,255,.55);font-size:12px;line-height:2}
 
-/* ===== BROADCAST BANNER ===== */
-.broadcast-info-banner{background:var(--amber-light);border:1px solid var(--amber-border);border-radius:var(--rs);padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
-.broadcast-info-icon{font-size:14px;flex-shrink:0}
-.broadcast-info-text{font-size:11px;color:#7c4a00;line-height:1.5;flex:1}
-.broadcast-read-bar{height:4px;background:rgba(0,0,0,.1);border-radius:2px;overflow:hidden;margin-top:5px}
-.broadcast-read-fill{height:100%;background:var(--line-green);border-radius:2px;transition:width .8s}
-
-/* ===== OTHER EXISTING STYLES ===== */
-.funnel-step{display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid var(--border)}
-.funnel-step:last-child{border-bottom:none}
-.funnel-num{font-family:var(--mono);font-size:28px;font-weight:500;color:var(--ink);min-width:52px;line-height:1}
-.funnel-info{flex:1;min-width:0}
-.funnel-bar{height:6px;background:var(--bg);border-radius:3px;overflow:hidden;margin-bottom:4px;border:1px solid var(--border)}
-.funnel-bar-fill{height:100%;border-radius:3px;transition:width .9s cubic-bezier(.4,0,.2,1)}
-.btn-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
-.btn-row:last-child{border-bottom:none}
-.src-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border)}
-.src-row:last-child{border-bottom:none}
-.src-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;background:var(--bg);border:1px solid var(--border)}
-.src-info{flex:1;min-width:0}
-.src-name{font-size:12px;font-weight:600;color:var(--ink);margin-bottom:4px}
-.src-bar{height:4px;background:var(--bg);border:1px solid var(--border);border-radius:2px;overflow:hidden}
-.src-bar-fill{height:100%;background:var(--amber-bright);border-radius:2px;transition:width .8s}
-.hour-wrap{display:flex;align-items:flex-end;gap:3px;height:60px;padding-top:4px;margin-bottom:4px}
-.hour-lbls{display:flex;gap:3px}
-.hour-lbl{flex:1;text-align:center;font-family:var(--mono);font-size:7px;color:var(--ink3)}
-.goal-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
-.goal-item:last-child{border-bottom:none}
-.goal-check{width:20px;height:20px;border-radius:6px;border:2px solid var(--border2);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
-.goal-check.done{background:var(--green);border-color:var(--green)}
-.goal-text{flex:1;font-size:13px;color:var(--ink);font-weight:500}
-.goal-text.done{text-decoration:line-through;color:var(--ink3)}
-.goal-del{background:transparent;border:none;color:var(--ink3);cursor:pointer;font-size:16px;padding:2px 6px;line-height:1}
-.al-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);align-items:flex-start}
-.al-item:last-child{border-bottom:none}
-.al-cat{font-size:18px;flex-shrink:0;margin-top:1px}
-.al-info{flex:1;min-width:0}
-.al-text{font-size:12px;font-weight:600;color:var(--ink);margin-bottom:3px}
-.al-date{font-family:var(--mono);font-size:9px;color:var(--ink3)}
-.al-del{background:transparent;border:none;color:var(--ink3);cursor:pointer;font-size:13px;padding:2px 6px}
-.inp{width:100%;padding:11px 13px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--rs);font-size:13px;font-family:var(--sans);color:var(--ink);outline:none;transition:border-color .15s}
-.inp:focus{border-color:var(--amber-bright);background:var(--white)}
-.inp::placeholder{color:var(--ink3)}
-.sel{padding:11px 13px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--rs);font-size:12px;font-family:var(--sans);color:var(--ink);outline:none}
-.btn-add{padding:11px 18px;background:var(--amber-bright);border:none;border-radius:var(--rs);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans);white-space:nowrap;transition:opacity .15s}
-.btn-add:hover{opacity:.88}
-.btn-log{padding:11px 18px;background:var(--ink);border:none;border-radius:var(--rs);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans);white-space:nowrap;transition:opacity .15s}
-.btn-log:hover{opacity:.85}
-.insight-card{background:var(--amber-light);border:1px solid var(--amber-border);border-radius:var(--rs);padding:0;margin-bottom:10px;overflow:hidden}
-.insight-card-toggle{display:flex;align-items:center;gap:8px;padding:9px 12px;cursor:pointer;user-select:none}
-.insight-title{font-family:var(--mono);font-size:9px;color:var(--amber);letter-spacing:.1em;font-weight:500;text-transform:uppercase;flex:1}
-.insight-toggle-icon{font-family:var(--mono);font-size:10px;color:var(--amber);transition:transform .2s}
-.insight-toggle-icon.open{transform:rotate(180deg)}
-.insight-body{display:none;padding:0 12px 10px}
-.insight-body.open{display:block}
-.insight-line{font-size:11px;color:var(--ink2);line-height:1.6;padding:3px 0 3px 10px;border-left:2px solid var(--amber-border);margin-bottom:3px;font-weight:500}
-.empty{padding:32px 16px;text-align:center}
-.empty-ico{font-size:24px;margin-bottom:8px;opacity:.35}
-.empty-txt{font-size:11px;color:var(--ink3);line-height:1.7}
-.skel{background:linear-gradient(90deg,var(--bg) 25%,var(--border) 50%,var(--bg) 75%);background-size:200% 100%;animation:sh 1.3s infinite;border-radius:4px;height:12px;margin-bottom:8px}
-@keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
-.ua-detail{margin-top:8px;padding:10px;background:var(--bg);border-radius:var(--rs);display:none}
-.ua-detail.open{display:block}
-.act-type-badge{font-family:var(--mono);font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;flex-shrink:0}
-.act-type-view{background:var(--bg);color:var(--ink3);border:1px solid var(--border)}
-.act-type-vote{background:var(--amber-light);color:var(--amber);border:1px solid var(--amber-border)}
-.act-type-list{background:var(--green-light);color:var(--green);border:1px solid var(--green-border)}
-.btn-label{flex:1;min-width:0}
-.btn-campaign{font-family:var(--mono);font-size:9px;color:var(--ink3);margin-top:2px}
-.btn-bar-wrap{flex:1;min-width:0}
-.btn-bar{height:5px;background:var(--bg);border:1px solid var(--border);border-radius:3px;overflow:hidden;margin-top:4px}
-.btn-bar-fill{height:100%;background:var(--amber-bright);border-radius:3px;transition:width .8s}
-.btn-bar-fill.top{background:linear-gradient(90deg,var(--amber),var(--amber-bright))}
-.btn-count{font-family:var(--mono);font-size:18px;font-weight:500;color:var(--ink)}
-.btn-pct{font-family:var(--mono);font-size:9px;color:var(--ink3);text-align:right}
-.dash-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:flex-end;justify-content:center}
-.dash-modal-box{background:var(--bg);border-radius:18px 18px 0 0;padding:20px 20px 40px;width:100%;max-width:720px;max-height:80vh;overflow-y:auto}
-.dash-modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-.dash-modal-title{font-size:14px;font-weight:700;color:var(--ink)}
-.dash-modal-close{width:28px;height:28px;border-radius:50%;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px}
+/* ── MISC ── */
+.empty{padding:28px 16px;text-align:center}
+.empty-ico{font-size:24px;opacity:.3;margin-bottom:8px}
+.empty-txt{font-size:11px;color:var(--ink3);line-height:1.8}
+.skel-line{border-radius:4px;background:linear-gradient(90deg,var(--bg) 25%,var(--border) 50%,var(--bg) 75%);background-size:200% 100%;animation:sk 1.4s infinite;height:12px;margin-bottom:8px}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:12px;font-weight:700;padding:9px 20px;border-radius:20px;z-index:9999;font-family:var(--sans);box-shadow:var(--sh-m);white-space:nowrap}
 </style>
 </head>
 <body>
 
 <!-- LOGIN -->
-<div id="login-gate">
-  <div class="lg-logo">
-    <svg viewBox="0 0 24 24" fill="none" stroke="#f5f0e8" stroke-width="2.5" stroke-linecap="round">
+<div id="gate">
+  <div class="gate-mark">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round">
       <polyline points="3,17 8,12 12,14 17,7 21,9"/>
-      <circle cx="21" cy="9" r="2.2" fill="#f5f0e8" stroke="none"/>
+      <circle cx="21" cy="9" r="2" fill="#fff" stroke="none"/>
     </svg>
   </div>
-  <div class="lg-eyebrow">AIPO · COMMAND CENTER</div>
-  <div class="lg-title">管理ダッシュボード</div>
-  <div class="lg-sub">中川さん専用</div>
-  <button class="lg-btn" onclick="doAdminLogin()">
+  <div class="gate-sub">Aipo · Command Center</div>
+  <div class="gate-title">管理ダッシュボード</div>
+  <div class="gate-desc">中川さん専用</div>
+  <button class="gate-btn" onclick="doLogin()">
     <svg width="16" height="16" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
     Googleでログイン
   </button>
-  <div class="lg-err" id="lg-err">⚠ アクセス権限がありません</div>
+  <div class="gate-err" id="gate-err">⚠ アクセス権限がありません</div>
 </div>
 
 <!-- DASHBOARD -->
-<div id="dashboard" style="display:none">
+<div id="dash" style="display:none">
   <div class="topbar">
-    <div class="tb-logo">aipo</div>
-    <div class="tb-dot-sep"></div>
-    <div class="tb-label">command</div>
+    <span class="tb-logo">aipo</span>
+    <span class="tb-dot"></span>
+    <span class="tb-label">command</span>
     <div class="tb-spacer"></div>
     <div class="tb-live"><div class="tb-live-dot"></div><span class="tb-live-txt">LIVE</span></div>
-    <button class="tb-refresh" onclick="loadAll()"><span id="spin-icon">↺</span></button>
-  </div>
-  <div class="tab-wrap">
-    <button class="tab-btn active" onclick="showTab('home')" id="tab-home">ホーム</button>
-    <button class="tab-btn" onclick="showTab('analytics')" id="tab-analytics">分析・改善</button>
-    <button class="tab-btn" onclick="showTab('overview')" id="tab-overview">概要</button>
-    <button class="tab-btn" onclick="showTab('ideas')" id="tab-ideas">アイデア</button>
+    <button class="tb-refresh" onclick="loadAll()" id="refresh-btn"><span id="refresh-ico">↺</span></button>
   </div>
 
-  <!-- ===== HOME TAB ===== -->
-  <div id="tab-content-home" class="main">
-    <div id="health-banner" style="margin-bottom:12px"></div>
-    <div class="sec">売上</div>
+  <div class="page">
+
+    <!-- 売上 -->
+    <div class="sec-lbl">💰 売上</div>
     <div class="rev-hero">
-      <div class="rev-eyebrow">REVENUE — 売上合計（概算）</div>
-      <div style="display:flex;align-items:baseline;gap:2px;margin-bottom:4px">
-        <div class="rev-amount" id="revenue-total">—</div>
-        <div class="rev-amount" style="font-size:22px;color:rgba(255,255,255,.5)">円</div>
+      <div class="rev-eyebrow">TOTAL REVENUE — 概算</div>
+      <div class="rev-amount-row">
+        <div class="rev-amount" id="rev-total">—</div>
+        <div class="rev-unit">円</div>
       </div>
-      <div class="rev-sub">創設メンバー × ¥980（買い切り）+ Pro × ¥300/月</div>
-      <div class="rev-breakdown">
+      <div class="rev-grid">
         <div class="rev-item">
-          <div class="rev-item-lbl">👑 創設メンバー</div>
-          <div class="rev-item-val" id="revenue-founder">—</div>
-          <div class="rev-item-detail"><span id="founder-count-rev">—</span>人 × ¥980</div>
+          <div class="rev-item-ico">👑</div>
+          <div class="rev-item-val" id="rev-founder-val">—</div>
+          <div class="rev-item-lbl">創設メンバー</div>
+          <div class="rev-item-sub" id="rev-founder-sub">— 人 × ¥980</div>
         </div>
         <div class="rev-item">
-          <div class="rev-item-lbl">🥃 Pro（月額）</div>
-          <div class="rev-item-val" id="revenue-pro">—</div>
-          <div class="rev-item-detail"><span id="pro-count-rev">—</span>人 × ¥300/月</div>
+          <div class="rev-item-ico">🥃</div>
+          <div class="rev-item-val" id="rev-pro-val">—</div>
+          <div class="rev-item-lbl">Pro（月額）</div>
+          <div class="rev-item-sub" id="rev-pro-sub">— 人 × ¥300</div>
         </div>
-      </div>
-    </div>
-    <div class="kpi-grid" style="margin-bottom:10px">
-      <div class="kpi amber kpi-clickable" onclick="showKpiModal('all-users')">
-        <div class="kpi-lbl">累計ユーザー数 <span style="font-size:9px;opacity:.5">▶</span></div>
-        <div class="kpi-num amber" id="top-users-total">—</div>
-        <div class="kpi-detail">あいぽに登録した人</div>
-      </div>
-      <div class="kpi green kpi-clickable" onclick="showKpiModal('new-users')">
-        <div class="kpi-lbl">今日の新規ユーザー <span style="font-size:9px;opacity:.5">▶</span></div>
-        <div class="kpi-num green" id="top-users-today">—</div>
-        <div class="kpi-detail">今日登録した新しい人</div>
-      </div>
-      <div class="kpi green kpi-clickable" onclick="showKpiModal('today-ideas')">
-        <div class="kpi-lbl">今日の上場数 <span style="font-size:9px;opacity:.5">▶</span></div>
-        <div class="kpi-num green" id="top-ideas-today">—</div>
-        <div class="kpi-detail">今日追加されたアイデア</div>
-      </div>
-      <div class="kpi amber kpi-clickable" onclick="showKpiModal('today-votes')">
-        <div class="kpi-lbl">今日の投票数 <span style="font-size:9px;opacity:.5">▶</span></div>
-        <div class="kpi-num amber" id="top-votes-today">—</div>
-        <div class="kpi-detail">今日投じられた応援票</div>
       </div>
     </div>
 
-    <!-- ===== LINE-STYLE TALK LIST ===== -->
-    <div class="sec" id="sec-talks">
+    <!-- 今日の成長 -->
+    <div class="sec-lbl">📊 今日の成長</div>
+    <div class="today-grid">
+      <div class="today-card amber">
+        <div class="today-ico">🆕</div>
+        <div class="today-num" id="today-users">—</div>
+        <div class="today-lbl">新規ユーザー</div>
+        <div id="today-users-badge"></div>
+      </div>
+      <div class="today-card green">
+        <div class="today-ico">🗳</div>
+        <div class="today-num" id="today-votes">—</div>
+        <div class="today-lbl">応援票</div>
+        <div id="today-votes-badge"></div>
+      </div>
+      <div class="today-card blue">
+        <div class="today-ico">💡</div>
+        <div class="today-num" id="today-ideas">—</div>
+        <div class="today-lbl">新規上場</div>
+        <div id="today-ideas-badge"></div>
+      </div>
+    </div>
+
+    <!-- 創設メンバー残枠 -->
+    <div class="sec-lbl">👑 創設メンバー 残枠</div>
+    <div class="founder-bar-card">
+      <div class="fc-top">
+        <div>
+          <div class="fc-title">先着100名限定</div>
+          <div class="fc-slots-sub">残り枠数</div>
+        </div>
+        <div style="text-align:right">
+          <div class="fc-slots-big" id="fc-slots">—</div>
+          <div class="fc-slots-sub" id="fc-filled">—/100名</div>
+        </div>
+      </div>
+      <div class="fc-bar-wrap">
+        <div class="fc-bar-fill" id="fc-bar" style="width:0%"></div>
+      </div>
+      <div class="fc-labels">
+        <span class="fc-label-txt">0</span>
+        <span class="fc-label-txt" id="fc-pct-lbl">0%埋まり</span>
+        <span class="fc-label-txt">100名</span>
+      </div>
+      <div id="fc-urgency-badge"></div>
+    </div>
+
+    <!-- トーク -->
+    <div class="sec-lbl">
       💬 トーク
-      <span id="talk-total-unread-badge" style="display:none;background:#e53e3e;color:#fff;font-size:9px;font-weight:700;padding:1px 7px;border-radius:8px;font-family:var(--mono);margin-left:4px"></span>
+      <span id="talk-unread-all" style="display:none;background:#e53e3e;color:#fff;font-family:var(--mono);font-size:8px;font-weight:700;padding:1px 7px;border-radius:8px;margin-left:2px"></span>
     </div>
-    <div class="talk-list-card" id="talk-list-card">
-      <div class="talk-list-head">
-        <span class="talk-list-head-title">メッセージ</span>
-        <span id="talk-head-count" style="font-size:9px;color:rgba(255,255,255,.5);font-family:var(--mono)">読込中...</span>
+    <div class="talk-card">
+      <div class="talk-card-head">
+        <span class="talk-card-title">メッセージ</span>
+        <span id="talk-count-lbl" style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,.35)">読込中…</span>
       </div>
-      <div id="talk-list-body">
-        <div class="talk-skel"><div class="talk-skel-av"></div><div class="talk-skel-info"><div class="talk-skel-line" style="width:60%"></div><div class="talk-skel-line" style="width:80%;height:8px"></div></div></div>
-        <div class="talk-skel"><div class="talk-skel-av"></div><div class="talk-skel-info"><div class="talk-skel-line" style="width:50%"></div><div class="talk-skel-line" style="width:70%;height:8px"></div></div></div>
+      <div id="talk-list">
+        <div class="talk-skel"><div class="sk-av"></div><div style="flex:1"><div class="sk-line" style="width:55%;height:10px;margin-bottom:6px"></div><div class="sk-line" style="width:75%;height:8px"></div></div></div>
+        <div class="talk-skel"><div class="sk-av"></div><div style="flex:1"><div class="sk-line" style="width:45%;height:10px;margin-bottom:6px"></div><div class="sk-line" style="width:65%;height:8px"></div></div></div>
       </div>
     </div>
 
-    <!-- Today ideas & votes -->
-    <div class="sec">今日 上場されたアイデア</div>
-    <div class="card" style="margin-bottom:14px">
-      <div class="card-head"><div class="card-title">TODAY'S LISTINGS</div><div class="card-meta" id="home-listings-meta">—</div></div>
-      <div class="card-body" id="home-listings-body"><div class="skel"></div></div>
+    <!-- リテンション -->
+    <div class="sec-lbl">🔄 リテンション</div>
+    <div class="retention-card">
+      <div class="ret-grid" id="ret-grid">
+        <div class="ret-item"><div class="skel-line" style="height:28px;margin-bottom:4px"></div><div class="skel-line" style="width:60%;height:8px"></div></div>
+        <div class="ret-item"><div class="skel-line" style="height:28px;margin-bottom:4px"></div><div class="skel-line" style="width:60%;height:8px"></div></div>
+      </div>
+      <div id="ret-bars"></div>
+      <div id="ret-insight" style="margin-top:10px"></div>
     </div>
-    <div class="sec">今日 応援されたアイデア</div>
-    <div class="card">
-      <div class="card-head"><div class="card-title">TODAY'S VOTES</div><div class="card-meta" id="home-voted-meta">—</div></div>
-      <div class="card-body" id="home-voted-body"><div class="skel"></div></div>
-    </div>
-  </div>
 
-  <!-- ===== ANALYTICS TAB ===== -->
-  <div id="tab-content-analytics" class="main" style="display:none">
-    <div class="sec">今日の状況と次のアクション</div>
-    <div id="pdca-analysis" style="margin-bottom:14px"><div class="skel" style="height:180px;margin-bottom:8px"></div><div class="skel" style="height:80px"></div></div>
-    <div id="pdca-insights-pdca-wrap"></div>
-    <div class="sec">今週 vs 先週</div>
-    <div class="card" style="margin-bottom:14px">
-      <div class="card-head"><div class="card-title">WEEKLY COMPARISON</div><div class="card-meta" id="pdca-week-label"></div></div>
-      <div class="card-body" id="weekly-compare-body"><div class="skel"></div></div>
-    </div>
-    <div class="sec">アクションと流入の相関（14日間）</div>
-    <div class="card" style="margin-bottom:14px">
-      <div class="card-head"><div class="card-title">ACTION × TRAFFIC</div><div class="card-meta">●＝アクション実施日</div></div>
-      <div class="card-body">
-        <div id="pdca-chart" style="position:relative;height:100px;margin-bottom:8px"></div>
-        <div id="pdca-chart-labels" style="display:flex;margin-bottom:10px"></div>
-        <div style="display:flex;gap:16px;flex-wrap:wrap">
-          <div style="display:flex;align-items:center;gap:5px"><div style="width:12px;height:4px;background:var(--amber-bright);border-radius:2px"></div><span style="font-size:10px;color:var(--ink3)">LP流入数</span></div>
-          <div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:10px;background:var(--ink);border-radius:50%"></div><span style="font-size:10px;color:var(--ink3)">アクション実施日</span></div>
-        </div>
+    <!-- 休眠ユーザー -->
+    <div class="sec-lbl">😴 未アクティブユーザー（一度も投票なし）</div>
+    <div class="dormant-card">
+      <div class="dormant-head">
+        <span class="dormant-title">休眠ユーザー</span>
+        <span class="dormant-count-badge" id="dormant-count">—人</span>
       </div>
+      <div id="dormant-list"><div style="padding:16px"><div class="skel-line"></div><div class="skel-line" style="width:75%"></div></div></div>
+      <button class="dormant-bc-btn" onclick="showBroadcastToNew()">
+        <span>📢</span>
+        <span>この人たちに全体通知を送る</span>
+      </button>
     </div>
-    <div class="sec">D — やったことを記録する</div>
-    <div class="card" style="margin-bottom:14px">
-      <div class="card-head"><div class="card-title">ACTION LOG</div><div class="card-meta">施策の記録</div></div>
-      <div class="card-body">
-        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
-          <select id="action-category" class="sel">
-            <option value="x_post">🐦 Xに投稿</option>
-            <option value="lp_update">📄 LP更新</option>
-            <option value="feature">✨ 機能追加</option>
-            <option value="outreach">🤝 営業・DM</option>
-            <option value="other">📌 その他</option>
-          </select>
-          <input id="action-input" type="text" class="inp" style="flex:1;min-width:160px" placeholder="今日やったことを記録..." onkeydown="if(event.key==='Enter'&&!event.isComposing)addAction()">
-          <button class="btn-log" onclick="addAction()">記録</button>
-        </div>
-        <div id="action-log-list"></div>
-      </div>
-    </div>
-    <div class="sec">P — 今週の目標</div>
-    <div class="card" style="margin-bottom:14px">
-      <div class="card-head"><div class="card-title">WEEKLY GOALS</div><div class="card-meta" id="goals-week"></div></div>
-      <div class="card-body">
-        <div id="goals-list" style="margin-bottom:10px"></div>
-        <div style="display:flex;gap:8px">
-          <input id="goal-input" type="text" class="inp" placeholder="今週の目標を追加（例：ユーザー5人）" onkeydown="if(event.key==='Enter'&&!event.isComposing)addGoal()">
-          <button class="btn-add" onclick="addGoal()">追加</button>
-        </div>
-      </div>
-    </div>
-    <div style="height:1px;background:var(--border);margin:20px 0"></div>
-    <div id="pdca-insights-wrap" style="margin-bottom:4px"></div>
-    <div id="lp-insight-wrap"></div>
-    <div class="kpi-grid">
-      <div class="kpi dim"><div class="kpi-lbl">LPを開いた人（累計）</div><div class="kpi-num" id="lp-open-total">—</div><div class="kpi-detail">lp.htmlを開いた回数</div></div>
-      <div class="kpi dim"><div class="kpi-lbl">LPを開いた人（今日）</div><div class="kpi-num" id="lp-open-today">—</div><div class="kpi-detail">今日アクセスした回数</div></div>
-    </div>
-    <div class="kpi-grid">
-      <div class="kpi amber"><div class="kpi-lbl">LP→アプリへ（累計）</div><div class="kpi-num amber" id="lp-total">—</div><div class="kpi-detail">ボタンを押してきた人</div></div>
-      <div class="kpi green"><div class="kpi-lbl">LP→アプリへ（今日）</div><div class="kpi-num green" id="lp-today">—</div><div class="kpi-detail">今日LPから来た人</div></div>
-    </div>
-    <div class="sec">どこで人が落ちているか</div>
-    <div class="card"><div class="card-head"><div class="card-title">CONVERSION FUNNEL</div><div class="card-meta">LP → 登録の流れ</div></div><div class="card-body" id="funnel-body"><div class="skel"></div></div></div>
-    <div class="sec">LPでの滞在時間</div>
-    <div class="card"><div class="card-head"><div class="card-title">TIME ON PAGE</div></div><div class="card-body" id="time-analysis-body"><div class="skel"></div></div></div>
-    <div class="sec">どのボタンを押してきたか</div>
-    <div class="card"><div class="card-head"><div class="card-title">BUTTON PERFORMANCE</div><div class="card-meta" id="lp-btn-total-meta"></div></div><div class="card-body" id="lp-buttons-body"><div class="skel"></div></div></div>
-    <div class="sec">LP以外からの流入</div>
-    <div class="card"><div class="card-head"><div class="card-title">OTHER SOURCES</div><div class="card-meta" id="other-total-meta"></div></div><div class="card-body" id="other-sources-body"><div class="skel"></div></div></div>
-    <div class="sec">直近の流入タイムライン</div>
-    <div class="card"><div class="card-head"><div class="card-title">RECENT EVENTS</div><div class="card-meta">直近30件</div></div><div class="card-body" id="lp-timeline-body"><div class="skel"></div></div></div>
-  </div>
 
-  <!-- ===== OVERVIEW TAB ===== -->
-  <div id="tab-content-overview" class="main" style="display:none">
-    <div class="sec">サマリー</div>
-    <div class="kpi-grid">
-      <div class="kpi amber kpi-clickable" onclick="showKpiModal('all-users')"><div class="kpi-lbl">登録ユーザー数 <span style="font-size:9px;opacity:.5">▶</span></div><div class="kpi-num amber" id="kpi-users">—</div><div class="kpi-detail">あいぽにログインした人</div></div>
-      <div class="kpi amber kpi-clickable" onclick="showKpiModal('all-ideas')"><div class="kpi-lbl">上場中のアイデア数 <span style="font-size:9px;opacity:.5">▶</span></div><div class="kpi-num amber" id="kpi-ideas">—</div><div class="kpi-detail">マーケットにあるアイデア</div></div>
-      <div class="kpi green kpi-clickable" onclick="showKpiModal('today-ideas')"><div class="kpi-lbl">今日の新規上場 <span style="font-size:9px;opacity:.5">▶</span></div><div class="kpi-num green" id="kpi-ideas-today">—</div><div class="kpi-detail">今日追加されたアイデア</div></div>
-      <div class="kpi green kpi-clickable" onclick="showKpiModal('today-votes')"><div class="kpi-lbl">今日の応援票 <span style="font-size:9px;opacity:.5">▶</span></div><div class="kpi-num green" id="kpi-votes-today">—</div><div class="kpi-detail">今日投じられた票数</div></div>
-      <div class="kpi dim kpi-clickable" onclick="showKpiModal('today-views')"><div class="kpi-lbl">今日の閲覧数 <span style="font-size:9px;opacity:.5">▶</span></div><div class="kpi-num" id="kpi-views">—</div><div class="kpi-detail">アイデアを開いた回数</div></div>
-      <div class="kpi dim kpi-clickable" onclick="showKpiModal('all-founders')"><div class="kpi-lbl">創設メンバー数 <span style="font-size:9px;opacity:.5">▶</span></div><div class="kpi-num" id="kpi-founders">—</div><div class="kpi-detail" id="kpi-founders-sub">¥980を払った人</div></div>
-    </div>
-    <div class="sec">本日の時間別閲覧</div>
-    <div class="card"><div class="card-body"><div class="hour-wrap" id="hourly-chart"></div><div class="hour-lbls" id="hourly-labels"></div></div></div>
-    <div class="sec">最新アクティビティ</div>
-    <div class="card">
-      <div class="card-head">
-        <div class="card-title">RECENT ACTIVITY</div>
-        <div style="display:flex;gap:6px;align-items:center">
-          <span style="font-size:9px;background:var(--green-light);color:var(--green);border:1px solid var(--green-border);border-radius:3px;padding:1px 6px;font-family:var(--mono);font-weight:700">💡上場</span>
-          <span style="font-size:9px;background:var(--amber-light);color:var(--amber);border:1px solid var(--amber-border);border-radius:3px;padding:1px 6px;font-family:var(--mono);font-weight:700">🗳応援</span>
-          <span style="font-size:9px;background:var(--bg);color:var(--ink3);border:1px solid var(--border);border-radius:3px;padding:1px 6px;font-family:var(--mono);font-weight:700">👁閲覧</span>
-        </div>
+    <!-- 週次トレンド -->
+    <div class="sec-lbl">📈 週次トレンド（今週 vs 先週）</div>
+    <div class="trend-card">
+      <div class="trend-grid" id="trend-grid">
+        <div class="ret-item"><div class="skel-line" style="height:24px;margin-bottom:4px"></div><div class="skel-line" style="width:60%;height:8px"></div></div>
+        <div class="ret-item"><div class="skel-line" style="height:24px;margin-bottom:4px"></div><div class="skel-line" style="width:60%;height:8px"></div></div>
+        <div class="ret-item"><div class="skel-line" style="height:24px;margin-bottom:4px"></div><div class="skel-line" style="width:60%;height:8px"></div></div>
+        <div class="ret-item"><div class="skel-line" style="height:24px;margin-bottom:4px"></div><div class="skel-line" style="width:60%;height:8px"></div></div>
       </div>
-      <div class="card-body" id="recent-body"><div class="skel"></div><div class="skel" style="width:70%"></div></div>
     </div>
-  </div>
 
-  <!-- ===== IDEAS TAB ===== -->
-  <div id="tab-content-ideas" class="main" style="display:none">
-    <div class="kpi-grid" style="margin-bottom:14px">
-      <div class="kpi green"><div class="kpi-lbl">今日 上場されたアイデア</div><div class="kpi-num green" id="ideas-kpi-today">—</div><div class="kpi-detail">本日の新規上場数</div></div>
-      <div class="kpi amber"><div class="kpi-lbl">今日 投じられた応援票</div><div class="kpi-num amber" id="ideas-kpi-votes-today">—</div><div class="kpi-detail">本日の総投票数</div></div>
+    <!-- 時間別閲覧 -->
+    <div class="sec-lbl">⏱ 今日の時間別閲覧</div>
+    <div class="hourly-card">
+      <div class="hourly-bars" id="hourly-bars">
+        <div style="font-size:11px;color:var(--ink3);padding:8px">読み込み中...</div>
+      </div>
+      <div class="hourly-lbls" id="hourly-lbls"></div>
+      <div id="hourly-peak" class="hourly-peak" style="display:none"></div>
     </div>
-    <div class="sec">今日 上場されたアイデア</div>
-    <div class="card" style="margin-bottom:14px"><div class="card-head"><div class="card-title">TODAY'S LISTINGS</div><div class="card-meta" id="ideas-today-meta">—</div></div><div class="card-body" id="ideas-today-body"><div class="skel"></div></div></div>
-    <div class="sec">今日 応援されたアイデア</div>
-    <div class="card" style="margin-bottom:14px"><div class="card-head"><div class="card-title">TODAY'S VOTES</div><div class="card-meta" id="ideas-voted-meta">—</div></div><div class="card-body" id="ideas-voted-body"><div class="skel"></div></div></div>
-    <div class="sec">累計 閲覧数ランキング</div>
-    <div class="card" style="margin-bottom:14px"><div class="card-head"><div class="card-title">MOST VIEWED</div><div class="card-meta">idea_views</div></div><div class="card-body" id="most-viewed-body"><div class="skel"></div></div></div>
-    <div class="sec">全アイデア（スコア順）</div>
-    <div class="card"><div class="card-head"><div class="card-title">ALL IDEAS</div><div class="card-meta" id="all-ideas-meta">—件</div></div><div class="card-body" id="all-ideas-body"><div class="skel"></div></div></div>
-  </div>
-</div>
+
+    <!-- アイデアランキング -->
+    <div class="sec-lbl">🏆 アイデアランキング（スコア順）</div>
+    <div class="ranking-card" id="ranking-list">
+      <div style="padding:16px"><div class="skel-line"></div><div class="skel-line" style="width:80%"></div><div class="skel-line" style="width:70%"></div></div>
+    </div>
+
+    <!-- 最新アクティビティ -->
+    <div class="sec-lbl">🔔 最新アクティビティ</div>
+    <div class="activity-card" id="activity-list">
+      <div style="padding:16px"><div class="skel-line"></div><div class="skel-line" style="width:75%"></div></div>
+    </div>
+
+  </div><!-- /page -->
+</div><!-- /dash -->
 
 <script>
-const SUPABASE_URL = 'https://qjffvspnnxyykoyhnazm.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqZmZ2c3Bubnh5eWtveWhuYXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzMTIxMzMsImV4cCI6MjA4Njg4ODEzM30.OqeeMZs73RjKY5POW-naf0dB8sFWfZDUKaKvE99EiBo';
-const ADMIN_ID = '7f3162ec-c281-435f-8e8e-3b6d65b8b1c9';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+/* ── CONFIG ── */
+const SUPABASE_URL  = 'https://qjffvspnnxyykoyhnazm.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqZmZ2c3Bubnh5eWtveWhuYXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzMTIxMzMsImV4cCI6MjA4Njg4ODEzM30.OqeeMZs73RjKY5POW-naf0dB8sFWfZDUKaKvE99EiBo';
+const ADMIN_ID      = '7f3162ec-c281-435f-8e8e-3b6d65b8b1c9';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-const LP_BUTTONS = {
-  'start_free':{ name:'ヒーロー「無料ではじめる」', icon:'🚀' },
-  'list_idea': { name:'マーケット「アイデアを上場する」', icon:'📈' },
-  'free_plan': { name:'料金プラン「無料ではじめる」', icon:'💰' },
-  'open_app':  { name:'ナビ/フッター「アプリを開く」', icon:'🔗' },
-  'vote':      { name:'マーケットカード「応援」', icon:'🗳' },
-  'see_all':   { name:'「すべてのアイデアを見る」', icon:'👁' },
-};
+/* ── HELPERS ── */
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function now9(){return new Date(Date.now()+9*3600000);}
+function todayStr(){const d=now9();return d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0');}
+function parseJST(s){if(!s)return null;const d=new Date(s.endsWith('Z')?s:s+'Z');return isNaN(d)?null:new Date(d.getTime()+9*3600000);}
+function fmtTalkTime(s){
+  const d=parseJST(s);if(!d)return'';
+  const n=now9();
+  const sameDay=d.getUTCFullYear()===n.getUTCFullYear()&&d.getUTCMonth()===n.getUTCMonth()&&d.getUTCDate()===n.getUTCDate();
+  return sameDay?String(d.getUTCHours()).padStart(2,'0')+':'+String(d.getUTCMinutes()).padStart(2,'0'):(d.getUTCMonth()+1)+'/'+d.getUTCDate();
+}
+function fmtTime(s){const d=parseJST(s);if(!d)return'';return String(d.getUTCHours()).padStart(2,'0')+':'+String(d.getUTCMinutes()).padStart(2,'0');}
+function fmtDateLabel(s){const d=parseJST(s);if(!d)return'';return d.getUTCFullYear()+'年'+(d.getUTCMonth()+1)+'月'+d.getUTCDate()+'日';}
+function fmtAgo(s){
+  const d=new Date(s.endsWith('Z')?s:s+'Z');const m=Math.floor((Date.now()-d)/60000);
+  if(m<1)return'たった今';if(m<60)return m+'分前';if(m<1440)return Math.floor(m/60)+'時間前';return Math.floor(m/1440)+'日前';
+}
+function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2500);}
+function diffBadge(t,l){
+  if(l===0)return `<span class="today-badge flat">—</span>`;
+  const d=t-l,p=Math.round(d/l*100);
+  if(d>0)return `<span class="today-badge up">↑${p}%</span>`;
+  if(d<0)return `<span class="today-badge down">↓${Math.abs(p)}%</span>`;
+  return `<span class="today-badge flat">±0</span>`;
+}
+function trendBadge(t,l){
+  if(l===0)return`<span class="trend-diff flat">—</span>`;
+  const d=t-l;
+  if(d>0)return`<span class="trend-diff up">+${d}</span>`;
+  if(d<0)return`<span class="trend-diff down">${d}</span>`;
+  return`<span class="trend-diff flat">±0</span>`;
+}
+function set(id,v){const el=document.getElementById(id);if(el)el.textContent=v;}
 
-/* ===== HELPERS ===== */
-function parseDate(s) {
-  if (!s) return null;
-  s = String(s).trim().replace(' ','T').replace(/\+00(:00)?$/,'Z');
-  if (!s.endsWith('Z')) s += 'Z';
-  const d = new Date(s);
-  return isNaN(d.getTime()) ? null : d;
-}
-function fmtDate(ds) {
-  const d = parseDate(ds); if (!d) return '—';
-  const j = new Date(d.getTime()+9*3600000);
-  return String(j.getUTCMonth()+1).padStart(2,'0')+'/'+String(j.getUTCDate()).padStart(2,'0')+' '+String(j.getUTCHours()).padStart(2,'0')+':'+String(j.getUTCMinutes()).padStart(2,'0');
-}
-function fmtAgo(ds) {
-  const d = parseDate(ds); if (!d) return '';
-  const m = Math.floor((Date.now()-d.getTime())/60000);
-  if (m<1) return 'たった今'; if (m<60) return m+'分前'; if (m<1440) return Math.floor(m/60)+'時間前'; return Math.floor(m/1440)+'日前';
-}
-function fmtTalkTime(ds) {
-  const d = parseDate(ds); if (!d) return '';
-  const jst = new Date(d.getTime()+9*3600000);
-  const now = new Date(Date.now()+9*3600000);
-  const sameDay = jst.getUTCFullYear()===now.getUTCFullYear() && jst.getUTCMonth()===now.getUTCMonth() && jst.getUTCDate()===now.getUTCDate();
-  if (sameDay) return String(jst.getUTCHours()).padStart(2,'0')+':'+String(jst.getUTCMinutes()).padStart(2,'0');
-  return String(jst.getUTCMonth()+1)+'/'+String(jst.getUTCDate());
-}
-function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function showToast(msg) {
-  const t=document.createElement('div');
-  t.textContent=msg;
-  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:12px;font-weight:600;padding:8px 18px;border-radius:20px;z-index:9999;font-family:var(--sans)';
-  document.body.appendChild(t); setTimeout(()=>t.remove(),2500);
+/* ── AUTH ── */
+async function doLogin(){
+  const{error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:'https://aipo-tau.vercel.app/dashboard.html'}});
+  if(error)alert('ログイン失敗: '+error.message);
 }
 
-/* ===== TABS ===== */
-const tabLoaded = {};
-function showTab(name) {
-  ['home','analytics','overview','ideas'].forEach(t => {
-    const c=document.getElementById('tab-content-'+t); if(c) c.style.display=t===name?'':'none';
-    const b=document.getElementById('tab-'+t); if(b) b.classList.toggle('active',t===name);
-  });
-  if (!tabLoaded[name]) { tabLoaded[name]=true; loadTab(name); }
-}
-function getCurrentTab() {
-  return ['home','analytics','overview','ideas'].find(t=>{ const el=document.getElementById('tab-content-'+t); return el&&el.style.display!=='none'; })||'home';
-}
-async function loadTab(name) {
-  const icon=document.getElementById('spin-icon'); icon.classList.add('spinning');
-  try {
-    if (name==='home') await Promise.allSettled([loadHomeTab(),loadRevenue()]);
-    else if (name==='analytics') await Promise.allSettled([loadHomeTab(),loadPDCA(),loadLPAnalytics(),loadFunnel(),loadTimeAnalysis()]);
-    else if (name==='overview') await Promise.allSettled([loadKPI(),loadHourly(),loadRecent()]);
-    else if (name==='ideas') await loadIdeas();
-  } finally { icon.classList.remove('spinning'); }
+/* ── REVENUE ── */
+async function loadRevenue(){
+  const{data}=await sb.from('profiles').select('id,is_founder,is_pro');
+  if(!data)return;
+  const founders=data.filter(p=>p.is_founder&&p.id!==ADMIN_ID);
+  const pros=data.filter(p=>p.is_pro&&!p.is_founder&&p.id!==ADMIN_ID);
+  const total=founders.length*980+pros.length*300;
+  set('rev-total',total.toLocaleString());
+  set('rev-founder-val','¥'+String(founders.length*980).replace(/\B(?=(\d{3})+(?!\d))/g,','));
+  set('rev-pro-val','¥'+String(pros.length*300).replace(/\B(?=(\d{3})+(?!\d))/g,','));
+  set('rev-founder-sub',founders.length+'人 × ¥980');
+  set('rev-pro-sub',pros.length+'人 × ¥300');
 }
 
-/* ===== AUTH ===== */
-async function doAdminLogin() {
-  const {error} = await sb.auth.signInWithOAuth({ provider:'google', options:{ redirectTo:'https://aipo-tau.vercel.app/dashboard.html' } });
-  if (error) alert('ログイン失敗: '+error.message);
+/* ── TODAY ── */
+async function loadToday(){
+  const today=todayStr();
+  const yday=new Date(Date.now()-86400000+9*3600000);
+  const ydayStr=yday.getUTCFullYear()+'-'+String(yday.getUTCMonth()+1).padStart(2,'0')+'-'+String(yday.getUTCDate()).padStart(2,'0');
+
+  const[uT,uY,vT,vY,iT,iY]=await Promise.all([
+    sb.from('profiles').select('id',{count:'exact',head:true}).gte('created_at',today+'T00:00:00Z').neq('id',ADMIN_ID),
+    sb.from('profiles').select('id',{count:'exact',head:true}).gte('created_at',ydayStr+'T00:00:00Z').lt('created_at',today+'T00:00:00Z').neq('id',ADMIN_ID),
+    sb.from('votes').select('id',{count:'exact',head:true}).gte('created_at',today+'T00:00:00Z'),
+    sb.from('votes').select('id',{count:'exact',head:true}).gte('created_at',ydayStr+'T00:00:00Z').lt('created_at',today+'T00:00:00Z'),
+    sb.from('ideas').select('id',{count:'exact',head:true}).gte('created_at',today+'T00:00:00Z'),
+    sb.from('ideas').select('id',{count:'exact',head:true}).gte('created_at',ydayStr+'T00:00:00Z').lt('created_at',today+'T00:00:00Z'),
+  ]);
+  set('today-users',uT.count??0);
+  set('today-votes',vT.count??0);
+  set('today-ideas',iT.count??0);
+  document.getElementById('today-users-badge').innerHTML=diffBadge(uT.count||0,uY.count||0);
+  document.getElementById('today-votes-badge').innerHTML=diffBadge(vT.count||0,vY.count||0);
+  document.getElementById('today-ideas-badge').innerHTML=diffBadge(iT.count||0,iY.count||0);
 }
 
-/* ===== REVENUE ===== */
-async function loadRevenue() {
-  const {data:profiles} = await sb.from('profiles').select('is_founder,is_pro,founder_number,id');
-  if (!profiles) return;
-  const payingFounders = profiles.filter(p=>p.is_founder&&p.id!==ADMIN_ID);
-  const payingPros = profiles.filter(p=>p.is_pro&&!p.is_founder&&p.id!==ADMIN_ID);
-  const founderRev = payingFounders.length*980, proRev = payingPros.length*300;
-  document.getElementById('revenue-total').textContent = (founderRev+proRev).toLocaleString();
-  document.getElementById('revenue-founder').textContent = '¥'+founderRev.toLocaleString();
-  document.getElementById('revenue-pro').textContent = '¥'+proRev.toLocaleString();
-  document.getElementById('founder-count-rev').textContent = payingFounders.length;
-  document.getElementById('pro-count-rev').textContent = payingPros.length;
-}
-
-/* =============================================
-   TALK LIST — LINE-STYLE
-   ============================================= */
-async function loadTalkList() {
-  const body = document.getElementById('talk-list-body');
-  const countEl = document.getElementById('talk-head-count');
-  if (!body) return;
-
-  try {
-    /* 並行フェッチ */
-    const [msgRes, voiceRes, profileRes, broadcastMsgRes, totalUsersRes] = await Promise.all([
-      sb.from('messages')
-        .select('id,from_id,to_id,body,created_at,is_read,is_announcement')
-        .or('from_id.eq.'+ADMIN_ID+',to_id.eq.'+ADMIN_ID)
-        .eq('is_announcement', false)
-        .order('created_at', {ascending:false}),
-      sb.from('hiroba_voices')
-        .select('id,user_id,user_name,text,created_at,ai_reply,is_announcement,tag')
-        .eq('is_announcement', false)
-        .order('created_at', {ascending:false}),
-      sb.from('profiles')
-        .select('id,x_username,is_founder,is_pro,founder_number')
-        .neq('id', ADMIN_ID),
-      sb.from('messages')
-        .select('id,is_read,body,created_at')
-        .eq('is_announcement', true)
-        .order('created_at', {ascending:false}),
-      sb.from('profiles').select('id',{count:'exact',head:true}).neq('id',ADMIN_ID),
-    ]);
-
-    const messages    = msgRes.data     || [];
-    const voices      = voiceRes.data   || [];
-    const profiles    = profileRes.data || [];
-    const bcMessages  = broadcastMsgRes.data || [];
-    const totalUsers  = totalUsersRes.count  || 0;
-
-    /* プロファイルマップ */
-    const pm = {};
-    profiles.forEach(p => pm[p.id] = p);
-
-    /* ユーザーごとのトークまとめ */
-    const userTalks = {}; // userId -> {unread, lastTime, lastPreview, userId, source}
-
-    function ensureUser(uid) {
-      if (!userTalks[uid]) userTalks[uid] = {userId:uid, unread:0, lastTime:0, lastPreview:''};
-    }
-
-    /* messages テーブル */
-    messages.forEach(m => {
-      const otherId = m.from_id === ADMIN_ID ? m.to_id : m.from_id;
-      if (!otherId || otherId === ADMIN_ID) return;
-      ensureUser(otherId);
-      const t = new Date(m.created_at).getTime();
-      if (t > userTalks[otherId].lastTime) {
-        userTalks[otherId].lastTime = t;
-        userTalks[otherId].lastPreview = (m.from_id === ADMIN_ID ? '自分: ' : '') + (m.body||'').slice(0,32);
-      }
-      if (m.from_id !== ADMIN_ID && !m.is_read) userTalks[otherId].unread++;
-    });
-
-    /* hiroba_voices テーブル */
-    voices.forEach(v => {
-      if (!v.user_id || v.user_id === ADMIN_ID) return;
-      ensureUser(v.user_id);
-      const t = new Date(v.created_at).getTime();
-      if (t > userTalks[v.user_id].lastTime) {
-        userTalks[v.user_id].lastTime = t;
-        userTalks[v.user_id].lastPreview = (v.text||'').slice(0,32);
-      }
-      if (!v.ai_reply) userTalks[v.user_id].unread++;
-    });
-
-    /* 時刻降順ソート */
-    const sorted = Object.values(userTalks).sort((a,b) => b.lastTime - a.lastTime);
-
-    /* 全体未読カウント */
-    const totalUnread = sorted.reduce((s,u) => s+u.unread, 0);
-    const badge = document.getElementById('talk-total-unread-badge');
-    if (badge) {
-      if (totalUnread > 0) {
-        badge.textContent = totalUnread > 99 ? '99+' : totalUnread;
-        badge.style.display = 'inline';
-      } else {
-        badge.style.display = 'none';
-      }
-    }
-    if (countEl) countEl.textContent = sorted.length + '件のトーク';
-
-    /* Broadcast 情報 */
-    const lastBc   = bcMessages[0];
-    const readCount = bcMessages.filter(b => b.is_read).length;
-    const readPct   = totalUsers > 0 ? Math.round(readCount/totalUsers*100) : 0;
-
-    /* ===== レンダリング ===== */
-    let html = '';
-
-    /* 全体通知ルーム */
-    const bcPreview = lastBc ? esc((lastBc.body||'').slice(0,30)) : 'まだ通知なし';
-    const bcTime    = lastBc ? fmtTalkTime(lastBc.created_at) : '';
-    html += `<div class="talk-item" onclick="showBroadcastRoom()">
-      <div class="talk-avatar talk-av-broadcast">📢</div>
-      <div class="talk-info">
-        <div class="talk-name-row">
-          <span class="talk-name">全体通知</span>
-          <span class="talk-badge talk-badge-broadcast">BROADCAST</span>
-        </div>
-        <div class="talk-preview">${bcPreview}</div>
-        ${totalUsers>0 ? `<div style="margin-top:5px">
-          <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
-            <span style="font-family:var(--mono);font-size:9px;color:var(--green);font-weight:700">既読 ${readCount}/${totalUsers}人</span>
-            <span style="font-family:var(--mono);font-size:9px;color:var(--ink3)">(${readPct}%)</span>
-          </div>
-          <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden;width:120px">
-            <div style="height:100%;width:${readPct}%;background:var(--line-green);border-radius:2px;transition:width .8s"></div>
-          </div>
-        </div>` : ''}
-      </div>
-      <div class="talk-right">
-        <span class="talk-time">${bcTime}</span>
-      </div>
-    </div>`;
-
-    /* ユーザールーム */
-    if (sorted.length === 0) {
-      html += `<div class="talk-empty">
-        <div class="talk-empty-ico">💬</div>
-        <div class="talk-empty-txt">まだメッセージはありません<br>ユーザーからの声が届くと<br>ここに表示されます</div>
-      </div>`;
-    } else {
-      sorted.forEach(u => {
-        const p = pm[u.userId];
-        const name     = p?.x_username || u.userId.slice(0,8)+'...';
-        const initial  = name.charAt(0).toUpperCase();
-        const isFounder = !!p?.is_founder;
-        const isPro     = !!p?.is_pro;
-        const avClass   = isFounder ? 'talk-av-founder' : isPro ? 'talk-av-pro' : 'talk-av-default';
-        const badges    = isFounder
-          ? '<span class="talk-badge talk-badge-founder">👑 創設</span>'
-          : isPro ? '<span class="talk-badge talk-badge-pro">PRO</span>' : '';
-        const timeStr   = u.lastTime ? fmtTalkTime(new Date(u.lastTime).toISOString()) : '';
-        const safePreview = esc(u.lastPreview || 'メッセージなし');
-        const hasUnread = u.unread > 0;
-        const unreadBadge = hasUnread
-          ? `<div class="talk-unread-dot">${u.unread > 99 ? '99+' : u.unread}</div>` : '';
-        const safeName = esc(name).replace(/'/g,"&#39;");
-
-        html += `<div class="talk-item" onclick="showTalkHistory('${u.userId}','${safeName}')">
-          <div class="talk-avatar ${avClass}">${esc(initial)}${unreadBadge}</div>
-          <div class="talk-info">
-            <div class="talk-name-row">
-              <span class="talk-name">${esc(name)}</span>
-              ${badges}
-            </div>
-            <div class="talk-preview${hasUnread?' has-unread':''}">${safePreview}</div>
-          </div>
-          <div class="talk-right">
-            <span class="talk-time">${timeStr}</span>
-          </div>
-        </div>`;
-      });
-    }
-
-    body.innerHTML = html;
-  } catch(e) {
-    if (body) body.innerHTML = `<div style="padding:14px;font-size:12px;color:#e53e3e">読み込み失敗: ${esc(e.message)}</div>`;
-    if (countEl) countEl.textContent = 'エラー';
+/* ── FOUNDER COUNTDOWN ── */
+async function loadFounderCountdown(){
+  const{count}=await sb.from('profiles').select('id',{count:'exact',head:true}).eq('is_founder',true).neq('id',ADMIN_ID);
+  const filled=count||0,slots=Math.max(0,100-filled),pct=Math.round(filled/100*100);
+  set('fc-slots',slots);
+  set('fc-filled',filled+'/100名');
+  set('fc-pct-lbl',pct+'%埋まり');
+  const bar=document.getElementById('fc-bar');if(bar)bar.style.width=pct+'%';
+  const urgency=document.getElementById('fc-urgency-badge');
+  if(urgency){
+    if(slots<=10)urgency.innerHTML=`<span class="fc-urgency hot">🔥 残り${slots}枠！今すぐXで告知を</span>`;
+    else if(slots<=30)urgency.innerHTML=`<span class="fc-urgency warn">⚡ 残り${slots}枠 — 告知のタイミング</span>`;
+    else urgency.innerHTML=`<span class="fc-urgency safe">✓ まだ${slots}枠余裕あり</span>`;
   }
 }
 
-/* =============================================
-   BROADCAST ROOM (全体通知)
-   ============================================= */
-async function showBroadcastRoom() {
-  const overlay = document.createElement('div');
-  overlay.className = 'line-modal-overlay';
-  overlay.onclick = e => { if(e.target===overlay) overlay.remove(); };
+/* ── RETENTION ── */
+async function loadRetention(){
+  const today=todayStr();
+  const d7=new Date(Date.now()-7*86400000);
+  const d14=new Date(Date.now()-14*86400000);
+  const d30=new Date(Date.now()-30*86400000);
+  const week7=d7.toISOString().slice(0,10);
+  const week14=d14.toISOString().slice(0,10);
+  const month30=d30.toISOString().slice(0,10);
 
-  const modal = document.createElement('div');
-  modal.className = 'line-modal';
+  const[total,wk,mth,wk_prev]=await Promise.all([
+    sb.from('profiles').select('id',{count:'exact',head:true}).neq('id',ADMIN_ID),
+    sb.from('idea_views').select('user_id').gte('viewed_at',week7+'T00:00:00Z').neq('user_id',ADMIN_ID),
+    sb.from('idea_views').select('user_id').gte('viewed_at',month30+'T00:00:00Z').neq('user_id',ADMIN_ID),
+    sb.from('idea_views').select('user_id').gte('viewed_at',week14+'T00:00:00Z').lt('viewed_at',week7+'T00:00:00Z').neq('user_id',ADMIN_ID),
+  ]);
 
-  /* ヘッダー */
-  const hdr = document.createElement('div');
-  hdr.className = 'line-header';
-  hdr.innerHTML = `
-    <button class="line-back" onclick="this.closest('.line-modal-overlay').remove()">‹</button>
-    <div class="line-hdr-avatar" style="font-size:18px;background:rgba(255,255,255,.25)">📢</div>
-    <div style="flex:1;min-width:0">
-      <div class="line-header-name">全体通知</div>
-      <div class="line-header-sub" id="bc-sub-label">読込中...</div>
+  const totalUsers=total.count||0;
+  const weekActive=new Set((wk.data||[]).map(r=>r.user_id).filter(Boolean)).size;
+  const monthActive=new Set((mth.data||[]).map(r=>r.user_id).filter(Boolean)).size;
+  const prevWeekActive=new Set((wk_prev.data||[]).map(r=>r.user_id).filter(Boolean)).size;
+
+  const weekRet=totalUsers>0?Math.round(weekActive/totalUsers*100):0;
+  const monthRet=totalUsers>0?Math.round(monthActive/totalUsers*100):0;
+  const weekDiff=weekActive-prevWeekActive;
+
+  const retColor=weekRet>=40?'green':weekRet>=20?'amber':'red';
+
+  const grid=document.getElementById('ret-grid');
+  if(grid)grid.innerHTML=`
+    <div class="ret-item">
+      <div class="ret-num ${retColor}" id="ret-wk">${weekActive}</div>
+      <div class="ret-lbl">週間アクティブ<br><span style="font-family:var(--mono);font-size:9px;font-weight:700">(7日以内)</span></div>
+    </div>
+    <div class="ret-item">
+      <div class="ret-num">${monthActive}</div>
+      <div class="ret-lbl">月間アクティブ<br><span style="font-family:var(--mono);font-size:9px">(30日以内)</span></div>
     </div>`;
 
-  /* メッセージ一覧 */
-  const msgs = document.createElement('div');
-  msgs.className = 'line-msgs';
-  msgs.id = 'broadcast-msgs';
-  msgs.innerHTML = '<div class="line-empty">読み込み中...</div>';
+  const bars=document.getElementById('ret-bars');
+  if(bars)bars.innerHTML=`
+    <div class="ret-bar-row">
+      <div class="ret-bar-lbl"><span class="ret-bar-txt">週間リテンション率</span><span class="ret-bar-pct">${weekActive}/${totalUsers}人 (${weekRet}%)</span></div>
+      <div class="ret-bar"><div class="ret-bar-fill" style="width:${weekRet}%;background:${retColor==='green'?'var(--green)':retColor==='amber'?'var(--amber)':'var(--red)'}"></div></div>
+    </div>
+    <div class="ret-bar-row" style="margin-top:8px">
+      <div class="ret-bar-lbl"><span class="ret-bar-txt">月間リテンション率</span><span class="ret-bar-pct">${monthActive}/${totalUsers}人 (${monthRet}%)</span></div>
+      <div class="ret-bar"><div class="ret-bar-fill" style="width:${monthRet}%;background:var(--amber)"></div></div>
+    </div>`;
 
-  /* 入力バー */
-  const bar = document.createElement('div');
-  bar.className = 'line-input-bar';
-  bar.innerHTML = `
-    <input class="line-input" id="bc-inp" type="text" placeholder="全ユーザーへの通知を入力...（Enterで送信）">
-    <button class="line-send-btn" id="bc-send-btn">
-      <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M2.5 10L17.5 3.5L11.5 18L9 11.5L2.5 10Z" fill="white"/></svg>
-    </button>`;
-  bar.querySelector('input').addEventListener('keydown', e => {
-    if (e.key==='Enter' && !e.isComposing) sendBroadcastMessage();
-  });
-  bar.querySelector('button').onclick = sendBroadcastMessage;
+  let insightTxt='';
+  if(weekRet<20)insightTxt=`⚠ 週間リテンション${weekRet}%は低め。登録後の体験を改善するとよいかも。`;
+  else if(weekRet<40)insightTxt=`→ 週間リテンション${weekRet}%。先週比${weekDiff>=0?'+':''}${weekDiff}人。`;
+  else insightTxt=`✓ 週間リテンション${weekRet}%は好調！ユーザーが戻ってきています。`;
 
-  modal.appendChild(hdr);
-  modal.appendChild(msgs);
-  modal.appendChild(bar);
-  overlay.appendChild(modal);
-  document.body.appendChild(overlay);
-
-  await loadBroadcastMsgs();
+  const insight=document.getElementById('ret-insight');
+  if(insight)insight.innerHTML=`<div class="ret-insight">${insightTxt}</div>`;
 }
 
-async function loadBroadcastMsgs() {
-  const msgs = document.getElementById('broadcast-msgs');
-  const sub  = document.getElementById('bc-sub-label');
-  if (!msgs) return;
-  try {
-    const [bcRes, totalRes] = await Promise.all([
+/* ── DORMANT USERS ── */
+async function loadDormant(){
+  const[profiles,votes]=await Promise.all([
+    sb.from('profiles').select('id,x_username,is_founder,created_at').neq('id',ADMIN_ID),
+    sb.from('votes').select('user_id'),
+  ]);
+  if(!profiles.data)return;
+  const voters=new Set((votes.data||[]).map(v=>v.user_id));
+  const dormant=profiles.data.filter(p=>!voters.has(p.id));
+  dormant.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+
+  set('dormant-count',dormant.length+'人');
+
+  const list=document.getElementById('dormant-list');
+  if(!list)return;
+  if(dormant.length===0){
+    list.innerHTML='<div class="empty"><div class="empty-ico">🎉</div><div class="empty-txt">全員が1回以上投票しています！</div></div>';
+    return;
+  }
+  const shown=dormant.slice(0,8);
+  const rest=dormant.length-shown.length;
+  list.innerHTML=shown.map(u=>{
+    const name=u.x_username||'匿名';
+    const initial=name.charAt(0).toUpperCase();
+    const days=Math.floor((Date.now()-new Date(u.created_at))/86400000);
+    return`<div class="dormant-row" onclick="showTalkModal('${u.id}','${esc(name).replace(/'/g,"&#39;")}')">
+      <div class="dormant-av">${esc(initial)}</div>
+      <div class="dormant-name">${esc(name)}</div>
+      <div class="dormant-days">登録${days}日前</div>
+    </div>`;
+  }).join('')
+  +(rest>0?`<div class="dormant-more">他 ${rest}人</div>`:'');
+}
+
+/* ── WEEKLY TREND ── */
+async function loadTrend(){
+  const now=new Date();
+  const thisMonday=new Date(now);thisMonday.setDate(now.getDate()-((now.getDay()+6)%7));
+  const thisMon=thisMonday.toISOString().slice(0,10);
+  const lastMon=new Date(thisMonday);lastMon.setDate(thisMonday.getDate()-7);
+  const lastMonStr=lastMon.toISOString().slice(0,10);
+
+  const[uT,uL,vT,vL,iT,iL,lpT,lpL]=await Promise.all([
+    sb.from('profiles').select('id',{count:'exact',head:true}).gte('created_at',thisMon+'T00:00:00Z').neq('id',ADMIN_ID),
+    sb.from('profiles').select('id',{count:'exact',head:true}).gte('created_at',lastMonStr+'T00:00:00Z').lt('created_at',thisMon+'T00:00:00Z').neq('id',ADMIN_ID),
+    sb.from('votes').select('id',{count:'exact',head:true}).gte('created_at',thisMon+'T00:00:00Z'),
+    sb.from('votes').select('id',{count:'exact',head:true}).gte('created_at',lastMonStr+'T00:00:00Z').lt('created_at',thisMon+'T00:00:00Z'),
+    sb.from('ideas').select('id',{count:'exact',head:true}).gte('created_at',thisMon+'T00:00:00Z'),
+    sb.from('ideas').select('id',{count:'exact',head:true}).gte('created_at',lastMonStr+'T00:00:00Z').lt('created_at',thisMon+'T00:00:00Z'),
+    sb.from('user_events').select('id',{count:'exact',head:true}).eq('utm_source','lp').gte('created_at',thisMon+'T00:00:00Z'),
+    sb.from('user_events').select('id',{count:'exact',head:true}).eq('utm_source','lp').gte('created_at',lastMonStr+'T00:00:00Z').lt('created_at',thisMon+'T00:00:00Z'),
+  ]);
+  const rows=[
+    {ico:'👤',lbl:'新規ユーザー',t:uT.count||0,l:uL.count||0},
+    {ico:'🗳',lbl:'応援票',t:vT.count||0,l:vL.count||0},
+    {ico:'💡',lbl:'新規上場',t:iT.count||0,l:iL.count||0},
+    {ico:'📄',lbl:'LP流入',t:lpT.count||0,l:lpL.count||0},
+  ];
+  const grid=document.getElementById('trend-grid');
+  if(grid)grid.innerHTML=rows.map(r=>`
+    <div class="trend-item">
+      <div class="trend-ico">${r.ico}</div>
+      <div class="trend-num">${r.t}</div>
+      <div class="trend-lbl">${r.lbl}</div>
+      ${trendBadge(r.t,r.l)}
+    </div>`).join('');
+}
+
+/* ── HOURLY ── */
+async function loadHourly(){
+  const today=todayStr();
+  const{data}=await sb.from('idea_views').select('viewed_at').gte('viewed_at',today+'T00:00:00Z');
+  const hours=Array(24).fill(0);
+  (data||[]).forEach(v=>{
+    const h=parseJST(v.viewed_at);
+    if(h)hours[h.getUTCHours()]++;
+  });
+  const max=Math.max(...hours,1);
+  const nowH=now9().getUTCHours();
+  const bars=document.getElementById('hourly-bars');
+  const lbls=document.getElementById('hourly-lbls');
+  if(bars)bars.innerHTML=hours.map((v,h)=>`
+    <div class="hourly-bar" style="height:${Math.max(v/max*54,2)}px;background:${h===nowH?'var(--green)':v>0?'var(--amber)':'var(--border)'}"></div>`).join('');
+  if(lbls)lbls.innerHTML=hours.map((_,h)=>`<div class="hourly-lbl">${h%6===0?h+':':'.'}</div>`).join('');
+  const peakH=hours.indexOf(Math.max(...hours));
+  const peakEl=document.getElementById('hourly-peak');
+  if(peakEl&&max>0){
+    peakEl.style.display='block';
+    peakEl.textContent=`🕐 最も閲覧が多い時間帯 → ${peakH}:00台（${hours[peakH]}件）`;
+  }
+}
+
+/* ── RANKING ── */
+async function loadRanking(){
+  const{data}=await sb.from('ideas').select('id,ticker,name,score,votes').order('score',{ascending:false}).limit(10);
+  const list=document.getElementById('ranking-list');
+  if(!list)return;
+  if(!data||data.length===0){list.innerHTML='<div class="empty"><div class="empty-ico">💡</div><div class="empty-txt">アイデアなし</div></div>';return;}
+  list.innerHTML=data.map((idea,i)=>{
+    const score=parseFloat(idea.score||0).toFixed(1);
+    const cls=score>=70?'high':score>=50?'mid':'low';
+    return`<div class="ranking-row">
+      <span class="rank-num ${i<3?'top':''}">${['🥇','🥈','🥉'][i]||String(i+1).padStart(2,'0')}</span>
+      <span class="rank-ticker">${esc(idea.ticker||'—')}</span>
+      <span class="rank-name">${esc(idea.name)}</span>
+      <span style="font-family:var(--mono);font-size:10px;color:var(--ink3);margin-right:4px">${idea.votes}票</span>
+      <span class="rank-score ${cls}">${score}</span>
+    </div>`;
+  }).join('');
+}
+
+/* ── ACTIVITY ── */
+async function loadActivity(){
+  const[vR,voR,iR]=await Promise.all([
+    sb.from('votes').select('idea_id,user_id,created_at').order('created_at',{ascending:false}).limit(12),
+    sb.from('idea_views').select('idea_id,user_id,viewed_at').order('viewed_at',{ascending:false}).limit(10),
+    sb.from('ideas').select('id,name,ticker,created_at,user_id').order('created_at',{ascending:false}).limit(6),
+  ]);
+  const[ideasR,profilesR]=await Promise.all([
+    sb.from('ideas').select('id,name,ticker'),
+    sb.from('profiles').select('id,x_username,is_founder'),
+  ]);
+  const im={};(ideasR.data||[]).forEach(i=>im[i.id]=i);
+  const pm={};(profilesR.data||[]).forEach(p=>pm[p.id]=p);
+
+  const items=[
+    ...(vR.data||[]).map(v=>({type:'vote',at:v.created_at,ideaId:v.idea_id,userId:v.user_id})),
+    ...(voR.data||[]).map(v=>({type:'view',at:v.viewed_at,ideaId:v.idea_id,userId:v.user_id})),
+    ...(iR.data||[]).map(i=>({type:'list',at:i.created_at,ideaId:i.id,userId:i.user_id})),
+  ].sort((a,b)=>new Date(b.at)-new Date(a.at)).slice(0,20);
+
+  const el=document.getElementById('activity-list');
+  if(!el)return;
+  if(!items.length){el.innerHTML='<div class="empty"><div class="empty-ico">📭</div><div class="empty-txt">まだアクティビティがありません</div></div>';return;}
+
+  const typeMap={vote:{lbl:'応援',cls:'vote'},view:{lbl:'閲覧',cls:'view'},list:{lbl:'上場',cls:'list'}};
+  el.innerHTML=items.map(item=>{
+    const idea=im[item.ideaId];
+    const p=item.userId?pm[item.userId]:null;
+    const name=p?.x_username||'匿名';
+    const tc=typeMap[item.type];
+    return`<div class="act-row">
+      <span class="act-type ${tc.cls}">${tc.lbl}</span>
+      <div class="act-info">
+        <div class="act-idea">${idea?esc(idea.name):'—'}</div>
+        <div class="act-user">${esc(name)}${p?.is_founder?' 👑':''}</div>
+      </div>
+      <div class="act-time">${fmtAgo(item.at)}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ── TALK LIST ── */
+async function loadTalkList(){
+  const body=document.getElementById('talk-list');
+  const countEl=document.getElementById('talk-count-lbl');
+  if(!body)return;
+  try{
+    const[msgR,voiceR,profileR,bcR,totalR]=await Promise.all([
+      sb.from('messages').select('id,from_id,to_id,body,created_at,is_read').or('from_id.eq.'+ADMIN_ID+',to_id.eq.'+ADMIN_ID).eq('is_announcement',false).order('created_at',{ascending:false}),
+      sb.from('hiroba_voices').select('id,user_id,text,created_at,ai_reply,tag').eq('is_announcement',false).order('created_at',{ascending:false}),
+      sb.from('profiles').select('id,x_username,is_founder,is_pro').neq('id',ADMIN_ID),
+      sb.from('messages').select('id,is_read,body,created_at').eq('is_announcement',true).order('created_at',{ascending:false}),
+      sb.from('profiles').select('id',{count:'exact',head:true}).neq('id',ADMIN_ID),
+    ]);
+    const msgs=msgR.data||[],voices=voiceR.data||[],profiles=profileR.data||[];
+    const bcMsgs=bcR.data||[],totalUsers=totalR.count||0;
+    const pm={};profiles.forEach(p=>pm[p.id]=p);
+    const ut={};
+    function eu(uid){if(!ut[uid])ut[uid]={userId:uid,unread:0,lastTime:0,lastPreview:''};}
+    msgs.forEach(m=>{
+      const other=m.from_id===ADMIN_ID?m.to_id:m.from_id;
+      if(!other||other===ADMIN_ID)return;
+      eu(other);
+      const t=new Date(m.created_at).getTime();
+      if(t>ut[other].lastTime){ut[other].lastTime=t;ut[other].lastPreview=(m.from_id===ADMIN_ID?'自分: ':'')+String(m.body||'').slice(0,30);}
+      if(m.from_id!==ADMIN_ID&&!m.is_read)ut[other].unread++;
+    });
+    voices.forEach(v=>{
+      if(!v.user_id||v.user_id===ADMIN_ID)return;
+      eu(v.user_id);
+      const t=new Date(v.created_at).getTime();
+      if(t>ut[v.user_id].lastTime){ut[v.user_id].lastTime=t;ut[v.user_id].lastPreview=String(v.text||'').slice(0,30);}
+      if(!v.ai_reply)ut[v.user_id].unread++;
+    });
+    const sorted=Object.values(ut).sort((a,b)=>b.lastTime-a.lastTime);
+    const totalUnread=sorted.reduce((s,u)=>s+u.unread,0);
+    const badge=document.getElementById('talk-unread-all');
+    if(badge){badge.textContent=totalUnread>99?'99+':totalUnread;badge.style.display=totalUnread>0?'inline':'none';}
+    if(countEl)countEl.textContent=sorted.length+'件';
+    const lastBc=bcMsgs[0];
+    const bcReadPct=totalUsers>0?Math.round(bcMsgs.filter(b=>b.is_read).length/totalUsers*100):0;
+    const bcPreview=lastBc?esc(String(lastBc.body||'').slice(0,28)):'まだ通知なし';
+
+    let html=`<div class="talk-item" onclick="showBroadcastRoom()">
+      <div class="talk-av av-bc">📢</div>
+      <div class="talk-body">
+        <div class="talk-name-row"><span class="talk-name">全体通知</span><span class="tb-bc">BROADCAST</span></div>
+        <div class="talk-preview">${bcPreview}</div>
+        ${totalUsers>0?`<div style="display:flex;align-items:center;gap:6px;margin-top:3px">
+          <span class="bc-pct">既読 ${bcReadPct}%</span>
+          <div style="flex:1;height:2px;background:var(--border);border-radius:1px;overflow:hidden;max-width:60px"><div style="height:100%;width:${bcReadPct}%;background:var(--line-green)"></div></div>
+        </div>`:''}
+      </div>
+      <div class="talk-meta"><span class="talk-time">${lastBc?fmtTalkTime(lastBc.created_at):''}</span></div>
+    </div>`;
+
+    if(sorted.length===0){
+      html+='<div class="empty"><div class="empty-ico">💬</div><div class="empty-txt">まだメッセージなし</div></div>';
+    }else{
+      sorted.forEach(u=>{
+        const p=pm[u.userId];
+        const name=p?.x_username||u.userId.slice(0,8)+'…';
+        const initial=name.charAt(0).toUpperCase();
+        const avCls=p?.is_founder?'av-founder':p?.is_pro?'av-pro':'av-default';
+        const badges=(p?.is_founder?'<span class="tb-founder">👑 創設</span>':p?.is_pro?'<span class="tb-pro">PRO</span>':'');
+        const preview=esc(u.lastPreview||'メッセージなし');
+        const unreadBadge=u.unread>0?`<div class="talk-unread">${u.unread>99?'99+':u.unread}</div>`:'';
+        const safeName=esc(name).replace(/'/g,"&#39;");
+        html+=`<div class="talk-item" onclick="showTalkModal('${u.userId}','${safeName}')">
+          <div class="talk-av ${avCls}">${esc(initial)}${unreadBadge}</div>
+          <div class="talk-body">
+            <div class="talk-name-row"><span class="talk-name">${esc(name)}</span>${badges}</div>
+            <div class="talk-preview${u.unread>0?' unread':''}">${preview}</div>
+          </div>
+          <div class="talk-meta"><span class="talk-time">${u.lastTime?fmtTalkTime(new Date(u.lastTime).toISOString()):''}</span></div>
+        </div>`;
+      });
+    }
+    body.innerHTML=html;
+  }catch(e){
+    if(body)body.innerHTML=`<div style="padding:14px;font-size:11px;color:var(--red)">読み込み失敗: ${esc(e.message)}</div>`;
+  }
+}
+
+/* ── BROADCAST ROOM ── */
+async function showBroadcastRoom(){
+  _openLineModal('📢','全体通知',null,async(modal)=>{
+    const msgs=modal.querySelector('.lm-msgs');
+    const sub=modal.querySelector('.lm-sub');
+    const[bcR,totalR]=await Promise.all([
       sb.from('messages').select('*').eq('is_announcement',true).order('created_at',{ascending:true}),
       sb.from('profiles').select('id',{count:'exact',head:true}).neq('id',ADMIN_ID),
     ]);
-    const list       = bcRes.data   || [];
-    const totalUsers = totalRes.count || 0;
-    const readCount  = list.filter(m => m.is_read).length;
-    const readPct    = totalUsers > 0 ? Math.round(readCount/totalUsers*100) : 0;
-    if (sub) sub.textContent = `全${totalUsers}人 · 既読${readCount}人 (${readPct}%)`;
-
-    if (list.length === 0) {
-      msgs.innerHTML = '<div class="line-empty">まだ通知はありません<br>最初の全体通知を送りましょう</div>';
-      return;
-    }
-    let lastDate = '', html = '';
-    list.forEach(m => {
-      const d = m.created_at ? new Date(m.created_at) : null;
-      const jst = d ? new Date(d.getTime()+9*3600000) : null;
-      const dateStr = jst ? jst.getUTCFullYear()+'年'+(jst.getUTCMonth()+1)+'月'+jst.getUTCDate()+'日' : '';
-      const timeStr = jst ? String(jst.getUTCHours()).padStart(2,'0')+':'+String(jst.getUTCMinutes()).padStart(2,'0') : '';
-      if (dateStr !== lastDate) {
-        html += `<div style="display:flex;justify-content:center;margin:14px 0 8px"><span class="line-date-sep">${dateStr}</span></div>`;
-        lastDate = dateStr;
-      }
-      html += `<div class="line-msg-row sent">
-        <div class="line-sent-meta">
-          <span class="line-time-sent">${timeStr}</span>
-        </div>
+    const list=bcR.data||[],totalUsers=totalR.count||0;
+    const readCount=list.filter(m=>m.is_read).length;
+    const pct=totalUsers>0?Math.round(readCount/totalUsers*100):0;
+    if(sub)sub.textContent=`全${totalUsers}人 · 既読${readCount}人（${pct}%）`;
+    if(!list.length){msgs.innerHTML='<div class="lm-empty">まだ通知はありません</div>';return;}
+    let lastDate='',html='';
+    list.forEach(m=>{
+      const dl=fmtDateLabel(m.created_at);
+      if(dl!==lastDate){html+=`<div class="lm-date"><span class="lm-date-lbl">${dl}</span></div>`;lastDate=dl;}
+      html+=`<div class="lm-row sent">
+        <div class="lm-sent-wrap"><span class="lm-ts">${fmtTime(m.created_at)}</span></div>
         <div>
-          <div class="line-bubble sent">${esc(m.body)}</div>
-          <div style="text-align:right;font-family:var(--mono);font-size:8px;color:rgba(0,0,0,.4);margin-top:3px">全${totalUsers}人に配信</div>
+          <div class="lm-bubble sent">${esc(m.body)}</div>
+          <div style="text-align:right;font-family:var(--mono);font-size:7px;color:rgba(0,0,0,.35);margin-top:2px">全${totalUsers}人に配信</div>
         </div>
       </div>`;
     });
-    msgs.innerHTML = html;
-    msgs.scrollTop = msgs.scrollHeight;
-  } catch(e) {
-    msgs.innerHTML = `<div style="color:#e53e3e;font-size:12px;text-align:center;padding:20px">読み込み失敗: ${esc(e.message)}</div>`;
-  }
-}
-
-async function sendBroadcastMessage() {
-  const inp = document.getElementById('bc-inp');
-  const btn = document.getElementById('bc-send-btn');
-  const text = inp?.value?.trim(); if (!text) return;
-  inp.value = '';
-  if (btn) btn.disabled = true;
-  try {
+    msgs.innerHTML=html;
+    msgs.scrollTop=msgs.scrollHeight;
+  },async(text)=>{
     await Promise.all([
-      sb.from('messages').insert({from_id:ADMIN_ID, to_id:null, body:text, is_announcement:true, is_read:false}),
-      sb.from('hiroba_voices').insert({user_id:ADMIN_ID, user_name:'あいぽ運営', text, tag:'お知らせ', is_announcement:true, ai_reply:null}),
+      sb.from('messages').insert({from_id:ADMIN_ID,to_id:null,body:text,is_announcement:true,is_read:false}),
+      sb.from('hiroba_voices').insert({user_id:ADMIN_ID,user_name:'あいぽ運営',text,tag:'お知らせ',is_announcement:true,ai_reply:null}),
     ]);
-    await loadBroadcastMsgs();
-    await loadTalkList();
-    showToast('✓ 全体通知を送信しました');
-  } catch(e) {
-    showToast('エラー: '+e.message);
-    inp.value = text;
-  } finally {
-    if (btn) btn.disabled = false;
-  }
+    toast('✓ 全体通知を送信しました');
+    loadTalkList();
+  });
 }
 
-/* =============================================
-   INDIVIDUAL TALK HISTORY (統合表示)
-   ============================================= */
-async function showTalkHistory(userId, userName) {
-  const overlay = document.createElement('div');
-  overlay.className = 'line-modal-overlay';
-  overlay.onclick = e => { if(e.target===overlay) overlay.remove(); };
-  const initial = (userName||'?').charAt(0).toUpperCase();
-
-  const modal = document.createElement('div');
-  modal.className = 'line-modal';
-
-  const hdr = document.createElement('div');
-  hdr.className = 'line-header';
-  const backBtn = document.createElement('button');
-  backBtn.className = 'line-back';
-  backBtn.textContent = '‹';
-  backBtn.onclick = () => overlay.remove();
-  const ava = document.createElement('div');
-  ava.className = 'line-hdr-avatar';
-  ava.textContent = initial;
-  const nameEl = document.createElement('div');
-  nameEl.className = 'line-header-name';
-  nameEl.textContent = userName;
-  hdr.appendChild(backBtn); hdr.appendChild(ava); hdr.appendChild(nameEl);
-
-  const msgsList = document.createElement('div');
-  msgsList.className = 'line-msgs';
-  msgsList.id = 'talk-msgs-list';
-  msgsList.innerHTML = '<div class="line-empty">読み込み中...</div>';
-
-  const bar = document.createElement('div');
-  bar.className = 'line-input-bar';
-  bar.innerHTML = `
-    <input class="line-input" id="talk-inp" type="text" placeholder="メッセージを入力...">
-    <button class="line-send-btn" id="talk-send-btn">
-      <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M2.5 10L17.5 3.5L11.5 18L9 11.5L2.5 10Z" fill="white"/></svg>
-    </button>`;
-  bar.querySelector('input').addEventListener('keydown', e => {
-    if (e.key==='Enter' && !e.isComposing) sendTalkMessage(userId, userName);
+/* ── INDIVIDUAL TALK ── */
+async function showTalkModal(userId,userName){
+  const initial=(userName||'?').charAt(0).toUpperCase();
+  _openLineModal(initial,userName,async()=>{
+    await sb.from('messages').update({is_read:true}).eq('from_id',userId).eq('to_id',ADMIN_ID).eq('is_read',false);
+    loadTalkList();
+  },async(modal)=>{
+    const msgs=modal.querySelector('.lm-msgs');
+    const[mR,vR]=await Promise.all([
+      sb.from('messages').select('*').or(`and(from_id.eq.${userId},to_id.eq.${ADMIN_ID}),and(from_id.eq.${ADMIN_ID},to_id.eq.${userId})`).order('created_at',{ascending:true}).limit(100),
+      sb.from('hiroba_voices').select('*').eq('user_id',userId).eq('is_announcement',false).order('created_at',{ascending:true}).limit(60),
+    ]);
+    const items=[];
+    (mR.data||[]).forEach(m=>items.push({isAdmin:m.from_id===ADMIN_ID,body:m.body,at:m.created_at,read:m.is_read,tag:null,src:'msg'}));
+    (vR.data||[]).forEach(v=>{
+      items.push({isAdmin:false,body:v.text,at:v.created_at,read:!!v.ai_reply,tag:v.tag,src:'voice'});
+      if(v.ai_reply)items.push({isAdmin:true,body:v.ai_reply.replace(/^【運営(リンク)?】/,''),at:v.created_at,read:true,tag:null,src:'voice-reply'});
+    });
+    items.sort((a,b)=>new Date(a.at)-new Date(b.at));
+    if(!items.length){msgs.innerHTML='<div class="lm-empty">まだメッセージはありません</div>';return;}
+    let lastDate='',html='';
+    items.forEach((m,i)=>{
+      const dl=fmtDateLabel(m.at);
+      if(dl!==lastDate){html+=`<div class="lm-date"><span class="lm-date-lbl">${dl}</span></div>`;lastDate=dl;}
+      const prev=i>0?items[i-1]:null;
+      const samePrev=prev&&prev.isAdmin===m.isAdmin;
+      const tagP=m.tag?`<div class="lm-tag">${esc(m.tag)}</div>`:'';
+      const srcP=m.src==='voice'?'<div class="lm-tag">広場</div>':'';
+      if(m.isAdmin){
+        html+=`<div class="lm-row sent">
+          <div class="lm-sent-wrap">${m.read?'<span class="lm-read">既読</span>':''}<span class="lm-ts">${fmtTime(m.at)}</span></div>
+          <div class="lm-bubble sent">${esc(m.body)}</div>
+        </div>`;
+      }else{
+        html+=`<div class="lm-row recv">
+          <div class="lm-recv-av ${samePrev?'sp':''}">${esc(initial)}</div>
+          <div class="lm-recv-wrap">
+            <div class="lm-bubble recv">${esc(m.body)}${tagP}${srcP}</div>
+            <span class="lm-ts lm-ts-r">${fmtTime(m.at)}</span>
+          </div>
+        </div>`;
+      }
+    });
+    msgs.innerHTML=html;
+    msgs.scrollTop=msgs.scrollHeight;
+  },async(text)=>{
+    await sb.from('messages').insert({from_id:ADMIN_ID,to_id:userId,body:text,is_announcement:false,is_read:false});
   });
-  bar.querySelector('button').onclick = () => sendTalkMessage(userId, userName);
+}
 
-  modal.appendChild(hdr); modal.appendChild(msgsList); modal.appendChild(bar);
+/* ── LINE MODAL FACTORY ── */
+function _openLineModal(avText,name,onOpen,onLoad,onSend){
+  const overlay=document.createElement('div');
+  overlay.className='lm-overlay';
+  overlay.onclick=e=>{if(e.target===overlay)overlay.remove();};
+  const modal=document.createElement('div');
+  modal.className='lm-modal';
+  modal.innerHTML=`
+    <div class="lm-header">
+      <button class="lm-back" onclick="this.closest('.lm-overlay').remove()">‹</button>
+      <div class="lm-av">${esc(avText)}</div>
+      <div style="flex:1;min-width:0">
+        <div class="lm-name">${esc(name)}</div>
+        <div class="lm-sub" id="lm-sub-lbl"></div>
+      </div>
+    </div>
+    <div class="lm-msgs" id="lm-msgs-body"><div class="lm-empty">読み込み中…</div></div>
+    <div class="lm-bar">
+      <input class="lm-input" id="lm-inp" type="text" placeholder="メッセージを入力…">
+      <button class="lm-send" id="lm-send-btn">
+        <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M2.5 10L17.5 3.5L11.5 18L9 11.5L2.5 10Z" fill="white"/></svg>
+      </button>
+    </div>`;
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
 
-  await loadTalkHistory(userId, userName);
-
-  /* 既読マーク */
-  await sb.from('messages')
-    .update({is_read:true})
-    .eq('from_id', userId).eq('to_id', ADMIN_ID).eq('is_read', false);
-  /* 既読後にトーク一覧を更新 */
-  loadTalkList();
-}
-
-async function loadTalkHistory(userId, userName) {
-  const list = document.getElementById('talk-msgs-list');
-  if (!list) return;
-  const initial = (userName||'?').charAt(0).toUpperCase();
-  try {
-    /* 両テーブルから並行取得 */
-    const [msgRes, voiceRes] = await Promise.all([
-      sb.from('messages')
-        .select('*')
-        .or('and(from_id.eq.'+userId+',to_id.eq.'+ADMIN_ID+'),and(from_id.eq.'+ADMIN_ID+',to_id.eq.'+userId+')')
-        .order('created_at', {ascending:true})
-        .limit(100),
-      sb.from('hiroba_voices')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('is_announcement', false)
-        .order('created_at', {ascending:true})
-        .limit(60),
-    ]);
-
-    /* messages → 統一フォーマットに変換 */
-    const msgItems = (msgRes.data||[]).map(m => ({
-      isAdmin   : m.from_id === ADMIN_ID,
-      body      : m.body,
-      created_at: m.created_at,
-      is_read   : m.is_read,
-      source    : 'message',
-      tag       : null,
-    }));
-
-    /* hiroba_voices → 統一フォーマット（user発言 + admin返信 を展開） */
-    const voiceItems = [];
-    (voiceRes.data||[]).forEach(v => {
-      voiceItems.push({
-        isAdmin   : false,
-        body      : v.text,
-        created_at: v.created_at,
-        is_read   : !!v.ai_reply,
-        source    : 'voice',
-        tag       : v.tag,
-      });
-      if (v.ai_reply) {
-        voiceItems.push({
-          isAdmin   : true,
-          body      : v.ai_reply.replace(/^【運営(リンク)?】/, ''),
-          created_at: v.created_at,
-          is_read   : true,
-          source    : 'voice-reply',
-          tag       : null,
-        });
-      }
-    });
-
-    /* 時刻順マージ */
-    const all = [...msgItems, ...voiceItems].sort((a,b) =>
-      new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-    );
-
-    if (all.length === 0) {
-      list.innerHTML = '<div class="line-empty">まだメッセージはありません<br>最初のメッセージを送りましょう</div>';
-      return;
-    }
-
-    let lastDate = '', html = '';
-    all.forEach((m, idx) => {
-      const d   = m.created_at ? new Date(m.created_at) : null;
-      const jst = d ? new Date(d.getTime()+9*3600000) : null;
-      const dateStr = jst ? jst.getUTCFullYear()+'年'+(jst.getUTCMonth()+1)+'月'+jst.getUTCDate()+'日' : '';
-      const timeStr = jst ? String(jst.getUTCHours()).padStart(2,'0')+':'+String(jst.getUTCMinutes()).padStart(2,'0') : '';
-
-      if (dateStr && dateStr !== lastDate) {
-        html += `<div style="display:flex;justify-content:center;margin:14px 0 10px"><span class="line-date-sep">${dateStr}</span></div>`;
-        lastDate = dateStr;
-      }
-
-      const prev = idx > 0 ? all[idx-1] : null;
-      const isSameAsPrev = prev && prev.isAdmin === m.isAdmin;
-      const safeBody = esc(m.body);
-      /* タグ・ソースのピル */
-      const tagPill = m.tag ? `<div class="line-tag-pill">${esc(m.tag)}</div>` : '';
-      const srcPill = m.source==='voice' ? '<div class="line-tag-pill">広場</div>' : '';
-
-      if (m.isAdmin) {
-        html += `<div class="line-msg-row sent">
-          <div class="line-sent-meta">
-            ${m.is_read ? '<span class="line-read">既読</span>' : ''}
-            <span class="line-time-sent">${timeStr}</span>
-          </div>
-          <div class="line-bubble sent">${safeBody}</div>
-        </div>`;
-      } else {
-        html += `<div class="line-msg-row recv">
-          ${isSameAsPrev
-            ? `<div class="line-recv-avatar spacer">${initial}</div>`
-            : `<div class="line-recv-avatar">${initial}</div>`}
-          <div class="line-recv-block">
-            <div class="line-bubble recv">${safeBody}${tagPill}${srcPill}</div>
-            <span class="line-time-recv">${timeStr}</span>
-          </div>
-        </div>`;
-      }
-    });
-
-    list.innerHTML = html;
-    list.scrollTop = list.scrollHeight;
-  } catch(e) {
-    list.innerHTML = `<div style="font-size:12px;color:#e53e3e;text-align:center;padding:20px">読み込み失敗: ${esc(e.message)}</div>`;
+  async function doSend(){
+    const inp=document.getElementById('lm-inp');
+    const btn=document.getElementById('lm-send-btn');
+    const text=inp?.value?.trim();if(!text)return;
+    inp.value='';if(btn)btn.disabled=true;
+    try{
+      await onSend(text);
+      await onLoad(modal);
+      const msgs=document.getElementById('lm-msgs-body');if(msgs)msgs.scrollTop=msgs.scrollHeight;
+    }catch(e){toast('エラー: '+e.message);inp.value=text;}
+    finally{if(btn)btn.disabled=false;inp.focus();}
   }
+  document.getElementById('lm-inp')?.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing)doSend();});
+  document.getElementById('lm-send-btn')?.addEventListener('click',doSend);
+
+  if(onOpen)onOpen(modal);
+  onLoad(modal);
 }
 
-async function sendTalkMessage(userId, userName) {
-  const inp = document.getElementById('talk-inp');
-  const btn = document.getElementById('talk-send-btn');
-  const text = inp?.value?.trim(); if (!text) return;
-  inp.value = '';
-  if (btn) btn.disabled = true;
-  try {
-    await sb.from('messages').insert({from_id:ADMIN_ID, to_id:userId, body:text, is_announcement:false, is_read:false});
-    await loadTalkHistory(userId, userName);
-    inp.focus();
-  } catch(e) {
-    showToast('エラー: '+e.message);
-    inp.value = text;
-  } finally {
-    if (btn) btn.disabled = false;
-  }
-}
-
-/* =============================================
-   HOME TAB
-   ============================================= */
-async function loadHomeTab() {
-  const today = new Date().toISOString().slice(0,10);
-  const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1);
-  const yday = yesterday.toISOString().slice(0,10);
-  const [r0,r1,r2,r3,r4,r5,r6] = await Promise.allSettled([
-    sb.from('profiles').select('id',{count:'exact',head:true}).neq('id',ADMIN_ID),
-    sb.from('profiles').select('id',{count:'exact',head:true}).gte('created_at',today+'T00:00:00Z').neq('id',ADMIN_ID),
-    sb.from('ideas').select('id,ticker,name,description,genre,score,votes,updated_at,created_at,user_id').order('score',{ascending:false}),
-    sb.from('votes').select('idea_id,created_at').gte('created_at',today+'T00:00:00Z'),
-    sb.from('profiles').select('id',{count:'exact',head:true}).gte('created_at',yday+'T00:00:00Z').lt('created_at',today+'T00:00:00Z'),
-    sb.from('votes').select('idea_id,created_at').gte('created_at',yday+'T00:00:00Z').lt('created_at',today+'T00:00:00Z'),
-    sb.from('ideas').select('id',{count:'exact',head:true}).gte('created_at',yday+'T00:00:00Z').lt('created_at',today+'T00:00:00Z'),
-  ]);
-  const usersTotal=r0.value?.count??0, usersToday=r1.value?.count??0;
-  const ideasAll=r2.value?.data??[], votesToday=r3.value?.data??[];
-  const usersYday=r4.value?.count??0, votesYday=r5.value?.data?.length??0, ideasYday=r6.value?.count??0;
-  const set=(id,val)=>{ const el=document.getElementById(id); if(el) el.textContent=val??'0'; };
-  set('top-users-total',usersTotal); set('top-users-today',usersToday);
-  const ideasToday=(ideasAll||[]).filter(i=>i.created_at&&i.created_at.slice(0,10)===today);
-  set('top-ideas-today',ideasToday.length); set('top-votes-today',votesToday.length);
-
-  /* PDCA mini analysis */
-  const avgScore=ideasAll.length>0?(ideasAll.reduce((s,i)=>s+parseFloat(i.score||50),0)/ideasAll.length).toFixed(1):0;
-  const topIdea=ideasAll[0];
-  const ideasPerUser=usersTotal>0?(ideasAll.length/usersTotal).toFixed(1):0;
-  function trend(t,y){ if(y===0) return {icon:'—',color:'var(--ink3)',text:'前日比データなし'}; const d=t-y,p=Math.round(d/y*100); if(d>0) return {icon:'↑',color:'var(--green)',text:'昨日より+'+d+'人（+'+p+'%）'}; if(d<0) return {icon:'↓',color:'var(--red)',text:'昨日より'+d+'人（'+p+'%）'}; return {icon:'→',color:'var(--ink3)',text:'昨日と同じ'}; }
-  function advice(type,val){
-    if(type==='new-users'){ if(val===0) return {mark:'⚠',color:'var(--red)',text:'今日はまだ誰も来ていません。LPをシェアすると効果的です。'}; if(val>=3) return {mark:'✓',color:'var(--green)',text:'好調です！新規ユーザーが増えています。'}; return {mark:'→',color:'var(--amber)',text:'少しずつ増えています。Xでシェアを増やしましょう。'}; }
-    if(type==='votes'){ if(val===0) return {mark:'⚠',color:'var(--red)',text:'今日はまだ投票がありません。'}; const rate=usersTotal>0?Math.round(val/usersTotal*100):0; if(rate>=30) return {mark:'✓',color:'var(--green)',text:'投票率'+rate+'%！アクティブです。'}; return {mark:'→',color:'var(--amber)',text:'投票率'+rate+'%。広場で巻き込みましょう。'}; }
-    if(type==='ideas'){ if(val===0) return {mark:'⚠',color:'var(--amber)',text:'今日の上場はまだ0件。'}; if(val>=3) return {mark:'✓',color:'var(--green)',text:'アイデアが活発に上場されています！'}; return {mark:'→',color:'var(--amber)',text:'新規ユーザーに上場を促しましょう。'}; }
-    if(type==='total'){ if(val>=20) return {mark:'✓',color:'var(--green)',text:'ユーザーが着実に増えています。'}; if(val>=5) return {mark:'→',color:'var(--amber)',text:'成長中。SNS拡散が鍵です。'}; return {mark:'⚠',color:'var(--red)',text:'まず10人を目標に、知人への声かけから。'}; }
-  }
-  const a1=advice('total',usersTotal),a2=advice('new-users',usersToday),a3=advice('ideas',ideasToday.length),a4=advice('votes',votesToday.length);
-  const t2=trend(usersToday,usersYday),t4=trend(votesToday.length,votesYday);
-  const analysisEl=document.getElementById('pdca-analysis');
-  if(analysisEl) analysisEl.innerHTML=`
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-      <div style="background:var(--bg);border-radius:var(--r);padding:14px;border:1px solid var(--border)"><div style="font-size:10px;font-weight:700;color:var(--ink3);margin-bottom:6px">👥 累計ユーザー</div><div style="font-size:22px;font-weight:700;color:var(--amber);font-family:var(--mono);margin-bottom:4px">${usersTotal}<span style="font-size:11px;color:var(--ink3);margin-left:4px">人</span></div><div style="font-size:11px;color:${a1.color};font-weight:600">${a1.mark} ${a1.text}</div></div>
-      <div style="background:var(--bg);border-radius:var(--r);padding:14px;border:1px solid var(--border)"><div style="font-size:10px;font-weight:700;color:var(--ink3);margin-bottom:6px">🆕 今日の新規</div><div style="font-size:22px;font-weight:700;color:var(--green);font-family:var(--mono);margin-bottom:4px">${usersToday}<span style="font-size:11px;color:var(--ink3);margin-left:4px">人</span></div><div style="font-size:11px;color:${t2.color};margin-bottom:4px">${t2.icon} ${t2.text}</div><div style="font-size:11px;color:${a2.color};font-weight:600">${a2.mark} ${a2.text}</div></div>
-      <div style="background:var(--bg);border-radius:var(--r);padding:14px;border:1px solid var(--border)"><div style="font-size:10px;font-weight:700;color:var(--ink3);margin-bottom:6px">💡 今日の上場数</div><div style="font-size:22px;font-weight:700;color:var(--green);font-family:var(--mono);margin-bottom:4px">${ideasToday.length}<span style="font-size:11px;color:var(--ink3);margin-left:4px">件</span></div><div style="font-size:11px;color:var(--ink3);margin-bottom:4px">昨日 ${ideasYday}件</div><div style="font-size:11px;color:${a3.color};font-weight:600">${a3.mark} ${a3.text}</div></div>
-      <div style="background:var(--bg);border-radius:var(--r);padding:14px;border:1px solid var(--border)"><div style="font-size:10px;font-weight:700;color:var(--ink3);margin-bottom:6px">🗳 今日の投票数</div><div style="font-size:22px;font-weight:700;color:var(--amber);font-family:var(--mono);margin-bottom:4px">${votesToday.length}<span style="font-size:11px;color:var(--ink3);margin-left:4px">票</span></div><div style="font-size:11px;color:${t4.color};margin-bottom:4px">${t4.icon} ${t4.text}</div><div style="font-size:11px;color:${a4.color};font-weight:600">${a4.mark} ${a4.text}</div></div>
-    </div>
-    <div style="background:var(--bg);border-radius:var(--r);padding:14px;border:1px solid var(--border)">
-      <div style="font-size:10px;font-weight:700;color:var(--ink3);margin-bottom:8px">📊 全体の状況</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
-        <div style="text-align:center"><div style="font-size:18px;font-weight:700;color:var(--amber);font-family:var(--mono)">${ideasAll.length}</div><div style="font-size:10px;color:var(--ink3)">総上場数</div></div>
-        <div style="text-align:center"><div style="font-size:18px;font-weight:700;color:var(--green);font-family:var(--mono)">${avgScore}</div><div style="font-size:10px;color:var(--ink3)">平均スコア</div></div>
-        <div style="text-align:center"><div style="font-size:18px;font-weight:700;color:var(--amber);font-family:var(--mono)">${ideasPerUser}</div><div style="font-size:10px;color:var(--ink3)">1人あたり上場</div></div>
-      </div>
-      ${topIdea?`<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:11px;color:var(--ink3)">🏆 最高スコア: <strong style="color:var(--ink)">${topIdea.name?.slice(0,25)}</strong> — <span style="font-family:var(--mono);color:var(--green)">${parseFloat(topIdea.score).toFixed(1)}pt</span></div>`:''}
-    </div>`;
-
-  /* ユーザーマップ */
-  const {data:profiles}=await sb.from('user_profiles_view').select('id,display_name,x_username');
-  const userMap={}; if(profiles) profiles.forEach(p=>userMap[p.id]=p.display_name||p.x_username||'匿名');
-  function homeIdeaRow(idea,badge=''){
-    const score=parseFloat(idea.score||0).toFixed(1);
-    const sc=score>=70?'var(--green)':score>=50?'var(--amber)':'var(--ink3)';
-    const poster=userMap[idea.user_id]||'—';
-    const did='home-idea-detail-'+idea.id;
-    return `<div style="border-bottom:1px solid var(--border)">
-      <div style="display:flex;align-items:center;gap:10px;padding:12px 0;cursor:pointer" onclick="document.getElementById('${did}').classList.toggle('open')">
-        <span style="font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:4px;padding:2px 7px;flex-shrink:0">${idea.ticker||'—'}</span>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:13px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:3px">${esc(idea.name)}</div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><span style="font-size:10px;color:var(--ink3)">by ${esc(poster)}</span>${badge}</div>
-        </div>
-        <div style="text-align:right;flex-shrink:0">
-          <div style="font-family:var(--mono);font-size:16px;font-weight:700;color:${sc}">${score}</div>
-          <div style="font-family:var(--mono);font-size:9px;color:var(--ink3)">${idea.votes}票</div>
-        </div>
-        <div style="font-family:var(--mono);font-size:10px;color:var(--ink3);margin-left:4px">▼</div>
-      </div>
-      <div id="${did}" class="ua-detail">
-        ${idea.genre?`<span style="font-size:10px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:4px;padding:2px 8px;display:inline-block;margin-bottom:8px">${esc(idea.genre)}</span>`:''}
-        ${idea.description?`<div style="font-size:12px;color:var(--ink2);line-height:1.7;margin-bottom:10px">${esc(idea.description)}</div>`:'<div style="font-size:12px;color:var(--ink3);margin-bottom:10px">説明なし</div>'}
-        <div style="display:flex;gap:16px;flex-wrap:wrap">
-          <div style="text-align:center"><div style="font-family:var(--mono);font-size:18px;font-weight:700;color:${sc}">${score}</div><div style="font-size:9px;color:var(--ink3)">スコア</div></div>
-          <div style="text-align:center"><div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--amber)">${idea.votes}</div><div style="font-size:9px;color:var(--ink3)">応援票</div></div>
-          <div style="text-align:center"><div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--ink)">${esc(poster)}</div><div style="font-size:9px;color:var(--ink3)">上場者</div></div>
-        </div>
-      </div>
-    </div>`;
-  }
-
-  const hmEl=document.getElementById('home-listings-meta'); if(hmEl) hmEl.textContent=ideasToday.length+'件';
-  const hlEl=document.getElementById('home-listings-body');
-  if(hlEl) hlEl.innerHTML=ideasToday.length===0?'<div class="empty"><div class="empty-ico">💡</div><div class="empty-txt">今日はまだ上場なし</div></div>':ideasToday.map(idea=>homeIdeaRow(idea,`<span style="font-family:var(--mono);font-size:9px;color:var(--green);background:var(--green-light);border:1px solid var(--green-border);border-radius:3px;padding:1px 6px">NEW · ${fmtAgo(idea.updated_at)}</span>`)).join('');
-
-  const votedMap={}; if(votesToday) votesToday.forEach(v=>{ votedMap[v.idea_id]=(votedMap[v.idea_id]||0)+1; });
-  const ideaMap={}; if(ideasAll) ideasAll.forEach(i=>ideaMap[i.id]=i);
-  const vmMeta=document.getElementById('home-voted-meta'); if(vmMeta) vmMeta.textContent=Object.keys(votedMap).length+'件';
-  const vbEl=document.getElementById('home-voted-body');
-  if(vbEl){
-    const vids=Object.keys(votedMap);
-    vbEl.innerHTML=vids.length===0?'<div class="empty"><div class="empty-ico">🗳</div><div class="empty-txt">今日はまだ投票なし</div></div>':vids.map(id=>ideaMap[id]).filter(Boolean).sort((a,b)=>(votedMap[b.id]||0)-(votedMap[a.id]||0)).map(idea=>homeIdeaRow(idea,`<span style="font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:3px;padding:1px 6px">+${votedMap[idea.id]}票 今日</span>`)).join('');
-  }
-
-  /* トーク一覧を並行ロード */
-  loadTalkList();
-  runHealthCheck();
-}
-
-/* ===== KPI ===== */
-async function loadKPI() {
-  const today=new Date().toISOString().slice(0,10);
-  const [uR,fR,iR,vR,itR,vtR]=await Promise.all([
-    sb.from('profiles').select('id',{count:'exact',head:true}).neq('id',ADMIN_ID),
-    sb.from('profiles').select('id',{count:'exact',head:true}).eq('is_founder',true).neq('id',ADMIN_ID),
-    sb.from('ideas').select('id',{count:'exact',head:true}),
-    sb.from('idea_views').select('id',{count:'exact',head:true}).gte('viewed_at',today+'T00:00:00Z'),
-    sb.from('ideas').select('id',{count:'exact',head:true}).gte('updated_at',today+'T00:00:00Z'),
-    sb.from('votes').select('id',{count:'exact',head:true}).gte('created_at',today+'T00:00:00Z'),
-  ]);
-  document.getElementById('kpi-users').textContent=uR.count??'—';
-  document.getElementById('kpi-ideas').textContent=iR.count??'—';
-  document.getElementById('kpi-founders').textContent=fR.count??'—';
-  const subEl=document.getElementById('kpi-founders-sub'); if(subEl) subEl.textContent='残り'+Math.max(0,100-(fR.count||0))+'枠';
-  document.getElementById('kpi-views').textContent=vR.count??'—';
-  const itEl=document.getElementById('kpi-ideas-today'); if(itEl) itEl.textContent=itR.count??'0';
-  const vtEl=document.getElementById('kpi-votes-today'); if(vtEl) vtEl.textContent=vtR.count??'0';
-}
-
-async function loadHourly() {
-  const today=new Date().toISOString().slice(0,10);
-  const {data}=await sb.from('idea_views').select('viewed_at').gte('viewed_at',today+'T00:00:00Z').lt('viewed_at',today+'T23:59:59Z');
-  const hours=Array(24).fill(0);
-  if(data) data.forEach(v=>{ const h=new Date(v.viewed_at.endsWith('Z')?v.viewed_at:v.viewed_at+'Z').getHours(); hours[h]++; });
-  const max=Math.max(...hours,1), now=new Date().getHours();
-  document.getElementById('hourly-chart').innerHTML=hours.map((v,h)=>`<div style="flex:1;display:flex;align-items:flex-end;justify-content:center"><div style="width:100%;border-radius:2px 2px 0 0;background:${h===now?'var(--green)':'var(--amber-bright)'};height:${Math.max(v/max*56,2)}px;opacity:${h===now?1:.7}"></div></div>`).join('');
-  document.getElementById('hourly-labels').innerHTML=hours.map((_,h)=>`<div class="hour-lbl">${h%6===0?h+'h':''}</div>`).join('');
-}
-
-async function loadRecent() {
-  const [{data:views},{data:votes},{data:ideas}]=await Promise.all([
-    sb.from('idea_views').select('idea_id,user_id,viewed_at').order('viewed_at',{ascending:false}).limit(20),
-    sb.from('votes').select('idea_id,user_id,created_at').order('created_at',{ascending:false}).limit(15),
-    sb.from('ideas').select('id,name,ticker,created_at,user_id').order('created_at',{ascending:false}).limit(10),
-  ]);
-  const {data:ideaData}=await sb.from('ideas').select('id,name,ticker');
-  const {data:profileData}=await sb.from('profiles').select('id,x_username,is_founder');
-  const im={}; if(ideaData) ideaData.forEach(i=>im[i.id]=i);
-  const pm={}; if(profileData) profileData.forEach(p=>pm[p.id]={name:p.x_username||'匿名',isFounder:p.is_founder});
-  const items=[
-    ...(views||[]).map(v=>({type:'view',at:v.viewed_at,ideaId:v.idea_id,userId:v.user_id})),
-    ...(votes||[]).map(v=>({type:'vote',at:v.created_at,ideaId:v.idea_id,userId:v.user_id})),
-    ...(ideas||[]).map(i=>({type:'list',at:i.created_at,ideaId:i.id,userId:i.user_id})),
-  ].sort((a,b)=>{const da=parseDate(a.at),db=parseDate(b.at);return(!da||!db)?0:db.getTime()-da.getTime();}).slice(0,25);
-  if(items.length===0){document.getElementById('recent-body').innerHTML='<div class="empty"><div class="empty-ico">📭</div><div class="empty-txt">まだアクティビティがありません</div></div>';return;}
-  const tc={view:{icon:'👁',label:'閲覧',cls:'act-type-view'},vote:{icon:'🗳',label:'応援',cls:'act-type-vote'},list:{icon:'💡',label:'上場',cls:'act-type-list'}};
-  document.getElementById('recent-body').innerHTML=items.map(item=>{
-    const cfg=tc[item.type];
-    const idea=im[item.ideaId];
-    const profile=item.userId?pm[item.userId]:null;
-    const userName=profile?profile.name:null;
-    const isFounder=profile?profile.isFounder:false;
-    const founderBadge=isFounder?' <span style="font-size:9px">👑</span>':'';
-    const ticker=idea?.ticker?`<span style="font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:3px;padding:1px 5px;margin-right:4px">${idea.ticker}</span>`:'';
-    const userLine=item.type==='view'?`<div style="font-size:10px;color:var(--ink3);margin-top:1px">${userName?'by '+userName+founderBadge:'未ログイン'}</div>`:(userName?`<div style="font-size:10px;color:var(--ink3);margin-top:1px">by ${userName}${founderBadge}</div>`:'');
-    return `<div style="display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">
-      <span class="act-type-badge ${cfg.cls}" style="margin-top:2px">${cfg.icon} ${cfg.label}</span>
-      <div style="flex-shrink:0;min-width:76px"><div style="font-family:var(--mono);font-size:10px;color:var(--ink2);font-weight:500">${fmtDate(item.at)}</div><div style="font-family:var(--mono);font-size:8px;color:var(--ink3);margin-top:1px">${fmtAgo(item.at)}</div></div>
-      <div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ticker}${esc(idea?.name||'—')}</div>${userLine}</div>
-    </div>`;
-  }).join('');
-}
-
-/* ===== IDEAS ===== */
-async function loadIdeas() {
-  const today=new Date().toISOString().slice(0,10);
-  const [{data:views},{data:ideas},{data:votesToday}]=await Promise.all([
-    sb.from('idea_views').select('idea_id'),
-    sb.from('ideas').select('id,ticker,name,description,genre,votes,score,updated_at,user_id').order('score',{ascending:false}),
-    sb.from('votes').select('idea_id,created_at').gte('created_at',today+'T00:00:00Z'),
-  ]);
-  if(!ideas||ideas.length===0){['most-viewed-body','all-ideas-body','ideas-today-body','ideas-voted-body'].forEach(id=>{document.getElementById(id).innerHTML='<div class="empty"><div class="empty-ico">💡</div><div class="empty-txt">アイデアなし</div></div>';});return;}
-  const {data:profiles}=await sb.from('user_profiles_view').select('id,display_name,x_username');
-  const userMap={}; if(profiles) profiles.forEach(p=>userMap[p.id]=p.display_name||p.x_username||'匿名');
-  const vm={}; if(views) views.forEach(v=>{vm[v.idea_id]=(vm[v.idea_id]||0)+1;});
-  const vtm={}; if(votesToday) votesToday.forEach(v=>{vtm[v.idea_id]=(vtm[v.idea_id]||0)+1;});
-  const ideasToday=ideas.filter(i=>i.updated_at&&i.updated_at.slice(0,10)===today);
-  const itEl=document.getElementById('ideas-kpi-today'); if(itEl) itEl.textContent=ideasToday.length;
-  const vtEl=document.getElementById('ideas-kpi-votes-today'); if(vtEl) vtEl.textContent=(votesToday||[]).length;
-  document.getElementById('ideas-today-meta').textContent=ideasToday.length+'件';
-  document.getElementById('ideas-voted-meta').textContent=Object.keys(vtm).length+'件のアイデアに投票';
-  document.getElementById('all-ideas-meta').textContent=ideas.length+'件';
-  function ideaCard(idea,extra='',sfx=''){
-    const score=parseFloat(idea.score||0).toFixed(1);
-    const sc=score>=70?'var(--green)':score>=50?'var(--amber)':'var(--ink3)';
-    const poster=userMap[idea.user_id]||'—';
-    const did='idea-detail-'+idea.id+(sfx||'');
-    return `<div style="border-bottom:1px solid var(--border)">
-      <div style="display:flex;align-items:center;gap:10px;padding:12px 0;cursor:pointer" onclick="document.getElementById('${did}').classList.toggle('open')">
-        <span style="font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:4px;padding:2px 7px;flex-shrink:0">${idea.ticker||'—'}</span>
-        <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:3px">${esc(idea.name)}</div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><span style="font-size:10px;color:var(--ink3)">by ${esc(poster)}</span>${extra}</div></div>
-        <div style="text-align:right;flex-shrink:0"><div style="font-family:var(--mono);font-size:15px;font-weight:700;color:${sc}">${score}</div><div style="font-family:var(--mono);font-size:9px;color:var(--ink3)">${idea.votes}票</div></div>
-        <div style="font-family:var(--mono);font-size:10px;color:var(--ink3)">▼</div>
-      </div>
-      <div id="${did}" class="ua-detail">
-        ${idea.genre?`<span style="font-size:10px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:4px;padding:2px 8px;display:inline-block;margin-bottom:8px">${esc(idea.genre)}</span>`:''}
-        ${idea.description?`<div style="font-size:12px;color:var(--ink2);line-height:1.7;margin-bottom:10px">${esc(idea.description)}</div>`:'<div style="font-size:12px;color:var(--ink3);margin-bottom:10px">説明なし</div>'}
-        <div style="display:flex;gap:16px;flex-wrap:wrap">
-          <div style="text-align:center"><div style="font-family:var(--mono);font-size:18px;font-weight:700;color:${sc}">${score}</div><div style="font-size:9px;color:var(--ink3)">スコア</div></div>
-          <div style="text-align:center"><div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--amber)">${idea.votes}</div><div style="font-size:9px;color:var(--ink3)">応援票</div></div>
-          <div style="text-align:center"><div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--ink)">${esc(poster)}</div><div style="font-size:9px;color:var(--ink3)">上場者</div></div>
-        </div>
-      </div>
-    </div>`;
-  }
-  document.getElementById('ideas-today-body').innerHTML=ideasToday.length===0?'<div class="empty"><div class="empty-ico">💡</div><div class="empty-txt">今日はまだ上場なし</div></div>':ideasToday.map(idea=>ideaCard(idea,`<span style="font-family:var(--mono);font-size:9px;color:var(--green);background:var(--green-light);border:1px solid var(--green-border);border-radius:3px;padding:1px 6px">NEW · ${fmtAgo(idea.updated_at)}</span>`,'t')).join('');
-  const votedIds=Object.keys(vtm);
-  document.getElementById('ideas-voted-body').innerHTML=votedIds.length===0?'<div class="empty"><div class="empty-ico">🗳</div><div class="empty-txt">今日はまだ投票なし</div></div>':ideas.filter(i=>vtm[i.id]).sort((a,b)=>(vtm[b.id]||0)-(vtm[a.id]||0)).map(idea=>ideaCard(idea,`<span style="font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:3px;padding:1px 6px">+${vtm[idea.id]}票 今日</span>`,'v')).join('');
-  const byV=[...ideas].sort((a,b)=>(vm[b.id]||0)-(vm[a.id]||0));
-  const maxV=Math.max(...byV.map(i=>vm[i.id]||0),1);
-  document.getElementById('most-viewed-body').innerHTML=byV.slice(0,10).map((idea,idx)=>{
-    const cnt=vm[idea.id]||0,score=parseFloat(idea.score||0).toFixed(1);
-    const sc=score>=70?'var(--green)':score>=50?'var(--amber)':'var(--ink3)';
-    const did='mv-detail-'+idea.id;
-    return `<div style="border-bottom:1px solid var(--border)"><div style="display:flex;align-items:center;gap:10px;padding:10px 0;cursor:pointer" onclick="document.getElementById('${did}').classList.toggle('open')"><div style="font-family:var(--mono);font-size:11px;color:var(--ink3);min-width:22px">${String(idx+1).padStart(2,'0')}</div><span style="font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:4px;padding:2px 6px;flex-shrink:0">${idea.ticker||'—'}</span><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:4px">${esc(idea.name)}</div><div style="height:4px;background:var(--bg);border:1px solid var(--border);border-radius:2px;overflow:hidden"><div style="height:100%;width:${Math.round(cnt/maxV*100)}%;background:var(--amber-bright);border-radius:2px"></div></div></div><div style="font-family:var(--mono);font-size:14px;font-weight:500;color:var(--ink);flex-shrink:0">${cnt}<span style="font-size:9px;color:var(--ink3)">閲</span></div><div style="font-family:var(--mono);font-size:10px;color:var(--ink3)">▼</div></div><div id="${did}" class="ua-detail">${idea.description?`<div style="font-size:12px;color:var(--ink2);line-height:1.7;margin-bottom:10px">${esc(idea.description)}</div>`:''}<div style="display:flex;gap:16px;flex-wrap:wrap"><div style="text-align:center"><div style="font-family:var(--mono);font-size:18px;font-weight:700;color:${sc}">${score}</div><div style="font-size:9px;color:var(--ink3)">スコア</div></div><div style="text-align:center"><div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--amber)">${cnt}</div><div style="font-size:9px;color:var(--ink3)">閲覧数</div></div></div></div></div>`;
-  }).join('');
-  document.getElementById('all-ideas-body').innerHTML=ideas.map((idea,idx)=>{
-    const score=parseFloat(idea.score||0).toFixed(1);
-    const sc=score>=70?'var(--green)':score>=50?'var(--amber)':'var(--ink3)';
-    const isNew=idea.updated_at&&idea.updated_at.slice(0,10)===today;
-    return `<div style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--border)"><div style="font-family:var(--mono);font-size:10px;color:var(--ink3);min-width:22px">${String(idx+1).padStart(2,'0')}</div><span style="font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:4px;padding:2px 6px;flex-shrink:0">${idea.ticker||'—'}</span><div style="flex:1;font-size:12px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0">${esc(idea.name)}${isNew?'<span style="font-family:var(--mono);font-size:8px;color:var(--green);background:var(--green-light);border:1px solid var(--green-border);border-radius:3px;padding:1px 5px;margin-left:6px">NEW</span>':''}</div><div style="font-family:var(--mono);font-size:10px;color:var(--ink3);flex-shrink:0">${idea.votes}票</div><div style="font-family:var(--mono);font-size:13px;font-weight:700;color:${sc};flex-shrink:0;min-width:36px;text-align:right">${score}</div></div>`;
-  }).join('');
-}
-
-/* ===== GOALS ===== */
-const GOALS_KEY='aipo-dash-goals-'+new Date().toISOString().slice(0,7);
-function loadGoals(){try{return JSON.parse(localStorage.getItem(GOALS_KEY)||'[]');}catch(e){return[];}}
-function saveGoals(g){localStorage.setItem(GOALS_KEY,JSON.stringify(g));}
-function renderGoals(){
-  const goals=loadGoals(),now=new Date();
-  const ws=now.getFullYear()+'年'+String(now.getMonth()+1).padStart(2,'0')+'月第'+Math.ceil(now.getDate()/7)+'週';
-  document.getElementById('goals-week').textContent=ws;
-  document.getElementById('goals-list').innerHTML=goals.length===0?'<div style="font-size:12px;color:var(--ink3);padding:8px 0">今週の目標を追加してください</div>':goals.map((g,i)=>`<div class="goal-item"><div class="goal-check ${g.done?'done':''}" onclick="toggleGoal(${i})">${g.done?'<svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2.5"><path d="M4 10l4 4 8-8"/></svg>':''}</div><div class="goal-text ${g.done?'done':''}">${esc(g.text)}</div><button class="goal-del" onclick="deleteGoal(${i})">×</button></div>`).join('');
-}
-function addGoal(){const input=document.getElementById('goal-input'),text=input.value.trim();if(!text)return;const g=loadGoals();g.push({text,done:false});saveGoals(g);input.value='';renderGoals();}
-function toggleGoal(i){const g=loadGoals();g[i].done=!g[i].done;saveGoals(g);renderGoals();}
-function deleteGoal(i){const g=loadGoals();g.splice(i,1);saveGoals(g);renderGoals();}
-
-/* ===== ACTION LOG ===== */
-const CAT_ICONS={auto:'🤖',x_post:'🐦',lp_update:'📄',feature:'✨',outreach:'🤝',other:'📌'};
-const CAT_LABELS={auto:'AI自動記録',x_post:'Xに投稿',lp_update:'LP更新',feature:'機能追加',outreach:'営業・DM',other:'その他'};
-async function addAction(){
-  const input=document.getElementById('action-input'),cat=document.getElementById('action-category').value,text=input.value.trim();if(!text)return;
-  const btn=document.querySelector('#tab-content-analytics button[onclick="addAction()"]');
-  if(btn){btn.textContent='保存中...';btn.disabled=true;}
-  try{await sb.from('action_logs').insert({content:text,category:cat});input.value='';await loadActionLog();await loadPDCAChart();await loadWeeklyCompare();}
-  catch(e){alert('保存失敗: '+e.message);}
-  finally{if(btn){btn.textContent='記録';btn.disabled=false;}}
-}
-async function loadActionLog(){
-  const {data}=await sb.from('action_logs').select('*').order('logged_at',{ascending:false}).limit(20);
-  if(!data||data.length===0){document.getElementById('action-log-list').innerHTML='<div style="font-size:12px;color:var(--ink3);padding:8px 0">まだ記録がありません。</div>';return;}
-  document.getElementById('action-log-list').innerHTML=data.map(a=>`<div class="al-item"><div class="al-cat">${CAT_ICONS[a.category]||'📌'}</div><div class="al-info"><div class="al-text">${esc(a.content)}</div><div class="al-date" style="margin-top:4px">${(a.logged_at||'').slice(0,10)} · ${CAT_LABELS[a.category]||a.category}</div></div><button class="al-del" onclick="deleteAction('${a.id}')">×</button></div>`).join('');
-}
-async function deleteAction(id){if(!confirm('削除しますか？'))return;await sb.from('action_logs').delete().eq('id',id);await loadActionLog();await loadPDCAChart();}
-
-/* ===== PDCA CHART ===== */
-async function loadPDCAChart(){
-  const days=Array.from({length:14},(_,i)=>{const d=new Date();d.setDate(d.getDate()-(13-i));return d.toISOString().slice(0,10);});
-  const startDate=days[0];
-  const [{data:events},{data:actions}]=await Promise.all([
-    sb.from('user_events').select('created_at').gte('created_at',startDate+'T00:00:00Z'),
-    sb.from('action_logs').select('logged_at').gte('logged_at',startDate)
-  ]);
-  const tbd={};days.forEach(d=>tbd[d]=0);
-  if(events)events.forEach(e=>{const day=e.created_at.slice(0,10);if(tbd[day]!==undefined)tbd[day]++;});
-  const aDays=new Set();if(actions)actions.forEach(a=>aDays.add(a.logged_at));
-  const maxT=Math.max(...Object.values(tbd),1),chartH=100;
-  document.getElementById('pdca-chart').innerHTML=`<div style="display:flex;align-items:flex-end;gap:2px;height:${chartH}px;position:relative">${days.map(day=>{
-    const cnt=tbd[day],barH=Math.max(cnt/maxT*chartH,cnt>0?4:1);
-    const isA=aDays.has(day),isT=day===new Date().toISOString().slice(0,10);
-    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;position:relative">${isA?`<div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:10px;height:10px;background:var(--ink);border-radius:50%;z-index:2"></div>`:''}<div style="width:100%;background:${isT?'var(--green)':cnt>0?'var(--amber)':'var(--border)'};height:${barH}px;border-radius:2px 2px 0 0;position:relative;z-index:1">${cnt>0?`<div style="position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:8px;color:var(--amber);white-space:nowrap">${cnt}</div>`:''}</div></div>`;
-  }).join('')}</div>`;
-  document.getElementById('pdca-chart-labels').innerHTML=days.map(day=>{
-    const d=new Date(day+'T00:00:00'),isA=aDays.has(day),isT=day===new Date().toISOString().slice(0,10);
-    return `<div style="flex:1;text-align:center;font-family:var(--mono);font-size:7px;color:${isT?'var(--green)':isA?'var(--ink)':'var(--ink4)'};font-weight:${isA?'700':'400'}">${String(d.getMonth()+1)+'/'+String(d.getDate())}</div>`;
-  }).join('');
-}
-
-/* ===== WEEKLY COMPARE ===== */
-async function loadWeeklyCompare(){
-  const now=new Date();
-  const thisMonday=new Date(now);thisMonday.setDate(now.getDate()-((now.getDay()+6)%7));
-  const thisMondayStr=thisMonday.toISOString().slice(0,10);
-  const lastMonday=new Date(thisMonday);lastMonday.setDate(thisMonday.getDate()-7);
-  const lastMondayStr=lastMonday.toISOString().slice(0,10);
-  const weekLabelEl=document.getElementById('pdca-week-label');
-  if(weekLabelEl)weekLabelEl.textContent=String(now.getMonth()+1)+'/'+String(thisMonday.getDate()).padStart(2,'0')+'週';
-  const [uT,uL,lT,lL,vT,vL,iT,iL]=await Promise.all([
-    sb.from('profiles').select('id',{count:'exact',head:true}).gte('created_at',thisMondayStr+'T00:00:00Z'),
-    sb.from('profiles').select('id',{count:'exact',head:true}).gte('created_at',lastMondayStr+'T00:00:00Z').lt('created_at',thisMondayStr+'T00:00:00Z'),
-    sb.from('user_events').select('id',{count:'exact',head:true}).gte('created_at',thisMondayStr+'T00:00:00Z'),
-    sb.from('user_events').select('id',{count:'exact',head:true}).gte('created_at',lastMondayStr+'T00:00:00Z').lt('created_at',thisMondayStr+'T00:00:00Z'),
-    sb.from('votes').select('id',{count:'exact',head:true}).gte('created_at',thisMondayStr+'T00:00:00Z'),
-    sb.from('votes').select('id',{count:'exact',head:true}).gte('created_at',lastMondayStr+'T00:00:00Z').lt('created_at',thisMondayStr+'T00:00:00Z'),
-    sb.from('ideas').select('id',{count:'exact',head:true}).gte('updated_at',thisMondayStr+'T00:00:00Z'),
-    sb.from('ideas').select('id',{count:'exact',head:true}).gte('updated_at',lastMondayStr+'T00:00:00Z').lt('updated_at',thisMondayStr+'T00:00:00Z'),
-  ]);
-  function diffBadge(t,l){const d=(t||0)-(l||0);if(d===0)return`<span style="font-family:var(--mono);font-size:10px;color:var(--ink3)">±0</span>`;const c=d>0?'var(--green)':'var(--red)',bg=d>0?'var(--green-light)':'var(--red-light)';return`<span style="font-family:var(--mono);font-size:10px;color:${c};background:${bg};border-radius:4px;padding:1px 6px;font-weight:700">${d>0?'+':''}${d} 先週比</span>`;}
-  const rows=[{label:'新規ユーザー',icon:'👤',t:uT.count||0,l:uL.count||0},{label:'LP流入',icon:'📄',t:lT.count||0,l:lL.count||0},{label:'応援票',icon:'🗳',t:vT.count||0,l:vL.count||0},{label:'新規上場',icon:'💡',t:iT.count||0,l:iL.count||0}];
-  const body=document.getElementById('weekly-compare-body');
-  if(body)body.innerHTML=rows.map(r=>`<div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border)"><div style="font-size:18px;flex-shrink:0">${r.icon}</div><div style="flex:1"><div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:3px">${r.label}</div><span style="font-family:var(--mono);font-size:10px;color:var(--ink3)">先週 ${r.l} →</span></div><div style="text-align:right"><div style="font-family:var(--mono);font-size:24px;font-weight:700;color:var(--ink);line-height:1;margin-bottom:3px">${r.t}</div>${diffBadge(r.t,r.l)}</div></div>`).join('');
-}
-async function loadPDCA(){renderGoals();await Promise.all([loadActionLog(),loadPDCAChart(),loadWeeklyCompare()]);}
-
-/* ===== LP ANALYTICS ===== */
-async function loadLPAnalytics(){
-  const today=new Date().toISOString().slice(0,10);
-  const {data:all}=await sb.from('user_events').select('utm_source,utm_medium,utm_campaign,referrer,created_at,user_id').order('created_at',{ascending:false});
-  if(!all||all.length===0){['lp-total','lp-today','lp-open-total','lp-open-today'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='0';});['lp-buttons-body','other-sources-body','lp-timeline-body'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='<div class="empty"><div class="empty-ico">📊</div><div class="empty-txt">データなし</div></div>';});return;}
-  const lpEvents=all.filter(e=>e.utm_source==='lp'),otherEvents=all.filter(e=>e.utm_source!=='lp');
-  const todayLp=lpEvents.filter(e=>e.created_at.slice(0,10)===today);
-  document.getElementById('lp-total').textContent=lpEvents.length;
-  document.getElementById('lp-today').textContent=todayLp.length;
-  const {data:lpViews,count:lpViewTotal}=await sb.from('user_events').select('created_at',{count:'exact'}).eq('utm_source','lp_pageview');
-  const lpViewToday=(lpViews||[]).filter(e=>e.created_at.slice(0,10)===today).length;
-  document.getElementById('lp-open-total').textContent=lpViewTotal||0;
-  document.getElementById('lp-open-today').textContent=lpViewToday;
-  document.getElementById('lp-btn-total-meta').textContent=`LP経由 累計${lpEvents.length}件`;
-  const btnCounts={};lpEvents.forEach(e=>{const k=e.utm_campaign||'unknown';btnCounts[k]=(btnCounts[k]||0)+1;});
-  const btnSorted=Object.entries(btnCounts).sort((a,b)=>b[1]-a[1]),maxBtn=btnSorted[0]?.[1]||1;
-  document.getElementById('lp-buttons-body').innerHTML=btnSorted.length===0?'<div class="empty"><div class="empty-ico">📊</div><div class="empty-txt">LP経由のデータがありません</div></div>':btnSorted.map(([campaign,cnt],idx)=>{const info=LP_BUTTONS[campaign]||{name:campaign,icon:'🔗'};const pct=Math.round(cnt/lpEvents.length*100);return`<div class="btn-row"><div style="font-size:18px;flex-shrink:0">${info.icon}</div><div class="btn-label"><div style="font-size:12px;font-weight:600;color:var(--ink)">${info.name}</div><div class="btn-campaign">${campaign}</div></div><div class="btn-bar-wrap"><div class="btn-bar"><div class="btn-bar-fill ${idx===0?'top':''}" style="width:${Math.round(cnt/maxBtn*100)}%"></div></div></div><div><div class="btn-count">${cnt}</div><div class="btn-pct">${pct}%</div></div></div>`;}).join('');
-  const insights=[];
-  if(btnSorted.length>0){const tb=LP_BUTTONS[btnSorted[0][0]]||{name:btnSorted[0][0]};insights.push(`一番効いているボタンは「${tb.name}」（${btnSorted[0][1]}件）`);}
-  if(lpEvents.length>0&&all.length>0)insights.push(`全流入の${Math.round(lpEvents.length/all.length*100)}%がLPからです`);
-  if(todayLp.length>0)insights.push(`今日は${todayLp.length}人がLPから来ました`);
-  document.getElementById('lp-insight-wrap').innerHTML=insights.length>0?`<div class="insight-card"><div class="insight-card-toggle" onclick="this.nextElementSibling.classList.toggle('open');this.querySelector('.insight-toggle-icon').classList.toggle('open')"><span style="font-size:13px">💡</span><span class="insight-title">${insights.length}件のインサイト</span><span class="insight-toggle-icon">▼</span></div><div class="insight-body">${insights.map(i=>`<div class="insight-line">${i}</div>`).join('')}</div></div>`:'';
-  const normalize=(ref)=>{if(!ref||ref==='direct')return{label:'direct',icon:'🔗'};try{const u=new URL(ref.startsWith('http')?ref:'https://'+ref),h=u.hostname.replace(/^www\./,'');if(h.includes('t.co')||h.includes('twitter')||h.includes('x.com'))return{label:'X (Twitter)',icon:'🐦'};if(h.includes('google'))return{label:'Google',icon:'🔍'};if(h.includes('vercel.app'))return{label:'あいぽ内部',icon:'💡'};return{label:h,icon:'🌐'};}catch(e){return{label:ref.slice(0,30),icon:'🌐'};}};
-  const otherCounts={};otherEvents.forEach(e=>{const{label}=normalize(e.referrer);otherCounts[label]=(otherCounts[label]||0)+1;});
-  const otherSorted=Object.entries(otherCounts).sort((a,b)=>b[1]-a[1]),maxOther=otherSorted[0]?.[1]||1;
-  document.getElementById('other-total-meta').textContent=otherEvents.length+'件';
-  document.getElementById('other-sources-body').innerHTML=otherSorted.length===0?'<div class="empty"><div class="empty-ico">—</div><div class="empty-txt">LP以外からの流入なし</div></div>':otherSorted.map(([label,cnt])=>{const{icon}=normalize(label==='direct'?'direct':'https://'+label);return`<div class="src-row"><div class="src-icon">${icon}</div><div class="src-info"><div class="src-name">${label}</div><div class="src-bar"><div class="src-bar-fill" style="width:${Math.round(cnt/maxOther*100)}%"></div></div></div><div><div style="font-family:var(--mono);font-size:18px;font-weight:500;color:var(--ink)">${cnt}</div><div style="font-family:var(--mono);font-size:9px;color:var(--ink3)">${Math.round(cnt/otherEvents.length*100)}%</div></div></div>`;}).join('');
-  const tlEvents=all.filter(e=>e.utm_source!=='lp_pageview');
-  const tlUserIds=[...new Set(tlEvents.map(e=>e.user_id).filter(Boolean))];
-  const tlUserMap={};
-  if(tlUserIds.length>0){const{data:tlProfiles}=await sb.from('profiles').select('id,x_username,is_founder').in('id',tlUserIds);if(tlProfiles)tlProfiles.forEach(p=>tlUserMap[p.id]={name:p.x_username||'匿名',isFounder:p.is_founder});}
-  document.getElementById('lp-timeline-body').innerHTML=tlEvents.slice(0,30).map((e,idx)=>{
-    const isLp=e.utm_source==='lp',btnInfo=isLp&&e.utm_campaign?(LP_BUTTONS[e.utm_campaign]||{name:e.utm_campaign,icon:'🔗'}):null;
-    const{label,icon}=normalize(e.referrer);
-    const did='tl-detail-'+idx;
-    const summary=isLp&&btnInfo?`${btnInfo.icon} LP「${btnInfo.name}」から`:`${icon} ${label}から`;
-    const detail=isLp?`LP経由 · campaign=${e.utm_campaign||'—'}`:` 直接流入 · referrer: ${e.referrer||'direct'}`;
-    const dotColor=isLp?'border-color:var(--amber-bright);background:var(--amber-light)':'border-color:var(--border2);background:var(--bg)';
-    const userProfile=e.user_id?tlUserMap[e.user_id]:null;
-    const userBadge=userProfile?`<span style="font-family:var(--mono);font-size:9px;padding:1px 6px;border-radius:3px;background:${userProfile.isFounder?'var(--amber-light)':'var(--green-light)'};color:${userProfile.isFounder?'var(--amber)':'var(--green)'};border:1px solid ${userProfile.isFounder?'var(--amber-border)':'var(--green-border)'};">${userProfile.isFounder?'👑 ':''}${userProfile.name}</span>`:'<span style="font-family:var(--mono);font-size:9px;color:var(--ink3)">未ログイン</span>';
-    return`<div style="border-bottom:1px solid var(--border);cursor:pointer" onclick="document.getElementById('${did}').classList.toggle('open')"><div style="display:flex;gap:10px;align-items:center;padding:8px 0"><div style="width:7px;height:7px;border-radius:50%;border:1.5px solid;flex-shrink:0;margin-top:1px;${dotColor}"></div><div style="flex-shrink:0;min-width:90px"><div style="font-family:var(--mono);font-size:10px;color:var(--ink2);font-weight:500">${fmtDate(e.created_at)}</div><div style="font-family:var(--mono);font-size:8px;color:var(--ink3);margin-top:1px">${fmtAgo(e.created_at)}</div></div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${summary}</div><div style="margin-top:2px">${userBadge}</div></div><div style="font-family:var(--mono);font-size:9px;color:var(--ink3);flex-shrink:0">▼</div></div><div id="${did}" class="ua-detail" style="margin-bottom:4px"><div style="font-family:var(--mono);font-size:10px;color:var(--ink3);line-height:1.7">${detail}</div></div></div>`;
-  }).join('')||'<div class="empty"><div class="empty-ico">📭</div><div class="empty-txt">流入データなし</div></div>';
-}
-
-async function loadFunnel(){
-  const [{count:lpOpened},{count:lpClicked},{count:registered}]=await Promise.all([
-    sb.from('user_events').select('id',{count:'exact',head:true}).eq('utm_source','lp_pageview'),
-    sb.from('user_events').select('id',{count:'exact',head:true}).eq('utm_source','lp'),
-    sb.from('profiles').select('id',{count:'exact',head:true}).neq('id',ADMIN_ID),
-  ]);
-  const steps=[{label:'LPを開いた',count:lpOpened||0,color:'#e8850a',desc:'lp.htmlにアクセスした人'},{label:'あいぽを開いた',count:lpClicked||0,color:'#d97706',desc:'LPのボタンを押した人'},{label:'登録した',count:registered||0,color:'#1a7a4a',desc:'ログインして登録した人'}];
-  const maxCount=steps[0].count||1;
-  document.getElementById('funnel-body').innerHTML=steps.map((step,i)=>{
-    const pct=maxCount>0?Math.round(step.count/maxCount*100):0;
-    const prev=i>0?steps[i-1].count:null;
-    const dropPct=prev&&prev>0?Math.round((1-step.count/prev)*100):null;
-    const dropHTML=dropPct!==null?`<div style="padding:4px 0 0 6px;font-family:var(--mono);font-size:10px;color:${dropPct>70?'var(--red)':'var(--green)'}">ここで${dropPct}%が離脱</div>`:'';
-    return`${i>0?dropHTML:''}<div class="funnel-step"><div><div class="funnel-num">${step.count.toLocaleString()}</div><div style="font-family:var(--mono);font-size:8px;color:var(--ink3)">人</div></div><div class="funnel-info"><div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px">${['①','②','③'][i]} ${step.label}</div><div class="funnel-bar"><div class="funnel-bar-fill" style="width:${pct}%;background:${step.color}"></div></div><div style="font-size:10px;color:var(--ink3)">${step.desc}</div></div><div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--ink3)">${pct}%</div></div>`;
-  }).join('');
-}
-
-async function loadTimeAnalysis(){
-  const {data}=await sb.from('user_events').select('time_on_page,created_at').eq('utm_source','lp_pageview').not('time_on_page','is',null).order('created_at',{ascending:false});
-  if(!data||data.length===0){document.getElementById('time-analysis-body').innerHTML='<div class="empty"><div class="empty-ico">⏱</div><div class="empty-txt">まだデータがありません</div></div>';return;}
-  const times=data.map(d=>d.time_on_page).filter(t=>t!==null);
-  const avg=Math.round(times.reduce((a,b)=>a+b,0)/times.length);
-  const bounced=times.filter(t=>t<10).length,bounceRate=Math.round(bounced/times.length*100);
-  const buckets=[{label:'0〜10秒',desc:'ほぼ離脱',min:0,max:10,color:'#c0392b'},{label:'10〜30秒',desc:'少し見た',min:10,max:30,color:'#e8850a'},{label:'30秒〜1分',desc:'読んでいる',min:30,max:60,color:'#d97706'},{label:'1〜3分',desc:'かなり読んだ',min:60,max:180,color:'#1a7a4a'},{label:'3分以上',desc:'熱心に読んだ',min:180,max:Infinity,color:'#15803d'}];
-  const bc=buckets.map(b=>({...b,count:times.filter(t=>t>=b.min&&t<b.max).length}));
-  const maxC=Math.max(...bc.map(b=>b.count),1);
-  const fmtSec=s=>s>=60?Math.floor(s/60)+'分'+String(s%60).padStart(2,'0')+'秒':s+'秒';
-  document.getElementById('time-analysis-body').innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px"><div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);padding:12px;text-align:center"><div style="font-family:var(--mono);font-size:8px;color:var(--ink3);letter-spacing:.08em;margin-bottom:6px">平均滞在時間</div><div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--ink)">${fmtSec(avg)}</div></div><div style="background:${bounceRate>60?'rgba(192,57,43,.06)':'var(--green-light)'};border:1px solid ${bounceRate>60?'rgba(192,57,43,.2)':'var(--green-border)'};border-radius:var(--rs);padding:12px;text-align:center"><div style="font-family:var(--mono);font-size:8px;color:var(--ink3);letter-spacing:.08em;margin-bottom:6px">直帰率（10秒未満）</div><div style="font-family:var(--mono);font-size:18px;font-weight:700;color:${bounceRate>60?'var(--red)':'var(--green)'}">${bounceRate}%</div></div><div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);padding:12px;text-align:center"><div style="font-family:var(--mono);font-size:8px;color:var(--ink3);letter-spacing:.08em;margin-bottom:6px">計測サンプル数</div><div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--ink)">${times.length}件</div></div></div>${bc.map(b=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)"><div style="min-width:72px;font-size:11px;font-weight:700;color:var(--ink)">${b.label}</div><div style="flex:1"><div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:3px"><div style="height:100%;width:${Math.round(b.count/maxC*100)}%;background:${b.color};border-radius:3px"></div></div><div style="font-size:9px;color:var(--ink3)">${b.desc}</div></div><div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--ink);min-width:28px;text-align:right">${b.count}</div><div style="font-family:var(--mono);font-size:9px;color:var(--ink3);min-width:30px;text-align:right">${times.length>0?Math.round(b.count/times.length*100):0}%</div></div>`).join('')}`;
-}
-
-/* ===== HEALTH CHECK ===== */
-async function runHealthCheck(){
-  const checks=[],banner=document.getElementById('health-banner');if(!banner)return;
-  banner.innerHTML=`<div style="font-family:var(--mono);font-size:10px;color:var(--ink3);padding:8px 0">🔍 システムチェック中...</div>`;
-  try{const{error}=await sb.from('profiles').select('id',{count:'exact',head:true});checks.push({label:'DB接続',ok:!error,detail:error?.message});}catch(e){checks.push({label:'DB接続',ok:false,detail:e.message});}
-  try{const{error}=await sb.from('votes').select('id',{count:'exact',head:true});checks.push({label:'投票テーブル',ok:!error,detail:error?.message});}catch(e){checks.push({label:'投票テーブル',ok:false,detail:e.message});}
-  try{const{error}=await sb.rpc('increment_idea_votes',{idea_id:'00000000-0000-0000-0000-000000000000'});const ok=!error||error.code==='PGRST116'||error.message?.includes('found')||error.message?.includes('0 rows');checks.push({label:'投票RPC',ok,detail:ok?null:error?.message});}catch(e){checks.push({label:'投票RPC',ok:false,detail:e.message});}
-  try{const{error}=await sb.from('user_profiles_view').select('id').limit(1);checks.push({label:'ユーザーView',ok:!error,detail:error?.message});}catch(e){checks.push({label:'ユーザーView',ok:false,detail:e.message});}
-  try{const{error}=await sb.from('action_logs').select('id',{count:'exact',head:true});checks.push({label:'アクションログ',ok:!error,detail:error?.message});}catch(e){checks.push({label:'アクションログ',ok:false,detail:e.message});}
-  const allOk=checks.every(c=>c.ok),failedChecks=checks.filter(c=>!c.ok);
-  if(allOk){banner.innerHTML=`<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--green-light);border:1px solid var(--green-border);border-radius:var(--r)"><span style="font-size:16px">✅</span><div style="flex:1"><div style="font-size:12px;font-weight:700;color:var(--green)">すべてのシステムが正常です</div><div style="font-family:var(--mono);font-size:9px;color:var(--green);opacity:.7;margin-top:2px">${checks.map(c=>'✓ '+c.label).join('  ·  ')}</div></div><div style="font-family:var(--mono);font-size:9px;color:var(--green);opacity:.6">${new Date().toLocaleTimeString('ja-JP')}</div></div>`;}
-  else{banner.innerHTML=`<div style="background:var(--red-light);border:1px solid rgba(220,38,38,.2);border-radius:var(--r);overflow:hidden"><div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(220,38,38,.15)"><span style="font-size:16px">⚠️</span><div style="flex:1"><div style="font-size:12px;font-weight:700;color:var(--red)">${failedChecks.length}件の異常を検知</div></div><div style="font-family:var(--mono);font-size:9px;color:var(--red);opacity:.6">${new Date().toLocaleTimeString('ja-JP')}</div></div><div style="padding:10px 14px">${checks.map(c=>`<div style="display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid rgba(220,38,38,.08)"><span style="font-family:var(--mono);font-size:10px;flex-shrink:0;margin-top:1px">${c.ok?'✅':'❌'}</span><div style="flex:1"><span style="font-size:11px;font-weight:700;color:${c.ok?'var(--green)':'var(--red)'}">${c.label}</span>${!c.ok&&c.detail?`<div style="font-family:var(--mono);font-size:9px;color:var(--red);opacity:.7;margin-top:2px">${c.detail}</div>`:''}</div></div>`).join('')}</div></div>`;}
-}
-
-/* ===== KPI MODAL ===== */
-async function showKpiModal(type){
-  const overlay=document.createElement('div');overlay.className='dash-modal-overlay';
+/* ── BROADCAST TO DORMANT ── */
+async function showBroadcastToNew(){
+  const msg='あいぽにまだ投票したことがない方へ：気になるアイデアに応援票を入れてみませんか？あなたの1票がアイデアを育てます 🌱';
+  const overlay=document.createElement('div');
+  overlay.className='lm-overlay';
   overlay.onclick=e=>{if(e.target===overlay)overlay.remove();};
-  const titles={'all-users':'累計ユーザー一覧','new-users':'今日の新規ユーザー','today-ideas':'今日の上場アイデア','today-votes':'今日の投票履歴','all-ideas':'全アイデア一覧','today-views':'今日の閲覧履歴','all-founders':'創設メンバー一覧'};
-  overlay.innerHTML=`<div class="dash-modal-box"><div class="dash-modal-header"><div class="dash-modal-title">${titles[type]}</div><div class="dash-modal-close" onclick="this.closest('.dash-modal-overlay').remove()">✕</div></div><div id="kpi-modal-body">読み込み中...</div></div>`;
+  overlay.innerHTML=`<div style="background:var(--surface);border-radius:18px 18px 0 0;padding:24px 20px 40px;width:100%;max-width:390px">
+    <div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:8px">休眠ユーザーへ通知を送る</div>
+    <div style="font-size:12px;color:var(--ink3);margin-bottom:16px;line-height:1.7">全ユーザーへの全体通知として配信されます</div>
+    <textarea id="bc-dormant-txt" style="width:100%;padding:12px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:var(--sans);color:var(--ink);outline:none;resize:vertical;min-height:100px;line-height:1.7">${msg}</textarea>
+    <div style="display:flex;gap:10px;margin-top:14px">
+      <button onclick="this.closest('.lm-overlay').remove()" style="flex:1;padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:10px;font-size:13px;font-weight:700;color:var(--ink);cursor:pointer;font-family:var(--sans)">キャンセル</button>
+      <button onclick="sendDormantBC()" style="flex:1;padding:12px;background:var(--ink);border:none;border-radius:10px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">📢 送信</button>
+    </div>
+  </div>`;
   document.body.appendChild(overlay);
-  const body=document.getElementById('kpi-modal-body');
+}
+async function sendDormantBC(){
+  const txt=document.getElementById('bc-dormant-txt')?.value?.trim();
+  if(!txt)return;
   try{
-    if(type==='all-users'){
-      const {data,error}=await sb.from('user_profiles_view').select('*');
-      if(error||!data||data.length===0){const{data:pdata}=await sb.from('profiles').select('id,x_username,is_founder,is_pro,founder_number').neq('id',ADMIN_ID);body.innerHTML=(pdata&&pdata.length)?pdata.map(u=>`<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)"><div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--ink)">${esc(u.x_username)||'（未設定）'}</div><div style="font-size:10px;color:var(--ink3)">ID: ${u.id.slice(0,12)}...</div></div>${u.is_founder?'<span style="font-size:9px;padding:2px 8px;background:#fef3c7;border:1px solid #fde68a;border-radius:4px;color:#854f0b;font-weight:700">👑 創設 #'+String(u.founder_number||0).padStart(2,'0')+'</span>':u.is_pro?'<span style="font-size:9px;padding:2px 8px;background:var(--green-light);border:1px solid var(--green-border);border-radius:4px;color:var(--green);font-weight:700">PRO</span>':''}</div>`).join(''):'<div style="padding:20px;text-align:center;font-size:12px;color:var(--ink3)">ユーザーがいません</div>';}
-      else{body.innerHTML=data.filter(u=>u.id!==ADMIN_ID).map(u=>`<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)"><div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--ink)">${esc(u.display_name||u.x_username)||'（未設定）'}</div><div style="font-size:10px;color:var(--ink3)">${esc(u.email||'メールなし')}</div></div>${u.is_founder?'<span style="font-size:9px;padding:2px 8px;background:#fef3c7;border:1px solid #fde68a;border-radius:4px;color:#854f0b;font-weight:700">👑 創設</span>':''}</div>`).join('');}
-    }else if(type==='new-users'){
-      const{data:allProfiles}=await sb.from('profiles').select('id,x_username,is_founder,created_at').neq('id',ADMIN_ID);
-      const jstNow=new Date(),jstStr=jstNow.getFullYear()+'-'+String(jstNow.getMonth()+1).padStart(2,'0')+'-'+String(jstNow.getDate()).padStart(2,'0');
-      const data2=(allProfiles||[]).filter(u=>{if(!u.created_at)return false;const d=new Date(u.created_at),jst=new Date(d.getTime()+9*3600000);return jst.getUTCFullYear()+'-'+String(jst.getUTCMonth()+1).padStart(2,'0')+'-'+String(jst.getUTCDate()).padStart(2,'0')===jstStr;});
-      body.innerHTML=`<div style="font-size:10px;color:var(--ink3);padding:4px 0 10px">${jstStr} / 今日: <strong style="color:var(--green)">${data2.length}人</strong></div>`;
-      body.innerHTML+=data2.length?data2.map(u=>`<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)"><div style="font-size:13px;font-weight:700;color:var(--ink)">${esc(u.x_username)||'（未設定）'}</div><div style="font-size:10px;color:var(--green);margin-left:auto">本日登録</div></div>`).join(''):'<div style="padding:12px;text-align:center;font-size:12px;color:var(--ink3)">今日の新規ユーザーはいません</div>';
-    }else if(type==='today-ideas'){
-      const{data:allIdeas}=await sb.from('ideas').select('id,name,ticker,genre,score,votes,created_at').order('created_at',{ascending:false});
-      const jstNow2=new Date(),jstStr2=jstNow2.getFullYear()+'-'+String(jstNow2.getMonth()+1).padStart(2,'0')+'-'+String(jstNow2.getDate()).padStart(2,'0');
-      const data3=(allIdeas||[]).filter(i=>{if(!i.created_at)return false;const d=new Date(i.created_at),jst=new Date(d.getTime()+9*3600000);return jst.getUTCFullYear()+'-'+String(jst.getUTCMonth()+1).padStart(2,'0')+'-'+String(jst.getUTCDate()).padStart(2,'0')===jstStr2;});
-      body.innerHTML=`<div style="font-size:10px;color:var(--ink3);padding:4px 0 10px">今日: <strong style="color:var(--green)">${data3.length}件</strong></div>`;
-      body.innerHTML+=data3.length?data3.map(i=>`<div style="padding:10px 0;border-bottom:1px solid var(--border)"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-family:var(--mono);font-size:9px;font-weight:700;color:var(--amber)">${i.ticker||'—'}</span><div style="font-size:13px;font-weight:700;color:var(--ink);flex:1">${esc(i.name)}</div><div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--green)">${parseFloat(i.score||50).toFixed(1)}</div></div><div style="font-size:10px;color:var(--ink3)">${esc(i.genre||'—')} · ${i.votes||0}票</div></div>`).join(''):'<div style="padding:12px;text-align:center;font-size:12px;color:var(--ink3)">今日の上場はありません</div>';
-    }else if(type==='today-votes'){
-      const jstNow3=new Date(),jstStr3=jstNow3.getFullYear()+'-'+String(jstNow3.getMonth()+1).padStart(2,'0')+'-'+String(jstNow3.getDate()).padStart(2,'0');
-      const [vRes,iRes]=await Promise.allSettled([sb.from('votes').select('id,idea_id,user_id,created_at').order('created_at',{ascending:false}),sb.from('ideas').select('id,name,ticker')]);
-      const allVotes=vRes.value?.data||[],ideas2=iRes.value?.data||[];
-      const votes=allVotes.filter(v=>{if(!v.created_at)return false;const d=new Date(v.created_at),jst=new Date(d.getTime()+9*3600000);return jst.getUTCFullYear()+'-'+String(jst.getUTCMonth()+1).padStart(2,'0')+'-'+String(jst.getUTCDate()).padStart(2,'0')===jstStr3;});
-      const ideaMap={};ideas2.forEach(i=>ideaMap[i.id]=i);
-      body.innerHTML=`<div style="font-size:10px;color:var(--ink3);padding:4px 0 10px">今日: <strong style="color:var(--amber)">${votes.length}票</strong></div>`;
-      body.innerHTML+=votes.length?votes.map(v=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)"><span style="font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:4px;padding:1px 6px">${ideaMap[v.idea_id]?.ticker||'—'}</span><div style="font-size:12px;color:var(--ink);flex:1">「${esc((ideaMap[v.idea_id]?.name||'不明').slice(0,22))}」</div><div style="font-size:9px;color:var(--ink3)">${fmtDate(v.created_at)}</div></div>`).join(''):'<div style="padding:12px;text-align:center;font-size:12px;color:var(--ink3)">今日の投票はありません</div>';
-    }else if(type==='all-ideas'){
-      const{data:ideas}=await sb.from('ideas').select('id,ticker,name,genre,score,votes,user_id').order('score',{ascending:false});
-      const{data:profiles}=await sb.from('profiles').select('id,x_username');
-      const pm={};if(profiles)profiles.forEach(p=>pm[p.id]=p.x_username||'匿名');
-      body.innerHTML=`<div style="font-size:10px;color:var(--ink3);padding:4px 0 10px">全 <strong style="color:var(--amber)">${(ideas||[]).length}件</strong></div>`;
-      body.innerHTML+=(ideas||[]).map((idea,idx)=>{const score=parseFloat(idea.score||0).toFixed(1);const sc=score>=70?'var(--green)':score>=50?'var(--amber)':'var(--ink3)';return`<div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--border)"><div style="font-family:var(--mono);font-size:10px;color:var(--ink3);min-width:22px">${String(idx+1).padStart(2,'0')}</div><span style="font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:4px;padding:2px 6px;flex-shrink:0">${idea.ticker||'—'}</span><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(idea.name)}</div><div style="font-size:10px;color:var(--ink3)">by ${esc(pm[idea.user_id]||'—')} · ${idea.votes||0}票</div></div><div style="font-family:var(--mono);font-size:14px;font-weight:700;color:${sc}">${score}</div></div>`;}).join('')||'<div style="padding:12px;text-align:center;font-size:12px;color:var(--ink3)">アイデアなし</div>';
-    }else if(type==='today-views'){
-      const today=new Date();const jstStr=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
-      const{data:views}=await sb.from('idea_views').select('idea_id,user_id,viewed_at').gte('viewed_at',jstStr+'T00:00:00Z').order('viewed_at',{ascending:false});
-      const{data:ideas}=await sb.from('ideas').select('id,name,ticker');
-      const{data:profiles}=await sb.from('profiles').select('id,x_username,is_founder');
-      const im={};if(ideas)ideas.forEach(i=>im[i.id]=i);const pm={};if(profiles)profiles.forEach(p=>pm[p.id]={name:p.x_username||'匿名',isFounder:p.is_founder});
-      body.innerHTML=`<div style="font-size:10px;color:var(--ink3);padding:4px 0 10px">今日の閲覧: <strong style="color:var(--ink)">${(views||[]).length}件</strong></div>`;
-      body.innerHTML+=(views||[]).map(v=>{const idea=im[v.idea_id];const profile=v.user_id?pm[v.user_id]:null;const userLabel=profile?`${profile.isFounder?'👑 ':''}${profile.name}`:'未ログイン';const userColor=profile?(profile.isFounder?'var(--amber)':'var(--green)'):'var(--ink3)';return`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)"><div style="flex-shrink:0;min-width:70px;font-family:var(--mono);font-size:10px;color:var(--ink3)">${fmtDate(v.viewed_at)}</div>${idea?`<span style="font-family:var(--mono);font-size:9px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:4px;padding:1px 6px;flex-shrink:0">${idea.ticker||'—'}</span>`:''}<div style="flex:1;font-size:12px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(idea?.name||'—')}</div><div style="font-size:10px;color:${userColor};flex-shrink:0;font-weight:600">${userLabel}</div></div>`;}).join('')||'<div style="padding:12px;text-align:center;font-size:12px;color:var(--ink3)">今日の閲覧なし</div>';
-    }else if(type==='all-founders'){
-      const{data:founders}=await sb.from('profiles').select('id,x_username,founder_number,is_pro').eq('is_founder',true).neq('id',ADMIN_ID).order('founder_number',{ascending:true});
-      body.innerHTML=`<div style="font-size:10px;color:var(--ink3);padding:4px 0 10px">創設メンバー: <strong style="color:var(--amber)">${(founders||[]).length}人</strong> / 残り${Math.max(0,100-(founders||[]).length)}枠</div>`;
-      body.innerHTML+=(founders||[]).map(f=>`<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)"><div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--amber);min-width:40px">#${String(f.founder_number||0).padStart(2,'0')}</div><div style="flex:1;font-size:13px;font-weight:700;color:var(--ink)">${esc(f.x_username)||'（未設定）'}</div><span style="font-size:9px;padding:2px 8px;background:var(--amber-light);border:1px solid var(--amber-border);border-radius:4px;color:var(--amber);font-weight:700">👑 創設</span></div>`).join('')||'<div style="padding:12px;text-align:center;font-size:12px;color:var(--ink3)">創設メンバーなし</div>';
-    }
-  }catch(e){body.innerHTML='<div style="color:#e53e3e;font-size:12px;padding:12px">読み込み失敗: '+esc(e.message)+'</div>';}
+    await Promise.all([
+      sb.from('messages').insert({from_id:ADMIN_ID,to_id:null,body:txt,is_announcement:true,is_read:false}),
+      sb.from('hiroba_voices').insert({user_id:ADMIN_ID,user_name:'あいぽ運営',text:txt,tag:'お知らせ',is_announcement:true,ai_reply:null}),
+    ]);
+    document.querySelector('.lm-overlay')?.remove();
+    toast('✓ 通知を送信しました');
+    loadTalkList();
+  }catch(e){toast('エラー: '+e.message);}
 }
 
-function flash(id,color){const el=document.getElementById(id);if(!el)return;el.style.transition='color .2s';el.style.color=color;setTimeout(()=>{el.style.color='';},1200);}
-
-/* ===== REALTIME ===== */
+/* ── REALTIME ── */
 function startRealtime(){
-  sb.channel('dashboard-realtime')
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'ideas'},()=>{if(tabLoaded['home'])loadHomeTab();if(tabLoaded['overview'])loadKPI();['kpi-ideas','kpi-ideas-today','top-ideas-today'].forEach(id=>flash(id,'var(--green)'));})
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'votes'},()=>{if(tabLoaded['home'])loadHomeTab();if(tabLoaded['overview']){loadKPI();loadRecent();}['kpi-votes-today','top-votes-today'].forEach(id=>flash(id,'var(--amber)'));})
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'user_events'},()=>{if(tabLoaded['analytics'])loadLPAnalytics();})
-    .on('postgres_changes',{event:'*',schema:'public',table:'profiles'},()=>{if(tabLoaded['overview'])loadKPI();if(tabLoaded['home'])loadRevenue();['kpi-users','revenue-total','revenue-founder','kpi-founders'].forEach(id=>flash(id,'var(--green)'));})
-    .on('postgres_changes',{event:'*',schema:'public',table:'hiroba_voices'},()=>{if(tabLoaded['home'])loadTalkList();})
-    .on('postgres_changes',{event:'*',schema:'public',table:'messages'},()=>{if(tabLoaded['home'])loadTalkList();})
+  sb.channel('aipo-cmd')
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'ideas'},()=>{loadRanking();loadActivity();loadToday();})
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'votes'},()=>{loadActivity();loadToday();loadRetention();loadDormant();})
+    .on('postgres_changes',{event:'*',schema:'public',table:'profiles'},()=>{loadRevenue();loadFounderCountdown();loadRetention();loadDormant();loadToday();})
+    .on('postgres_changes',{event:'*',schema:'public',table:'hiroba_voices'},()=>loadTalkList())
+    .on('postgres_changes',{event:'*',schema:'public',table:'messages'},()=>loadTalkList())
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'idea_views'},()=>{loadHourly();loadRetention();})
     .subscribe();
-  setInterval(()=>{const t=getCurrentTab();tabLoaded[t]=true;loadTab(t);},3*60*1000);
+  setInterval(loadAll,4*60*1000);
 }
 
+/* ── LOAD ALL ── */
 async function loadAll(){
-  const icon=document.getElementById('spin-icon');icon.classList.add('spinning');
-  try{await Promise.allSettled([loadHomeTab(),loadRevenue(),loadPDCA(),loadLPAnalytics(),loadFunnel(),loadTimeAnalysis(),loadKPI(),loadHourly(),loadRecent(),loadIdeas()]);}
-  finally{icon.classList.remove('spinning');}
+  const ico=document.getElementById('refresh-ico');
+  if(ico)ico.classList.add('spin');
+  try{
+    await Promise.allSettled([
+      loadRevenue(),loadToday(),loadFounderCountdown(),
+      loadTalkList(),loadRetention(),loadDormant(),
+      loadTrend(),loadHourly(),loadRanking(),loadActivity(),
+    ]);
+  }finally{if(ico)ico.classList.remove('spin');}
 }
 
-/* ===== COLLAPSIBLE SECTIONS ===== */
-const SEC_STORAGE_KEY='aipo-dash-collapsed';
-function getCollapsed(){try{return JSON.parse(localStorage.getItem(SEC_STORAGE_KEY)||'{}');}catch(e){return{};}}
-function saveCollapsed(state){localStorage.setItem(SEC_STORAGE_KEY,JSON.stringify(state));}
-function initCollapsible(){
-  document.querySelectorAll('.sec').forEach((sec,i)=>{
-    const label=sec.textContent.trim();
-    const key='sec_'+i+'_'+label.slice(0,10);
-    const arrow=document.createElement('span');
-    arrow.className='sec-arrow';arrow.textContent='▼';
-    sec.appendChild(arrow);
-    const siblings=[];
-    let next=sec.nextElementSibling;
-    while(next&&!next.classList.contains('sec')){siblings.push(next);next=next.nextElementSibling;}
-    if(siblings.length===0)return;
-    const wrapper=document.createElement('div');
-    wrapper.className='sec-body';wrapper.dataset.key=key;
-    sec.parentNode.insertBefore(wrapper,siblings[0]);
-    siblings.forEach(s=>wrapper.appendChild(s));
-    const collapsed=getCollapsed();
-    if(collapsed[key]){wrapper.classList.add('collapsed');arrow.classList.add('collapsed');}
-    sec.addEventListener('click',()=>{
-      const isCollapsed=wrapper.classList.toggle('collapsed');
-      arrow.classList.toggle('collapsed',isCollapsed);
-      const state=getCollapsed();
-      if(isCollapsed)state[key]=true;else delete state[key];
-      saveCollapsed(state);
-    });
-  });
-}
-
-/* ===== INIT ===== */
+/* ── INIT ── */
 async function init(){
-  if(window.location.hash&&window.location.hash.includes('access_token')){await new Promise(r=>setTimeout(r,800));window.history.replaceState({},'',window.location.pathname);}
-  const {data:{session}}=await sb.auth.getSession();
+  if(window.location.hash?.includes('access_token')){
+    await new Promise(r=>setTimeout(r,600));
+    window.history.replaceState({},'',window.location.pathname);
+  }
+  const{data:{session}}=await sb.auth.getSession();
   if(session){
     if(session.user.id===ADMIN_ID){
-      document.getElementById('login-gate').style.display='none';
-      document.getElementById('dashboard').style.display='block';
-      showTab('home');
+      document.getElementById('gate').style.display='none';
+      document.getElementById('dash').style.display='block';
+      loadAll();
       startRealtime();
-      setTimeout(initCollapsible,100);
     }else{
-      document.getElementById('lg-err').style.display='block';
+      document.getElementById('gate-err').style.display='block';
     }
   }
 }
