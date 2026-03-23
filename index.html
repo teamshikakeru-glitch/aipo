@@ -1078,6 +1078,150 @@ function buildRow(idea) {
   return `<div id="row-${idea.id}" onclick="showDetail('${idea.id}')" style="border-bottom:0.5px solid var(--border);cursor:pointer;position:relative;display:grid;grid-template-columns:64px 1fr auto;align-items:center;padding:10px 12px;gap:10px">${isFav ? '<div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#e8850a,#bf6d00);border-radius:0 2px 2px 0"></div>' : ''}<div style="text-align:center;flex-shrink:0"><div style="font-family:var(--mono);font-size:20px;font-weight:700;color:${scoreColor};line-height:1;letter-spacing:-.02em">${idea.score.toFixed(1)} <span style="font-size:10px;font-weight:700;color:${scoreGrade(idea.score).color};background:${scoreGrade(idea.score).bg};padding:1px 5px;border-radius:3px;vertical-align:middle">${scoreGrade(idea.score).label}</span></div><div style="font-family:var(--mono);font-size:9px;font-weight:700;color:${deltaColor};background:${deltaBg};padding:1px 5px;border-radius:4px;margin-top:3px;display:inline-block">${ds}</div></div><div style="min-width:0"><div style="display:flex;align-items:center;gap:4px;margin-bottom:1px"><span style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.04em">${idea.ticker}</span><button onclick="event.stopPropagation();toggleFav('${idea.id}')" style="background:none;border:none;cursor:pointer;padding:0;line-height:1;display:flex;align-items:center"><svg width="12" height="12" viewBox="0 0 24 24" fill="${isFav?'#e8850a':'none'}" stroke="${isFav?'#e8850a':'#ccc'}" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></button>${fb ? fb : ''}</div><div style="font-size:13px;font-weight:700;color:var(--text);line-height:1.35;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin-bottom:2px">${idea.name}</div><div style="font-size:10px;color:var(--text3)">${idea.genre} · ${idea.votes}票</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">${(()=>{ const dp=getDividendPreview(idea); return dp&&!voted?`<div style="font-size:9px;font-weight:700;color:${dp.color};background:${dp.bg};border:1px solid ${dp.border};border-radius:4px;padding:2px 6px;white-space:nowrap">${dp.text}</div>`:''; })()}<button onclick="event.stopPropagation();voteIdea('${idea.id}')" style="background:${voted?'var(--surface2)':'rgba(34,168,95,.1)'};color:${voted?'var(--text3)':'var(--green)'};border:none;border-radius:14px;padding:7px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans);white-space:nowrap">${voted?'済み':'応援'}</button></div></div>`;
 }
 
+async function fetchScoreHistory(ideaId) {
+  try {
+    const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const { data, error } = await sb
+      .from('score_history')
+      .select('score, recorded_at')
+      .eq('idea_id', ideaId)
+      .gte('recorded_at', since)
+      .order('recorded_at', { ascending: true });
+    if (error || !data || data.length < 2) {
+      // DBにデータがなければ現在スコアの1点だけ返す
+      const idea = ideas.find(i => i.id === ideaId);
+      return idea ? [{ score: idea.score, recorded_at: new Date().toISOString() }] : [];
+    }
+    return data;
+  } catch(e) {
+    console.error('fetchScoreHistory error:', e);
+    return [];
+  }
+}
+
+function drawLineChart(canvasId, histData, isUp) {
+  const c = document.getElementById(canvasId);
+  const loading = document.getElementById('spark-loading');
+  if (!c) return;
+  if (loading) loading.style.display = 'none';
+
+  const W = c.offsetWidth || 320;
+  const H = 90;
+  const DPR = window.devicePixelRatio || 1;
+  c.width = W * DPR;
+  c.height = H * DPR;
+  c.style.width = W + 'px';
+  c.style.height = H + 'px';
+  const ctx = c.getContext('2d');
+  ctx.scale(DPR, DPR);
+
+  const padL = 32, padR = 10, padT = 10, padB = 26;
+  const cw = W - padL - padR;
+  const ch = H - padT - padB;
+
+  if (!histData || histData.length === 0) {
+    ctx.fillStyle = 'rgba(0,0,0,0.15)';
+    ctx.font = '10px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('データなし', W/2, H/2);
+    return;
+  }
+
+  // スコアの範囲
+  const scores = histData.map(d => parseFloat(d.score));
+  let minS = Math.min(...scores);
+  let maxS = Math.max(...scores);
+  const pad = Math.max((maxS - minS) * 0.2, 2);
+  minS = Math.max(10, minS - pad);
+  maxS = Math.min(99, maxS + pad);
+  const range = maxS - minS || 1;
+
+  const px = i => padL + (i / (histData.length - 1 || 1)) * cw;
+  const py = s => padT + ch - ((parseFloat(s) - minS) / range) * ch;
+
+  // グリッド線（横3本）
+  ctx.strokeStyle = 'rgba(0,0,0,0.06)';
+  ctx.lineWidth = 0.5;
+  [0, 0.5, 1].forEach(t => {
+    const y = padT + ch * t;
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + cw, y); ctx.stroke();
+  });
+
+  // Yラベル
+  ctx.fillStyle = 'rgba(0,0,0,0.3)';
+  ctx.font = `${9 * (1/DPR + 0.5)}px monospace`;
+  ctx.textAlign = 'right';
+  ctx.fillText(maxS.toFixed(0), padL - 3, padT + 4);
+  ctx.fillText(((minS+maxS)/2).toFixed(0), padL - 3, padT + ch/2 + 4);
+  ctx.fillText(minS.toFixed(0), padL - 3, padT + ch + 4);
+
+  // グラデーション塗り
+  const col = isUp ? '#22a85f' : '#c0392b';
+  const grad = ctx.createLinearGradient(0, padT, 0, padT + ch);
+  grad.addColorStop(0, isUp ? 'rgba(34,168,95,0.18)' : 'rgba(192,57,43,0.15)');
+  grad.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.beginPath();
+  histData.forEach((d, i) => {
+    const x = histData.length === 1 ? padL : px(i);
+    const y = py(d.score);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.lineTo(histData.length === 1 ? padL : px(histData.length - 1), padT + ch);
+  ctx.lineTo(padL, padT + ch);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // 折れ線
+  ctx.beginPath();
+  ctx.strokeStyle = col;
+  ctx.lineWidth = 2;
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+  histData.forEach((d, i) => {
+    const x = histData.length === 1 ? padL + cw/2 : px(i);
+    const y = py(d.score);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+
+  // データ点（多すぎる場合は省略）
+  if (histData.length <= 24) {
+    histData.forEach((d, i) => {
+      const x = histData.length === 1 ? padL + cw/2 : px(i);
+      const y = py(d.score);
+      ctx.beginPath();
+      ctx.arc(x, y, 2.5, 0, Math.PI*2);
+      ctx.fillStyle = '#fff';
+      ctx.fill();
+      ctx.strokeStyle = col;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    });
+  }
+
+  // X軸 時刻ラベル（最大6件表示）
+  ctx.fillStyle = 'rgba(0,0,0,0.3)';
+  ctx.font = `9px monospace`;
+  ctx.textAlign = 'center';
+  const step = Math.ceil(histData.length / 6);
+  histData.forEach((d, i) => {
+    if (i % step !== 0 && i !== histData.length - 1) return;
+    const x = histData.length === 1 ? padL + cw/2 : px(i);
+    const dt = new Date(d.recorded_at);
+    const label = dt.getHours() + ':' + String(dt.getMinutes()).padStart(2, '0');
+    ctx.fillText(label, x, H - 4);
+  });
+
+  // データが1点しかない場合のメッセージ
+  if (histData.length === 1) {
+    ctx.fillStyle = 'rgba(0,0,0,0.2)';
+    ctx.font = '9px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('履歴を蓄積中...', W/2, padT + ch/2 + 4);
+  }
+}
+
 function drawSpark(id, data, isUp, w, h) {
   const c = document.getElementById(id); if (!c) return;
   c.width = w*2; c.height = h*2; const ctx = c.getContext('2d'); ctx.clearRect(0,0,c.width,c.height);
@@ -1138,7 +1282,7 @@ function showIPOBanner(idea) {
   setTimeout(() => { if (banner.parentNode) banner.remove(); }, 5000);
 }
 
-function showDetail(id) {
+async function showDetail(id) {
   trackIdeaView(id);
   const idea = ideas.find(i=>i.id===id);
   idea.views++;
@@ -1163,7 +1307,7 @@ function showDetail(id) {
           ${(()=>{ const g=scoreGrade(idea.score); return `<div style="font-size:9px;font-weight:700;color:${g.color};background:${g.bg};border-radius:4px;padding:2px 6px;margin-top:4px;text-align:center">${g.label} ${g.text}</div>`; })()}
         </div>
       </div>
-      <div class="big-spark-wrap"><canvas id="big-spark" style="width:100%;height:60px;display:block"></canvas></div>
+      <div class="big-spark-wrap" style="position:relative"><canvas id="big-spark" style="width:100%;height:90px;display:block"></canvas><div id="spark-loading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text3)">グラフ読込中...</div></div>
       <div class="reason-row"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="var(--text3)" stroke-width="1"/><line x1="6" y1="5" x2="6" y2="8" stroke="var(--text3)" stroke-width="1" stroke-linecap="round"/><circle cx="6" cy="3.5" r=".5" fill="var(--text3)"/></svg><span class="reason-text">${idea.lastReason||'スコアを計算中です'}</span></div>
       <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
         ${(()=>{ const pct=calcPercentile(idea); const gr=calcGenreRank(idea); const pctColor=pct>=80?'var(--green)':pct>=50?'var(--amber)':'var(--text3)'; return `<div style="background:var(--surface2);border-radius:8px;padding:5px 10px;font-size:11px;color:${pctColor};font-weight:700">全体 上位${100-pct+1<1?1:100-pct+1}%</div><div style="background:var(--surface2);border-radius:8px;padding:5px 10px;font-size:11px;color:var(--text2);font-weight:700">${idea.genre} ${gr.rank}/${gr.total}位</div>`; })()}
@@ -1202,9 +1346,12 @@ function showDetail(id) {
     </div>`;
   goTo('detail');
   setTimeout(()=>{
-    const c=document.getElementById('big-spark');
-    if(c){ c.style.width='100%'; c.style.height='60px'; drawSpark('big-spark',idea.history,delta>=0,c.offsetWidth||300,60); }
+    // バーアニメーション
     setTimeout(()=>{ const b1=document.getElementById('db1'); if(b1) b1.style.width=(v1/30*100)+'%'; const b2=document.getElementById('db2'); if(b2) b2.style.width=(v2/20*100)+'%'; const b3=document.getElementById('db3'); if(b3) b3.style.width=(v3/30*100)+'%'; },100);
+    // 24時間履歴グラフを非同期で描画
+    fetchScoreHistory(id).then(hist => {
+      drawLineChart('big-spark', hist, delta >= 0);
+    });
   },60);
 }
 
