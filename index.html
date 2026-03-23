@@ -586,7 +586,7 @@ async function fetchIdeas() {
       id: row.id, ticker: row.ticker, emoji: row.emoji || '💡', name: row.name,
       desc: row.description, genre: row.genre, tech: row.tech,
       baseScore: parseFloat(row.base_score), score: parseFloat(row.score),
-      votes: row.votes, views: row.views, progress: row.progress_step,
+      votes: row.votes, views: row.views, shares: row.shares || 0, progress: row.progress_step,
       progressStep: row.progress_step,
       postedDaysAgo: (Date.now() - new Date(row.posted_at)) / 86400000,
       daysSinceLastVote: row.last_voted_at ? (Date.now() - new Date(row.last_voted_at).getTime()) / 86400000 : (Date.now() - new Date(row.posted_at).getTime()) / 86400000,
@@ -885,13 +885,16 @@ function calcScore(idea) {
   const v = idea.votes || 0;
   s += Math.min(Math.log(v + 1) * 8, 25);
   const views = idea.views || 0;
-  s += Math.min(Math.log(views + 1) * 3, 15);
+  s += Math.min(Math.log(views + 1) * 6, 25);
   const cm = (idea.commentList || []).length;
   s += Math.min(Math.log(cm + 1) * 7, 15);
   const progress = idea.progressStep || idea.progress || 0;
   s += [0, 7, 14, 20][Math.min(progress, 3)];
   s += idea.desc ? 3 : 0;
   s += idea.tech ? 2 : 0;
+  // シェア数（上限10pt）
+  const sh = idea.shares || 0;
+  s += Math.min(Math.log(sh + 1) * 4, 10);
   s -= (idea.postedDaysAgo || 0) * 0.5;
   const daysSinceVote = idea.daysSinceLastVote || idea.postedDaysAgo || 0;
   if (daysSinceVote >= 14) s -= 10;
@@ -1635,6 +1638,7 @@ async function _shareX() {
   if (xBtn) { xBtn.style.opacity='.5'; xBtn.style.pointerEvents='none'; }
   showToast('画像を準備中...');
   const ideaId = _shareOgUrl.match(/id=([^&]+)/)?.[1];
+  if (ideaId) await _incrementShares(ideaId);
   let finalOgUrl = _shareOgUrl;
   if (ideaId) {
     const imgUrl = await _uploadCertImage(ideaId);
@@ -1651,8 +1655,8 @@ async function _shareX() {
     window.location.href = `https://twitter.com/intent/tweet?text=${tweetText}&url=${tweetUrl}`;
   }, 300);
 }
-function _shareFb()   { const u='https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(_shareOgUrl); document.getElementById('share-sheet-overlay')?.remove(); window.location.href=u; }
-function _shareCopy() { navigator.clipboard.writeText(_shareOgUrl).then(()=>showToast('URLをコピーしました')).catch(()=>showToast('コピーできませんでした')); }
+function _shareFb()   { const ideaId2=_shareOgUrl.match(/id=([^&]+)/)?.[1]; if(ideaId2) _incrementShares(ideaId2); const u='https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(_shareOgUrl); document.getElementById('share-sheet-overlay')?.remove(); window.location.href=u; }
+function _shareCopy() { const ideaId3=_shareOgUrl.match(/id=([^&]+)/)?.[1]; if(ideaId3) _incrementShares(ideaId3); navigator.clipboard.writeText(_shareOgUrl).then(()=>showToast('URLをコピーしました')).catch(()=>showToast('コピーできませんでした')); }
 
 function shareToX(id) {
   const idea = ideas.find(i=>i.id===id); if(!idea) return;
@@ -1663,7 +1667,23 @@ function shareToX(id) {
 }
 
 function copyIdeaLink(id) {
+  _incrementShares(id);
   navigator.clipboard.writeText(`https://aipo-tau.vercel.app/api/share?id=${id}`).then(()=>showToast('リンクをコピーしました')).catch(()=>showToast('コピーできませんでした'));
+}
+
+async function _incrementShares(ideaId) {
+  try {
+    const idea = ideas.find(i => i.id === ideaId);
+    if (!idea) return;
+    idea.shares = (idea.shares || 0) + 1;
+    idea.score = calcScore(idea);
+    // DBのシェア数をインクリメント
+    await sb.rpc('increment_idea_shares', { idea_id: ideaId });
+    // スコアも更新
+    await sb.rpc('update_idea_score', { idea_id: ideaId, new_score: idea.score });
+  } catch(e) {
+    console.error('incrementShares error:', e);
+  }
 }
 
 function showCertificate(idea, votesAtTime) {
