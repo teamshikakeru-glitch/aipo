@@ -856,25 +856,38 @@ async function loadAll() {
 async function loadUsers() {
   const el = document.getElementById('user-list-body');
   el.innerHTML = '<span class="skeleton-line" style="width:100%"></span><span class="skeleton-line" style="width:90%"></span><span class="skeleton-line" style="width:80%"></span>';
+
+  // ── Step 1: profiles & votes（必須）────────────────────
+  let profiles = [], voteMap = {}, lastVoteMap = {};
   try {
-    const [profRes, votesRes, unreadRes] = await Promise.all([
+    const [profRes, votesRes] = await Promise.all([
       sb.from('profiles').select('id,x_username,is_founder,founder_number,is_pro,created_at').order('created_at',{ascending:false}).limit(200),
       sb.from('votes').select('user_id,created_at').limit(10000),
-      sb.from('admin_messages').select('from_user_id').eq('to_user_id',ADMIN_UUID).eq('is_read',false).catch(()=>({data:[]})),
     ]);
-    const profiles = profRes.data || [];
-    const voteMap = {}, lastVoteMap = {};
+    if (profRes.error) throw new Error('profiles: ' + profRes.error.message);
+    profiles = profRes.data || [];
     (votesRes.data||[]).forEach(v => {
       voteMap[v.user_id] = (voteMap[v.user_id]||0) + 1;
       if (!lastVoteMap[v.user_id] || v.created_at > lastVoteMap[v.user_id]) lastVoteMap[v.user_id] = v.created_at;
     });
-    const unreadSet = new Set((unreadRes.data||[]).map(u=>u.from_user_id));
-    const hasUnread = unreadSet.size > 0;
-    const dot = document.getElementById('dot-1');
-    if (dot) dot.style.display = hasUnread ? 'block' : 'none';
+  } catch(e) {
+    console.error('loadUsers error:', e);
+    el.innerHTML = '<div style="color:var(--red);font-size:12px;padding:8px 0">取得失敗: ' + esc(e.message || String(e)) + '</div>';
+    return;
+  }
 
-    if (profiles.length===0) { el.innerHTML='<div style="color:var(--text-muted);font-size:13px;padding:12px 0">ユーザーなし</div>'; return; }
-    el.innerHTML = profiles.map(p => {
+  // ── Step 2: admin_messages（任意 — テーブル未作成でも続行）──
+  let unreadSet = new Set();
+  try {
+    const unreadRes = await sb.from('admin_messages').select('from_user_id').eq('to_user_id',ADMIN_UUID).eq('is_read',false);
+    if (!unreadRes.error) unreadSet = new Set((unreadRes.data||[]).map(u=>u.from_user_id));
+  } catch(e) { /* admin_messages not yet created — safe to ignore */ }
+
+  const dot = document.getElementById('dot-1');
+  if (dot) dot.style.display = unreadSet.size > 0 ? 'block' : 'none';
+
+  if (profiles.length===0) { el.innerHTML='<div style="color:var(--text-muted);font-size:13px;padding:12px 0">ユーザーなし</div>'; return; }
+  el.innerHTML = profiles.map(p => {
       const uname = p.x_username ? '@'+p.x_username : '匿名';
       const join = p.created_at ? new Date(p.created_at).toLocaleDateString('ja-JP') : '—';
       const vc = voteMap[p.id]||0;
