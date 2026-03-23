@@ -940,25 +940,24 @@ async function loadUsers() {
 
   if (profiles.length===0) { el.innerHTML='<div style="color:var(--text-muted);font-size:13px;padding:12px 0">ユーザーなし</div>'; return; }
   el.innerHTML = profiles.map(p => {
-      const uname = p.x_username ? '@'+p.x_username : '匿名';
-      const join = p.created_at ? new Date(p.created_at).toLocaleDateString('ja-JP') : '—';
-      const vc = voteMap[p.id]||0;
-      const last = lastVoteMap[p.id] ? relativeTime(lastVoteMap[p.id]) : '—';
-      const badges = [];
-      if (p.is_founder) badges.push('<span style="font-size:10px;font-weight:700;color:var(--amber-mid);background:#fff8ee;border:1px solid #f0c36a;border-radius:4px;padding:1px 6px">👑 #'+String(p.founder_number||0).padStart(2,'0')+'</span>');
-      if (p.is_pro) badges.push('<span style="font-size:10px;font-weight:700;color:#fff;background:var(--green-light);border-radius:4px;padding:1px 6px">Pro</span>');
-      const hasMsg = unreadSet.has(p.id);
-      return '<div class="user-card" onclick="openUserDetail(\''+p.id+'\')">'
-        +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">'
-        +'<div style="font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(uname)+'</div>'
-        +(hasMsg?'<span style="min-width:8px;height:8px;background:var(--red);border-radius:50%;flex-shrink:0;margin-left:6px;display:block"></span>':'')
-        +'</div>'
-        +'<div style="font-size:11px;color:var(--text-muted);margin-bottom:3px">入会：'+join+'</div>'
-        +'<div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">投票：'+vc+'回 ｜ 最終：'+last+'</div>'
-        +(badges.length?'<div style="display:flex;gap:4px;flex-wrap:wrap">'+badges.join('')+'</div>':'')
-        +'</div>';
-    }).join('');
-  } catch(e) { el.innerHTML='<span class="error-text">取得失敗</span>'; }
+    const uname = p.x_username ? '@'+p.x_username : '匿名';
+    const join = p.created_at ? new Date(p.created_at).toLocaleDateString('ja-JP') : '—';
+    const vc = voteMap[p.id]||0;
+    const last = lastVoteMap[p.id] ? relativeTime(lastVoteMap[p.id]) : '—';
+    const badges = [];
+    if (p.is_founder) badges.push('<span style="font-size:10px;font-weight:700;color:var(--amber-mid);background:#fff8ee;border:1px solid #f0c36a;border-radius:4px;padding:1px 6px">👑 #'+String(p.founder_number||0).padStart(2,'0')+'</span>');
+    if (p.is_pro) badges.push('<span style="font-size:10px;font-weight:700;color:#fff;background:var(--green-light);border-radius:4px;padding:1px 6px">Pro</span>');
+    const hasMsg = unreadSet.has(p.id);
+    return '<div class="user-card" onclick="openUserDetail(\''+p.id+'\')">'
+      +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">'
+      +'<div style="font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(uname)+'</div>'
+      +(hasMsg?'<span style="min-width:8px;height:8px;background:var(--red);border-radius:50%;flex-shrink:0;margin-left:6px;display:block"></span>':'')
+      +'</div>'
+      +'<div style="font-size:11px;color:var(--text-muted);margin-bottom:3px">入会：'+join+'</div>'
+      +'<div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">投票：'+vc+'回 ｜ 最終：'+last+'</div>'
+      +(badges.length?'<div style="display:flex;gap:4px;flex-wrap:wrap">'+badges.join('')+'</div>':'')
+      +'</div>';
+  }).join('');
 }
 
 let msgSub = null;
