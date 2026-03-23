@@ -596,9 +596,19 @@ function updateTimestamp() {
 
 // ── Auth ─────────────────────────────────────────────────
 async function authGuard() {
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user || user.id !== ADMIN_UUID) { window.location.replace('index.html'); return false; }
-  return true;
+  try {
+    const { data } = await sb.auth.getSession();
+    const user = data?.session?.user;
+    if (!user || user.id !== ADMIN_UUID) {
+      window.location.replace('index.html');
+      return false;
+    }
+    return true;
+  } catch(e) {
+    console.error('authGuard error:', e);
+    window.location.replace('index.html');
+    return false;
+  }
 }
 
 // ── Tab switching ─────────────────────────────────────────
@@ -732,7 +742,7 @@ async function loadFunnel() {
       +'<div class="funnel-step"><div class="funnel-num">'+fmt(proUsers)+'</div><div class="funnel-label">Proユーザー</div>'+rH(r3)+'</div>'
       +'<div class="ai-comment">🤖 '+(r1<30?'マーケットの閲覧UXを改善するか、投票のハードルを下げる施策が必要です。':r2<5?'創設メンバーの希少性訴求が不足しています。残枠を目立たせてください。':'ファネルは健全です。このまま上部流入を増やすことに集中してください。')+'</div>';
     return { cvRate: r2 };
-  } catch(e) { el.innerHTML = '<span class="error-text">データ取得中...</span>'; return { cvRate:0 }; }
+  } catch(e) { console.error("loadFunnel",e); if(el) el.innerHTML="<span class='error-text'>取得失敗</span>"; return { cvRate:0 }; }
 }
 
 async function loadRetention() {
@@ -764,7 +774,7 @@ async function loadRetention() {
       +'</div>'
       +'<div class="ai-comment">🤖 '+(retentionRate<40?'1回投票して終わるユーザーが多い状態です。投票後の配当・目利きスコアの通知を強化してください。':parseFloat(avgDays)>7?'1週間以上帰ってこないユーザーが多い。週次のメール通知やXでのランキング発表が効果的です。':'リテンションは良好です。このユーザー体験を新規にも提供することが優先課題です。')+'</div>';
     return { retentionRate };
-  } catch(e) { el.innerHTML='<span class="error-text">データ取得中...</span>'; return {retentionRate:0}; }
+  } catch(e) { console.error("loadRetention",e); if(el) el.innerHTML="<span class='error-text'>取得失敗</span>"; return {retentionRate:0}; }
 }
 
 async function loadHealth() {
@@ -797,7 +807,7 @@ async function loadHealth() {
     html += '<div class="ai-comment">🤖 '+(critical.length>=3?'複数のアイデアが死滅リスクにあります。Xで注目アイデアとして紹介し、投票を促してください。':critical.length===0?'全アイデアが活発な状態です。新規アイデアの流入を増やすタイミングです。':critical.length+'件のアイデアが危険な状態です。個別に投票を促す施策を検討してください。')+'</div>';
     el.innerHTML = html;
     return { criticalIdeas: critical.length };
-  } catch(e) { el.innerHTML='<span class="error-text">データ取得中...</span>'; return {criticalIdeas:0}; }
+  } catch(e) { console.error("loadHealth",e); if(el) el.innerHTML="<span class='error-text'>取得失敗</span>"; return {criticalIdeas:0}; }
 }
 
 async function loadRevenue() {
@@ -818,7 +828,7 @@ async function loadRevenue() {
       +'</div>'
       +'<div class="ai-comment">🤖 '+(rem>80?'創設メンバーの認知が足りていません。モルラボ記事・X投稿で告知を強化してください。':rem<20?'希少性が高まっています。「残り'+rem+'名」を全面に出した緊急訴求が効果的です。':pc<5?'Proプランの価値訴求が不足しています。月300円で得られる具体的なメリットを見直してください。':'収益基盤は安定しています。創設メンバーの残枠消化を加速させましょう。')+'</div>';
     return { founderRemaining: rem, proCount: pc };
-  } catch(e) { el.innerHTML='<span class="error-text">データ取得中...</span>'; return {founderRemaining:100, proCount:0}; }
+  } catch(e) { console.error("loadRevenue",e); if(el) el.innerHTML="<span class='error-text'>取得失敗</span>"; return {founderRemaining:100, proCount:0}; }
 }
 
 function getTodayAction(data) {
@@ -843,11 +853,21 @@ function renderActionCard(data) {
 }
 
 async function loadAll() {
-  const [,,, funnelData, retData, healthData, revData] = await Promise.all([
-    loadKPI(), loadRanking(), loadActivity(),
-    loadFunnel(), loadRetention(), loadHealth(), loadRevenue(),
+  loadKPI();
+  loadRanking();
+  loadActivity();
+  const [funnelData, retData, healthData, revData] = await Promise.all([
+    loadFunnel().catch(e => { console.error('funnel',e); return {cvRate:0}; }),
+    loadRetention().catch(e => { console.error('retention',e); return {retentionRate:0}; }),
+    loadHealth().catch(e => { console.error('health',e); return {criticalIdeas:0}; }),
+    loadRevenue().catch(e => { console.error('revenue',e); return {founderRemaining:100}; }),
   ]);
-  renderActionCard({ cvRate:funnelData.cvRate, retentionRate:retData.retentionRate, criticalIdeas:healthData.criticalIdeas, founderRemaining:revData.founderRemaining });
+  renderActionCard({
+    cvRate: funnelData?.cvRate || 0,
+    retentionRate: retData?.retentionRate || 0,
+    criticalIdeas: healthData?.criticalIdeas || 0,
+    founderRemaining: revData?.founderRemaining || 100,
+  });
   updateTimestamp();
 }
 
@@ -1080,9 +1100,16 @@ async function loadLog(filter) {
 
 // ── Init ──────────────────────────────────────────────────
 (async function() {
-  const ok = await authGuard();
-  if (!ok) return;
-  await loadAll();
+  try {
+    const ok = await authGuard();
+    if (!ok) return;
+    await loadAll();
+  } catch(e) {
+    console.error('Init error:', e);
+    const el = document.getElementById('action-section');
+    if (el) el.innerHTML = '<div style="color:var(--red);font-size:12px;padding:8px;background:#fff;border-radius:8px">初期化エラー: ' + esc(String(e.message||e)) + '</div>';
+    updateTimestamp();
+  }
 })();
 </script>
 </body>
