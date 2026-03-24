@@ -466,6 +466,7 @@
     <button class="tab-btn active" id="tab-btn-0" onclick="switchTab(0)">📊 サマリー</button>
     <button class="tab-btn" id="tab-btn-1" onclick="switchTab(1)">👥 ユーザー<span class="tab-unread-dot" id="dot-1"></span></button>
     <button class="tab-btn" id="tab-btn-2" onclick="switchTab(2)" style="position:relative">🏠 広場<span class="tab-badge" id="badge-2"></span></button>
+    <button class="tab-btn" id="tab-btn-3" onclick="switchTab(3)">🏛 上場実装</button>
   </div>
 </div>
 
@@ -628,6 +629,82 @@
   </div>
 </div>
 
+<!-- ══ Tab 3: 上場実装 ══════════════════════════════════════ -->
+<div class="tab-content" id="tab-3">
+  <div class="main">
+
+    <!-- 新規登録フォーム -->
+    <div style="background:#fff;border:1px solid #e5e3de;border-radius:12px;padding:18px;margin-bottom:20px">
+      <div class="section-title" style="margin-bottom:14px">📝 新規登録 / 編集</div>
+      <input type="hidden" id="impl-edit-id">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+        <div>
+          <div style="font-size:11px;font-weight:700;color:#8a8078;margin-bottom:4px">ティッカー</div>
+          <input id="impl-ticker" placeholder="DEVBOARD" style="width:100%;padding:8px 10px;border:1px solid #e5e3de;border-radius:8px;font-size:13px;font-family:inherit">
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:#8a8078;margin-bottom:4px">上場日</div>
+          <input id="impl-posted-at" placeholder="2026年2月" style="width:100%;padding:8px 10px;border:1px solid #e5e3de;border-radius:8px;font-size:13px;font-family:inherit">
+        </div>
+      </div>
+      <div style="margin-bottom:8px">
+        <div style="font-size:11px;font-weight:700;color:#8a8078;margin-bottom:4px">アイデア名</div>
+        <input id="impl-idea-name" placeholder="個人開発界隈の掲示板が欲しい" style="width:100%;padding:8px 10px;border:1px solid #e5e3de;border-radius:8px;font-size:13px;font-family:inherit">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
+        <div>
+          <div style="font-size:11px;font-weight:700;color:#8a8078;margin-bottom:4px">スコア</div>
+          <input id="impl-score" type="number" placeholder="72.4" style="width:100%;padding:8px 10px;border:1px solid #e5e3de;border-radius:8px;font-size:13px;font-family:inherit">
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:#8a8078;margin-bottom:4px">票数</div>
+          <input id="impl-votes" type="number" placeholder="12" style="width:100%;padding:8px 10px;border:1px solid #e5e3de;border-radius:8px;font-size:13px;font-family:inherit">
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:#8a8078;margin-bottom:4px">ステータス</div>
+          <select id="impl-status" style="width:100%;padding:8px 10px;border:1px solid #e5e3de;border-radius:8px;font-size:13px;font-family:inherit;background:#fff">
+            <option value="released">リリース済み</option>
+            <option value="wip">開発中</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-bottom:8px">
+        <div style="font-size:11px;font-weight:700;color:#8a8078;margin-bottom:4px">実装タイトル</div>
+        <input id="impl-title" placeholder="開発掲示板 + 開発者一覧" style="width:100%;padding:8px 10px;border:1px solid #e5e3de;border-radius:8px;font-size:13px;font-family:inherit">
+      </div>
+      <div style="margin-bottom:12px">
+        <div style="font-size:11px;font-weight:700;color:#8a8078;margin-bottom:4px">説明文</div>
+        <textarea id="impl-description" rows="3" placeholder="実装の説明..." style="width:100%;padding:8px 10px;border:1px solid #e5e3de;border-radius:8px;font-size:13px;font-family:inherit;resize:vertical;line-height:1.6"></textarea>
+      </div>
+      <div style="font-size:11px;font-weight:700;color:#8a8078;margin-bottom:6px">リンク</div>
+      <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:6px;margin-bottom:6px;align-items:center">
+        <input id="impl-link1-label" placeholder="ラベル①" style="padding:7px 10px;border:1px solid #e5e3de;border-radius:8px;font-size:12px;font-family:inherit">
+        <input id="impl-link1-url" placeholder="https://..." style="padding:7px 10px;border:1px solid #e5e3de;border-radius:8px;font-size:12px;font-family:inherit">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:6px;margin-bottom:6px;align-items:center">
+        <input id="impl-link2-label" placeholder="ラベル②" style="padding:7px 10px;border:1px solid #e5e3de;border-radius:8px;font-size:12px;font-family:inherit">
+        <input id="impl-link2-url" placeholder="https://..." style="padding:7px 10px;border:1px solid #e5e3de;border-radius:8px;font-size:12px;font-family:inherit">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:6px;margin-bottom:14px;align-items:center">
+        <input id="impl-link3-label" placeholder="ラベル③（任意）" style="padding:7px 10px;border:1px solid #e5e3de;border-radius:8px;font-size:12px;font-family:inherit">
+        <input id="impl-link3-url" placeholder="https://..." style="padding:7px 10px;border:1px solid #e5e3de;border-radius:8px;font-size:12px;font-family:inherit">
+      </div>
+      <div style="display:flex;gap:8px">
+        <button onclick="impl_save()" style="flex:1;padding:11px;background:#e8850a;border:none;border-radius:8px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit" id="impl-save-btn">登録する</button>
+        <button onclick="impl_clearForm()" style="padding:11px 16px;background:#f3f0ea;border:none;border-radius:8px;font-size:13px;font-weight:700;color:#4a4540;cursor:pointer;font-family:inherit">クリア</button>
+      </div>
+      <div id="impl-form-msg" style="margin-top:8px;font-size:12px;text-align:center"></div>
+    </div>
+
+    <!-- 登録済み一覧 -->
+    <div class="section-title" style="margin-bottom:10px">登録済み一覧</div>
+    <div id="impl-admin-list">
+      <div style="text-align:center;color:#8a8078;padding:20px;font-size:13px">読み込み中...</div>
+    </div>
+
+  </div>
+</div>
+
 <!-- ══ 広場詳細モーダル ════════════════════════════════════════ -->
 <div id="hiroba-detail-modal">
   <div class="detail-header">
@@ -776,7 +853,7 @@ async function authGuard() {
 
 // ── Tab switching ─────────────────────────────────────────
 let currentTab = 0;
-const TAB_COUNT = 3;
+const TAB_COUNT = 4;
 
 function switchTab(n) {
   n = Math.max(0, Math.min(TAB_COUNT - 1, n));
@@ -789,12 +866,128 @@ function switchTab(n) {
   if (n === 0) loadAll();
   else if (n === 1) loadUsers();
   else if (n === 2) loadHiroba();
+  else if (n === 3) impl_loadList();
 }
 
 function refreshCurrentTab() {
   if (currentTab === 0) loadAll();
   else if (currentTab === 1) loadUsers();
   else if (currentTab === 2) loadHiroba();
+  else if (currentTab === 3) impl_loadList();
+}
+
+// ══ 上場実装管理 ══════════════════════════════════════════════
+
+async function impl_loadList() {
+  const el = document.getElementById('impl-admin-list');
+  if (!el) return;
+  el.innerHTML = '<div style="text-align:center;color:#8a8078;padding:20px;font-size:13px">読み込み中...</div>';
+  const { data, error } = await supabase.from('implementations').select('*').order('created_at', { ascending: false });
+  if (error || !data) { el.innerHTML = '<div style="color:red;font-size:13px;padding:10px">読み込みエラー</div>'; return; }
+  if (!data.length) { el.innerHTML = '<div style="text-align:center;color:#8a8078;padding:20px;font-size:13px">登録されていません</div>'; return; }
+  el.innerHTML = data.map(c => {
+    const statusLabel = c.status === 'released' ? 'リリース済み' : '開発中';
+    const links = (c.links || []).map(l => `<span style="font-size:11px;color:#4a4540">${l.label}: ${l.url}</span>`).join('<br>');
+    return `<div style="background:#fff;border:1px solid #e5e3de;border-radius:10px;padding:14px;margin-bottom:10px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div style="font-family:monospace;font-size:12px;font-weight:700;color:#e8850a">${c.ticker}</div>
+        <span style="font-size:10px;background:${c.status==='released'?'rgba(34,168,95,.1)':'rgba(232,133,10,.1)'};color:${c.status==='released'?'#22a85f':'#e8850a'};padding:2px 8px;border-radius:20px;font-weight:700">${statusLabel}</span>
+      </div>
+      <div style="font-size:13px;font-weight:700;color:#1a1714;margin-bottom:2px">${c.title}</div>
+      <div style="font-size:12px;color:#4a4540;margin-bottom:4px">${c.idea_name}</div>
+      <div style="font-size:11px;color:#8a8078;margin-bottom:8px;line-height:1.6">${links}</div>
+      <div style="display:flex;gap:8px">
+        <button onclick="impl_editLoad(${JSON.stringify(c).replace(/"/g,'&quot;')})" style="padding:6px 14px;background:#f3f0ea;border:none;border-radius:6px;font-size:12px;font-weight:700;color:#4a4540;cursor:pointer;font-family:inherit">編集</button>
+        <button onclick="impl_delete('${c.id}')" style="padding:6px 14px;background:#fee2e2;border:none;border-radius:6px;font-size:12px;font-weight:700;color:#c0392b;cursor:pointer;font-family:inherit">削除</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function impl_clearForm() {
+  ['impl-edit-id','impl-ticker','impl-posted-at','impl-idea-name','impl-title',
+   'impl-link1-label','impl-link1-url','impl-link2-label','impl-link2-url',
+   'impl-link3-label','impl-link3-url'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.getElementById('impl-score').value = '';
+  document.getElementById('impl-votes').value = '';
+  document.getElementById('impl-description').value = '';
+  document.getElementById('impl-status').value = 'released';
+  document.getElementById('impl-save-btn').textContent = '登録する';
+  document.getElementById('impl-form-msg').textContent = '';
+}
+
+function impl_editLoad(c) {
+  document.getElementById('impl-edit-id').value = c.id || '';
+  document.getElementById('impl-ticker').value = c.ticker || '';
+  document.getElementById('impl-posted-at').value = c.posted_at || '';
+  document.getElementById('impl-idea-name').value = c.idea_name || '';
+  document.getElementById('impl-score').value = c.score || '';
+  document.getElementById('impl-votes').value = c.votes || '';
+  document.getElementById('impl-status').value = c.status || 'released';
+  document.getElementById('impl-title').value = c.title || '';
+  document.getElementById('impl-description').value = c.description || '';
+  const links = c.links || [];
+  [0,1,2].forEach(i => {
+    document.getElementById(`impl-link${i+1}-label`).value = links[i]?.label || '';
+    document.getElementById(`impl-link${i+1}-url`).value = links[i]?.url || '';
+  });
+  document.getElementById('impl-save-btn').textContent = '更新する';
+  document.getElementById('tab-3').scrollTop = 0;
+  window.scrollTo(0, 0);
+}
+
+async function impl_save() {
+  const ticker = document.getElementById('impl-ticker').value.trim();
+  const idea_name = document.getElementById('impl-idea-name').value.trim();
+  const title = document.getElementById('impl-title').value.trim();
+  if (!ticker || !idea_name || !title) {
+    document.getElementById('impl-form-msg').textContent = '⚠ ティッカー・アイデア名・タイトルは必須です';
+    return;
+  }
+  const links = [
+    { label: document.getElementById('impl-link1-label').value.trim(), url: document.getElementById('impl-link1-url').value.trim() },
+    { label: document.getElementById('impl-link2-label').value.trim(), url: document.getElementById('impl-link2-url').value.trim() },
+    { label: document.getElementById('impl-link3-label').value.trim(), url: document.getElementById('impl-link3-url').value.trim() },
+  ].filter(l => l.label && l.url);
+
+  const payload = {
+    ticker: ticker.toUpperCase(),
+    idea_name,
+    title,
+    score: parseFloat(document.getElementById('impl-score').value) || null,
+    votes: parseInt(document.getElementById('impl-votes').value) || null,
+    posted_at: document.getElementById('impl-posted-at').value.trim(),
+    status: document.getElementById('impl-status').value,
+    description: document.getElementById('impl-description').value.trim(),
+    links,
+  };
+
+  const editId = document.getElementById('impl-edit-id').value;
+  const msgEl = document.getElementById('impl-form-msg');
+  msgEl.textContent = '保存中...';
+
+  let error;
+  if (editId) {
+    ({ error } = await supabase.from('implementations').update(payload).eq('id', editId));
+  } else {
+    ({ error } = await supabase.from('implementations').insert(payload));
+  }
+
+  if (error) { msgEl.style.color = 'red'; msgEl.textContent = '保存失敗: ' + error.message; return; }
+  msgEl.style.color = '#22a85f';
+  msgEl.textContent = editId ? '✅ 更新しました' : '✅ 登録しました';
+  impl_clearForm();
+  impl_loadList();
+}
+
+async function impl_delete(id) {
+  if (!confirm('この実装カードを削除しますか？')) return;
+  const { error } = await supabase.from('implementations').delete().eq('id', id);
+  if (error) { alert('削除失敗: ' + error.message); return; }
+  impl_loadList();
 }
 
 // ── Swipe detection ───────────────────────────────────────
