@@ -12,6 +12,22 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="あいぽ">
 <meta name="theme-color" content="#fff8ed">
+<!-- Sentry エラー監視 -->
+<script src="https://browser.sentry-cdn.com/8.51.0/bundle.min.js" crossorigin="anonymous"></script>
+<script>
+Sentry.init({
+  dsn: "https://dbd59d3a5d7000db3b82776422bbb457@o4511096709054464.ingest.us.sentry.io/4511096719933440",
+  tracesSampleRate: 1.0
+});
+</script>
+<!-- PostHog ユーザー行動分析 -->
+<script>
+!function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+" (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys getNextSurveyStep onSessionId setPersonPropertiesForFlags".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+posthog.init('phc_665tIWLYkMFBazlz7Q6CPiZjEK3rYzJtoTF7QG2JPYB', {
+  api_host: 'https://us.i.posthog.com',
+  person_profiles: 'identified_only'
+});
+</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script defer src="/_vercel/insights/script.js"></script>
@@ -1019,6 +1035,7 @@ function getDividendPreview(idea) {
 }
 
 function showUpgradeModal(reason) {
+  if (typeof posthog !== 'undefined') posthog.capture('upgrade_clicked', { plan: reason });
   const existing = document.getElementById('upgrade-modal');
   if (existing) existing.remove();
   const modal = document.createElement('div');
@@ -1487,6 +1504,7 @@ function showIPOBanner(idea) {
 async function showDetail(id) {
   trackIdeaView(id);
   const idea = ideas.find(i=>i.id===id);
+  if (idea && typeof posthog !== 'undefined') posthog.capture('idea_viewed', { ticker: idea.ticker, score: Math.round(idea.score) });
   idea.views++;
   const delta = idea.score - idea.baseScore; const ds = (delta>=0?'+':'')+delta.toFixed(1);
   const sc = delta>0.3?'up':delta<-0.3?'dn':'fl'; const pc = delta>0.3?'#22a85f':delta<-0.3?'#c0392b':'#aaa';
@@ -1567,6 +1585,7 @@ function voteIdea(id) {
   if (votesLeft <= 0) { updateXBonus(); showUpgradeModal('今日の票を使い切りました'); return; }
   const votesAtTime = idea.votes;
   votedIds.add(id); votesLeft--; idea.votes++;
+  if (typeof posthog !== 'undefined') posthog.capture('idea_voted', { ticker: idea.ticker });
   myEarlyVotes[id] = votesAtTime;
   insightScore += votesAtTime <= 1 ? 10 : votesAtTime <= 3 ? 8 : votesAtTime <= 5 ? 6 : votesAtTime <= 10 ? 4 : 1;
   idea.lastDelta = 2.5; idea.score = calcScore(idea); idea.history = [...idea.history.slice(-11), idea.score]; idea.lastReason = 'あなたの応援でスコアが上昇！';
@@ -1651,6 +1670,7 @@ async function doPost() {
   const newIdea = { id:'local-'+Date.now(), ticker, emoji:selectedEmoji, name:title, desc, genre:selectedGenre, tech, baseScore:score, score, votes:0, views:0, progress:0, progressStep:0, postedDaysAgo:0, daysSinceLastVote:0, history:[score], lastReason:'上場しました', lastDelta:0, commentList:[], actions:[], supporters:0, userId: currentUser?.id };
   ideas.push(newIdea); myIdeas.add(newIdea.id); postCount++; updatePlanBadge();
   postIdeaToDB(newIdea).then(data => { if (data) { newIdea.id = data.id; myIdeas.delete('local-'+Date.now()); myIdeas.add(data.id); } });
+  if (typeof posthog !== 'undefined') posthog.capture('idea_posted');
   goTo('feed'); showToast('上場しました。マーケットに掲載されました');
 }
 
@@ -3335,6 +3355,7 @@ async function boardSubmitPost() {
   if (error) { showToast('投稿に失敗しました'); if(btn){btn.disabled=false;btn.textContent='投稿する';} return; }
   document.getElementById('board-form-ov')?.remove();
   board_selectedTag = '';
+  if (typeof posthog !== 'undefined') posthog.capture('board_posted');
   showToast('投稿しました！');
   board_initialized = false;
   await board_loadPosts();
@@ -3521,6 +3542,7 @@ async function devSubmitForm() {
   if (error) { showToast('登録に失敗しました'); if(btn){btn.disabled=false;btn.textContent='登録する';} return; }
   document.getElementById('dev-form-ov')?.remove();
   dev_selectedSkills = [];
+  if (typeof posthog !== 'undefined') posthog.capture('developer_registered');
   showToast('登録しました！');
   board_initialized = false;
   await dev_loadDevs();
