@@ -552,6 +552,7 @@ input[type=file] { display: none; }
   <div style="display:flex;border-bottom:0.5px solid var(--border);background:var(--surface)">
     <button id="board-tab-board" class="board-subtab active" onclick="boardSetSubTab('board')">📝 掲示板</button>
     <button id="board-tab-devs" class="board-subtab" onclick="boardSetSubTab('devs')">👨‍💻 開発者</button>
+    <button id="board-tab-impl" class="board-subtab" onclick="boardSetSubTab('impl')">🏛 上場実装</button>
   </div>
   <div id="board-panel-board" style="padding:14px;overflow-y:auto">
     <div id="board-list-body"></div>
@@ -569,6 +570,9 @@ input[type=file] { display: none; }
       <button class="board-chip" onclick="devSetFilter(this,'副業OK')">副業OK</button>
     </div>
     <div id="dev-list-body"></div>
+  </div>
+  <div id="board-panel-impl" style="display:none;padding:14px;overflow-y:auto">
+    <div id="impl-list-body"></div>
   </div>
   <button id="board-fab" onclick="boardOpenForm()" style="position:fixed;bottom:calc(72px + env(safe-area-inset-bottom,0px));right:16px;width:52px;height:52px;border-radius:50%;background:var(--amber-mid);border:none;box-shadow:0 4px 16px rgba(232,133,10,.4);font-size:26px;cursor:pointer;z-index:25;color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--sans)">＋</button>
 </div>
@@ -3267,11 +3271,104 @@ let dev_selectedSkills = [];
 function boardSetSubTab(tab) {
   document.getElementById('board-panel-board').style.display = tab==='board' ? 'block' : 'none';
   document.getElementById('board-panel-devs').style.display  = tab==='devs'  ? 'block' : 'none';
+  document.getElementById('board-panel-impl').style.display  = tab==='impl'  ? 'block' : 'none';
   const fab = document.getElementById('board-fab');
   if (fab) fab.style.display = tab==='board' ? 'flex' : 'none';
   document.querySelectorAll('.board-subtab').forEach(el => el.classList.remove('active'));
   const active = document.getElementById('board-tab-'+tab);
   if (active) active.classList.add('active');
+  if (tab === 'impl') impl_render();
+}
+
+// ─── 上場実装タブ ──────────────────────────────────────────
+
+let impl_rendered = false;
+
+async function impl_render() {
+  if (impl_rendered) return;
+  impl_rendered = true;
+  const body = document.getElementById('impl-list-body');
+  if (!body) return;
+  body.innerHTML = '<div style="text-align:center;color:var(--text3);padding:24px;font-size:13px">読み込み中...</div>';
+  const { data, error } = await sb.from('implementations').select('*').order('created_at', { ascending: true });
+  if (error || !data || !data.length) {
+    body.innerHTML = '<div style="text-align:center;color:var(--text3);padding:24px;font-size:13px">まだ登録されていません</div>';
+    return;
+  }
+  body.innerHTML = data.map(c => impl_cardHTML(c)).join('');
+}
+
+function impl_cardHTML(c) {
+  const statusLabel = c.status === 'released' ? 'リリース済み' : '開発中';
+  const statusColor = c.status === 'released' ? 'var(--green-light)' : 'var(--amber-mid)';
+  const statusBg    = c.status === 'released' ? 'rgba(34,168,95,.1)' : 'rgba(232,133,10,.1)';
+  const links = c.links.map((l, i) =>
+    `<button onclick="impl_openLink(${i},'${encodeURIComponent(l.url)}')" style="display:block;width:100%;text-align:left;padding:9px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;font-size:12px;font-weight:700;color:var(--text);cursor:pointer;font-family:var(--sans);margin-bottom:6px">
+      ${l.label} <span style="color:var(--text3);font-weight:400;float:right">→</span>
+    </button>`
+  ).join('');
+  return `<div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;margin-bottom:14px;overflow:hidden">
+    <div style="background:linear-gradient(135deg,#fff8ed,#fde8b8);padding:12px 14px;border-bottom:1px solid var(--amber-border)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
+        <span style="font-family:var(--mono);font-size:10px;font-weight:700;color:var(--amber);letter-spacing:.06em">${c.ticker}</span>
+        <span style="font-size:10px;color:var(--text3)">${c.posted_at}上場</span>
+      </div>
+      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">${c.idea_name}</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-family:var(--mono);font-size:15px;font-weight:700;color:var(--amber)">${c.score}</span>
+        <span style="font-size:11px;color:var(--text3)">${c.votes}票</span>
+      </div>
+    </div>
+    <div style="padding:14px">
+      <div style="margin-bottom:10px">
+        <span style="display:inline-block;font-size:10px;font-weight:700;color:${statusColor};background:${statusBg};border-radius:20px;padding:2px 10px;margin-bottom:8px">${statusLabel}</span>
+        <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px">${c.title}</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.7">${c.description}</div>
+      </div>
+      <div style="border-top:0.5px solid var(--border);padding-top:12px;margin-top:2px">${links}</div>
+    </div>
+    <div style="background:var(--surface2);border-top:0.5px solid var(--border);padding:8px 14px;display:flex;gap:10px;align-items:center">
+      <span style="font-size:10px;color:var(--text3)">無料 1件</span>
+      <span style="font-size:10px;color:var(--text3)">·</span>
+      <span style="font-size:10px;color:var(--amber);font-weight:700">Pro 無制限</span>
+      <span style="font-size:10px;color:var(--text3)">·</span>
+      <span style="font-size:10px;color:var(--amber);font-weight:700">👑 創設 無制限</span>
+    </div>
+  </div>`;
+}
+
+function impl_openLink(linkIndex, encodedUrl) {
+  const url = decodeURIComponent(encodedUrl);
+  if (isPro || (currentUser && currentUser.isFounder)) {
+    window.open(url, '_blank');
+    return;
+  }
+  const count = parseInt(localStorage.getItem('impl_link_count') || '0', 10);
+  if (count < 1) {
+    localStorage.setItem('impl_link_count', String(count + 1));
+    window.open(url, '_blank');
+    return;
+  }
+  impl_showUpgradeSheet();
+}
+
+function impl_showUpgradeSheet() {
+  const existing = document.getElementById('impl-upgrade-sheet');
+  if (existing) return;
+  const overlay = document.createElement('div');
+  overlay.id = 'impl-upgrade-sheet';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;display:flex;align-items:flex-end;justify-content:center';
+  overlay.innerHTML = `<div style="background:var(--surface);border-radius:24px 24px 0 0;padding:28px 20px 40px;width:100%;max-width:390px">
+    <div style="width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 20px"></div>
+    <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px;text-align:center">無料プランの上限です</div>
+    <div style="font-size:13px;color:var(--text2);text-align:center;line-height:1.7;margin-bottom:20px">
+      無料プランは1件まで開けます。<br>Proにアップグレードで全て開放されます。
+    </div>
+    <a href="https://buy.stripe.com/aFacN7dxLbiCdrifDPfbq00" style="display:block;width:100%;padding:14px;background:var(--amber-mid);border:none;border-radius:var(--r-md);font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans);text-align:center;text-decoration:none;margin-bottom:10px" onclick="phCapture('founder_cta_click',{location:'impl_upgrade'})">Proにアップグレード</a>
+    <button onclick="document.getElementById('impl-upgrade-sheet').remove()" style="display:block;width:100%;padding:12px;background:transparent;border:none;font-size:13px;color:var(--text3);cursor:pointer;font-family:var(--sans)">今はしない</button>
+  </div>`;
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
 }
 
 async function board_init() {
