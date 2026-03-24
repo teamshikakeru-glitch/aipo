@@ -673,12 +673,12 @@ async function fetchIdeas() {
     ideas = data.map(row => ({
       id: row.id, ticker: row.ticker, emoji: row.emoji || '💡', name: row.name,
       desc: row.description, genre: row.genre, tech: row.tech,
-      baseScore: parseFloat(row.base_score), score: parseFloat(row.score),
+      baseScore: parseFloat(row.base_score) || 50, score: parseFloat(row.score) || 50,
       votes: row.votes, views: row.views, shares: row.shares || 0, progress: row.progress_step,
       progressStep: row.progress_step,
       postedDaysAgo: (Date.now() - new Date(row.posted_at)) / 86400000,
       daysSinceLastVote: row.last_voted_at ? (Date.now() - new Date(row.last_voted_at).getTime()) / 86400000 : (Date.now() - new Date(row.posted_at).getTime()) / 86400000,
-      history: [parseFloat(row.score)], lastReason: '最新データを取得しました', lastDelta: 0,
+      history: [parseFloat(row.score) || 50], lastReason: '最新データを取得しました', lastDelta: 0,
       commentList: (row.comments || []).map(c => ({ name: '@' + (c.profiles?.x_username || 'ユーザー'), text: c.text, time: timeAgo(c.created_at) })),
       actions: (row.actions || []).sort((a,b) => a.order_num - b.order_num).map(a => a.text),
       userId: row.user_id,
@@ -1124,7 +1124,7 @@ function calcScore(idea) {
   const cm = (idea.commentList || []).length;
   s += Math.min(Math.log(cm + 1) * 7, 15);
   const progress = idea.progressStep || idea.progress || 0;
-  s += [0, 7, 14, 20][Math.min(progress, 3)];
+  s += [0, 7, 14, 20][Math.max(0, Math.min(progress, 3))];
   s += idea.desc ? 3 : 0;
   s += idea.tech ? 2 : 0;
   // シェア数（上限10pt）
@@ -1534,7 +1534,7 @@ async function showDetail(id) {
   trackIdeaView(id);
   const idea = ideas.find(i=>i.id===id);
   if (idea && typeof posthog !== 'undefined') posthog.capture('idea_viewed', { ticker: idea.ticker, score: Math.round(idea.score) });
-  idea.views++;
+  idea.views = (idea.views || 0) + 1;
   const delta = idea.score - idea.baseScore; const ds = (delta>=0?'+':'')+delta.toFixed(1);
   const sc = delta>0.3?'up':delta<-0.3?'dn':'fl'; const pc = delta>0.3?'#22a85f':delta<-0.3?'#c0392b':'#aaa';
   const isHot = idea.votes >= HOT_THRESHOLD;
@@ -1617,10 +1617,10 @@ function voteIdea(id) {
   if (typeof posthog !== 'undefined') posthog.capture('idea_voted', { ticker: idea.ticker });
   myEarlyVotes[id] = votesAtTime;
   insightScore += votesAtTime <= 1 ? 10 : votesAtTime <= 3 ? 8 : votesAtTime <= 5 ? 6 : votesAtTime <= 10 ? 4 : 1;
-  idea.lastDelta = 2.5; idea.score = calcScore(idea); idea.history = [...idea.history.slice(-11), idea.score]; idea.lastReason = 'あなたの応援でスコアが上昇！';
+  const prevScore = idea.score; idea.score = calcScore(idea); idea.lastDelta = idea.score - prevScore; idea.history = [...idea.history.slice(-11), idea.score]; idea.lastReason = 'あなたの応援でスコアが上昇！';
   document.getElementById('votes-left').textContent = votesLeft;
   const row = document.getElementById('row-'+id); if (row) { row.classList.remove('flash-up','flash-dn'); void row.offsetWidth; row.classList.add('flash-up'); }
-  voteIdeaToDB(id, votesAtTime); renderFeed();
+  voteIdeaToDB(id, votesAtTime).catch(e => { console.error('voteIdeaToDB failed:', e); showToast('投票の保存に失敗しました。再度お試しください'); }); renderFeed();
   if (votesLeft <= 0) updateXBonus();
   updatePlanBadge();
   saveCertToCollection(idea, votesAtTime);
@@ -2080,9 +2080,11 @@ async function _incrementShares(ideaId) {
     idea.shares = (idea.shares || 0) + 1;
     idea.score = calcScore(idea);
     // DBのシェア数をインクリメント
-    await sb.rpc('increment_idea_shares', { idea_id: ideaId });
+    const { error: shareErr } = await sb.rpc('increment_idea_shares', { idea_id: ideaId });
+    if (shareErr) { console.error('increment_idea_shares error:', shareErr); return; }
     // スコアも更新
-    await sb.rpc('update_idea_score', { idea_id: ideaId, new_score: idea.score });
+    const { error: scoreErr } = await sb.rpc('update_idea_score', { idea_id: ideaId, new_score: idea.score });
+    if (scoreErr) { console.error('update_idea_score error:', scoreErr); }
     // オーナーにシェア通知
     const { data: ideaRow } = await sb.from('ideas').select('user_id, name').eq('id', ideaId).single();
     if (ideaRow?.user_id && ideaRow.user_id !== currentUser?.id) {
