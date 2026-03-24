@@ -576,7 +576,7 @@ input[type=file] { display: none; }
 
 <div class="bottom-nav">
   <div class="nav-item active" id="nav-feed" onclick="goTo('feed')"><div class="nav-icon-box"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="6" height="6" rx="1.5"/><rect x="11" y="3" width="6" height="6" rx="1.5"/><rect x="3" y="11" width="6" height="6" rx="1.5"/><rect x="11" y="11" width="6" height="6" rx="1.5"/></svg></div>マーケット</div>
-  <div class="nav-item" id="nav-post-tab" onclick="goTo('post')"><div class="nav-icon-box" style="background:var(--amber-mid);border-color:var(--amber-mid);box-shadow:0 2px 8px rgba(232,133,10,.35)"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2.5"><path d="M10 15V5M5 9l5-5 5 5"/></svg></div>上場</div>
+  <div class="nav-item" id="nav-post-tab" onclick="goTo('post');phCapture('apply_cta_click')"><div class="nav-icon-box" style="background:var(--amber-mid);border-color:var(--amber-mid);box-shadow:0 2px 8px rgba(232,133,10,.35)"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2.5"><path d="M10 15V5M5 9l5-5 5 5"/></svg></div>上場</div>
   <div class="nav-item" id="nav-hiroba-btn" onclick="if(window.$crisp){$crisp.push(['do','chat:show']);$crisp.push(['do','chat:open']);}" style="position:relative"><div class="nav-icon-box" style="position:relative"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M2 5h16M2 10h10M2 15h7"/><circle cx="16" cy="15" r="2.5"/><path d="M16 13v-3"/></svg></div>広場</div>
   <div class="nav-item" id="nav-portfolio" onclick="goTo('portfolio')"><div class="nav-icon-box" style="position:relative"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3L3 7v10h14V7L10 3z"/></svg><div id="notif-badge" style="display:none;position:absolute;top:-4px;right:-4px;min-width:14px;height:14px;background:#c0392b;border-radius:7px;border:1.5px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;padding:0 3px;line-height:1"></div></div>ホーム</div>
   <div class="nav-item" id="nav-match" onclick="goTo('match')"><div class="nav-icon-box"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2" y="3" width="16" height="13" rx="2"/><path d="M6 7h8M6 11h5" stroke-linecap="round"/></svg></div>掲示板</div>
@@ -606,6 +606,14 @@ input[type=file] { display: none; }
 const SUPABASE_URL = 'https://qjffvspnnxyykoyhnazm.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqZmZ2c3Bubnh5eWtveWhuYXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzMTIxMzMsImV4cCI6MjA4Njg4ODEzM30.OqeeMZs73RjKY5POW-naf0dB8sFWfZDUKaKvE99EiBo';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+function phProps(extra) {
+  const src = sessionStorage.getItem('aipo_utm_source') || new URLSearchParams(location.search).get('utm_source') || 'direct';
+  return Object.assign({ source: src, page: 'top', is_logged_in: !!currentUser, is_pro: isPro }, extra || {});
+}
+function phCapture(event, extra) {
+  if (typeof posthog !== 'undefined') posthog.capture(event, phProps(extra));
+}
 
 (function() {
   if (!sessionStorage.getItem('aipo_referrer_saved')) {
@@ -797,6 +805,7 @@ async function applyPendingPlan() {
       await sb.from('profiles').upsert({ id: currentUser.id, is_founder: true, is_pro: true, founder_number: founderNumber }, { onConflict: 'id' });
       isPro = true; currentUser.isFounder = true; currentUser.founderNumber = founderNumber;
       updatePlanBadge();
+      phCapture('founder_submit');
       showToast('👑 創設メンバーが適用されました！');
     } else if (pending.plan === 'pro' && !prof?.is_pro) {
       await sb.from('profiles').upsert({ id: currentUser.id, is_pro: true }, { onConflict: 'id' });
@@ -1051,7 +1060,7 @@ function showUpgradeModal(reason) {
   else { const el = document.getElementById('modal-balance-row'); if (el) el.style.display = 'none'; }
 }
 
-async function upgradeFounder() { document.getElementById('upgrade-modal')?.remove(); window.location.href = 'https://buy.stripe.com/dRmfZj2T71I20Ew8bnfbq01'; }
+async function upgradeFounder() { document.getElementById('upgrade-modal')?.remove(); document.getElementById('pricing-sheet')?.remove(); phCapture('founder_cta_click'); window.location.href = 'https://buy.stripe.com/dRmfZj2T71I20Ew8bnfbq01'; }
 async function upgradePro() { document.getElementById('upgrade-modal')?.remove(); window.location.href = 'https://buy.stripe.com/aFacN7dxLbiCdrifDPfbq00'; }
 
 function checkUpgradeSuccess() {
@@ -1637,8 +1646,8 @@ function showPostPreview() {
   const desc = document.getElementById('inp-desc')?.value?.trim();
   const tech = document.getElementById('inp-tech')?.value?.trim();
   const rawTicker = document.getElementById('inp-ticker')?.value?.trim().toUpperCase();
-  if (!title) { showToast('アイデア名を入力してください'); return; }
-  if (!selectedGenre) { showToast('ジャンルを選んでください'); return; }
+  if (!title) { phCapture('apply_form_error', {error:'title_empty'}); showToast('アイデア名を入力してください'); return; }
+  if (!selectedGenre) { phCapture('apply_form_error', {error:'genre_empty'}); showToast('ジャンルを選んでください'); return; }
   const ticker = rawTicker || (title.replace(/[^A-Za-zぁ-ん一-龯]/g,'').slice(0,5).toUpperCase() || 'IDEA');
   const score = calcScore({votes:0,views:0,commentList:[],progress:0,progressStep:0,postedDaysAgo:0,daysSinceLastVote:0,desc,tech,supporters:0,genre:selectedGenre,id:'_'});
   const scoreColor = score >= 70 ? 'var(--green)' : score >= 50 ? 'var(--amber-mid)' : 'var(--text3)';
@@ -1672,7 +1681,7 @@ async function doPost() {
   const newIdea = { id:'local-'+Date.now(), ticker, emoji:selectedEmoji, name:title, desc, genre:selectedGenre, tech, baseScore:score, score, votes:0, views:0, progress:0, progressStep:0, postedDaysAgo:0, daysSinceLastVote:0, history:[score], lastReason:'上場しました', lastDelta:0, commentList:[], actions:[], supporters:0, userId: currentUser?.id };
   ideas.push(newIdea); myIdeas.add(newIdea.id); postCount++; updatePlanBadge();
   postIdeaToDB(newIdea).then(data => { if (data) { newIdea.id = data.id; myIdeas.delete('local-'+Date.now()); myIdeas.add(data.id); } });
-  if (typeof posthog !== 'undefined') posthog.capture('idea_posted');
+  phCapture('apply_submit');
   goTo('feed'); showToast('上場しました。マーケットに掲載されました');
 }
 
@@ -2407,6 +2416,7 @@ function showZukan(ideaId) {
 
 function showPricingSheet() {
   const existing = document.getElementById('pricing-sheet'); if (existing) { existing.remove(); return; }
+  phCapture('founder_cta_view');
   const sheet = document.createElement('div');
   sheet.id = 'pricing-sheet';
   sheet.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:300;display:flex;align-items:flex-end;justify-content:center';
@@ -2416,7 +2426,7 @@ function showPricingSheet() {
 <div id="pricing-founder-rem" style="position:absolute;top:12px;right:12px;background:var(--amber-mid);color:#fff;font-size:9px;font-weight:700;padding:3px 8px;border-radius:20px">先着100名</div>
 <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:12px"><span style="font-size:22px">👑</span><div style="flex:1"><div style="font-size:15px;font-weight:700;color:var(--text)">創設メンバー</div><div style="font-size:11px;color:var(--amber);margin-top:1px">永久称号・一度きりの支払い</div></div><div style="font-size:24px;font-weight:700;color:var(--amber)">¥980</div></div>
 <div style="font-size:12px;color:var(--text2);line-height:1.8;margin-bottom:14px">✓ 👑 創設メンバーバッジ（永久）<br>✓ コメント・上場 無制限<br>✓ 応援票 +1（4票/日）<br>✓ 買い切り・月額なし</div>
-<button onclick="upgradeFounder()" style="width:100%;padding:14px;background:var(--amber-mid);border:none;border-radius:var(--r-md);font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">👑 創設メンバーになる（¥980）</button></div>
+<div style="font-size:11px;color:var(--amber);text-align:center;margin-bottom:10px;font-weight:600">✓ 今すぐ使える　✓ 月額なし　✓ 先着100名限定　✓ 永久バッジ付き</div><button onclick="upgradeFounder()" style="width:100%;padding:14px;background:var(--amber-mid);border:none;border-radius:var(--r-md);font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">👑 創設メンバーになる（¥980）</button></div>
 <div style="background:var(--surface2);border:1.5px solid var(--border2);border-radius:var(--r-lg);padding:18px;margin-bottom:12px">
 <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:12px"><span style="font-size:20px">⭐</span><div style="flex:1"><div style="font-size:15px;font-weight:700;color:var(--text)">あいぽ Pro</div><div style="font-size:11px;color:var(--text3);margin-top:1px">月額・いつでも解約可</div></div><div style="font-size:22px;font-weight:700;color:var(--text)">¥300<span style="font-size:11px;color:var(--text3);font-weight:400">/月</span></div></div>
 <div style="font-size:12px;color:var(--text2);line-height:1.8;margin-bottom:14px">✓ コメント・上場 無制限<br>✓ 応援票 +1（4票/日）</div>
@@ -2832,6 +2842,33 @@ async function ensureProfile(user) {
 
 async function init() {
   setViewMode(viewMode);
+  phCapture('landing_view');
+
+  // apply_cta_view: 上場ボタンが画面に入ったとき
+  const applyCtaEl = document.getElementById('nav-post-tab');
+  if (applyCtaEl) {
+    let applyCtaSent = false;
+    new IntersectionObserver(entries => {
+      if (!applyCtaSent && entries[0].isIntersecting) { applyCtaSent = true; phCapture('apply_cta_view'); }
+    }, { threshold: 0.5 }).observe(applyCtaEl);
+  }
+
+  // founder_cta_view: ログイン画面CTAが見えたとき（=ページ訪問時のLP）
+  const loginCtaEl = document.querySelector('.x-login-btn');
+  if (loginCtaEl) {
+    let founderCtaSent = false;
+    new IntersectionObserver(entries => {
+      if (!founderCtaSent && entries[0].isIntersecting) { founderCtaSent = true; phCapture('founder_cta_view'); }
+    }, { threshold: 0.5 }).observe(loginCtaEl);
+  }
+
+  // apply_form_start: 上場フォームの最初の入力
+  const inpTitle = document.getElementById('inp-title');
+  if (inpTitle) {
+    let formStartSent = false;
+    inpTitle.addEventListener('input', () => { if (!formStartSent) { formStartSent = true; phCapture('apply_form_start'); } }, { once: false });
+  }
+
   const splash = document.getElementById('splash');
   const guideScreen = document.getElementById('guide-screen');
 
