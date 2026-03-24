@@ -1,6 +1,7 @@
 {
-  "rewrites": [
-    { "source": "/lp2", "destination": "/lp2.html" },
-    { "source": "/(.*)", "destination": "/index.html" }
+  "routes": [
+    { "src": "/founder", "dest": "/founder.html" },
+    { "src": "/dashboard", "dest": "/dashboard.html" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
