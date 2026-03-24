@@ -670,7 +670,7 @@
   <div class="main">
     <div>
       <div class="user-list-header">
-        <div class="section-title" style="margin-bottom:0">ユーザー一覧（新着順）</div>
+        <div class="section-title" style="margin-bottom:0">ユーザー一覧（登録日時が早い順）</div>
         <button class="broadcast-btn" onclick="openBroadcast()">📢 一斉送信</button>
       </div>
       <div id="user-list-body">
@@ -1685,7 +1685,7 @@ async function loadUsers() {
   let profiles = [], voteMap = {}, lastVoteMap = {};
   try {
     const [profRes, votesRes] = await Promise.all([
-      sb.from('profiles').select('id,x_username,is_founder,founder_number,is_pro,created_at').order('created_at',{ascending:false}).limit(200),
+      sb.from('profiles').select('id,x_username,is_founder,founder_number,is_pro,created_at').order('created_at',{ascending:true}).limit(200),
       sb.from('votes').select('user_id,created_at').limit(10000),
     ]);
     if (profRes.error) throw new Error('profiles: ' + profRes.error.message);
