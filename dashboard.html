@@ -157,6 +157,48 @@
   .activity-time { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
   .error-text { color: var(--red); font-size: 12px; }
 
+  /* ── 2-col KPI Grid ── */
+  .kpi2-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .kpi2-cell {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 14px 10px 12px;
+    text-align: center;
+    box-shadow: 0 1px 4px rgba(0,0,0,.07);
+    border-top: 3px solid var(--amber-mid);
+  }
+  .kpi2-cell.kpi2-sentry { border-top-color: #e53e3e; }
+  .kpi2-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .kpi2-lbl { font-size: 10px; color: var(--text-muted); line-height: 1.3; }
+
+  /* ── Action Collapse Button ── */
+  .action-collapse-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #c96a00 0%, var(--amber-mid) 100%);
+    border: none;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Noto Sans JP', sans-serif;
+    box-shadow: 0 4px 16px rgba(232,133,10,0.3);
+  }
+
   /* ── AI Action Card ── */
   .action-card { background: linear-gradient(135deg, #c96a00 0%, var(--amber-mid) 100%); border-radius: 14px; padding: 14px 16px; color: #fff; box-shadow: 0 4px 16px rgba(232,133,10,0.3); }
   .action-priority { font-size: 11px; font-weight: 700; letter-spacing: 0.6px; margin-bottom: 6px; opacity: 0.9; font-family: 'Space Mono', monospace; }
@@ -474,48 +516,54 @@
 <div class="tab-content active" id="tab-0">
   <div class="main">
 
-    <!-- KPI 4-in-1 compact row -->
-    <div class="kpi-row">
-      <div class="kpi-cell">
-        <div class="kpi-num" id="kpi-users"><span class="skeleton"></span></div>
-        <div class="kpi-lbl">ユーザー</div>
-      </div>
-      <div class="kpi-cell">
-        <div class="kpi-num" id="kpi-founders"><span class="skeleton"></span></div>
-        <div class="kpi-lbl">創設<br>メンバー</div>
-      </div>
-      <div class="kpi-cell">
-        <div class="kpi-num" id="kpi-ideas"><span class="skeleton"></span></div>
-        <div class="kpi-lbl">アイデア</div>
-      </div>
-      <div class="kpi-cell">
-        <div class="kpi-num" id="kpi-votes"><span class="skeleton"></span></div>
-        <div class="kpi-lbl">投票数</div>
+    <!-- 最優先アクションカード（折りたたみ式・デフォルト閉） -->
+    <div>
+      <button class="action-collapse-btn" onclick="toggleActionCard()">
+        <span>🔴 最優先アクション</span>
+        <span id="action-arrow" style="font-size:12px;opacity:0.8">▼ 開く</span>
+      </button>
+      <div id="action-panel" style="display:none;margin-top:6px">
+        <div id="action-section"></div>
       </div>
     </div>
 
-    <!-- 直近24h / 今週 KPI row -->
-    <div class="kpi-row-3">
-      <div class="kpi-cell green">
-        <div class="kpi-num" id="kpi-new-users-24h"><span class="skeleton"></span></div>
-        <div class="kpi-lbl">24h<br>新規UU</div>
+    <!-- 2列グリッド KPI -->
+    <div class="kpi2-grid">
+      <div class="kpi2-cell">
+        <div class="kpi2-num" id="kpi2-today-uu"><span class="skeleton"></span></div>
+        <div class="kpi2-lbl">今日の新規UU</div>
       </div>
-      <div class="kpi-cell green">
-        <div class="kpi-num" id="kpi-votes-24h"><span class="skeleton"></span></div>
-        <div class="kpi-lbl">24h<br>投票数</div>
+      <div class="kpi2-cell">
+        <div class="kpi2-num" id="kpi2-today-votes"><span class="skeleton"></span></div>
+        <div class="kpi2-lbl">今日の投票数</div>
       </div>
-      <div class="kpi-cell blue">
-        <div class="kpi-num" id="kpi-active-week"><span class="skeleton"></span></div>
-        <div class="kpi-lbl">今週<br>アクティブ</div>
+      <div class="kpi2-cell">
+        <div class="kpi2-num" id="kpi2-total-users"><span class="skeleton"></span></div>
+        <div class="kpi2-lbl">総ユーザー数</div>
+      </div>
+      <div class="kpi2-cell">
+        <div class="kpi2-num" id="kpi2-founders"><span class="skeleton"></span></div>
+        <div class="kpi2-lbl">創設メンバー</div>
+      </div>
+      <div class="kpi2-cell">
+        <div class="kpi2-num" id="kpi2-week-active"><span class="skeleton"></span></div>
+        <div class="kpi2-lbl">今週アクティブ</div>
+      </div>
+      <div class="kpi2-cell">
+        <div class="kpi2-num" id="kpi2-total-votes"><span class="skeleton"></span></div>
+        <div class="kpi2-lbl">総投票数</div>
+      </div>
+      <div class="kpi2-cell kpi2-sentry">
+        <div class="kpi2-num" id="snt-errors">—</div>
+        <div class="kpi2-lbl">Sentryエラー(24h)</div>
+      </div>
+      <div class="kpi2-cell kpi2-sentry">
+        <div class="kpi2-num" id="snt-users">—</div>
+        <div class="kpi2-lbl">影響ユーザー数</div>
       </div>
     </div>
 
-    <!-- AI Action Card -->
-    <div id="action-section">
-      <div class="action-card"><div style="color:rgba(255,255,255,0.7);font-size:12px">データ取得中...</div></div>
-    </div>
-
-    <!-- Gauge compact -->
+    <!-- 創設メンバー gauge -->
     <div class="card" style="padding:10px 14px">
       <div class="gauge-labels">
         <span class="gauge-title" style="font-size:11px">創設メンバー残枠</span>
@@ -525,9 +573,9 @@
       <div class="gauge-bar-bg"><div class="gauge-bar-fill" id="gauge-fill" style="width:0%"></div></div>
     </div>
 
-    <!-- Recent activity -->
+    <!-- 最近の動き（直近10件） -->
     <div>
-      <div class="section-title">最近の動き（直近5件）</div>
+      <div class="section-title">最近の動き（直近10件）</div>
       <div class="card">
         <div id="activity-list">
           <span class="skeleton-line" style="width:100%"></span>
@@ -537,7 +585,7 @@
       </div>
     </div>
 
-    <!-- Analytics accordion -->
+    <!-- 詳細分析アコーディオン -->
     <button class="analytics-toggle" id="analytics-toggle" onclick="toggleAnalytics()">
       <span>📊 詳細分析</span>
       <span id="analytics-arrow" style="font-size:12px;color:var(--text-muted)">▼ 開く</span>
@@ -566,23 +614,16 @@
         </div>
       </div>
 
-      <!-- Sentry -->
+      <!-- Sentry Auth Token設定 -->
       <div>
-        <div class="section-title">Sentry — 直近24時間エラー</div>
+        <div class="section-title">Sentry Auth Token</div>
         <div class="card">
-          <div id="sentry-content">
-            <div class="metric-row">
-              <div class="metric-cell"><div class="metric-num" id="snt-errors">—</div><div class="metric-lbl">エラー件数</div></div>
-              <div class="metric-cell"><div class="metric-num" id="snt-users">—</div><div class="metric-lbl">影響ユーザー</div></div>
-              <div class="metric-cell"><div class="metric-num" id="snt-events">—</div><div class="metric-lbl">イベント数</div></div>
-            </div>
-            <div style="margin-top:8px;display:flex;gap:6px;align-items:center">
-              <input id="sentry-key-input" type="password" placeholder="sntryu_..."
-                style="flex:1;padding:6px 10px;font-size:11px;border:1px solid #e0ded8;border-radius:8px;font-family:monospace">
-              <button onclick="saveSentryKey()"
-                style="padding:6px 12px;background:#e8850a;color:#fff;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer">保存</button>
-              <span id="sentry-key-status" style="font-size:10px;color:#22a85f"></span>
-            </div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input id="sentry-key-input" type="password" placeholder="sntryu_..."
+              style="flex:1;padding:6px 10px;font-size:11px;border:1px solid #e0ded8;border-radius:8px;font-family:monospace">
+            <button onclick="saveSentryKey()"
+              style="padding:6px 12px;background:#e8850a;color:#fff;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer">保存</button>
+            <span id="sentry-key-status" style="font-size:10px;color:#22a85f"></span>
           </div>
         </div>
       </div>
@@ -1057,6 +1098,17 @@ document.addEventListener('touchend', e => {
   }
 }, { passive: true });
 
+// ── Action Card collapse ────────────────────────────────────
+let actionCardOpen = false;
+
+function toggleActionCard() {
+  actionCardOpen = !actionCardOpen;
+  const panel = document.getElementById('action-panel');
+  const arrow = document.getElementById('action-arrow');
+  if (panel) panel.style.display = actionCardOpen ? 'block' : 'none';
+  if (arrow) arrow.textContent = actionCardOpen ? '▲ 閉じる' : '▼ 開く';
+}
+
 // ── Analytics accordion ────────────────────────────────────
 let analyticsOpen = false;
 let analyticsLoaded = false;
@@ -1077,33 +1129,34 @@ function toggleAnalytics() {
 
 async function loadKPI() {
   try {
-    const now = new Date();
-    const since24h = new Date(now.getTime() - 86400000).toISOString();
-    const since7d  = new Date(now.getTime() - 7 * 86400000).toISOString();
+    // JST今日の開始をUTCで計算
+    const jstOffset = 9 * 60 * 60 * 1000;
+    const jstNow = new Date(Date.now() + jstOffset);
+    const todayStart = new Date(Date.UTC(
+      jstNow.getUTCFullYear(), jstNow.getUTCMonth(), jstNow.getUTCDate()
+    )).toISOString();
+    const since7d = new Date(Date.now() - 7 * 86400000).toISOString();
 
-    const [usersRes, foundersRes, ideasRes, votesRes,
-           newUsersRes, newVotesRes, activeRes] = await Promise.all([
+    const [usersRes, foundersRes, votesRes,
+           todayUsersRes, todayVotesRes, activeRes] = await Promise.all([
       sb.from('profiles').select('id', { count:'exact', head:true }),
       sb.from('profiles').select('id', { count:'exact', head:true }).eq('is_founder', true),
-      sb.from('ideas').select('id', { count:'exact', head:true }),
       sb.from('votes').select('id', { count:'exact', head:true }),
-      sb.from('profiles').select('id', { count:'exact', head:true }).gte('created_at', since24h),
-      sb.from('votes').select('id', { count:'exact', head:true }).gte('created_at', since24h),
+      sb.from('profiles').select('id', { count:'exact', head:true }).gte('created_at', todayStart),
+      sb.from('votes').select('id', { count:'exact', head:true }).gte('created_at', todayStart),
       sb.from('votes').select('user_id').gte('created_at', since7d).limit(5000),
     ]);
 
-    setText('kpi-users', fmt(usersRes.count ?? '—'));
+    setText('kpi2-total-users', fmt(usersRes.count ?? '—'));
     const fc = foundersRes.count || 0;
-    setText('kpi-founders', fc);
-    setText('kpi-ideas', fmt(ideasRes.count ?? '—'));
-    setText('kpi-votes', fmt(votesRes.count ?? '—'));
-
-    setText('kpi-new-users-24h', fmt(newUsersRes.count ?? 0));
-    setText('kpi-votes-24h', fmt(newVotesRes.count ?? 0));
+    setText('kpi2-founders', fc);
+    setText('kpi2-total-votes', fmt(votesRes.count ?? '—'));
+    setText('kpi2-today-uu', fmt(todayUsersRes.count ?? 0));
+    setText('kpi2-today-votes', fmt(todayVotesRes.count ?? 0));
     const weekActive = new Set((activeRes.data || []).map(v => v.user_id)).size;
-    setText('kpi-active-week', fmt(weekActive));
+    setText('kpi2-week-active', fmt(weekActive));
 
-    const pct = Math.min((fc/100)*100, 100);
+    const pct = Math.min((fc / 100) * 100, 100);
     document.getElementById('gauge-fill').style.width = pct + '%';
     document.getElementById('gauge-count').textContent = fc + ' / 100';
     const remaining = 100 - fc;
@@ -1111,8 +1164,8 @@ async function loadKPI() {
     remEl.textContent = '残り ' + remaining + ' 名';
     remEl.className = remaining <= 20 ? 'gauge-warning' : 'gauge-remaining';
   } catch(e) {
-    ['kpi-users','kpi-founders','kpi-ideas','kpi-votes',
-     'kpi-new-users-24h','kpi-votes-24h','kpi-active-week'].forEach(setError);
+    ['kpi2-total-users','kpi2-founders','kpi2-total-votes',
+     'kpi2-today-uu','kpi2-today-votes','kpi2-week-active'].forEach(setError);
   }
 }
 
@@ -1120,21 +1173,28 @@ async function loadActivity() {
   const el = document.getElementById('activity-list');
   try {
     const [vR, cR] = await Promise.all([
-      sb.from('votes').select('user_id,idea_id,created_at,ideas(name)').order('created_at',{ascending:false}).limit(5),
-      sb.from('comments').select('user_id,idea_id,created_at,ideas(name)').order('created_at',{ascending:false}).limit(5),
+      sb.from('votes').select('user_id,idea_id,created_at,ideas(name)').order('created_at',{ascending:false}).limit(10),
+      sb.from('comments').select('user_id,idea_id,created_at,ideas(name)').order('created_at',{ascending:false}).limit(10),
     ]);
     const events = [];
     (vR.data||[]).forEach(v => events.push({type:'vote',    user_id:v.user_id, idea:v.ideas?.name||v.idea_id, created_at:v.created_at}));
     (cR.data||[]).forEach(c => events.push({type:'comment', user_id:c.user_id, idea:c.ideas?.name||c.idea_id, created_at:c.created_at}));
     events.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
-    const items = events.slice(0,5);
+    const items = events.slice(0,10);
     if (items.length===0) { el.textContent='活動なし'; return; }
+    // ユーザー名をまとめて取得
+    const uids = [...new Set(items.map(e => e.user_id).filter(Boolean))];
+    const { data: profs } = uids.length
+      ? await sb.from('profiles').select('id,x_username').in('id', uids)
+      : { data: [] };
+    const profMap = {};
+    (profs||[]).forEach(p => { profMap[p.id] = p.x_username; });
     el.innerHTML = items.map(ev => {
       const icon = ev.type==='vote'?'🗳':'💬';
       const action = ev.type==='vote'?'に投票':'にコメント';
-      const uid = ev.user_id?ev.user_id.slice(0,8):'匿名';
+      const uname = (ev.user_id && profMap[ev.user_id]) ? '@'+profMap[ev.user_id] : '匿名';
       return '<div class="activity-item"><div class="activity-icon">'+icon+'</div><div class="activity-body">'
-        + '<div class="activity-text"><span class="activity-user">'+uid+'</span> が <span class="activity-idea" title="'+esc(ev.idea)+'">'+esc(ev.idea||'—')+'</span>'+action+'</div>'
+        + '<div class="activity-text"><span class="activity-user">'+esc(uname)+'</span> が <span class="activity-idea" title="'+esc(ev.idea)+'">'+esc(ev.idea||'—')+'</span>'+action+'</div>'
         + '<div class="activity-time">'+relativeTime(ev.created_at)+'</div></div></div>';
     }).join('');
   } catch(e) { el.innerHTML = '<span class="error-text">取得失敗</span>'; }
