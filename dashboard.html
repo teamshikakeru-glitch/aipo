@@ -364,12 +364,76 @@
 
   .footer { padding: 16px 16px; text-align: center; }
   .footer a { font-size: 13px; color: var(--amber-mid); text-decoration: none; }
+
+  /* ── Hiroba (広場) ── */
+  .hiroba-card {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 7px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.06);
+    cursor: pointer;
+    transition: background .1s;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .hiroba-card:active { background: #f5f3ef; }
+  .hiroba-card.read { opacity: 0.6; }
+  .hiroba-unread-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--red); flex-shrink: 0; margin-top: 4px;
+  }
+  .hiroba-card-body { flex: 1; min-width: 0; }
+  .hiroba-card-top { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
+  .hiroba-card-name { font-size: 12px; font-weight: 700; color: var(--text); }
+  .hiroba-card-tag {
+    font-size: 9px; font-weight: 700; padding: 2px 7px;
+    border-radius: 4px; background: #f0f0f0; color: var(--text-muted);
+  }
+  .hiroba-card-tag.tag-req { background: #fff8ee; color: var(--amber-mid); }
+  .hiroba-card-tag.tag-bug { background: #fff0f0; color: var(--red); }
+  .hiroba-card-tag.tag-idea { background: #f0fff5; color: var(--green-light); }
+  .hiroba-card-time { font-size: 10px; color: var(--text-muted); margin-left: auto; flex-shrink: 0; }
+  .hiroba-card-text { font-size: 12px; color: var(--text); line-height: 1.5; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+
+  /* ── Hiroba detail modal ── */
+  #hiroba-detail-modal {
+    display: none; position: fixed; inset: 0;
+    max-width: 390px; margin: 0 auto; z-index: 200;
+    background: var(--bg); overflow-y: auto; overflow-x: hidden;
+  }
+
+  /* ── Second KPI row ── */
+  .kpi-row-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .kpi-cell.green { border-top-color: var(--green-light); }
+  .kpi-cell.blue  { border-top-color: #3b82f6; }
+
+  /* ── Tab badge (number) ── */
+  .tab-badge {
+    position: absolute; top: 5px; right: calc(50% - 28px);
+    min-width: 16px; height: 16px; border-radius: 8px;
+    background: var(--red); color: #fff;
+    font-size: 9px; font-weight: 700; line-height: 16px;
+    text-align: center; padding: 0 3px; display: none;
+  }
+
+  /* ── Analytics metric row ── */
+  .metric-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px; }
+  .metric-cell { background: #f5f3ef; border-radius: 10px; padding: 10px 6px; text-align: center; }
+  .metric-num { font-family: 'Space Mono', monospace; font-size: 17px; font-weight: 700; line-height: 1; margin-bottom: 3px; color: var(--amber-mid); }
+  .metric-lbl { font-size: 9px; color: var(--text-muted); line-height: 1.4; }
 </style>
 </head>
 <body>
 
 <!--
   SQL — Supabase SQL Editorで実行してください
+
+  ① hiroba_posts に is_read カラムを追加（まだ実行していない場合）:
+  ALTER TABLE hiroba_posts ADD COLUMN IF NOT EXISTS is_read boolean DEFAULT false;
+
+  ② admin_messages テーブル（まだ作成していない場合）:
   CREATE TABLE IF NOT EXISTS admin_messages (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     from_user_id uuid REFERENCES auth.users NOT NULL,
@@ -401,6 +465,7 @@
   <div class="tab-bar">
     <button class="tab-btn active" id="tab-btn-0" onclick="switchTab(0)">📊 サマリー</button>
     <button class="tab-btn" id="tab-btn-1" onclick="switchTab(1)">👥 ユーザー<span class="tab-unread-dot" id="dot-1"></span></button>
+    <button class="tab-btn" id="tab-btn-2" onclick="switchTab(2)" style="position:relative">🏠 広場<span class="tab-badge" id="badge-2"></span></button>
   </div>
 </div>
 
@@ -425,6 +490,22 @@
       <div class="kpi-cell">
         <div class="kpi-num" id="kpi-votes"><span class="skeleton"></span></div>
         <div class="kpi-lbl">投票数</div>
+      </div>
+    </div>
+
+    <!-- 直近24h / 今週 KPI row -->
+    <div class="kpi-row-3">
+      <div class="kpi-cell green">
+        <div class="kpi-num" id="kpi-new-users-24h"><span class="skeleton"></span></div>
+        <div class="kpi-lbl">24h<br>新規UU</div>
+      </div>
+      <div class="kpi-cell green">
+        <div class="kpi-num" id="kpi-votes-24h"><span class="skeleton"></span></div>
+        <div class="kpi-lbl">24h<br>投票数</div>
+      </div>
+      <div class="kpi-cell blue">
+        <div class="kpi-num" id="kpi-active-week"><span class="skeleton"></span></div>
+        <div class="kpi-lbl">今週<br>アクティブ</div>
       </div>
     </div>
 
@@ -463,6 +544,36 @@
 
     <div id="analytics-panel" style="display:none" class="analytics-panel">
 
+      <!-- PostHog -->
+      <div>
+        <div class="section-title">PostHog — 直近7日間イベント</div>
+        <div class="card">
+          <div id="posthog-content">
+            <div class="metric-row">
+              <div class="metric-cell"><div class="metric-num" id="ph-viewed">—</div><div class="metric-lbl">idea_viewed</div></div>
+              <div class="metric-cell"><div class="metric-num" id="ph-voted">—</div><div class="metric-lbl">idea_voted</div></div>
+              <div class="metric-cell"><div class="metric-num" id="ph-upgrade">—</div><div class="metric-lbl">upgrade_clicked</div></div>
+            </div>
+            <div style="font-size:10px;color:var(--text-muted);text-align:center" id="ph-note">Personal APIキーを設定すると表示されます</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sentry -->
+      <div>
+        <div class="section-title">Sentry — 直近24時間エラー</div>
+        <div class="card">
+          <div id="sentry-content">
+            <div class="metric-row">
+              <div class="metric-cell"><div class="metric-num" id="snt-errors">—</div><div class="metric-lbl">エラー件数</div></div>
+              <div class="metric-cell"><div class="metric-num" id="snt-users">—</div><div class="metric-lbl">影響ユーザー</div></div>
+              <div class="metric-cell"><div class="metric-num" id="snt-events">—</div><div class="metric-lbl">イベント数</div></div>
+            </div>
+            <div style="font-size:10px;color:var(--text-muted);text-align:center" id="snt-note">Sentry Auth Tokenを設定すると表示されます</div>
+          </div>
+        </div>
+      </div>
+
       <div>
         <div class="section-title">CV率ファネル</div>
         <div class="card"><div id="funnel-content"><span class="skeleton-line" style="width:100%"></span><span class="skeleton-line" style="width:80%"></span></div></div>
@@ -489,6 +600,23 @@
   <div class="footer"><a href="index.html">← あいぽに戻る</a></div>
 </div>
 
+<!-- ══ Tab 2: 広場 ══════════════════════════════════════════ -->
+<div class="tab-content" id="tab-2">
+  <div class="main">
+    <div>
+      <div class="user-list-header">
+        <div class="section-title" style="margin-bottom:0">広場の投稿（新着順）</div>
+        <button class="broadcast-btn" onclick="markAllHirobaRead()">✅ 全既読</button>
+      </div>
+      <div id="hiroba-list-body">
+        <span class="skeleton-line" style="width:100%"></span>
+        <span class="skeleton-line" style="width:90%"></span>
+        <span class="skeleton-line" style="width:80%"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ══ Tab 1: ユーザー ══════════════════════════════════════ -->
 <div class="tab-content" id="tab-1">
   <div class="main">
@@ -503,6 +631,23 @@
         <span class="skeleton-line" style="width:80%"></span>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- ══ 広場詳細モーダル ════════════════════════════════════════ -->
+<div id="hiroba-detail-modal">
+  <div class="detail-header">
+    <button class="detail-back-btn" onclick="closeHirobaDetail()">
+      <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 5l-5 5 5 5"/></svg>
+    </button>
+    <div style="font-size:15px;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="hiroba-detail-title">広場の投稿</div>
+  </div>
+  <div style="padding:14px">
+    <div id="hiroba-detail-body"></div>
+    <button onclick="markCurrentHirobaRead()" id="hiroba-read-btn"
+      style="margin-top:14px;width:100%;background:var(--surface);border:1.5px solid #e0ddd6;border-radius:10px;padding:10px;font-size:13px;font-weight:700;color:var(--text-muted);cursor:pointer;font-family:'Noto Sans JP',sans-serif">
+      ✅ 既読にする
+    </button>
   </div>
 </div>
 
@@ -620,22 +765,25 @@ async function authGuard() {
 
 // ── Tab switching ─────────────────────────────────────────
 let currentTab = 0;
+const TAB_COUNT = 3;
 
 function switchTab(n) {
-  n = Math.max(0, Math.min(1, n));
+  n = Math.max(0, Math.min(TAB_COUNT - 1, n));
   if (n === currentTab) return;
   currentTab = n;
-  for (let i = 0; i < 2; i++) {
+  for (let i = 0; i < TAB_COUNT; i++) {
     document.getElementById('tab-' + i).classList.toggle('active', i === n);
     document.getElementById('tab-btn-' + i).classList.toggle('active', i === n);
   }
   if (n === 0) loadAll();
   else if (n === 1) loadUsers();
+  else if (n === 2) loadHiroba();
 }
 
 function refreshCurrentTab() {
   if (currentTab === 0) loadAll();
   else if (currentTab === 1) loadUsers();
+  else if (currentTab === 2) loadHiroba();
 }
 
 // ── Swipe detection ───────────────────────────────────────
@@ -643,7 +791,9 @@ let touchStartX = 0;
 document.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
 document.addEventListener('touchend', e => {
   const dx = e.changedTouches[0].clientX - touchStartX;
-  if (Math.abs(dx) > 60 && !document.getElementById('user-detail-modal').style.display.match(/block/)) {
+  const anyModal = ['user-detail-modal','hiroba-detail-modal','broadcast-modal']
+    .some(id => document.getElementById(id).style.display === 'block');
+  if (Math.abs(dx) > 60 && !anyModal) {
     switchTab(dx < 0 ? currentTab + 1 : currentTab - 1);
   }
 }, { passive: true });
@@ -668,17 +818,32 @@ function toggleAnalytics() {
 
 async function loadKPI() {
   try {
-    const [usersRes, foundersRes, ideasRes, votesRes] = await Promise.all([
+    const now = new Date();
+    const since24h = new Date(now.getTime() - 86400000).toISOString();
+    const since7d  = new Date(now.getTime() - 7 * 86400000).toISOString();
+
+    const [usersRes, foundersRes, ideasRes, votesRes,
+           newUsersRes, newVotesRes, activeRes] = await Promise.all([
       sb.from('profiles').select('id', { count:'exact', head:true }),
       sb.from('profiles').select('id', { count:'exact', head:true }).eq('is_founder', true),
       sb.from('ideas').select('id', { count:'exact', head:true }),
       sb.from('votes').select('id', { count:'exact', head:true }),
+      sb.from('profiles').select('id', { count:'exact', head:true }).gte('created_at', since24h),
+      sb.from('votes').select('id', { count:'exact', head:true }).gte('created_at', since24h),
+      sb.from('votes').select('user_id').gte('created_at', since7d).limit(5000),
     ]);
+
     setText('kpi-users', fmt(usersRes.count ?? '—'));
     const fc = foundersRes.count || 0;
     setText('kpi-founders', fc);
     setText('kpi-ideas', fmt(ideasRes.count ?? '—'));
     setText('kpi-votes', fmt(votesRes.count ?? '—'));
+
+    setText('kpi-new-users-24h', fmt(newUsersRes.count ?? 0));
+    setText('kpi-votes-24h', fmt(newVotesRes.count ?? 0));
+    const weekActive = new Set((activeRes.data || []).map(v => v.user_id)).size;
+    setText('kpi-active-week', fmt(weekActive));
+
     const pct = Math.min((fc/100)*100, 100);
     document.getElementById('gauge-fill').style.width = pct + '%';
     document.getElementById('gauge-count').textContent = fc + ' / 100';
@@ -686,7 +851,10 @@ async function loadKPI() {
     const remEl = document.getElementById('gauge-remaining');
     remEl.textContent = '残り ' + remaining + ' 名';
     remEl.className = remaining <= 20 ? 'gauge-warning' : 'gauge-remaining';
-  } catch(e) { ['kpi-users','kpi-founders','kpi-ideas','kpi-votes'].forEach(setError); }
+  } catch(e) {
+    ['kpi-users','kpi-founders','kpi-ideas','kpi-votes',
+     'kpi-new-users-24h','kpi-votes-24h','kpi-active-week'].forEach(setError);
+  }
 }
 
 async function loadActivity() {
@@ -865,6 +1033,7 @@ async function loadAll() {
 
   loadKPI();
   loadActivity();
+  loadHirobaBadge();
 
   const [funnelData, retData, healthData, revData] = await Promise.all([
     loadFunnel().catch(() => ({cvRate:0})),
@@ -882,6 +1051,199 @@ async function loadAll() {
 
   analyticsLoaded = true;
   updateTimestamp();
+}
+
+async function loadHirobaBadge() {
+  try {
+    const { data, error } = await sb.from('hiroba_posts')
+      .select('id, is_read')
+      .eq('is_read', false)
+      .limit(200);
+    if (error) return;
+    const count = (data || []).length;
+    const badge = document.getElementById('badge-2');
+    if (!badge) return;
+    if (count > 0) {
+      badge.textContent = count > 99 ? '99+' : count;
+      badge.style.display = 'block';
+    } else {
+      badge.style.display = 'none';
+    }
+  } catch(e) {}
+}
+
+// ══ Tab 2: 広場 ═══════════════════════════════════════════
+
+let hirobaData = [];
+let currentHirobaId = null;
+
+function hirobaTagClass(tag) {
+  if (!tag) return '';
+  if (tag.includes('要望') || tag.includes('機能')) return 'tag-req';
+  if (tag.includes('バグ') || tag.includes('bug')) return 'tag-bug';
+  if (tag.includes('アイデア') || tag.includes('idea')) return 'tag-idea';
+  return '';
+}
+
+async function loadHiroba() {
+  const el = document.getElementById('hiroba-list-body');
+  el.innerHTML = '<span class="skeleton-line" style="width:100%"></span><span class="skeleton-line" style="width:90%"></span><span class="skeleton-line" style="width:80%"></span>';
+
+  try {
+    const { data: posts, error } = await sb.from('hiroba_posts')
+      .select('id, text, tag, user_id, created_at, is_read')
+      .order('created_at', { ascending: false })
+      .limit(100);
+
+    if (error) throw error;
+
+    // プロフィールを別途取得してマージ
+    const userIds = [...new Set((posts || []).map(p => p.user_id).filter(Boolean))];
+    let profileMap = {};
+    if (userIds.length > 0) {
+      const { data: profs } = await sb.from('profiles')
+        .select('id, x_username')
+        .in('id', userIds);
+      (profs || []).forEach(p => { profileMap[p.id] = p; });
+    }
+
+    const data = (posts || []).map(p => ({
+      ...p,
+      profiles: profileMap[p.user_id] || null,
+    }));
+
+    hirobaData = data;
+
+    const unreadCount = hirobaData.filter(p => !p.is_read).length;
+    const badge = document.getElementById('badge-2');
+    if (badge) {
+      if (unreadCount > 0) {
+        badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+        badge.style.display = 'block';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+
+    if (hirobaData.length === 0) {
+      el.innerHTML = '<div style="color:var(--text-muted);font-size:13px;padding:12px 0">投稿なし</div>';
+      return;
+    }
+
+    el.innerHTML = hirobaData.map(p => {
+      const uname = p.profiles?.x_username ? '@' + p.profiles.x_username : '匿名ユーザー';
+      const tag = p.tag || 'その他';
+      const tagClass = hirobaTagClass(tag);
+      const isRead = p.is_read;
+      return '<div class="hiroba-card' + (isRead ? ' read' : '') + '" onclick="openHirobaDetail(\'' + p.id + '\')">'
+        + (!isRead ? '<div class="hiroba-unread-dot"></div>' : '<div style="width:8px;flex-shrink:0"></div>')
+        + '<div class="hiroba-card-body">'
+        + '<div class="hiroba-card-top">'
+        + '<div class="hiroba-card-name">' + esc(uname) + '</div>'
+        + '<div class="hiroba-card-tag ' + tagClass + '">' + esc(tag) + '</div>'
+        + '<div class="hiroba-card-time">' + relativeTime(p.created_at) + '</div>'
+        + '</div>'
+        + '<div class="hiroba-card-text">' + esc(p.text || '') + '</div>'
+        + '</div></div>';
+    }).join('');
+  } catch(e) {
+    el.innerHTML = '<div style="color:var(--red);font-size:12px;padding:8px 0">取得失敗: ' + esc(String(e.message || e)) + '</div>';
+  }
+}
+
+function openHirobaDetail(id) {
+  const p = hirobaData.find(x => x.id === id);
+  if (!p) return;
+  currentHirobaId = id;
+
+  const modal = document.getElementById('hiroba-detail-modal');
+  modal.style.display = 'block';
+
+  const uname = p.profiles?.x_username ? '@' + p.profiles.x_username : '匿名ユーザー';
+  const tag = p.tag || 'その他';
+  const tagClass = hirobaTagClass(tag);
+
+  setText('hiroba-detail-title', uname + ' の投稿');
+
+  document.getElementById('hiroba-detail-body').innerHTML =
+    '<div style="background:var(--surface);border-radius:12px;padding:14px;box-shadow:0 1px 6px rgba(0,0,0,.06)">'
+    + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">'
+    + '<div style="font-size:14px;font-weight:700">' + esc(uname) + '</div>'
+    + '<div class="hiroba-card-tag ' + tagClass + '" style="font-size:10px">' + esc(tag) + '</div>'
+    + '</div>'
+    + '<div style="font-size:14px;line-height:1.8;white-space:pre-wrap">' + esc(p.text || '') + '</div>'
+    + '<div style="font-size:11px;color:var(--text-muted);margin-top:10px">' + new Date(p.created_at).toLocaleString('ja-JP') + '</div>'
+    + '</div>';
+
+  const readBtn = document.getElementById('hiroba-read-btn');
+  if (p.is_read) {
+    readBtn.textContent = '✅ 既読済み';
+    readBtn.disabled = true;
+    readBtn.style.opacity = '0.5';
+  } else {
+    readBtn.textContent = '✅ 既読にする';
+    readBtn.disabled = false;
+    readBtn.style.opacity = '1';
+  }
+}
+
+function closeHirobaDetail() {
+  document.getElementById('hiroba-detail-modal').style.display = 'none';
+  currentHirobaId = null;
+}
+
+async function markCurrentHirobaRead() {
+  if (!currentHirobaId) return;
+  const btn = document.getElementById('hiroba-read-btn');
+  btn.disabled = true;
+  btn.textContent = '送信中...';
+
+  try {
+    const { error } = await sb.from('hiroba_posts')
+      .update({ is_read: true })
+      .eq('id', currentHirobaId);
+    if (error) throw error;
+
+    const p = hirobaData.find(x => x.id === currentHirobaId);
+    if (p) p.is_read = true;
+
+    btn.textContent = '✅ 既読済み';
+    btn.style.opacity = '0.5';
+    showDashToast('既読にしました');
+    updateHirobaBadge();
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = '✅ 既読にする';
+    showDashToast('更新に失敗しました');
+  }
+}
+
+async function markAllHirobaRead() {
+  const unread = hirobaData.filter(p => !p.is_read);
+  if (unread.length === 0) { showDashToast('未読はありません'); return; }
+
+  try {
+    const { error } = await sb.from('hiroba_posts').update({ is_read: true }).eq('is_read', false);
+    if (error) throw error;
+    hirobaData.forEach(p => { p.is_read = true; });
+    showDashToast(unread.length + '件を既読にしました');
+    updateHirobaBadge();
+    loadHiroba();
+  } catch(e) {
+    showDashToast('更新失敗: ' + esc(String(e.message || e)));
+  }
+}
+
+function updateHirobaBadge() {
+  const unreadCount = hirobaData.filter(p => !p.is_read).length;
+  const badge = document.getElementById('badge-2');
+  if (!badge) return;
+  if (unreadCount > 0) {
+    badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+    badge.style.display = 'block';
+  } else {
+    badge.style.display = 'none';
+  }
 }
 
 // ══ Tab 1: ユーザー ═══════════════════════════════════════
