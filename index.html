@@ -537,6 +537,10 @@ input[type=file] { display: none; }
       </div>
       <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="var(--text3)" stroke-width="2"><path d="M7 5l5 5-5 5"/></svg>
     </div>
+    <button onclick="requestPushPermission()" id="push-btn"
+      style="width:100%;padding:12px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-lg);font-size:13px;font-weight:700;color:var(--amber);cursor:pointer;font-family:var(--sans);margin-bottom:8px">
+      🔔 スコア変動通知をONにする
+    </button>
     <div id="portfolio-founder-badge"></div>
     <div id="realized-products-section"></div>
     <div id="cert-collection-section"></div>
@@ -2987,6 +2991,13 @@ async function init() {
   } catch(e) {
     console.error('init post-splash error:', e);
   }
+
+  // プッシュ通知登録
+  if ('serviceWorker' in navigator && 'PushManager' in window) {
+    navigator.serviceWorker.register('/service-worker.js').then(reg => {
+      console.log('SW registered');
+    });
+  }
 }
 
 
@@ -3915,6 +3926,18 @@ async function devSubmitForm() {
   showToast('登録しました！');
   board_initialized = false;
   await dev_loadDevs();
+}
+
+async function requestPushPermission() {
+  if (!('Notification' in window)) { showToast('このブラウザは通知非対応です'); return; }
+  const permission = await Notification.requestPermission();
+  if (permission === 'granted') {
+    showToast('通知をONにしました');
+    document.getElementById('push-btn').textContent = '🔔 通知ON済み';
+    document.getElementById('push-btn').style.color = 'var(--green-light)';
+  } else {
+    showToast('通知がブロックされています');
+  }
 }
 
 checkInAppBrowser();
