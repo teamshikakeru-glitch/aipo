@@ -641,13 +641,30 @@
       <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 5l-5 5 5 5"/></svg>
     </button>
     <div style="font-size:15px;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="hiroba-detail-title">広場の投稿</div>
-  </div>
-  <div style="padding:14px">
-    <div id="hiroba-detail-body"></div>
     <button onclick="markCurrentHirobaRead()" id="hiroba-read-btn"
-      style="margin-top:14px;width:100%;background:var(--surface);border:1.5px solid #e0ddd6;border-radius:10px;padding:10px;font-size:13px;font-weight:700;color:var(--text-muted);cursor:pointer;font-family:'Noto Sans JP',sans-serif">
-      ✅ 既読にする
+      style="flex-shrink:0;background:none;border:1.5px solid #e0ddd6;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;color:var(--text-muted);cursor:pointer;font-family:'Noto Sans JP',sans-serif;white-space:nowrap">
+      ✅ 既読
     </button>
+  </div>
+
+  <!-- 投稿本文（折りたたみ） -->
+  <div id="hiroba-detail-body" style="padding:10px 14px 0"></div>
+
+  <!-- セパレータ -->
+  <div style="padding:8px 14px 4px">
+    <div style="font-size:10px;font-weight:700;letter-spacing:.6px;color:var(--text-muted);text-transform:uppercase;border-top:1px solid #f0ede8;padding-top:10px">管理者からの返信</div>
+  </div>
+
+  <!-- LINEチャット -->
+  <div class="msg-list" id="hiroba-msg-list"></div>
+
+  <!-- 入力欄 -->
+  <div class="msg-form">
+    <textarea id="hiroba-msg-input" class="msg-input" rows="1" maxlength="400"
+      placeholder="返信を送る..."
+      oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,80)+'px'"
+      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendHirobaReply();}"></textarea>
+    <button class="msg-send-btn" onclick="sendHirobaReply()">送信</button>
   </div>
 </div>
 
@@ -1076,6 +1093,8 @@ async function loadHirobaBadge() {
 
 let hirobaData = [];
 let currentHirobaId = null;
+let currentHirobaUserId = null;
+let hirobaMsgSub = null;
 
 function hirobaTagClass(tag) {
   if (!tag) return '';
@@ -1155,6 +1174,7 @@ function openHirobaDetail(id) {
   const p = hirobaData.find(x => x.id === id);
   if (!p) return;
   currentHirobaId = id;
+  currentHirobaUserId = p.user_id;
 
   const modal = document.getElementById('hiroba-detail-modal');
   modal.style.display = 'block';
@@ -1163,33 +1183,138 @@ function openHirobaDetail(id) {
   const tag = p.tag || 'その他';
   const tagClass = hirobaTagClass(tag);
 
-  setText('hiroba-detail-title', uname + ' の投稿');
+  setText('hiroba-detail-title', uname);
 
+  // 投稿本文カード
   document.getElementById('hiroba-detail-body').innerHTML =
-    '<div style="background:var(--surface);border-radius:12px;padding:14px;box-shadow:0 1px 6px rgba(0,0,0,.06)">'
-    + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">'
-    + '<div style="font-size:14px;font-weight:700">' + esc(uname) + '</div>'
-    + '<div class="hiroba-card-tag ' + tagClass + '" style="font-size:10px">' + esc(tag) + '</div>'
+    '<div style="background:var(--surface);border-radius:12px;padding:12px 14px;box-shadow:0 1px 6px rgba(0,0,0,.06)">'
+    + '<div style="display:flex;align-items:center;gap:7px;margin-bottom:8px">'
+    + '<div class="hiroba-card-tag ' + tagClass + '">' + esc(tag) + '</div>'
+    + '<div style="font-size:10px;color:var(--text-muted)">' + new Date(p.created_at).toLocaleString('ja-JP') + '</div>'
     + '</div>'
-    + '<div style="font-size:14px;line-height:1.8;white-space:pre-wrap">' + esc(p.text || '') + '</div>'
-    + '<div style="font-size:11px;color:var(--text-muted);margin-top:10px">' + new Date(p.created_at).toLocaleString('ja-JP') + '</div>'
+    + '<div style="font-size:14px;line-height:1.75;white-space:pre-wrap">' + esc(p.text || '') + '</div>'
     + '</div>';
 
+  // 既読ボタン
   const readBtn = document.getElementById('hiroba-read-btn');
   if (p.is_read) {
     readBtn.textContent = '✅ 既読済み';
     readBtn.disabled = true;
-    readBtn.style.opacity = '0.5';
+    readBtn.style.opacity = '0.45';
   } else {
-    readBtn.textContent = '✅ 既読にする';
+    readBtn.textContent = '✅ 既読';
     readBtn.disabled = false;
     readBtn.style.opacity = '1';
+  }
+
+  // メッセージリストをリセットして読み込み
+  document.getElementById('hiroba-msg-list').innerHTML =
+    '<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:12px">読み込み中...</div>';
+  document.getElementById('hiroba-msg-input').value = '';
+  document.getElementById('hiroba-msg-input').style.height = 'auto';
+
+  // admin_messages を使って返信スレッドを読み込む
+  loadHirobaMessages(p.user_id);
+
+  // Realtime 購読
+  if (hirobaMsgSub) { try { hirobaMsgSub.unsubscribe(); } catch(e){} }
+  if (p.user_id) {
+    hirobaMsgSub = sb.channel('hiroba_chat_' + p.user_id)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'admin_messages' }, async payload => {
+        const msg = payload.new;
+        const isOurs = (msg.from_user_id === p.user_id && msg.to_user_id === ADMIN_UUID)
+                    || (msg.from_user_id === ADMIN_UUID && msg.to_user_id === p.user_id);
+        if (!isOurs) return;
+        if (msg.from_user_id !== ADMIN_UUID) appendHirobaMsg(msg);
+        if (msg.from_user_id === p.user_id) {
+          await sb.from('admin_messages').update({ is_read: true, read_at: new Date().toISOString() }).eq('id', msg.id).catch(() => {});
+        }
+      })
+      .subscribe();
   }
 }
 
 function closeHirobaDetail() {
   document.getElementById('hiroba-detail-modal').style.display = 'none';
   currentHirobaId = null;
+  currentHirobaUserId = null;
+  if (hirobaMsgSub) { try { hirobaMsgSub.unsubscribe(); } catch(e){} hirobaMsgSub = null; }
+}
+
+async function loadHirobaMessages(userId) {
+  const el = document.getElementById('hiroba-msg-list');
+  if (!userId) {
+    el.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:12px">ユーザーIDなし</div>';
+    return;
+  }
+  try {
+    const { data } = await sb.from('admin_messages')
+      .select('*')
+      .or('and(from_user_id.eq.' + ADMIN_UUID + ',to_user_id.eq.' + userId + '),and(from_user_id.eq.' + userId + ',to_user_id.eq.' + ADMIN_UUID + ')')
+      .order('created_at', { ascending: true });
+    el.innerHTML = '';
+    if (!data || data.length === 0) {
+      el.innerHTML = '<div id="hiroba-msg-placeholder" style="text-align:center;padding:16px;color:var(--text-muted);font-size:12px">まだ返信はありません</div>';
+      return;
+    }
+    (data || []).forEach(msg => appendHirobaMsg(msg));
+    // ユーザーからのメッセージを既読に
+    await sb.from('admin_messages').update({ is_read: true, read_at: new Date().toISOString() })
+      .eq('from_user_id', userId).eq('to_user_id', ADMIN_UUID).eq('is_read', false).catch(() => {});
+  } catch(e) {
+    el.innerHTML = '<div style="text-align:center;padding:16px;color:var(--red);font-size:12px">取得失敗</div>';
+  }
+}
+
+function appendHirobaMsg(msg) {
+  const el = document.getElementById('hiroba-msg-list');
+  if (!el) return;
+  const isAdmin = msg.from_user_id === ADMIN_UUID;
+  const time = new Date(msg.created_at).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+
+  // プレースホルダーを削除（「読み込み中」「まだ返信はありません」）
+  const ph = document.getElementById('hiroba-msg-placeholder');
+  if (ph) ph.remove();
+
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'display:flex;flex-direction:column;align-items:' + (isAdmin ? 'flex-end' : 'flex-start') + ';margin-bottom:10px';
+
+  const readInfo = isAdmin
+    ? (msg.is_read
+        ? '<div style="font-size:9px;color:var(--text-muted);text-align:right;margin-top:2px">既読 ' + (msg.read_at ? new Date(msg.read_at).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' }) : '') + '</div>'
+        : '<div style="font-size:9px;color:var(--text-muted);text-align:right;margin-top:2px">送信済み</div>')
+    : '';
+
+  const currentPost = hirobaData.find(x => x.id === currentHirobaId);
+  const senderName = currentPost?.profiles?.x_username ? '@' + currentPost.profiles.x_username : '匿名ユーザー';
+  const senderLabel = !isAdmin
+    ? '<div style="font-size:10px;color:var(--text-muted);margin-bottom:3px">' + esc(senderName) + '</div>'
+    : '';
+
+  wrap.innerHTML = senderLabel
+    + '<div style="max-width:78%;padding:9px 13px;border-radius:' + (isAdmin ? '16px 16px 4px 16px' : '16px 16px 16px 4px') + ';font-size:13px;line-height:1.5;word-break:break-word;background:' + (isAdmin ? 'var(--amber-mid)' : 'var(--surface)') + ';color:' + (isAdmin ? '#fff' : 'var(--text)') + ';box-shadow:0 1px 4px rgba(0,0,0,.08)">' + esc(msg.text) + '</div>'
+    + '<div style="font-size:9px;color:var(--text-muted);margin-top:3px">' + time + '</div>'
+    + readInfo;
+  el.appendChild(wrap);
+  el.scrollTop = el.scrollHeight;
+}
+
+async function sendHirobaReply() {
+  if (!currentHirobaUserId) { showDashToast('送信先のユーザーが不明です'); return; }
+  const inp = document.getElementById('hiroba-msg-input');
+  const text = inp?.value?.trim();
+  if (!text) return;
+  inp.value = '';
+  inp.style.height = 'auto';
+
+  const { data, error } = await sb.from('admin_messages').insert({
+    from_user_id: ADMIN_UUID,
+    to_user_id: currentHirobaUserId,
+    text,
+    is_read: false,
+  }).select().single();
+  if (error) { showDashToast('送信に失敗しました'); inp.value = text; return; }
+  if (data) appendHirobaMsg(data);
 }
 
 async function markCurrentHirobaRead() {
