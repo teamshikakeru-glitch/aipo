@@ -576,7 +576,13 @@
               <div class="metric-cell"><div class="metric-num" id="snt-users">—</div><div class="metric-lbl">影響ユーザー</div></div>
               <div class="metric-cell"><div class="metric-num" id="snt-events">—</div><div class="metric-lbl">イベント数</div></div>
             </div>
-            <div style="font-size:10px;color:var(--text-muted);text-align:center" id="snt-note">Sentry Auth Tokenを設定すると表示されます</div>
+            <div style="margin-top:8px;display:flex;gap:6px;align-items:center">
+              <input id="sentry-key-input" type="password" placeholder="sntryu_..."
+                style="flex:1;padding:6px 10px;font-size:11px;border:1px solid #e0ded8;border-radius:8px;font-family:monospace">
+              <button onclick="saveSentryKey()"
+                style="padding:6px 12px;background:#e8850a;color:#fff;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer">保存</button>
+              <span id="sentry-key-status" style="font-size:10px;color:#22a85f"></span>
+            </div>
           </div>
         </div>
       </div>
@@ -1935,6 +1941,48 @@ function savePosthogKey() {
 }
 
 loadPosthogStats();
+
+async function loadSentryStats() {
+  const TOKEN = localStorage.getItem('aipo-sentry-key');
+  const el_errors = document.getElementById('snt-errors');
+  const el_users  = document.getElementById('snt-users');
+  const el_events = document.getElementById('snt-events');
+  const statusEl  = document.getElementById('sentry-key-status');
+  if (!TOKEN) {
+    [el_errors, el_users, el_events].forEach(el => { if(el) el.textContent = '—'; });
+    return;
+  }
+  if (statusEl) statusEl.textContent = '✓ 保存済み';
+  const ORG     = 'shikakeru';
+  const PROJECT = 'aipo';
+  try {
+    const since = new Date(Date.now() - 24*60*60*1000).toISOString();
+    const res = await fetch(
+      `https://sentry.io/api/0/projects/${ORG}/${PROJECT}/issues/?limit=100&query=firstSeen:>${since}`,
+      { headers: { 'Authorization': `Bearer ${TOKEN}` } }
+    );
+    const issues = await res.json();
+    if (!Array.isArray(issues)) throw new Error('invalid');
+    const totalErrors = issues.reduce((s, i) => s + parseInt(i.count    || 0), 0);
+    const totalUsers  = issues.reduce((s, i) => s + parseInt(i.userCount || 0), 0);
+    if (el_errors) el_errors.textContent = totalErrors;
+    if (el_users)  el_users.textContent  = totalUsers;
+    if (el_events) el_events.textContent = issues.length;
+  } catch(e) {
+    [el_errors, el_users, el_events].forEach(el => { if(el) el.textContent = 'ERR'; });
+  }
+}
+
+function saveSentryKey() {
+  const k = document.getElementById('sentry-key-input')?.value?.trim();
+  if (!k) return;
+  localStorage.setItem('aipo-sentry-key', k);
+  document.getElementById('sentry-key-input').value = '';
+  document.getElementById('sentry-key-status').textContent = '✓ 保存済み';
+  loadSentryStats();
+}
+
+loadSentryStats();
 </script>
 </body>
 </html>
