@@ -1,7 +1,6 @@
 {
-  "rewrites": [
-    { "source": "/lp2", "destination": "/lp2.html" },
-    { "source": "/saiban", "destination": "/saiban.html" },
-    { "source": "/(.*)", "destination": "/index.html" }
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
