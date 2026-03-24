@@ -1682,6 +1682,7 @@ async function doPost() {
   ideas.push(newIdea); myIdeas.add(newIdea.id); postCount++; updatePlanBadge();
   postIdeaToDB(newIdea).then(data => { if (data) { newIdea.id = data.id; myIdeas.delete('local-'+Date.now()); myIdeas.add(data.id); } });
   phCapture('apply_submit');
+  if (typeof posthog !== 'undefined') posthog.capture('idea_posted');
   goTo('feed'); showToast('上場しました。マーケットに掲載されました');
 }
 
