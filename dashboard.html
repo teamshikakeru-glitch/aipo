@@ -1944,26 +1944,22 @@ loadPosthogStats();
 
 async function loadSentryStats() {
   const TOKEN = localStorage.getItem('aipo-sentry-key');
-  const el_errors = document.getElementById('snt-errors');
-  const el_users  = document.getElementById('snt-users');
-  const el_events = document.getElementById('snt-events');
-  const statusEl  = document.getElementById('sentry-key-status');
+  const el_errors  = document.getElementById('sentry-errors');
+  const el_users   = document.getElementById('sentry-users');
+  const el_events  = document.getElementById('sentry-events');
   if (!TOKEN) {
     [el_errors, el_users, el_events].forEach(el => { if(el) el.textContent = '—'; });
     return;
   }
-  if (statusEl) statusEl.textContent = '✓ 保存済み';
-  const ORG     = 'shikakeru';
-  const PROJECT = 'javascript';
+  const ORG = 'shikakeru';
   try {
-    const since = new Date(Date.now() - 24*60*60*1000).toISOString();
     const res = await fetch(
-      `https://sentry.io/api/0/projects/${ORG}/${PROJECT}/issues/?limit=100&query=firstSeen:>${since}`,
+      `https://sentry.io/api/0/organizations/${ORG}/issues/?limit=100&statsPeriod=24h`,
       { headers: { 'Authorization': `Bearer ${TOKEN}` } }
     );
     const issues = await res.json();
     if (!Array.isArray(issues)) throw new Error('invalid');
-    const totalErrors = issues.reduce((s, i) => s + parseInt(i.count    || 0), 0);
+    const totalErrors = issues.reduce((s, i) => s + parseInt(i.count || 0), 0);
     const totalUsers  = issues.reduce((s, i) => s + parseInt(i.userCount || 0), 0);
     if (el_errors) el_errors.textContent = totalErrors;
     if (el_users)  el_users.textContent  = totalUsers;
