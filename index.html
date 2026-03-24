@@ -2464,8 +2464,8 @@ function selHirobaTag(el) { document.querySelectorAll('.hiroba-tag').forEach(x=>
 
 async function sendHiroba() {
   const inp = document.getElementById('hiroba-input'); const text = inp?.value?.trim(); if (!text) return;
-  const anon = document.getElementById('hiroba-anon-check')?.checked;
-  const { error } = await sb.from('hiroba_comments').insert({ text, tag: hiroba_tag, user_id: anon ? null : (currentUser?.id || null), is_anon: anon, created_at: new Date().toISOString() });
+  if (!currentUser) { showLoginSheet(); return; }
+  const { error } = await sb.from('hiroba_posts').insert({ text, tag: hiroba_tag, user_id: currentUser.id });
   if (error) { showToast('送信に失敗しました'); console.error(error); return; }
   inp.value = ''; showToast('送信しました！ 💌');
   const overlay = document.getElementById('postbox-overlay');
@@ -2489,7 +2489,7 @@ async function loadHirobaList() {
 
 async function sendMsgReply() {
   const inp = document.getElementById('msg-reply-input'); const text = inp?.value?.trim(); if (!text || !currentUser) return;
-  const { error } = await sb.from('hiroba_comments').insert({ text: '[返信] ' + text, tag: 'その他', user_id: currentUser.id, is_anon: false, created_at: new Date().toISOString() });
+  const { error } = await sb.from('hiroba_posts').insert({ text: '[返信] ' + text, tag: 'その他', user_id: currentUser.id });
   if (error) { showToast('送信に失敗しました'); return; }
   inp.value = ''; showToast('返信を送信しました');
 }
