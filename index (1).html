@@ -12,9 +12,26 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="あいぽ">
 <meta name="theme-color" content="#fff8ed">
+<!-- Sentry エラー監視 -->
+<script src="https://browser.sentry-cdn.com/8.51.0/bundle.min.js" crossorigin="anonymous"></script>
+<script>
+Sentry.init({
+  dsn: "https://dbd59d3a5d7000db3b82776422bbb457@o4511096709054464.ingest.us.sentry.io/4511096719933440",
+  tracesSampleRate: 1.0
+});
+</script>
+<!-- PostHog ユーザー行動分析 -->
+<script>
+!function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=(s.asset_host||s.api_host.replace(".i.posthog.com","-assets.i.posthog.com"))+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+" (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys getNextSurveyStep onSessionId setPersonPropertiesForFlags".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+posthog.init('phc_665tIWLYkMFBazlz7Q6CPiZjEK3rYzJtoTF7QG2JPYB', {
+  api_host: 'https://us.i.posthog.com',
+  person_profiles: 'identified_only'
+});
+</script>
+<!-- Crisp チャットウィジェット -->
+<script type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="cd2b8817-cabd-4cf0-9c0a-c62f0285237d";$crisp.push(["do","chat:hide"]);$crisp.push(["on","chat:closed",function(){$crisp.push(["do","chat:hide"]);}]);(function(){var d=document;var s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-<script defer src="/_vercel/insights/script.js"></script>
 <style>
 :root {
   --bg: #eceae4;--surface: #ffffff;--surface2: #f7f6f3;
@@ -142,7 +159,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); over
 .primary-btn:active { background: #c06d08; transform: scale(.98); }
 .primary-btn:disabled { background: var(--surface2); color: var(--text3); cursor: not-allowed; transform: none; }
 .hint { font-size: 11px; color: var(--text3); margin-top: 6px; line-height: 1.6; }
-.toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(8px); background: var(--text); border-radius: 20px; padding: 11px 22px; font-size: 13px; color: #fff; opacity: 0; transition: all .25s; pointer-events: none; z-index: 100; max-width: 320px; width: 90%; text-align: center; font-weight: 700; }
+.toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(8px); background: var(--text); border-radius: 20px; padding: 11px 22px; font-size: 13px; color: #fff; opacity: 0; transition: all .25s; pointer-events: none; z-index: 9999; max-width: 320px; width: 90%; text-align: center; font-weight: 700; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 input[type=file] { display: none; }
 .guide-screen { position:fixed; inset:0; background:var(--surface); z-index:997; display:none; flex-direction:column; }
@@ -315,13 +332,23 @@ input[type=file] { display: none; }
 .profile-save-btn:disabled{opacity:.5;cursor:not-allowed}
 .profile-close-btn{width:100%;padding:13px;background:transparent;border:none;font-size:13px;color:var(--text3);cursor:pointer;margin-top:8px;font-family:'Noto Sans JP',sans-serif}
 .profile-status{font-size:12px;text-align:center;margin-top:10px;min-height:18px}
-.match-card{background:var(--surface);border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.07);margin-bottom:10px;padding:14px;overflow:hidden}
 .skill-tag{display:inline-flex;align-items:center;gap:4px;padding:5px 11px;border-radius:20px;font-size:12px;font-weight:700;border:1.5px solid var(--border2);background:var(--surface2);color:var(--text3);cursor:pointer;transition:all .15s;white-space:nowrap;font-family:var(--sans)}
 .skill-tag.active{background:var(--amber-mid);border-color:var(--amber-mid);color:#fff}
 .skill-tags-wrap{display:flex;flex-wrap:wrap;gap:6px;padding:4px 0}
-.chat-bubble-self{background:var(--amber-mid);color:#fff;border-radius:16px 16px 4px 16px;padding:9px 13px;font-size:13px;max-width:75%;word-break:break-word;line-height:1.5;align-self:flex-end}
-.chat-bubble-other{background:var(--surface2);color:var(--text);border-radius:16px 16px 16px 4px;padding:9px 13px;font-size:13px;max-width:75%;word-break:break-word;line-height:1.5;align-self:flex-start}
-.chat-time{font-size:9px;color:var(--text3);margin-top:2px}
+.board-subtab{flex:1;padding:11px 0;font-size:13px;font-weight:700;color:var(--text3);background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;font-family:var(--sans);transition:all .15s}
+.board-subtab.active{color:var(--amber-mid);border-bottom-color:var(--amber-mid)}
+.board-card{background:var(--surface);border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.07);margin-bottom:10px;padding:14px;cursor:pointer;transition:transform .1s}
+.board-card:active{transform:scale(.98)}
+.board-chip{background:transparent;border:1px solid var(--border2);border-radius:20px;padding:5px 13px;font-size:11px;font-weight:700;color:var(--text3);cursor:pointer;white-space:nowrap;font-family:var(--sans);flex-shrink:0;transition:all .15s}
+.board-chip.active{background:var(--amber-mid);border-color:var(--amber-mid);color:#fff}
+.board-tag-btn{padding:7px 16px;border-radius:20px;font-size:13px;font-weight:700;border:1.5px solid var(--border2);background:var(--surface2);color:var(--text3);cursor:pointer;font-family:var(--sans);transition:all .15s}
+.board-tag-btn.active{background:var(--amber-mid);border-color:var(--amber-mid);color:#fff}
+.board-skill-btn{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;border:1.5px solid var(--border2);background:var(--surface2);color:var(--text3);cursor:pointer;font-family:var(--sans);transition:all .15s}
+.board-skill-btn.active{background:var(--amber-mid);border-color:var(--amber-mid);color:#fff}
+.board-form-label{font-family:'Space Mono',monospace;font-size:9px;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+.board-skeleton{background:linear-gradient(90deg,var(--surface2) 25%,var(--border) 50%,var(--surface2) 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;border-radius:12px;height:100px;margin-bottom:10px}
+.board-sheet{background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:390px;animation:slideUp .3s cubic-bezier(.16,1,.3,1);display:flex;flex-direction:column;max-height:88vh;overflow:hidden}
+.board-handle{width:40px;height:4px;background:var(--border2);border-radius:2px;margin:12px auto 6px;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -520,22 +547,42 @@ input[type=file] { display: none; }
 
 <div class="screen" id="screen-match" style="padding-bottom:90px">
   <div class="sub-header" style="border-bottom:0.5px solid var(--border)">
-    <div style="font-size:16px;font-weight:700;color:var(--text);padding:0 4px">マッチング</div>
-    <button onclick="match_openSkillModal()" style="margin-left:auto;background:var(--amber-mid);border:none;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans);white-space:nowrap;flex-shrink:0">✏️ スキルを編集</button>
+    <div style="font-size:16px;font-weight:700;color:var(--text);padding:0 4px">開発掲示板</div>
   </div>
-  <div style="padding:14px;overflow-y:auto">
-    <div id="match-my-skills" style="margin-bottom:14px"></div>
-    <div id="match-chats-section" style="margin-bottom:14px"></div>
-    <div id="match-feed-body"></div>
+  <div style="display:flex;border-bottom:0.5px solid var(--border);background:var(--surface)">
+    <button id="board-tab-board" class="board-subtab active" onclick="boardSetSubTab('board')">📝 掲示板</button>
+    <button id="board-tab-devs" class="board-subtab" onclick="boardSetSubTab('devs')">👨‍💻 開発者</button>
+    <button id="board-tab-impl" class="board-subtab" onclick="boardSetSubTab('impl')">🏛 上場実装</button>
   </div>
+  <div id="board-panel-board" style="padding:14px;overflow-y:auto">
+    <div id="board-list-body"></div>
+  </div>
+  <div id="board-panel-devs" style="display:none;padding:14px;overflow-y:auto">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
+      <button onclick="devOpenForm()" style="background:var(--amber-mid);border:none;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">＋ 開発者登録</button>
+    </div>
+    <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:10px;scrollbar-width:none;-webkit-overflow-scrolling:touch" id="dev-filter-scroll">
+      <button class="board-chip active" onclick="devSetFilter(this,'')">すべて</button>
+      <button class="board-chip" onclick="devSetFilter(this,'Webアプリ')">Webアプリ</button>
+      <button class="board-chip" onclick="devSetFilter(this,'モバイル')">モバイル</button>
+      <button class="board-chip" onclick="devSetFilter(this,'AI')">AI</button>
+      <button class="board-chip" onclick="devSetFilter(this,'NoCode')">NoCode</button>
+      <button class="board-chip" onclick="devSetFilter(this,'副業OK')">副業OK</button>
+    </div>
+    <div id="dev-list-body"></div>
+  </div>
+  <div id="board-panel-impl" style="display:none;padding:14px;overflow-y:auto">
+    <div id="impl-list-body"></div>
+  </div>
+  <button id="board-fab" onclick="boardOpenForm()" style="position:fixed;bottom:calc(72px + env(safe-area-inset-bottom,0px));right:16px;width:52px;height:52px;border-radius:50%;background:var(--amber-mid);border:none;box-shadow:0 4px 16px rgba(232,133,10,.4);font-size:26px;cursor:pointer;z-index:25;color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--sans)">＋</button>
 </div>
 
 <div class="bottom-nav">
   <div class="nav-item active" id="nav-feed" onclick="goTo('feed')"><div class="nav-icon-box"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="6" height="6" rx="1.5"/><rect x="11" y="3" width="6" height="6" rx="1.5"/><rect x="3" y="11" width="6" height="6" rx="1.5"/><rect x="11" y="11" width="6" height="6" rx="1.5"/></svg></div>マーケット</div>
-  <div class="nav-item" id="nav-post-tab" onclick="goTo('post')"><div class="nav-icon-box" style="background:var(--amber-mid);border-color:var(--amber-mid);box-shadow:0 2px 8px rgba(232,133,10,.35)"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2.5"><path d="M10 15V5M5 9l5-5 5 5"/></svg></div>上場</div>
-  <div class="nav-item" id="nav-hiroba-btn" onclick="goTo('hiroba')"><div class="nav-icon-box"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M2 5h16M2 10h10M2 15h7"/><circle cx="16" cy="15" r="2.5"/><path d="M16 13v-3"/></svg></div>広場</div>
+  <div class="nav-item" id="nav-post-tab" onclick="goTo('post');phCapture('apply_cta_click')"><div class="nav-icon-box" style="background:var(--amber-mid);border-color:var(--amber-mid);box-shadow:0 2px 8px rgba(232,133,10,.35)"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2.5"><path d="M10 15V5M5 9l5-5 5 5"/></svg></div>上場</div>
+  <div class="nav-item" id="nav-hiroba-btn" onclick="if(window.$crisp){$crisp.push(['do','chat:show']);$crisp.push(['do','chat:open']);}" style="position:relative"><div class="nav-icon-box" style="position:relative"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M2 5h16M2 10h10M2 15h7"/><circle cx="16" cy="15" r="2.5"/><path d="M16 13v-3"/></svg></div>広場</div>
   <div class="nav-item" id="nav-portfolio" onclick="goTo('portfolio')"><div class="nav-icon-box" style="position:relative"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3L3 7v10h14V7L10 3z"/></svg><div id="notif-badge" style="display:none;position:absolute;top:-4px;right:-4px;min-width:14px;height:14px;background:#c0392b;border-radius:7px;border:1.5px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;padding:0 3px;line-height:1"></div></div>ホーム</div>
-  <div class="nav-item" id="nav-match" onclick="goTo('match')"><div class="nav-icon-box"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="7" cy="7" r="3"/><circle cx="13" cy="13" r="3"/><path d="M10 7h4M6 13H2" stroke-linecap="round"/></svg></div>マッチ</div>
+  <div class="nav-item" id="nav-match" onclick="goTo('match')"><div class="nav-icon-box"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2" y="3" width="16" height="13" rx="2"/><path d="M6 7h8M6 11h5" stroke-linecap="round"/></svg></div>掲示板</div>
 </div>
 
 <div class="postbox-overlay" id="postbox-overlay">
@@ -558,10 +605,18 @@ input[type=file] { display: none; }
 <input type="file" id="file-input" accept="image/*">
 <div class="toast" id="toast"></div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 const SUPABASE_URL = 'https://qjffvspnnxyykoyhnazm.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqZmZ2c3Bubnh5eWtveWhuYXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzMTIxMzMsImV4cCI6MjA4Njg4ODEzM30.OqeeMZs73RjKY5POW-naf0dB8sFWfZDUKaKvE99EiBo';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+function phProps(extra) {
+  const src = sessionStorage.getItem('aipo_utm_source') || new URLSearchParams(location.search).get('utm_source') || 'direct';
+  return Object.assign({ source: src, page: 'top', is_logged_in: !!currentUser, is_pro: isPro }, extra || {});
+}
+function phCapture(event, extra) {
+  if (typeof posthog !== 'undefined') posthog.capture(event, phProps(extra));
+}
 
 (function() {
   if (!sessionStorage.getItem('aipo_referrer_saved')) {
@@ -687,9 +742,14 @@ async function updateDescToDB(ideaId, desc) { await sb.from('ideas').update({ de
 async function updateProgressToDB(ideaId, step) { await sb.from('ideas').update({ progress_step: step, updated_at: new Date() }).eq('id', ideaId); }
 
 async function checkSession() {
-  const { data: { session } } = await sb.auth.getSession();
-  if (session) { currentUser = session.user; return true; }
-  return false;
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) { currentUser = session.user; return true; }
+    return false;
+  } catch(e) {
+    console.error('checkSession error:', e);
+    return false;
+  }
 }
 
 function timeAgo(dateStr) {
@@ -738,7 +798,7 @@ async function checkProStatus() {
 
 async function applyPendingPlan() {
   if (!currentUser?.email) return;
-  const { data: pending } = await sb.from('pending_founders').select('*').eq('email', currentUser.email).is('applied_at', null).single();
+  const { data: pending } = await sb.from('pending_founders').select('*').eq('email', currentUser.email).is('applied_at', null).maybeSingle();
   if (!pending) return;
   try {
     const { data: prof } = await sb.from('profiles').select('is_founder, is_pro').eq('id', currentUser.id).single();
@@ -748,6 +808,7 @@ async function applyPendingPlan() {
       await sb.from('profiles').upsert({ id: currentUser.id, is_founder: true, is_pro: true, founder_number: founderNumber }, { onConflict: 'id' });
       isPro = true; currentUser.isFounder = true; currentUser.founderNumber = founderNumber;
       updatePlanBadge();
+      phCapture('founder_submit');
       showToast('👑 創設メンバーが適用されました！');
     } else if (pending.plan === 'pro' && !prof?.is_pro) {
       await sb.from('profiles').upsert({ id: currentUser.id, is_pro: true }, { onConflict: 'id' });
@@ -988,12 +1049,13 @@ function getDividendPreview(idea) {
 }
 
 function showUpgradeModal(reason) {
+  if (typeof posthog !== 'undefined') posthog.capture('upgrade_clicked', { plan: reason });
   const existing = document.getElementById('upgrade-modal');
   if (existing) existing.remove();
   const modal = document.createElement('div');
   modal.id = 'upgrade-modal';
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:flex;align-items:flex-end;justify-content:center';
-  modal.innerHTML = `<div style="background:var(--surface);border-radius:24px 24px 0 0;padding:28px 24px 40px;width:100%;max-width:390px;max-height:90vh;overflow-y:auto"><div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 20px"></div><div style="font-size:17px;font-weight:700;text-align:center;margin-bottom:6px">${reason}</div><div style="font-size:13px;color:var(--text2);text-align:center;line-height:1.7;margin-bottom:12px">プランを選んでください</div><div id="modal-balance-row" style="background:var(--surface2);border:1.5px solid var(--border2);border-radius:var(--r-lg);padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between"><div><div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px">残高で追加票を買う</div><div style="font-size:11px;color:var(--text3)">現在の残高: <span id="modal-balance-val">...</span>円</div></div><button onclick="document.getElementById('upgrade-modal').remove();buyWithBalance('vote',50)" style="background:var(--amber-mid);color:#fff;border:none;border-radius:20px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans);white-space:nowrap">+1票 ¥50</button></div><div style="background:linear-gradient(135deg,#fff8ed,#fde8b8);border:2px solid var(--amber-mid);border-radius:var(--r-lg);padding:16px;margin-bottom:12px;position:relative;overflow:hidden"><div id="modal-founder-remaining" style="position:absolute;top:10px;right:10px;background:var(--amber-mid);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px">先着100名限定</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:20px">👑</span><div><div style="font-size:14px;font-weight:700;color:var(--text)">創設メンバー</div><div style="font-size:11px;color:var(--amber)">永久称号・一度きりの支払い</div></div><div style="margin-left:auto;font-size:22px;font-weight:700;color:var(--amber)">¥980</div></div><div style="font-size:12px;color:var(--text2);line-height:1.8;margin-bottom:12px">✓ Pro機能すべて（コメント・上場 無制限）<br>✓ 👑 創設メンバーバッジが永久に付く<br>✓ 買い切り・月額なし</div><button onclick="upgradeFounder()" style="width:100%;padding:13px;background:var(--amber-mid);border:none;border-radius:var(--r-md);font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">👑 創設メンバーになる（¥980）</button></div><div style="background:var(--surface2);border:1.5px solid var(--border2);border-radius:var(--r-lg);padding:16px;margin-bottom:12px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:18px">⭐</span><div><div style="font-size:14px;font-weight:700;color:var(--text)">あいぽ Pro</div><div style="font-size:11px;color:var(--text3)">月額・いつでも解約可</div></div><div style="margin-left:auto;font-size:20px;font-weight:700;color:var(--text)">¥300<span style="font-size:11px;color:var(--text3);font-weight:400">/月</span></div></div><div style="font-size:12px;color:var(--text2);line-height:1.8;margin-bottom:12px">✓ コメント・上場 無制限<br>✓ 応援票 +1（計4票/日）</div><button onclick="upgradePro()" style="width:100%;padding:13px;background:var(--surface);border:1.5px solid var(--border2);border-radius:var(--r-md);font-size:14px;font-weight:700;color:var(--text);cursor:pointer;font-family:var(--sans)">Proにアップグレード（¥300/月）</button></div><button onclick="document.getElementById('upgrade-modal').remove()" style="width:100%;padding:13px;background:transparent;border:none;font-size:14px;color:var(--text3);cursor:pointer;font-family:var(--sans)">今はしない</button></div>`;
+  modal.innerHTML = `<div style="background:var(--surface);border-radius:24px 24px 0 0;padding:28px 24px 40px;width:100%;max-width:390px;max-height:90vh;overflow-y:auto"><div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 20px"></div><div style="font-size:17px;font-weight:700;text-align:center;margin-bottom:6px">${reason}</div><div style="font-size:13px;color:var(--text2);text-align:center;line-height:1.7;margin-bottom:12px">プランを選んでください</div><div id="modal-balance-row" style="background:var(--surface2);border:1.5px solid var(--border2);border-radius:var(--r-lg);padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between"><div><div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px">残高で追加票を買う</div><div style="font-size:11px;color:var(--text3)">現在の残高: <span id="modal-balance-val">...</span>円</div></div><button onclick="document.getElementById('upgrade-modal').remove();buyWithBalance('vote',50)" style="background:var(--amber-mid);color:#fff;border:none;border-radius:20px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans);white-space:nowrap">+1票 ¥50</button></div><div style="background:linear-gradient(135deg,#fff8ed,#fde8b8);border:2px solid var(--amber-mid);border-radius:var(--r-lg);padding:16px;margin-bottom:12px;position:relative;overflow:hidden"><div id="modal-founder-remaining" style="position:absolute;top:10px;right:10px;background:var(--amber-mid);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px">先着100名限定</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:20px">👑</span><div><div style="font-size:14px;font-weight:700;color:var(--text)">創設メンバー</div><div style="font-size:11px;color:var(--amber)">永久称号・一度きりの支払い</div></div><div style="margin-left:auto;font-size:22px;font-weight:700;color:var(--amber)">¥980</div></div><div style="font-size:12px;color:var(--text2);line-height:1.8;margin-bottom:12px">✓ Pro機能すべて（コメント・上場 無制限）<br>✓ 👑 創設メンバーバッジが永久に付く<br>✓ 買い切り・月額なし</div><div style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px 10px;font-size:11px;color:#e8850a;font-weight:600;text-align:center;margin-bottom:8px"><span>✓ 今すぐ使える</span><span>✓ 月額なし・買い切り¥980</span><span>✓ 先着100名限定</span><span>✓ 👑 永久バッジ付き</span></div><button onclick="upgradeFounder()" style="width:100%;padding:13px;background:var(--amber-mid);border:none;border-radius:var(--r-md);font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">👑 創設メンバーになる（¥980）</button></div><div style="background:var(--surface2);border:1.5px solid var(--border2);border-radius:var(--r-lg);padding:16px;margin-bottom:12px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:18px">⭐</span><div><div style="font-size:14px;font-weight:700;color:var(--text)">あいぽ Pro</div><div style="font-size:11px;color:var(--text3)">月額・いつでも解約可</div></div><div style="margin-left:auto;font-size:20px;font-weight:700;color:var(--text)">¥300<span style="font-size:11px;color:var(--text3);font-weight:400">/月</span></div></div><div style="font-size:12px;color:var(--text2);line-height:1.8;margin-bottom:12px">✓ コメント・上場 無制限<br>✓ 応援票 +1（計4票/日）</div><button onclick="upgradePro()" style="width:100%;padding:13px;background:var(--surface);border:1.5px solid var(--border2);border-radius:var(--r-md);font-size:14px;font-weight:700;color:var(--text);cursor:pointer;font-family:var(--sans)">Proにアップグレード（¥300/月）</button></div><button onclick="document.getElementById('upgrade-modal').remove()" style="width:100%;padding:13px;background:transparent;border:none;font-size:14px;color:var(--text3);cursor:pointer;font-family:var(--sans)">今はしない</button></div>`;
   document.body.appendChild(modal);
   modal.addEventListener('click', e => { if(e.target===modal) modal.remove(); });
   sb.from('profiles').select('id', { count: 'exact', head: true }).eq('is_founder', true).then(({ count }) => { if (count !== null) { const remaining = Math.max(0, 100 - count); const el = document.getElementById('modal-founder-remaining'); if (el) el.textContent = `残り${remaining}枠`; } });
@@ -1001,7 +1063,7 @@ function showUpgradeModal(reason) {
   else { const el = document.getElementById('modal-balance-row'); if (el) el.style.display = 'none'; }
 }
 
-async function upgradeFounder() { document.getElementById('upgrade-modal')?.remove(); window.location.href = 'https://buy.stripe.com/dRmfZj2T71I20Ew8bnfbq01'; }
+async function upgradeFounder() { document.getElementById('upgrade-modal')?.remove(); document.getElementById('pricing-sheet')?.remove(); phCapture('founder_cta_click'); window.location.href = 'https://buy.stripe.com/dRmfZj2T71I20Ew8bnfbq01'; }
 async function upgradePro() { document.getElementById('upgrade-modal')?.remove(); window.location.href = 'https://buy.stripe.com/aFacN7dxLbiCdrifDPfbq00'; }
 
 function checkUpgradeSuccess() {
@@ -1128,7 +1190,7 @@ function goTo(s) {
     if (s === 'portfolio') { const el = document.getElementById('nav-portfolio'); if(el) el.classList.add('active'); renderPortfolio(); }
     if (s === 'hiroba') { const el = document.getElementById('nav-hiroba'); if(el) el.classList.add('active'); loadHirobaList(); }
     if (s === 'post') { const el = document.getElementById('nav-post-tab'); if(el) el.classList.add('active'); resetPost(); }
-    if (s === 'match') { const el = document.getElementById('nav-match'); if(el) el.classList.add('active'); match_renderFeed(); }
+    if (s === 'match') { const el = document.getElementById('nav-match'); if(el) el.classList.add('active'); board_init(); }
     window.scrollTo(0,0);
   } catch(e) { console.error('goTo error:', s, e); }
 }
@@ -1456,6 +1518,7 @@ function showIPOBanner(idea) {
 async function showDetail(id) {
   trackIdeaView(id);
   const idea = ideas.find(i=>i.id===id);
+  if (idea && typeof posthog !== 'undefined') posthog.capture('idea_viewed', { ticker: idea.ticker, score: Math.round(idea.score) });
   idea.views++;
   const delta = idea.score - idea.baseScore; const ds = (delta>=0?'+':'')+delta.toFixed(1);
   const sc = delta>0.3?'up':delta<-0.3?'dn':'fl'; const pc = delta>0.3?'#22a85f':delta<-0.3?'#c0392b':'#aaa';
@@ -1465,9 +1528,9 @@ async function showDetail(id) {
   document.getElementById('detail-sub-title').textContent = idea.ticker;
   document.getElementById('detail-content').innerHTML = `
     ${(()=>{ const dp=getDividendPreview(idea); return !voted&&dp?`<div style="background:${dp.bg};border:1.5px solid ${dp.border};border-radius:var(--r-md);padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between"><div><div style="font-size:10px;font-weight:700;color:${dp.color};letter-spacing:.04em;margin-bottom:2px">${dp.badge||'配当予告'}</div><div style="font-size:12px;color:${dp.color}">注目銘柄になったとき → <strong>${dp.text}</strong></div></div><div style="font-size:10px;font-weight:700;color:var(--text3);background:var(--surface2);border:1px solid var(--border2);border-radius:4px;padding:3px 8px;white-space:nowrap">配当あり</div></div>`:''; })()}
-    <button onclick="voteFromDetail('${idea.id}')" style="width:100%;padding:15px;border-radius:var(--r-lg);font-size:15px;font-weight:700;font-family:var(--sans);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px;${voted?'background:var(--surface2);color:var(--text3);border:1.5px solid var(--border2)':'background:var(--green-light);color:#fff'}">
+    <button onclick="voteFromDetail('${idea.id}')" ${voted||votesLeft<=0?'disabled':''} style="width:100%;padding:15px;border-radius:var(--r-lg);font-size:15px;font-weight:700;font-family:var(--sans);border:none;cursor:${voted||votesLeft<=0?'not-allowed':'pointer'};display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px;${voted?'background:var(--surface2);color:var(--text3);border:1.5px solid var(--border2)':votesLeft<=0?'background:var(--surface2);color:var(--text3);border:1.5px solid var(--border2)':'background:var(--green-light);color:#fff'}">
       <svg width="16" height="16" viewBox="0 0 20 20" fill="${voted?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z"/></svg>
-      ${voted?'応援済み（'+idea.votes+'票）':'このアイデアを応援する（残り'+votesLeft+'票）'}
+      ${voted?'応援済み（'+idea.votes+'票）':votesLeft<=0?'本日の票を使い切りました':'このアイデアを応援する（残り'+votesLeft+'票）'}
     </button>
     <div class="hero-card">
       <div class="hero-top">
@@ -1536,6 +1599,7 @@ function voteIdea(id) {
   if (votesLeft <= 0) { updateXBonus(); showUpgradeModal('今日の票を使い切りました'); return; }
   const votesAtTime = idea.votes;
   votedIds.add(id); votesLeft--; idea.votes++;
+  if (typeof posthog !== 'undefined') posthog.capture('idea_voted', { ticker: idea.ticker });
   myEarlyVotes[id] = votesAtTime;
   insightScore += votesAtTime <= 1 ? 10 : votesAtTime <= 3 ? 8 : votesAtTime <= 5 ? 6 : votesAtTime <= 10 ? 4 : 1;
   idea.lastDelta = 2.5; idea.score = calcScore(idea); idea.history = [...idea.history.slice(-11), idea.score]; idea.lastReason = 'あなたの応援でスコアが上昇！';
@@ -1585,8 +1649,8 @@ function showPostPreview() {
   const desc = document.getElementById('inp-desc')?.value?.trim();
   const tech = document.getElementById('inp-tech')?.value?.trim();
   const rawTicker = document.getElementById('inp-ticker')?.value?.trim().toUpperCase();
-  if (!title) { showToast('アイデア名を入力してください'); return; }
-  if (!selectedGenre) { showToast('ジャンルを選んでください'); return; }
+  if (!title) { phCapture('apply_form_error', {error:'title_empty'}); showToast('アイデア名を入力してください'); return; }
+  if (!selectedGenre) { phCapture('apply_form_error', {error:'genre_empty'}); showToast('ジャンルを選んでください'); return; }
   const ticker = rawTicker || (title.replace(/[^A-Za-zぁ-ん一-龯]/g,'').slice(0,5).toUpperCase() || 'IDEA');
   const score = calcScore({votes:0,views:0,commentList:[],progress:0,progressStep:0,postedDaysAgo:0,daysSinceLastVote:0,desc,tech,supporters:0,genre:selectedGenre,id:'_'});
   const scoreColor = score >= 70 ? 'var(--green)' : score >= 50 ? 'var(--amber-mid)' : 'var(--text3)';
@@ -1620,6 +1684,8 @@ async function doPost() {
   const newIdea = { id:'local-'+Date.now(), ticker, emoji:selectedEmoji, name:title, desc, genre:selectedGenre, tech, baseScore:score, score, votes:0, views:0, progress:0, progressStep:0, postedDaysAgo:0, daysSinceLastVote:0, history:[score], lastReason:'上場しました', lastDelta:0, commentList:[], actions:[], supporters:0, userId: currentUser?.id };
   ideas.push(newIdea); myIdeas.add(newIdea.id); postCount++; updatePlanBadge();
   postIdeaToDB(newIdea).then(data => { if (data) { newIdea.id = data.id; myIdeas.delete('local-'+Date.now()); myIdeas.add(data.id); } });
+  phCapture('apply_submit');
+  if (typeof posthog !== 'undefined') posthog.capture('idea_posted');
   goTo('feed'); showToast('上場しました。マーケットに掲載されました');
 }
 
@@ -2354,6 +2420,7 @@ function showZukan(ideaId) {
 
 function showPricingSheet() {
   const existing = document.getElementById('pricing-sheet'); if (existing) { existing.remove(); return; }
+  phCapture('founder_cta_view');
   const sheet = document.createElement('div');
   sheet.id = 'pricing-sheet';
   sheet.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:300;display:flex;align-items:flex-end;justify-content:center';
@@ -2363,7 +2430,7 @@ function showPricingSheet() {
 <div id="pricing-founder-rem" style="position:absolute;top:12px;right:12px;background:var(--amber-mid);color:#fff;font-size:9px;font-weight:700;padding:3px 8px;border-radius:20px">先着100名</div>
 <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:12px"><span style="font-size:22px">👑</span><div style="flex:1"><div style="font-size:15px;font-weight:700;color:var(--text)">創設メンバー</div><div style="font-size:11px;color:var(--amber);margin-top:1px">永久称号・一度きりの支払い</div></div><div style="font-size:24px;font-weight:700;color:var(--amber)">¥980</div></div>
 <div style="font-size:12px;color:var(--text2);line-height:1.8;margin-bottom:14px">✓ 👑 創設メンバーバッジ（永久）<br>✓ コメント・上場 無制限<br>✓ 応援票 +1（4票/日）<br>✓ 買い切り・月額なし</div>
-<button onclick="upgradeFounder()" style="width:100%;padding:14px;background:var(--amber-mid);border:none;border-radius:var(--r-md);font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">👑 創設メンバーになる（¥980）</button></div>
+<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px 10px;font-size:11px;color:#e8850a;font-weight:600;text-align:center;margin-bottom:8px"><span>✓ 今すぐ使える</span><span>✓ 月額なし・買い切り¥980</span><span>✓ 先着100名限定</span><span>✓ 👑 永久バッジ付き</span></div><button onclick="upgradeFounder()" style="width:100%;padding:14px;background:var(--amber-mid);border:none;border-radius:var(--r-md);font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">👑 創設メンバーになる（¥980）</button></div>
 <div style="background:var(--surface2);border:1.5px solid var(--border2);border-radius:var(--r-lg);padding:18px;margin-bottom:12px">
 <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:12px"><span style="font-size:20px">⭐</span><div style="flex:1"><div style="font-size:15px;font-weight:700;color:var(--text)">あいぽ Pro</div><div style="font-size:11px;color:var(--text3);margin-top:1px">月額・いつでも解約可</div></div><div style="font-size:22px;font-weight:700;color:var(--text)">¥300<span style="font-size:11px;color:var(--text3);font-weight:400">/月</span></div></div>
 <div style="font-size:12px;color:var(--text2);line-height:1.8;margin-bottom:14px">✓ コメント・上場 無制限<br>✓ 応援票 +1（4票/日）</div>
@@ -2413,8 +2480,8 @@ function selHirobaTag(el) { document.querySelectorAll('.hiroba-tag').forEach(x=>
 
 async function sendHiroba() {
   const inp = document.getElementById('hiroba-input'); const text = inp?.value?.trim(); if (!text) return;
-  const anon = document.getElementById('hiroba-anon-check')?.checked;
-  const { error } = await sb.from('hiroba_comments').insert({ text, tag: hiroba_tag, user_id: anon ? null : (currentUser?.id || null), is_anon: anon, created_at: new Date().toISOString() });
+  if (!currentUser) { showLoginSheet(); return; }
+  const { error } = await sb.from('hiroba_posts').insert({ text, tag: hiroba_tag, user_id: currentUser.id });
   if (error) { showToast('送信に失敗しました'); console.error(error); return; }
   inp.value = ''; showToast('送信しました！ 💌');
   const overlay = document.getElementById('postbox-overlay');
@@ -2424,23 +2491,136 @@ async function sendHiroba() {
   setTimeout(() => { overlay.classList.remove('show'); overlay.style.display='none'; if(sub) sub.style.opacity='0'; loadHirobaList(); }, 2200);
 }
 
+const ADMIN_UUID = '7f3162ec-c281-435f-8e8e-3b6d65b8b1c9';
+
+async function checkAdminMsgBadge() {
+  if (!currentUser) return;
+  try {
+    const { data } = await sb.from('admin_messages')
+      .select('id')
+      .eq('from_user_id', ADMIN_UUID)
+      .eq('to_user_id', currentUser.id)
+      .eq('is_read', false);
+    const cnt = (data || []).length;
+    const badge = document.getElementById('hiroba-nav-badge');
+    if (!badge) return;
+    if (cnt > 0) {
+      badge.textContent = cnt > 9 ? '9+' : cnt;
+      badge.style.display = 'block';
+    } else {
+      badge.style.display = 'none';
+    }
+  } catch(e) {}
+}
+
 async function loadHirobaList() {
   const el = document.getElementById('msg-list'); if (!el) return;
   if (!currentUser) { el.innerHTML = '<div style="padding:24px;text-align:center;font-size:12px;color:var(--text3)">ログインするとメッセージを受け取れます</div>'; return; }
-  const { data, error } = await sb.from('messages').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
-  if (error || !data || data.length === 0) { el.innerHTML = '<div style="padding:24px;text-align:center;font-size:12px;color:var(--text3)">まだメッセージはありません</div>'; return; }
-  const unread = data.filter(m => !m.is_read).length;
+
+  // messagesテーブル（AI通知）と admin_messages（管理者メッセージ）を並行取得
+  const [sysRes, adminRes] = await Promise.allSettled([
+    sb.from('messages').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false }),
+    sb.from('admin_messages').select('*')
+      .or(`and(from_user_id.eq.${ADMIN_UUID},to_user_id.eq.${currentUser.id}),and(from_user_id.eq.${currentUser.id},to_user_id.eq.${ADMIN_UUID})`)
+      .order('created_at', { ascending: true }),
+  ]);
+
+  const sysMsgs   = sysRes.status   === 'fulfilled' ? (sysRes.value.data   || []) : [];
+  const adminMsgs = adminRes.status === 'fulfilled' ? (adminRes.value.data || []) : [];
+
+  // 管理者→ユーザー方向の未読を既読に
+  const unreadAdmin = adminMsgs.filter(m => m.from_user_id === ADMIN_UUID && m.to_user_id === currentUser.id && !m.is_read);
+  unreadAdmin.forEach(m => sb.from('admin_messages').update({ is_read: true, read_at: new Date().toISOString() }).eq('id', m.id).catch(() => {}));
+
+  const sysUnread   = sysMsgs.filter(m => !m.is_read).length;
+  const adminUnread = adminMsgs.filter(m => m.from_user_id === ADMIN_UUID && !m.is_read).length;
+  const totalUnread = sysUnread + adminUnread;
   const badge = document.getElementById('msg-unread-badge');
-  if (badge) { badge.textContent = unread > 0 ? `未読 ${unread}件` : ''; badge.style.display = unread > 0 ? 'inline-block' : 'none'; }
-  el.innerHTML = data.map(m => `<div style="padding:14px 16px;border-bottom:0.5px solid var(--border);${!m.is_read?'background:var(--amber-bg)':''}"><div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><div style="width:24px;height:24px;border-radius:50%;background:#1a1400;display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="font-size:10px">🤖</span></div><div style="font-size:12px;font-weight:700;color:var(--text)">あいぽ運営</div><div style="font-size:10px;color:var(--text3);margin-left:auto">${timeAgo(m.created_at)}</div>${!m.is_read?'<div style="width:7px;height:7px;border-radius:50%;background:var(--amber-mid);flex-shrink:0"></div>':''}</div><div style="font-size:13px;color:var(--text);line-height:1.7">${m.content}</div></div>`).join('');
-  data.filter(m => !m.is_read).forEach(m => { sb.from('messages').update({ is_read: true }).eq('id', m.id).then(() => {}); });
+  if (badge) { badge.textContent = totalUnread > 0 ? `未読 ${totalUnread}件` : ''; badge.style.display = totalUnread > 0 ? 'inline-block' : 'none'; }
+  // 広場を開いたのでナビバッジを消す
+  const navBadge = document.getElementById('hiroba-nav-badge');
+  if (navBadge) navBadge.style.display = 'none';
+
+  // システムメッセージ描画
+  const sysHtml = sysMsgs.map(m =>
+    `<div style="padding:14px 16px;border-bottom:0.5px solid var(--border);${!m.is_read?'background:var(--amber-bg)':''}"><div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><div style="width:24px;height:24px;border-radius:50%;background:#1a1400;display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="font-size:10px">🤖</span></div><div style="font-size:12px;font-weight:700;color:var(--text)">あいぽ運営</div><div style="font-size:10px;color:var(--text3);margin-left:auto">${timeAgo(m.created_at)}</div>${!m.is_read?'<div style="width:7px;height:7px;border-radius:50%;background:var(--amber-mid);flex-shrink:0"></div>':''}</div><div style="font-size:13px;color:var(--text);line-height:1.7">${m.content}</div></div>`
+  ).join('');
+  sysMsgs.filter(m => !m.is_read).forEach(m => sb.from('messages').update({ is_read: true }).eq('id', m.id).catch(() => {}));
+
+  // 管理者メッセージ（LINEスタイルスレッド）
+  let adminHtml = '';
+  if (adminMsgs.length > 0) {
+    const bubbles = adminMsgs.map(m => {
+      const isAdmin = m.from_user_id === ADMIN_UUID;
+      const time = new Date(m.created_at).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+      const readInfo = isAdmin && m.is_read
+        ? `<div style="font-size:9px;color:var(--text3);margin-top:2px;text-align:right">既読 ${m.read_at ? new Date(m.read_at).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}) : ''}</div>`
+        : isAdmin ? `<div style="font-size:9px;color:var(--text3);margin-top:2px;text-align:right">送信済み</div>` : '';
+      const senderLabel = !isAdmin ? `<div style="font-size:10px;color:var(--text3);margin-bottom:3px">あなた</div>` : `<div style="font-size:10px;color:var(--text3);margin-bottom:3px">あいぽ運営</div>`;
+      return `<div style="display:flex;flex-direction:column;align-items:${isAdmin?'flex-start':'flex-end'};margin-bottom:10px">
+        ${senderLabel}
+        <div style="max-width:78%;padding:9px 13px;border-radius:${isAdmin?'4px 16px 16px 16px':'16px 4px 16px 16px'};font-size:13px;line-height:1.5;word-break:break-word;background:${isAdmin?'var(--surface)':'#c96a00'};color:${isAdmin?'var(--text)':'#fff'};box-shadow:0 1px 4px rgba(0,0,0,.08)">${escHtml(m.text)}</div>
+        <div style="font-size:9px;color:var(--text3);margin-top:3px">${time}</div>
+        ${readInfo}
+      </div>`;
+    }).join('');
+    adminHtml = `<div style="padding:14px 16px;border-bottom:0.5px solid var(--border)">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:12px">
+        <div style="width:24px;height:24px;border-radius:50%;background:#c96a00;display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="font-size:10px">👤</span></div>
+        <div style="font-size:12px;font-weight:700;color:var(--text)">あいぽ運営との会話</div>
+      </div>
+      <div id="admin-chat-bubbles">${bubbles}</div>
+      <div style="display:flex;gap:8px;margin-top:12px;align-items:flex-end">
+        <textarea id="admin-reply-input" rows="1" style="flex:1;border:1.5px solid var(--border);border-radius:10px;padding:9px 12px;font-size:13px;font-family:var(--sans);background:var(--surface2);color:var(--text);resize:none;outline:none;line-height:1.5;max-height:80px;overflow-y:auto" placeholder="返信を送る..." oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,80)+'px'" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAdminReply();}"></textarea>
+        <button onclick="sendAdminReply()" style="background:#c96a00;border:none;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans);flex-shrink:0">送信</button>
+      </div>
+    </div>`;
+  }
+
+  if (sysMsgs.length === 0 && adminMsgs.length === 0) {
+    el.innerHTML = '<div style="padding:24px;text-align:center;font-size:12px;color:var(--text3)">まだメッセージはありません</div>';
+    return;
+  }
+  el.innerHTML = adminHtml + sysHtml;
+}
+
+function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+async function sendAdminReply() {
+  const inp = document.getElementById('admin-reply-input');
+  const text = inp?.value?.trim();
+  if (!text || !currentUser) return;
+  inp.value = ''; inp.style.height = 'auto';
+
+  const { data, error } = await sb.from('admin_messages').insert({
+    from_user_id: currentUser.id,
+    to_user_id: ADMIN_UUID,
+    text,
+    is_read: false,
+  }).select().single();
+
+  if (error) { showToast('送信に失敗しました'); inp.value = text; return; }
+
+  // バブルを追加
+  const bubblesEl = document.getElementById('admin-chat-bubbles');
+  if (bubblesEl && data) {
+    const time = new Date(data.created_at).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;flex-direction:column;align-items:flex-end;margin-bottom:10px';
+    wrap.innerHTML = `<div style="font-size:10px;color:var(--text3);margin-bottom:3px">あなた</div>
+      <div style="max-width:78%;padding:9px 13px;border-radius:16px 4px 16px 16px;font-size:13px;line-height:1.5;word-break:break-word;background:#c96a00;color:#fff;box-shadow:0 1px 4px rgba(0,0,0,.08)">${escHtml(data.text)}</div>
+      <div style="font-size:9px;color:var(--text3);margin-top:3px">${time}</div>`;
+    bubblesEl.appendChild(wrap);
+    bubblesEl.scrollTop = bubblesEl.scrollHeight;
+  }
+  showToast('送信しました 💌');
 }
 
 async function sendMsgReply() {
   const inp = document.getElementById('msg-reply-input'); const text = inp?.value?.trim(); if (!text || !currentUser) return;
-  const { error } = await sb.from('hiroba_comments').insert({ text: '[返信] ' + text, tag: 'その他', user_id: currentUser.id, is_anon: false, created_at: new Date().toISOString() });
+  const { error } = await sb.from('admin_messages').insert({ from_user_id: currentUser.id, to_user_id: ADMIN_UUID, text, is_read: false });
   if (error) { showToast('送信に失敗しました'); return; }
-  inp.value = ''; showToast('返信を送信しました');
+  inp.value = ''; showToast('返信を送信しました 💌');
 }
 
 function editField(ideaId, field) {
@@ -2519,8 +2699,16 @@ function showSimilarWarning(similar) {
   return new Promise(resolve => {
     const modal = document.createElement('div');
     modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:600;display:flex;align-items:flex-end;justify-content:center';
-    modal.innerHTML = `<div style="background:var(--surface);border-radius:24px 24px 0 0;padding:24px 20px 40px;width:100%;max-width:390px"><div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 18px"></div><div style="font-size:16px;font-weight:700;margin-bottom:6px">似たアイデアがあります</div><div style="font-size:13px;color:var(--text3);margin-bottom:12px">以下のアイデアと内容が似ています。このまま上場しますか？</div>${similar.slice(0,3).map(s=>`<div onclick="showDetail('${s.id}');modal.remove();resolve(false)" style="background:var(--bg);border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:pointer"><div style="font-size:12px;font-weight:700;color:var(--text)">${s.name}</div><div style="font-size:10px;color:var(--text3);margin-top:2px">${s.ticker} · スコア ${parseFloat(s.score||50).toFixed(1)}</div></div>`).join('')}<div style="display:flex;gap:8px;margin-top:14px"><button onclick="modal.remove();resolve(false)" style="flex:1;padding:13px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r-lg);font-size:14px;font-weight:700;color:var(--text2);cursor:pointer;font-family:var(--sans)">修正する</button><button onclick="modal.remove();resolve(true)" style="flex:1;padding:13px;background:var(--amber-mid);border:none;border-radius:var(--r-lg);font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">このまま上場</button></div></div>`;
-    modal.addEventListener('click', e => { if(e.target===modal) { modal.remove(); resolve(false); } });
+    const cardsHtml = similar.slice(0,3).map((s,i) =>
+      `<div data-idx="${i}" style="background:var(--bg);border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:pointer"><div style="font-size:12px;font-weight:700;color:var(--text)">${s.name}</div><div style="font-size:10px;color:var(--text3);margin-top:2px">${s.ticker} · スコア ${parseFloat(s.score||50).toFixed(1)}</div></div>`
+    ).join('');
+    modal.innerHTML = `<div style="background:var(--surface);border-radius:24px 24px 0 0;padding:24px 20px 40px;width:100%;max-width:390px"><div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 18px"></div><div style="font-size:16px;font-weight:700;margin-bottom:6px">似たアイデアがあります</div><div style="font-size:13px;color:var(--text3);margin-bottom:12px">以下のアイデアと内容が似ています。このまま上場しますか？</div>${cardsHtml}<div style="display:flex;gap:8px;margin-top:14px"><button id="sim-cancel" style="flex:1;padding:13px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r-lg);font-size:14px;font-weight:700;color:var(--text2);cursor:pointer;font-family:var(--sans)">修正する</button><button id="sim-proceed" style="flex:1;padding:13px;background:var(--amber-mid);border:none;border-radius:var(--r-lg);font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">このまま上場</button></div></div>`;
+    modal.addEventListener('click', e => { if (e.target === modal) { modal.remove(); resolve(false); } });
+    modal.querySelector('#sim-cancel').addEventListener('click', () => { modal.remove(); resolve(false); });
+    modal.querySelector('#sim-proceed').addEventListener('click', () => { modal.remove(); resolve(true); });
+    modal.querySelectorAll('[data-idx]').forEach((el, i) => {
+      el.addEventListener('click', () => { modal.remove(); resolve(false); showDetail(similar[i].id); });
+    });
     document.body.appendChild(modal);
   });
 }
@@ -2658,23 +2846,71 @@ async function ensureProfile(user) {
 
 async function init() {
   setViewMode(viewMode);
-  const splash = document.getElementById('splash');
-  const loginScreen = document.getElementById('login-screen');
-  const guideScreen = document.getElementById('guide-screen');
-  const hasSession = await checkSession();
-  await fetchIdeas();
-  setTimeout(()=>{ splash.classList.add('hide'); setTimeout(()=>splash.style.display='none',500); }, 800);
-  if (hasSession && currentUser) {
-    await ensureProfile(currentUser); await checkProStatus(); await loadVotedIds(); await loadInsightScore(); await loadDividends(); loadNotifBadge(); loadCertsFromDB();
-    trackReferrer(currentUser.id);
-    const guideDone = localStorage.getItem('guide-done');
-    if (!guideDone) { setTimeout(() => { guideScreen.classList.add('active'); }, 1200); }
-  } else {
-    const guideDone = localStorage.getItem('guide-done');
-    if (!guideDone) { setTimeout(() => { guideScreen.classList.add('active'); }, 1200); }
+  phCapture('landing_view');
+
+  // apply_cta_view: 上場ボタンが画面に入ったとき
+  const applyCtaEl = document.getElementById('nav-post-tab');
+  if (applyCtaEl) {
+    let applyCtaSent = false;
+    new IntersectionObserver(entries => {
+      if (!applyCtaSent && entries[0].isIntersecting) { applyCtaSent = true; phCapture('apply_cta_view'); }
+    }, { threshold: 0.5 }).observe(applyCtaEl);
   }
-  checkUpgradeSuccess();
-  updateXBonus();
+
+  // founder_cta_view: ログイン画面CTAが見えたとき（=ページ訪問時のLP）
+  const loginCtaEl = document.querySelector('.x-login-btn');
+  if (loginCtaEl) {
+    let founderCtaSent = false;
+    new IntersectionObserver(entries => {
+      if (!founderCtaSent && entries[0].isIntersecting) { founderCtaSent = true; phCapture('founder_cta_view'); }
+    }, { threshold: 0.5 }).observe(loginCtaEl);
+  }
+
+  // apply_form_start: 上場フォームの最初の入力
+  const inpTitle = document.getElementById('inp-title');
+  if (inpTitle) {
+    let formStartSent = false;
+    inpTitle.addEventListener('input', () => { if (!formStartSent) { formStartSent = true; phCapture('apply_form_start'); } }, { once: false });
+  }
+
+  const splash = document.getElementById('splash');
+  const guideScreen = document.getElementById('guide-screen');
+
+  const hideSplash = () => {
+    if (!splash) return;
+    splash.classList.add('hide');
+    setTimeout(() => { splash.style.display = 'none'; }, 500);
+  };
+
+  // 最大8秒で強制的にスプラッシュを消す安全弁
+  const safetyTimer = setTimeout(hideSplash, 8000);
+
+  let hasSession = false;
+  try {
+    hasSession = await checkSession();
+    await fetchIdeas();
+  } catch(e) {
+    console.error('init error:', e);
+  }
+
+  clearTimeout(safetyTimer);
+  setTimeout(hideSplash, 800);
+
+  try {
+    if (hasSession && currentUser) {
+      await ensureProfile(currentUser); await checkProStatus(); await loadVotedIds(); await loadInsightScore(); await loadDividends(); loadNotifBadge(); loadCertsFromDB(); checkAdminMsgBadge();
+      trackReferrer(currentUser.id);
+      const guideDone = localStorage.getItem('guide-done');
+      if (!guideDone) { setTimeout(() => { guideScreen.classList.add('active'); }, 1200); }
+    } else {
+      const guideDone = localStorage.getItem('guide-done');
+      if (!guideDone) { setTimeout(() => { guideScreen.classList.add('active'); }, 1200); }
+    }
+    checkUpgradeSuccess();
+    updateXBonus();
+  } catch(e) {
+    console.error('init post-splash error:', e);
+  }
 }
 
 
@@ -2687,6 +2923,16 @@ async function _sendNotification(userId, type, ideaId, message) {
     });
     if (userId === currentUser?.id) loadNotifBadge();
   } catch(e) { console.error('_sendNotification error:', e); }
+}
+
+async function markAdminMessagesAsRead(userId) {
+  if (!userId) return;
+  try {
+    await sb.from('admin_messages')
+      .update({ is_read: true, read_at: new Date().toISOString() })
+      .eq('to_user_id', userId)
+      .eq('is_read', false);
+  } catch(e) {}
 }
 
 async function loadNotifBadge() {
@@ -2893,10 +3139,6 @@ const MATCH_SKILLS = [
 ];
 
 let match_mySkills = [];
-let match_seekingBuffer = {};
-let match_chatSub = null;
-let match_currentRoomId = null;
-let match_currentDetailIdeaId = null;
 
 // ─── Phase A: スキル登録（プロフィールモーダル内）───────────
 async function match_initSkillSection() {
@@ -2945,339 +3187,662 @@ async function match_saveSkills() {
   showToast('スキルを保存しました');
 }
 
-async function match_openSkillModal() {
-  if (!currentUser) { showLoginSheet(); return; }
-  document.getElementById('match-skill-modal')?.remove();
-  const { data: prof } = await sb.from('skill_profiles').select('skills').eq('user_id', currentUser.id).single();
-  if (prof?.skills) match_mySkills = prof.skills;
-  let selected = [...match_mySkills];
-  const overlay = document.createElement('div');
-  overlay.id = 'match-skill-modal';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:flex-end;justify-content:center';
-  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
-  overlay.innerHTML = '<div style="background:var(--surface);border-radius:24px 24px 0 0;padding:24px 20px 36px;width:100%;max-width:390px">'
-    + '<div style="width:40px;height:4px;background:var(--border2,#e0ddd6);border-radius:2px;margin:0 auto 18px"></div>'
-    + '<div style="font-size:16px;font-weight:700;margin-bottom:4px">スキルを編集</div>'
-    + '<div style="font-size:12px;color:var(--text3,#999);margin-bottom:16px">複数選択できます</div>'
-    + '<div id="match-skill-modal-tags" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px">'
-    + MATCH_SKILLS.map(s =>
-        '<span id="mst-' + s.key + '" onclick="match_toggleModalTag(\'' + s.key + '\')" '
-        + 'style="display:inline-flex;align-items:center;gap:4px;padding:8px 14px;border-radius:20px;font-size:13px;font-weight:700;border:1.5px solid ' + (selected.includes(s.key) ? 'var(--amber-mid);background:var(--amber-mid);color:#fff' : 'var(--border2,#e0ddd6);background:var(--surface2,#f5f3ef);color:var(--text3,#999)') + ';cursor:pointer;font-family:var(--sans);transition:all .15s">'
-        + s.label + '</span>'
-      ).join('')
-    + '</div>'
-    + '<button onclick="match_saveSkillModal()" style="width:100%;padding:14px;background:var(--amber-mid);border:none;border-radius:12px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">保存する</button>'
-    + '<button onclick="document.getElementById(\'match-skill-modal\').remove()" style="width:100%;padding:12px;background:none;border:none;font-size:13px;color:var(--text3,#999);cursor:pointer;font-family:var(--sans);margin-top:4px">キャンセル</button>'
-    + '</div>';
-  document.body.appendChild(overlay);
-  overlay._selected = selected;
-}
-
-function match_toggleModalTag(key) {
-  const overlay = document.getElementById('match-skill-modal');
-  if (!overlay) return;
-  const sel = overlay._selected;
-  const el = document.getElementById('mst-' + key);
-  if (!el) return;
-  const idx = sel.indexOf(key);
-  if (idx >= 0) {
-    sel.splice(idx, 1);
-    el.style.background = 'var(--surface2,#f5f3ef)';
-    el.style.borderColor = 'var(--border2,#e0ddd6)';
-    el.style.color = 'var(--text3,#999)';
-  } else {
-    sel.push(key);
-    el.style.background = 'var(--amber-mid)';
-    el.style.borderColor = 'var(--amber-mid)';
-    el.style.color = '#fff';
-  }
-}
-
-async function match_saveSkillModal() {
-  if (!currentUser) return;
-  const overlay = document.getElementById('match-skill-modal');
-  if (!overlay) return;
-  const skills = overlay._selected || [];
-  const { error } = await sb.from('skill_profiles').upsert(
-    { user_id: currentUser.id, skills, updated_at: new Date().toISOString() },
-    { onConflict: 'user_id' }
-  );
-  if (error) { showToast('保存に失敗しました'); return; }
-  match_mySkills = [...skills];
-  overlay.remove();
-  showToast('保存しました');
-  match_renderFeed();
-}
-
-// ─── Phase A-2: アイデア詳細の募集セクション ───────────────
+// ─── Phase B: アイデア詳細のマッチングセクション ──────────
 async function match_loadDetailSection(ideaId) {
   const el = document.getElementById('match-detail-' + ideaId);
   if (!el) return;
   const idea = ideas.find(i => i.id === ideaId);
-  if (!idea) return;
-  const isOwner = currentUser && myIdeas.has(ideaId);
-  let html = '';
-  if (isOwner) {
-    const seeking = idea.seeking_skills || [];
-    html += '<div style="padding:14px;background:var(--surface);border-radius:12px;margin-bottom:10px">'
-      + '<div style="font-size:12px;font-weight:700;color:var(--text3);letter-spacing:.06em;margin-bottom:8px">仲間を募集する</div>'
-      + '<div class="skill-tags-wrap" id="detail-seek-tags">'
-      + MATCH_SKILLS.map(s => '<span class="skill-tag' + (seeking.includes(s.key) ? ' active' : '') + '" onclick="match_toggleSeekTag(this,\'' + ideaId + '\',\'' + s.key + '\')">' + s.label + '</span>').join('')
-      + '</div>'
-      + '<button onclick="match_saveSeekSkills(\'' + ideaId + '\')" style="margin-top:8px;width:100%;padding:11px;background:var(--amber-mid);border:none;border-radius:10px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">募集を開始する</button>'
-      + '</div>';
-    const { data: reqs } = await sb.from('help_requests')
-      .select('id,from_user_id,message,status,profiles(x_username)')
-      .eq('idea_id', ideaId)
-      .order('created_at', { ascending: false });
-    if (reqs && reqs.length > 0) {
-      html += '<div style="padding:14px;background:var(--surface);border-radius:12px;margin-bottom:10px">'
-        + '<div style="font-size:12px;font-weight:700;color:var(--text3);letter-spacing:.06em;margin-bottom:8px">📬 手伝いの申し出 ' + reqs.length + '件</div>';
-      reqs.forEach(r => {
-        const uname = r.profiles?.x_username ? '@' + r.profiles.x_username : r.from_user_id.slice(0, 8) + '...';
-        const statusBadge = r.status === 'accepted'
-          ? '<span style="font-size:10px;color:#22a85f;font-weight:700">✅ 承認済み</span>'
-          : r.status === 'rejected'
-          ? '<span style="font-size:10px;color:var(--text3)">❌ お断り済み</span>'
-          : '<span style="font-size:10px;color:var(--amber-mid);font-weight:700">⏳ 未対応</span>';
-        const btns = r.status === 'pending'
-          ? '<div style="display:flex;gap:6px;margin-top:8px">'
-            + '<button onclick="match_acceptRequest(\'' + r.id + '\',\'' + ideaId + '\',\'' + r.from_user_id + '\')" style="flex:1;padding:9px;background:#22a85f;border:none;border-radius:8px;font-size:12px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">✅ 承認</button>'
-            + '<button onclick="match_rejectRequest(\'' + r.id + '\')" style="flex:1;padding:9px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;font-size:12px;font-weight:700;color:var(--text3);cursor:pointer;font-family:var(--sans)">❌ お断り</button>'
-            + '</div>'
-          : '';
-        html += '<div style="background:var(--bg);border-radius:10px;padding:10px 12px;margin-bottom:8px">'
-          + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
-          + '<span style="font-size:12px;font-weight:700;color:var(--text)">' + uname + '</span>' + statusBadge
-          + '</div>'
-          + '<div style="font-size:12px;color:var(--text3);line-height:1.5">' + (r.message || '').replace(/</g, '&lt;') + '</div>'
-          + btns + '</div>';
-      });
-      html += '</div>';
-    }
-  } else if (currentUser) {
-    const seeking = idea.seeking_skills || [];
-    if (seeking.length > 0) {
-      html += '<div style="padding:14px;background:var(--surface);border-radius:12px;margin-bottom:10px">'
-        + '<div style="font-size:12px;font-weight:700;color:var(--text3);letter-spacing:.06em;margin-bottom:8px">🤝 仲間を募集中</div>'
-        + '<div class="skill-tags-wrap">'
-        + MATCH_SKILLS.filter(s => seeking.includes(s.key)).map(s => '<span class="skill-tag active" style="pointer-events:none">' + s.label + '</span>').join('')
-        + '</div>'
-        + '<button onclick="match_openHelpModal(\'' + ideaId + '\')" style="margin-top:10px;width:100%;padding:13px;background:var(--amber-mid);border:none;border-radius:10px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">🙋 手伝いたい！</button>'
-        + '</div>';
-    }
-  }
-  el.innerHTML = html;
-}
-
-function match_toggleSeekTag(el, ideaId, key) {
-  if (!match_seekingBuffer[ideaId]) {
-    const idea = ideas.find(i => i.id === ideaId);
-    match_seekingBuffer[ideaId] = [...(idea?.seeking_skills || [])];
-  }
-  const arr = match_seekingBuffer[ideaId];
-  if (arr.includes(key)) { match_seekingBuffer[ideaId] = arr.filter(k => k !== key); el.classList.remove('active'); }
-  else { arr.push(key); el.classList.add('active'); }
-}
-
-async function match_saveSeekSkills(ideaId) {
-  if (!currentUser) return;
-  const skills = match_seekingBuffer[ideaId] ?? (ideas.find(i => i.id === ideaId)?.seeking_skills || []);
-  const { error } = await sb.from('ideas').update({ seeking_skills: skills }).eq('id', ideaId);
-  if (error) { showToast('保存に失敗しました'); return; }
-  const idea = ideas.find(i => i.id === ideaId);
-  if (idea) idea.seeking_skills = skills;
-  showToast('募集スキルを保存しました');
-}
-
-function match_openHelpModal(ideaId) {
-  if (!currentUser) { showLoginSheet(); return; }
-  document.getElementById('match-help-modal')?.remove();
-  const overlay = document.createElement('div');
-  overlay.id = 'match-help-modal';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:flex-end;justify-content:center';
-  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
-  overlay.innerHTML = '<div style="background:var(--surface);border-radius:24px 24px 0 0;padding:24px 20px 36px;width:100%;max-width:390px">'
-    + '<div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 18px"></div>'
-    + '<div style="font-size:16px;font-weight:700;margin-bottom:12px">手伝いのメッセージ</div>'
-    + '<textarea id="match-help-msg" class="inp inp-sm" rows="4" maxlength="200" placeholder="自己紹介と、どんな形で手伝えるかを書いてください..." style="width:100%;resize:none;margin-bottom:12px"></textarea>'
-    + '<button onclick="match_sendHelpRequest(\'' + ideaId + '\')" style="width:100%;padding:14px;background:var(--amber-mid);border:none;border-radius:12px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">申し出る</button>'
-    + '<button onclick="document.getElementById(\'match-help-modal\').remove()" style="width:100%;padding:12px;background:none;border:none;font-size:13px;color:var(--text3);cursor:pointer;font-family:var(--sans);margin-top:4px">キャンセル</button>'
+  const skills = idea?.seeking_skills || [];
+  if (!skills.length) { el.innerHTML = ''; return; }
+  const labels = skills.map(k => (MATCH_SKILLS.find(s => s.key === k) || { label: k }).label);
+  el.innerHTML = '<div style="border-top:0.5px solid var(--border);padding-top:12px">'
+    + '<div style="font-size:11px;font-weight:700;color:var(--text3);margin-bottom:8px">🤝 募集スキル</div>'
+    + '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">'
+    + labels.map(l => '<span style="font-size:11px;background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:3px 10px;color:var(--text2)">' + l + '</span>').join('')
+    + '</div>'
+    + '<div id="match-members-' + ideaId + '" style="font-size:11px;color:var(--text3)">マッチングを検索中...</div>'
     + '</div>';
+  try {
+    const { data } = await sb.from('skill_profiles')
+      .select('user_id, skills, bio, available')
+      .eq('available', true)
+      .overlaps('skills', skills);
+    const members = data || [];
+    const mEl = document.getElementById('match-members-' + ideaId);
+    if (!mEl) return;
+    if (!members.length) { mEl.innerHTML = '<span style="color:var(--text3);font-size:11px">現在マッチするメンバーはいません</span>'; return; }
+    mEl.innerHTML = members.slice(0, 5).map(m => {
+      const ml = (m.skills || []).map(k => (MATCH_SKILLS.find(s => s.key === k) || { label: k }).label).join(' · ');
+      return '<div style="background:var(--surface2);border-radius:10px;padding:10px 12px;margin-bottom:6px">'
+        + '<div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px">' + ml + '</div>'
+        + (m.bio ? '<div style="font-size:11px;color:var(--text3)">' + m.bio + '</div>' : '')
+        + '</div>';
+    }).join('');
+  } catch(e) {
+    const mEl = document.getElementById('match-members-' + ideaId);
+    if (mEl) mEl.innerHTML = '';
+  }
+}
+
+// ─── 開発掲示板 ──────────────────────────────────────────
+
+function bEsc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function bRelTime(ts) {
+  const d = (Date.now() - new Date(ts)) / 1000;
+  if (d < 60) return 'たった今';
+  if (d < 3600) return Math.floor(d/60) + '分前';
+  if (d < 86400) return Math.floor(d/3600) + '時間前';
+  return Math.floor(d/86400) + '日前';
+}
+
+const BOARD_TAG_COLORS = {
+  '相談': { bg:'#fff8ed', color:'#e8850a', border:'#f5d68a' },
+  '雑談': { bg:'#f5f5f5', color:'#666', border:'#ddd' },
+  '募集': { bg:'#edf7f2', color:'#22a85f', border:'#a8dfc0' },
+  '実績': { bg:'#eff6ff', color:'#3b82f6', border:'#93c5fd' },
+};
+
+function bTagBadge(tag) {
+  const c = BOARD_TAG_COLORS[tag] || { bg:'#f5f5f5', color:'#666', border:'#ddd' };
+  return '<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;background:'+c.bg+';color:'+c.color+';border:1px solid '+c.border+'">'+bEsc(tag)+'</span>';
+}
+
+function bAvatar(name) {
+  const s = String(name||'?');
+  const initial = s[0];
+  const cols = ['#e8850a','#22a85f','#3b82f6','#9333ea','#ef4444'];
+  const bg = cols[s.charCodeAt(0) % cols.length];
+  return '<div style="width:36px;height:36px;border-radius:50%;background:'+bg+';display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0">'+bEsc(initial)+'</div>';
+}
+
+function bSheet(content) {
+  return '<div class="board-sheet" style="max-height:90vh">'+content+'</div>';
+}
+
+let board_posts = [];
+let board_devs = [];
+let board_devFilter = '';
+let board_realtimeSub = null;
+let board_selectedTag = '';
+let board_initialized = false;
+let dev_selectedSkills = [];
+
+function boardSetSubTab(tab) {
+  document.getElementById('board-panel-board').style.display = tab==='board' ? 'block' : 'none';
+  document.getElementById('board-panel-devs').style.display  = tab==='devs'  ? 'block' : 'none';
+  document.getElementById('board-panel-impl').style.display  = tab==='impl'  ? 'block' : 'none';
+  const fab = document.getElementById('board-fab');
+  if (fab) fab.style.display = tab==='board' ? 'flex' : 'none';
+  document.querySelectorAll('.board-subtab').forEach(el => el.classList.remove('active'));
+  const active = document.getElementById('board-tab-'+tab);
+  if (active) active.classList.add('active');
+  if (tab === 'impl') impl_render();
+}
+
+// ─── 上場実装タブ ──────────────────────────────────────────
+
+const IMPL_CARDS = [
+  {
+    id: 'devboard',
+    ticker: 'DEVBOARD',
+    idea_name: '個人開発界隈の掲示板が欲しい',
+    score: 72.4,
+    votes: 12,
+    posted_at: '2026年2月',
+    status: 'released',
+    title: '開発掲示板 + 開発者一覧',
+    description: '個人開発者が集まる掲示板と、作ったものを載せられる開発者プロフィール一覧。あいぽに上場されたこのアイデアがスコアを集め、実際に実装されました。',
+    links: [
+      { label: '掲示板を使う', url: 'https://aipo-tau.vercel.app' },
+      { label: '元のアイデアを見る', url: 'https://aipo-tau.vercel.app' },
+    ],
+  },
+];
+
+let impl_rendered = false;
+
+function impl_render() {
+  if (impl_rendered) return;
+  impl_rendered = true;
+  const body = document.getElementById('impl-list-body');
+  if (!body) return;
+  body.innerHTML = IMPL_CARDS.map(c => impl_cardHTML(c)).join('');
+}
+
+function impl_cardHTML(c) {
+  const statusLabel = c.status === 'released' ? 'リリース済み' : '開発中';
+  const statusColor = c.status === 'released' ? 'var(--green-light)' : 'var(--amber-mid)';
+  const statusBg    = c.status === 'released' ? 'rgba(34,168,95,.1)' : 'rgba(232,133,10,.1)';
+  const links = c.links.map((l, i) =>
+    `<button onclick="impl_openLink(${i},'${encodeURIComponent(l.url)}')" style="display:block;width:100%;text-align:left;padding:9px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;font-size:12px;font-weight:700;color:var(--text);cursor:pointer;font-family:var(--sans);margin-bottom:6px">
+      ${l.label} <span style="color:var(--text3);font-weight:400;float:right">→</span>
+    </button>`
+  ).join('');
+  return `<div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;margin-bottom:14px;overflow:hidden">
+    <div style="background:linear-gradient(135deg,#fff8ed,#fde8b8);padding:12px 14px;border-bottom:1px solid var(--amber-border)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
+        <span style="font-family:var(--mono);font-size:10px;font-weight:700;color:var(--amber);letter-spacing:.06em">${c.ticker}</span>
+        <span style="font-size:10px;color:var(--text3)">${c.posted_at}上場</span>
+      </div>
+      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">${c.idea_name}</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-family:var(--mono);font-size:15px;font-weight:700;color:var(--amber)">${c.score}</span>
+        <span style="font-size:11px;color:var(--text3)">${c.votes}票</span>
+      </div>
+    </div>
+    <div style="padding:14px">
+      <div style="margin-bottom:10px">
+        <span style="display:inline-block;font-size:10px;font-weight:700;color:${statusColor};background:${statusBg};border-radius:20px;padding:2px 10px;margin-bottom:8px">${statusLabel}</span>
+        <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px">${c.title}</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.7">${c.description}</div>
+      </div>
+      <div style="border-top:0.5px solid var(--border);padding-top:12px;margin-top:2px">${links}</div>
+    </div>
+    <div style="background:var(--surface2);border-top:0.5px solid var(--border);padding:8px 14px;display:flex;gap:10px;align-items:center">
+      <span style="font-size:10px;color:var(--text3)">無料 1件</span>
+      <span style="font-size:10px;color:var(--text3)">·</span>
+      <span style="font-size:10px;color:var(--amber);font-weight:700">Pro 無制限</span>
+      <span style="font-size:10px;color:var(--text3)">·</span>
+      <span style="font-size:10px;color:var(--amber);font-weight:700">👑 創設 無制限</span>
+    </div>
+  </div>`;
+}
+
+function impl_openLink(linkIndex, encodedUrl) {
+  const url = decodeURIComponent(encodedUrl);
+  if (isPro || (currentUser && currentUser.isFounder)) {
+    window.open(url, '_blank');
+    return;
+  }
+  const count = parseInt(localStorage.getItem('impl_link_count') || '0', 10);
+  if (count < 1) {
+    localStorage.setItem('impl_link_count', String(count + 1));
+    window.open(url, '_blank');
+    return;
+  }
+  impl_showUpgradeSheet();
+}
+
+function impl_showUpgradeSheet() {
+  const existing = document.getElementById('impl-upgrade-sheet');
+  if (existing) return;
+  const overlay = document.createElement('div');
+  overlay.id = 'impl-upgrade-sheet';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;display:flex;align-items:flex-end;justify-content:center';
+  overlay.innerHTML = `<div style="background:var(--surface);border-radius:24px 24px 0 0;padding:28px 20px 40px;width:100%;max-width:390px">
+    <div style="width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 20px"></div>
+    <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px;text-align:center">無料プランの上限です</div>
+    <div style="font-size:13px;color:var(--text2);text-align:center;line-height:1.7;margin-bottom:20px">
+      無料プランは1件まで開けます。<br>Proにアップグレードで全て開放されます。
+    </div>
+    <a href="https://buy.stripe.com/aFacN7dxLbiCdrifDPfbq00" style="display:block;width:100%;padding:14px;background:var(--amber-mid);border:none;border-radius:var(--r-md);font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans);text-align:center;text-decoration:none;margin-bottom:10px" onclick="phCapture('founder_cta_click',{location:'impl_upgrade'})">Proにアップグレード</a>
+    <button onclick="document.getElementById('impl-upgrade-sheet').remove()" style="display:block;width:100%;padding:12px;background:transparent;border:none;font-size:13px;color:var(--text3);cursor:pointer;font-family:var(--sans)">今はしない</button>
+  </div>`;
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
   document.body.appendChild(overlay);
 }
 
-async function match_sendHelpRequest(ideaId) {
-  if (!currentUser) return;
-  const msg = document.getElementById('match-help-msg')?.value?.trim() || '';
-  const { data: existing } = await sb.from('help_requests').select('id').eq('idea_id', ideaId).eq('from_user_id', currentUser.id).single();
-  if (existing) { showToast('すでに申し出済みです'); return; }
-  const { error } = await sb.from('help_requests').insert({ idea_id: ideaId, from_user_id: currentUser.id, message: msg });
-  if (error) { showToast('送信に失敗しました'); return; }
-  document.getElementById('match-help-modal')?.remove();
-  showToast('申し出を送りました！');
+async function board_init() {
+  if (board_initialized) return;
+  board_initialized = true;
+  try {
+    await Promise.all([board_loadPosts(), dev_loadDevs()]);
+  } catch(e) {
+    board_initialized = false;
+    console.error('board_init error:', e);
+  }
 }
 
-async function match_acceptRequest(reqId, ideaId, helperId) {
-  const { error: e1 } = await sb.from('help_requests').update({ status: 'accepted' }).eq('id', reqId);
-  if (e1) { showToast('エラーが発生しました'); return; }
-  const { error: e2 } = await sb.from('chat_rooms').insert({ idea_id: ideaId, owner_id: currentUser.id, helper_id: helperId });
-  if (e2 && !e2.message.includes('unique')) { showToast('チャット作成に失敗しました'); return; }
-  showToast('承認しました！チャットを開始できます');
-  match_loadDetailSection(ideaId);
-}
+// ─── 掲示板 ───────────────────────────────────────────────
 
-async function match_rejectRequest(reqId) {
-  await sb.from('help_requests').update({ status: 'rejected' }).eq('id', reqId);
-  showToast('お断りしました');
-  if (match_currentDetailIdeaId) match_loadDetailSection(match_currentDetailIdeaId);
-}
-
-// ─── Phase B: マッチングフィード ──────────────────────────
-async function match_renderFeed() {
-  const el = document.getElementById('match-feed-body');
-  if (!el) return;
-  if (!currentUser) {
-    el.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--text3);font-size:13px">ログインするとマッチング機能を使えます</div>';
-    const skillsEl = document.getElementById('match-my-skills');
-    if (skillsEl) skillsEl.innerHTML = '';
-    const chatsEl = document.getElementById('match-chats-section');
-    if (chatsEl) chatsEl.innerHTML = '';
+async function board_loadPosts() {
+  const body = document.getElementById('board-list-body');
+  if (!body) return;
+  body.innerHTML = '<div class="board-skeleton"></div>'.repeat(3);
+  const { data, error } = await sb.from('board_posts')
+    .select('*,board_comments(count)')
+    .order('created_at', { ascending: false });
+  if (error || !data) {
+    board_initialized = false;
+    body.innerHTML = '<div style="text-align:center;color:var(--text3);padding:30px;font-size:13px">読み込みに失敗しました<br><br>'
+      +'<button onclick="board_initialized=false;board_init()" style="background:var(--amber-mid);border:none;border-radius:10px;padding:8px 18px;font-size:12px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">再読込</button></div>';
     return;
   }
-  await match_renderChats();
-  const { data: skillProf } = await sb.from('skill_profiles').select('skills,bio').eq('user_id', currentUser.id).single();
-  const mySkills = skillProf?.skills || [];
-  const skillsEl = document.getElementById('match-my-skills');
-  if (skillsEl) {
-    if (mySkills.length === 0) {
-      skillsEl.innerHTML = '<div style="background:var(--surface);border-radius:12px;padding:14px;font-size:13px;color:var(--text3)">スキルが未登録です。<a href="#" onclick="openProfileModal();return false;" style="color:var(--amber-mid);font-weight:700">プロフィールで登録</a>してください。</div>';
+  board_posts = data;
+  board_renderPosts();
+}
+
+function board_renderPosts() {
+  const body = document.getElementById('board-list-body');
+  if (!body) return;
+  if (board_posts.length === 0) {
+    body.innerHTML = '<div style="text-align:center;color:var(--text3);padding:40px 0"><div style="font-size:30px;margin-bottom:10px">📝</div><div style="font-size:14px;font-weight:700">まだ投稿がありません</div><div style="font-size:12px;margin-top:6px">最初の投稿をしてみよう</div></div>';
+    return;
+  }
+  body.innerHTML = board_posts.map((p, idx) => {
+    const cnt = p.board_comments?.[0]?.count ?? 0;
+    const preview = p.body.replace(/\n/g,' ');
+    return '<div class="board-card" onclick="boardOpenDetail('+idx+')" style="cursor:pointer">'
+      +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'+bTagBadge(p.tag)+'<span style="font-size:11px;color:var(--text3)">'+bRelTime(p.created_at)+'</span></div>'
+      +'<div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;line-height:1.4">'+bEsc(p.title)+'</div>'
+      +'<div style="font-size:12px;color:var(--text3);line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">'+bEsc(preview)+'</div>'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">'
+      +'<span style="font-size:11px;color:var(--text3)">'+bEsc(p.author_name)+'</span>'
+      +'<span style="font-size:11px;color:var(--text3)">💬 '+cnt+'</span>'
+      +'</div></div>';
+  }).join('');
+}
+
+function boardRenderCommentBody(body) {
+  return bEsc(body).replace(/@([\w]+)/g,
+    '<span style="color:var(--amber-mid);font-weight:700">@$1</span>');
+}
+
+function boardRenderComment(c) {
+  return '<div id="cmt-row-'+c.id+'" style="display:flex;gap:10px;margin-bottom:16px">'
+    +bAvatar(c.author_name)
+    +'<div style="flex:1;min-width:0">'
+    +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">'
+    +'<span style="font-size:12px;font-weight:700;color:var(--text)">'+bEsc(c.author_name)+'</span>'
+    +'<span style="font-size:10px;color:var(--text3)">'+bRelTime(c.created_at)+'</span>'
+    +'</div>'
+    +'<div style="font-size:13px;color:var(--text);line-height:1.6;background:var(--bg);border-radius:10px;padding:10px 12px;white-space:pre-wrap;word-break:break-word">'+boardRenderCommentBody(c.body)+'</div>'
+    +'<button id="like-btn-'+c.id+'" onclick="boardLikeComment(\''+c.id+'\',this)" '
+    +'style="background:none;border:none;font-size:12px;color:var(--text3);cursor:pointer;margin-top:5px;padding:2px 0;font-family:var(--sans);display:inline-flex;align-items:center;gap:3px">'
+    +'<span style="font-size:14px">♡</span> '+(c.likes||0)+'</button>'
+    +'</div></div>';
+}
+
+function boardOpenDetail(idx) {
+  const p = board_posts[idx];
+  if (!p) return;
+  boardCleanupRealtime();
+  document.getElementById('board-detail-ov')?.remove();
+  const ov = document.createElement('div');
+  ov.id = 'board-detail-ov';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;justify-content:flex-end;background:rgba(0,0,0,.5)';
+  const defaultName = currentUser ? (currentUser.displayName || currentUser.email?.split('@')[0] || '') : '';
+  ov.innerHTML = bSheet(
+    '<div class="board-handle"></div>'
+    +'<div style="padding:4px 16px 12px;border-bottom:0.5px solid var(--border);flex-shrink:0;display:flex;align-items:flex-start;gap:8px">'
+    +'<div style="flex:1;min-width:0">'
+    +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'+bTagBadge(p.tag)+'<span style="font-size:11px;color:var(--text3)">'+bRelTime(p.created_at)+'</span></div>'
+    +'<div style="font-size:17px;font-weight:700;color:var(--text);line-height:1.4;margin-bottom:4px">'+bEsc(p.title)+'</div>'
+    +'<div style="font-size:12px;color:var(--text3)">'+bEsc(p.author_name)+'</div>'
+    +'</div>'
+    +'<button onclick="boardCloseDetail()" style="background:none;border:none;font-size:24px;cursor:pointer;color:var(--text3);line-height:1;flex-shrink:0;padding:0;margin-top:-2px">×</button>'
+    +'</div>'
+    +'<div id="board-detail-scroll-'+p.id+'" style="flex:1;min-height:0;overflow-y:auto;padding:16px">'
+    +'<div style="font-size:13px;color:var(--text);line-height:1.7;margin-bottom:20px;white-space:pre-wrap;word-break:break-word">'+bEsc(p.body)+'</div>'
+    +'<div style="font-size:11px;font-weight:700;color:var(--text3);margin-bottom:12px;text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;justify-content:space-between">'
+    +'<span>コメント</span>'
+    +'</div>'
+    +'<div id="board-cmts-'+p.id+'"><div style="text-align:center;padding:20px;color:var(--text3);font-size:12px">読み込み中...</div></div>'
+    +'</div>'
+    +'<div style="padding:10px 14px 10px;border-top:0.5px solid var(--border);flex-shrink:0;background:var(--surface)">'
+    +'<div style="position:relative">'
+    +'<div id="board-mention-drop" style="display:none;position:absolute;bottom:calc(100% + 4px);left:0;right:0;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:0 -4px 24px rgba(0,0,0,.14);max-height:180px;overflow-y:auto;z-index:10"></div>'
+    +'<textarea id="board-cmt-body-'+p.id+'" class="inp inp-sm" placeholder="コメントを入力…（@でメンション）" rows="2" maxlength="400" style="width:100%;resize:none;line-height:1.6;margin-bottom:7px" oninput="boardMentionCheck(this,\''+p.id+'\')"></textarea>'
+    +'</div>'
+    +'<div style="display:flex;gap:8px">'
+    +'<input id="board-cmt-name-'+p.id+'" class="inp inp-sm" placeholder="名前（匿名でもOK）" maxlength="20" style="flex:1" value="'+bEsc(defaultName)+'">'
+    +'<button onclick="boardSubmitComment(\''+p.id+'\')" style="background:var(--amber-mid);border:none;border-radius:10px;padding:0 18px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans);flex-shrink:0;height:38px">送信</button>'
+    +'</div>'
+    +'</div>'
+  );
+  ov.onclick = e => { if (e.target === ov) boardCloseDetail(); };
+  document.body.appendChild(ov);
+  boardLoadComments(p.id);
+  boardSetupRealtime(p.id);
+}
+
+function boardCloseDetail() {
+  boardCleanupRealtime();
+  document.getElementById('board-detail-ov')?.remove();
+}
+
+function boardSetupRealtime(postId) {
+  boardCleanupRealtime();
+  board_realtimeSub = sb.channel('board-cmt-'+postId)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'board_comments', filter: 'post_id=eq.'+postId },
+      payload => { boardAddRealtimeComment(postId, payload.new); })
+    .subscribe();
+}
+
+function boardCleanupRealtime() {
+  if (board_realtimeSub) {
+    try { sb.removeChannel(board_realtimeSub); } catch(e) {}
+    board_realtimeSub = null;
+  }
+}
+
+function boardAddRealtimeComment(postId, c) {
+  const wrap = document.getElementById('board-cmts-'+postId);
+  if (!wrap) return;
+  const isEmpty = wrap.querySelector('[data-empty]');
+  if (isEmpty) wrap.innerHTML = '';
+  wrap.insertAdjacentHTML('afterbegin', boardRenderComment(c));
+}
+
+async function boardLoadComments(postId) {
+  const wrap = document.getElementById('board-cmts-'+postId);
+  if (!wrap) return;
+  const { data } = await sb.from('board_comments').select('*').eq('post_id', postId).order('created_at', { ascending: false });
+  if (!data || data.length === 0) {
+    wrap.innerHTML = '<div data-empty="1" style="text-align:center;color:var(--text3);padding:20px 0;font-size:12px">まだコメントがありません</div>';
+    return;
+  }
+  wrap.innerHTML = data.map(boardRenderComment).join('');
+}
+
+function boardMentionCheck(textarea, postId) {
+  const val = textarea.value;
+  const pos = textarea.selectionStart;
+  const before = val.slice(0, pos);
+  const match = before.match(/@(\w*)$/);
+  const drop = document.getElementById('board-mention-drop');
+  if (!drop) return;
+  if (!match) { drop.style.display = 'none'; return; }
+  const query = (match[1]||'').toLowerCase();
+  const hits = board_devs.filter(d => {
+    const h = (d.handle||'').replace(/^@/,'').toLowerCase();
+    const n = (d.name||'').toLowerCase();
+    return h.includes(query) || n.includes(query);
+  }).slice(0, 6);
+  if (hits.length === 0) { drop.style.display = 'none'; return; }
+  drop.style.display = 'block';
+  drop.innerHTML = hits.map(d =>
+    '<div onclick="boardInsertMention(\''+postId+'\',\''+bEsc((d.handle||d.name).replace(/^@/,''))+'\')" '
+    +'style="padding:9px 14px;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:10px;border-bottom:0.5px solid var(--border)">'
+    +bAvatar(d.name||'?')
+    +'<div><div style="font-weight:700;color:var(--text);font-size:13px">'+bEsc(d.name)+'</div>'
+    +'<div style="font-size:11px;color:var(--text3)">'+bEsc(d.handle||'')+'</div></div>'
+    +'</div>'
+  ).join('');
+}
+
+function boardInsertMention(postId, handle) {
+  const ta = document.getElementById('board-cmt-body-'+postId);
+  const drop = document.getElementById('board-mention-drop');
+  if (!ta || !drop) return;
+  const val = ta.value;
+  const pos = ta.selectionStart;
+  const before = val.slice(0, pos);
+  const after = val.slice(pos);
+  const newBefore = before.replace(/@\w*$/, '@'+handle+' ');
+  ta.value = newBefore + after;
+  ta.focus();
+  ta.setSelectionRange(newBefore.length, newBefore.length);
+  drop.style.display = 'none';
+}
+
+async function boardLikeComment(commentId, btn) {
+  btn.disabled = true;
+  const current = parseInt(btn.textContent.replace(/[^0-9]/g,'')) || 0;
+  const next = current + 1;
+  btn.innerHTML = '<span style="font-size:14px">♥</span> '+next;
+  btn.style.color = 'var(--amber-mid)';
+  await sb.from('board_comments').update({ likes: next }).eq('id', commentId);
+}
+
+async function boardSubmitComment(postId) {
+  const ta = document.getElementById('board-cmt-body-'+postId);
+  const nameInp = document.getElementById('board-cmt-name-'+postId);
+  const body = ta?.value?.trim();
+  const authorName = nameInp?.value?.trim() || '匿名';
+  if (!body) { showToast('コメントを入力してください'); return; }
+  const btn = document.querySelector('#board-detail-ov button[onclick*="boardSubmitComment"]');
+  if (btn) { btn.disabled = true; btn.textContent = '送信中'; }
+  const { error } = await sb.from('board_comments').insert({ post_id: postId, body, author_name: authorName });
+  if (btn) { btn.disabled = false; btn.textContent = '送信'; }
+  if (error) { showToast('送信に失敗しました'); return; }
+  ta.value = '';
+  document.getElementById('board-mention-drop').style.display = 'none';
+  board_loadPosts();
+}
+
+function boardOpenForm() {
+  const ov = document.createElement('div');
+  ov.id = 'board-form-ov';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;justify-content:flex-end;background:rgba(0,0,0,.5)';
+  ov.innerHTML = bSheet(
+    '<div class="board-handle"></div>'
+    +'<div style="padding:4px 16px 12px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">'
+    +'<div style="font-size:16px;font-weight:700">新規投稿</div>'
+    +'<button onclick="document.getElementById(\'board-form-ov\').remove()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text3);line-height:1">×</button>'
+    +'</div>'
+    +'<div style="flex:1;min-height:0;overflow-y:auto;padding:16px">'
+    +'<div style="margin-bottom:14px"><div class="board-form-label">タグ</div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap">'+['相談','雑談','募集','実績'].map(t=>'<button class="board-tag-btn" onclick="boardSelectTag(this,\''+t+'\')">'+t+'</button>').join('')+'</div></div>'
+    +'<div style="margin-bottom:14px"><div class="board-form-label">タイトル</div>'
+    +'<input id="board-f-title" class="inp inp-sm" placeholder="タイトルを入力" maxlength="50" style="width:100%"></div>'
+    +'<div style="margin-bottom:14px"><div class="board-form-label">本文</div>'
+    +'<textarea id="board-f-body" class="inp inp-sm" rows="5" placeholder="本文を入力..." maxlength="2000" style="width:100%;resize:none;line-height:1.6"></textarea></div>'
+    +'<div style="margin-bottom:20px"><div class="board-form-label">投稿者名</div>'
+    +'<input id="board-f-author" class="inp inp-sm" placeholder="投稿者名（匿名でもOK）" maxlength="20" style="width:100%"></div>'
+    +'<button onclick="boardSubmitPost()" style="width:100%;padding:14px;background:var(--amber-mid);border:none;border-radius:12px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">投稿する</button>'
+    +'</div>'
+  );
+  ov.onclick = e => { if (e.target === ov) ov.remove(); };
+  document.body.appendChild(ov);
+  board_selectedTag = '';
+  if (currentUser?.displayName) {
+    const a = document.getElementById('board-f-author');
+    if (a) a.value = currentUser.displayName;
+  }
+}
+
+function boardSelectTag(el, tag) {
+  board_selectedTag = tag;
+  document.querySelectorAll('.board-tag-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+async function boardSubmitPost() {
+  const title = document.getElementById('board-f-title')?.value?.trim();
+  const body  = document.getElementById('board-f-body')?.value?.trim();
+  const authorName = document.getElementById('board-f-author')?.value?.trim() || '匿名';
+  if (!board_selectedTag) { showToast('タグを選択してください'); return; }
+  if (!title) { showToast('タイトルを入力してください'); return; }
+  if (!body)  { showToast('本文を入力してください'); return; }
+  const btn = document.querySelector('#board-form-ov button[onclick="boardSubmitPost()"]');
+  if (btn) { btn.disabled = true; btn.textContent = '投稿中...'; }
+  const { error } = await sb.from('board_posts').insert({ title, body, tag: board_selectedTag, author_name: authorName });
+  if (error) { showToast('投稿に失敗しました'); if(btn){btn.disabled=false;btn.textContent='投稿する';} return; }
+  document.getElementById('board-form-ov')?.remove();
+  board_selectedTag = '';
+  if (typeof posthog !== 'undefined') posthog.capture('board_posted');
+  showToast('投稿しました！');
+  board_initialized = false;
+  await board_loadPosts();
+}
+
+// ─── 開発者一覧 ──────────────────────────────────────────
+
+async function dev_loadDevs() {
+  const body = document.getElementById('dev-list-body');
+  if (!body) return;
+  body.innerHTML = '<div class="board-skeleton"></div>'.repeat(3);
+  const [devsRes, foundersRes] = await Promise.all([
+    sb.from('developers').select('*').order('created_at', { ascending: false }),
+    sb.from('profiles').select('x_id,is_founder,founder_number').eq('is_founder', true)
+  ]);
+  if (devsRes.error || !devsRes.data) {
+    board_initialized = false;
+    body.innerHTML = '<div style="text-align:center;color:var(--text3);padding:30px">読み込みに失敗しました</div>';
+    return;
+  }
+  const founderMap = {};
+  (foundersRes.data || []).forEach(p => {
+    if (p.x_id) founderMap[p.x_id.replace(/^@/,'')] = p;
+  });
+  board_devs = devsRes.data.map(d => {
+    const xKey = (d.x_id||'').replace(/^@/,'');
+    const fp = founderMap[xKey];
+    return fp ? { ...d, is_founder: true, founder_number: fp.founder_number } : d;
+  });
+  dev_renderDevs();
+}
+
+function devSetFilter(el, skill) {
+  board_devFilter = skill;
+  document.querySelectorAll('#dev-filter-scroll .board-chip').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  dev_renderDevs();
+}
+
+function dev_renderDevs() {
+  const body = document.getElementById('dev-list-body');
+  if (!body) return;
+  const filtered = board_devFilter
+    ? board_devs.filter(d => (d.skills||[]).includes(board_devFilter))
+    : board_devs;
+  if (filtered.length === 0) {
+    body.innerHTML = '<div style="text-align:center;color:var(--text3);padding:40px 0"><div style="font-size:30px;margin-bottom:10px">👨‍💻</div><div>'+(board_devFilter?'このジャンルの開発者はまだいません':'まだ開発者が登録されていません')+'</div></div>';
+    return;
+  }
+  body.innerHTML = filtered.map((d, idx) => {
+    const realIdx = board_devs.indexOf(d);
+    const skills = (d.skills||[]).slice(0,4).map(s=>'<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)">'+bEsc(s)+'</span>').join('');
+    const works = (d.works||[]).slice(0,2).map(w=>'<div style="font-size:11px;color:var(--text3)">・'+bEsc(w.name||'')+'</div>').join('');
+    const founderBadge = d.is_founder
+      ? '<div style="display:inline-flex;align-items:center;gap:3px;background:linear-gradient(135deg,#fffbe6,#fff3cd);border:1px solid #f5c842;border-radius:20px;padding:2px 9px;font-size:10px;font-weight:800;color:#b8860b;margin-bottom:6px">👑 創設メンバー'+(d.founder_number?'<span style="color:var(--text3);font-weight:600"> #'+d.founder_number+'</span>':'')+'</div>'
+      : '';
+    return '<div class="board-card" onclick="devOpenDetail('+realIdx+')" style="cursor:pointer">'
+      +(founderBadge?'<div>'+founderBadge+'</div>':'')
+      +'<div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:8px">'
+      +bAvatar(d.name||'?')
+      +'<div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:700;color:var(--text)">'+bEsc(d.name)+'</div>'
+      +'<div style="font-size:12px;color:var(--text3)">'+bEsc(d.handle||'')+'</div></div>'
+      +(d.price_range?'<div style="font-size:10px;color:var(--text3);flex-shrink:0">'+bEsc(d.price_range)+'</div>':'')
+      +'</div>'
+      +(d.bio?'<div style="font-size:12px;color:var(--text);line-height:1.5;margin-bottom:8px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">'+bEsc(d.bio)+'</div>':'')
+      +(works?'<div style="margin-bottom:8px">'+works+'</div>':'')
+      +(skills?'<div style="display:flex;gap:4px;flex-wrap:wrap">'+skills+'</div>':'')
+      +'</div>';
+  }).join('');
+}
+
+function devOpenDetail(idx) {
+  const d = board_devs[idx];
+  if (!d) return;
+  document.getElementById('dev-detail-ov')?.remove();
+  const ov = document.createElement('div');
+  ov.id = 'dev-detail-ov';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;justify-content:flex-end;background:rgba(0,0,0,.5)';
+  const worksHtml = (d.works||[]).filter(w=>w.name).map(w=>
+    '<div style="background:var(--bg);border-radius:10px;padding:12px;margin-bottom:8px">'
+    +'<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">'+bEsc(w.name)+'</div>'
+    +(w.desc?'<div style="font-size:12px;color:var(--text3);margin-bottom:8px;line-height:1.5">'+bEsc(w.desc)+'</div>':'')
+    +(w.url?'<a href="'+bEsc(w.url)+'" target="_blank" rel="noopener" style="font-size:12px;font-weight:700;color:var(--amber-mid);text-decoration:none">🔗 開く</a>':'')
+    +'</div>'
+  ).join('');
+  const skills = (d.skills||[]).map(s=>'<span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px;background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)">'+bEsc(s)+'</span>').join('');
+  let xUrl = 'https://x.com/aideaipo';
+  if (d.x_id) {
+    const raw = d.x_id.trim();
+    if (/^https?:\/\//i.test(raw)) {
+      const m = raw.match(/x\.com\/([^/?#]+)/i) || raw.match(/twitter\.com\/([^/?#]+)/i);
+      xUrl = m ? 'https://x.com/'+m[1] : 'https://x.com/aideaipo';
     } else {
-      skillsEl.innerHTML = '<div style="background:var(--surface);border-radius:12px;padding:12px 14px">'
-        + '<div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.06em;margin-bottom:8px">あなたのスキル</div>'
-        + '<div class="skill-tags-wrap">' + MATCH_SKILLS.filter(s => mySkills.includes(s.key)).map(s => '<span class="skill-tag active" style="pointer-events:none">' + s.label + '</span>').join('') + '</div>'
-        + '</div>';
+      xUrl = 'https://x.com/'+raw.replace(/^@/,'');
     }
   }
-  if (mySkills.length === 0) { el.innerHTML = ''; return; }
-  el.innerHTML = '<div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.06em;margin-bottom:10px">あなたのスキルを求めているアイデア</div>';
-  const { data: matchIdeas } = await sb.from('ideas').select('id,name,emoji,ticker,score,votes,seeking_skills,user_id').order('score', { ascending: false }).limit(50);
-  const filtered = (matchIdeas || []).filter(i => {
-    const ss = i.seeking_skills || [];
-    return ss.length > 0 && ss.some(s => mySkills.includes(s)) && i.user_id !== currentUser.id;
-  });
-  if (filtered.length === 0) {
-    el.innerHTML += '<div style="text-align:center;padding:30px 20px;color:var(--text3);font-size:13px">マッチするアイデアはまだありません</div>';
-    return;
+  const founderBadgeDetail = d.is_founder
+    ? '<div style="display:inline-flex;align-items:center;gap:4px;background:linear-gradient(135deg,#fffbe6,#fff3cd);border:1px solid #f5c842;border-radius:20px;padding:4px 12px;font-size:11px;font-weight:800;color:#b8860b;margin-bottom:14px">👑 創設メンバー'+(d.founder_number?'<span style="color:var(--text3);font-weight:600"> #'+d.founder_number+'</span>':'')+'</div>'
+    : '';
+  ov.innerHTML = bSheet(
+    '<div class="board-handle"></div>'
+    +'<div style="flex:1;min-height:0;overflow-y:auto;padding:16px">'
+    +'<div style="display:flex;gap:12px;align-items:center;margin-bottom:10px">'
+    +bAvatar(d.name||'?')
+    +'<div><div style="font-size:18px;font-weight:700;color:var(--text)">'+bEsc(d.name)+'</div>'
+    +'<div style="font-size:13px;color:var(--text3)">'+bEsc(d.handle||'')+'</div></div></div>'
+    +founderBadgeDetail
+    +(d.bio?'<div style="font-size:13px;color:var(--text);line-height:1.7;margin-bottom:14px;white-space:pre-wrap">'+bEsc(d.bio)+'</div>':'')
+    +((d.price_range||d.reply_speed)?'<div style="display:flex;gap:16px;margin-bottom:14px">'+(d.price_range?'<div style="font-size:12px;color:var(--text3)">💰 '+bEsc(d.price_range)+'</div>':'')+(d.reply_speed?'<div style="font-size:12px;color:var(--text3)">⚡ '+bEsc(d.reply_speed)+'</div>':'')+'</div>':'')
+    +(skills?'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px">'+skills+'</div>':'')
+    +(worksHtml?'<div style="font-size:11px;font-weight:700;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em">作ったもの</div>'+worksHtml:'')
+    +(xUrl?'<a href="'+xUrl+'" target="_blank" rel="noopener" style="display:block;width:100%;padding:14px;background:var(--text);border-radius:12px;text-align:center;font-size:14px;font-weight:700;color:#fff;text-decoration:none;margin-top:16px">💬 相談する（X のDMへ）</a>':'')
+    +'</div>'
+    +'<div style="padding:12px 16px;border-top:0.5px solid var(--border);flex-shrink:0">'
+    +'<button onclick="document.getElementById(\'dev-detail-ov\').remove()" style="width:100%;padding:13px;background:none;border:none;font-size:13px;color:var(--text3);cursor:pointer;font-family:var(--sans)">閉じる</button>'
+    +'</div>'
+  );
+  ov.onclick = e => { if (e.target === ov) ov.remove(); };
+  document.body.appendChild(ov);
+}
+
+const DEV_SKILLS = ['Webアプリ','モバイル','AI','NoCode','デザイン','バックエンド','副業OK'];
+
+function devOpenForm() {
+  const ov = document.createElement('div');
+  ov.id = 'dev-form-ov';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;justify-content:flex-end;background:rgba(0,0,0,.5)';
+  const works3 = [1,2,3].map(i=>
+    '<div style="background:var(--bg);border-radius:10px;padding:10px;margin-bottom:6px">'
+    +'<input id="dev-fw-name-'+i+'" class="inp inp-sm" placeholder="作品名'+i+'" maxlength="30" style="width:100%;margin-bottom:6px">'
+    +'<input id="dev-fw-url-'+i+'"  class="inp inp-sm" placeholder="URL（任意）" maxlength="200" style="width:100%;margin-bottom:6px">'
+    +'<input id="dev-fw-desc-'+i+'" class="inp inp-sm" placeholder="説明（任意）" maxlength="60" style="width:100%">'
+    +'</div>'
+  ).join('');
+  ov.innerHTML = bSheet(
+    '<div class="board-handle"></div>'
+    +'<div style="padding:4px 16px 12px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">'
+    +'<div style="font-size:16px;font-weight:700">開発者登録</div>'
+    +'<button onclick="document.getElementById(\'dev-form-ov\').remove()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text3);line-height:1">×</button>'
+    +'</div>'
+    +'<div style="flex:1;min-height:0;overflow-y:auto;padding:16px">'
+    +'<div style="display:flex;flex-direction:column;gap:12px">'
+    +'<div><div class="board-form-label">名前</div><input id="dev-f-name" class="inp inp-sm" placeholder="名前" maxlength="30" style="width:100%"></div>'
+    +'<div><div class="board-form-label">ハンドル名</div><input id="dev-f-handle" class="inp inp-sm" placeholder="@username" maxlength="30" style="width:100%"></div>'
+    +'<div><div class="board-form-label">一言自己紹介</div><textarea id="dev-f-bio" class="inp inp-sm" rows="3" placeholder="自己紹介..." maxlength="300" style="width:100%;resize:none;line-height:1.6"></textarea></div>'
+    +'<div><div class="board-form-label">作ったもの（最大3件）</div>'+works3+'</div>'
+    +'<div><div class="board-form-label">得意ジャンル</div><div id="dev-f-skills" style="display:flex;flex-wrap:wrap;gap:6px">'+DEV_SKILLS.map(s=>'<button class="board-skill-btn" onclick="devToggleSkill(this,\''+s+'\')">'+s+'</button>').join('')+'</div></div>'
+    +'<div><div class="board-form-label">報酬目安</div><input id="dev-f-price" class="inp inp-sm" placeholder="例: 時給3,000円〜 / 応相談" maxlength="40" style="width:100%"></div>'
+    +'<div><div class="board-form-label">X の ID</div><input id="dev-f-xid" class="inp inp-sm" placeholder="@username" maxlength="30" style="width:100%"></div>'
+    +'<button onclick="devSubmitForm()" style="width:100%;padding:14px;background:var(--amber-mid);border:none;border-radius:12px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">登録する</button>'
+    +'</div></div>'
+  );
+  ov.onclick = e => { if (e.target === ov) ov.remove(); };
+  document.body.appendChild(ov);
+  dev_selectedSkills = [];
+}
+
+function devToggleSkill(el, skill) {
+  if (dev_selectedSkills.includes(skill)) {
+    dev_selectedSkills = dev_selectedSkills.filter(s => s !== skill);
+    el.classList.remove('active');
+  } else {
+    dev_selectedSkills.push(skill);
+    el.classList.add('active');
   }
-  filtered.forEach(idea => {
-    const seeklabels = MATCH_SKILLS.filter(s => (idea.seeking_skills || []).includes(s.key))
-      .map(s => '<span class="skill-tag active" style="pointer-events:none;font-size:11px;padding:3px 9px">' + s.label + '</span>').join('');
-    const card = document.createElement('div');
-    card.className = 'match-card';
-    card.innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;cursor:pointer" onclick="showDetail(\'' + idea.id + '\')">'
-      + '<span style="font-size:22px">' + (idea.emoji || '💡') + '</span>'
-      + '<div style="flex:1;min-width:0">'
-      + '<div style="font-size:14px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + (idea.name || '').replace(/</g, '&lt;') + '</div>'
-      + '<div style="font-size:10px;color:var(--text3);font-family:var(--mono)">' + (idea.ticker || '') + ' · ' + parseFloat(idea.score || 50).toFixed(1) + 'pt · 👍 ' + (idea.votes || 0) + '</div>'
-      + '</div></div>'
-      + '<div class="skill-tags-wrap">' + seeklabels + '</div>'
-      + '<button onclick="match_openHelpModal(\'' + idea.id + '\')" style="margin-top:10px;width:100%;padding:11px;background:var(--amber-mid);border:none;border-radius:10px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">🙋 手伝いたい！</button>';
-    el.appendChild(card);
-  });
 }
 
-async function match_renderChats() {
-  const el = document.getElementById('match-chats-section');
-  if (!el || !currentUser) { if (el) el.innerHTML = ''; return; }
-  const { data: rooms } = await sb.from('chat_rooms')
-    .select('id,idea_id,owner_id,helper_id,ideas(name),created_at')
-    .or('owner_id.eq.' + currentUser.id + ',helper_id.eq.' + currentUser.id)
-    .order('created_at', { ascending: false });
-  if (!rooms || rooms.length === 0) { el.innerHTML = ''; return; }
-  let html = '<div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.06em;margin-bottom:10px">💬 進行中のチャット ' + rooms.length + '件</div>';
-  rooms.forEach(room => {
-    const ideaName = room.ideas?.name || '—';
-    html += '<div onclick="match_openChat(\'' + room.id + '\',\'' + ideaName.replace(/'/g, "\\'") + '\')" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--surface);border-radius:12px;margin-bottom:8px;cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,.06)">'
-      + '<div><div style="font-size:13px;font-weight:700;color:var(--text)">' + ideaName.replace(/</g, '&lt;') + '</div>'
-      + '<div style="font-size:11px;color:var(--text3);margin-top:2px">タップしてチャットを開く</div></div>'
-      + '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="var(--text3)" stroke-width="2"><path d="M7 5l5 5-5 5"/></svg>'
-      + '</div>';
-  });
-  el.innerHTML = html;
-}
-
-// ─── Phase C: チャット ──────────────────────────────────
-function match_openChat(roomId, ideaName) {
-  match_currentRoomId = roomId;
-  if (match_chatSub) { try { match_chatSub.unsubscribe(); } catch(e){} match_chatSub = null; }
-  document.getElementById('match-chat-screen')?.remove();
-  const screen = document.createElement('div');
-  screen.id = 'match-chat-screen';
-  screen.style.cssText = 'position:fixed;inset:0;z-index:150;background:var(--bg);display:flex;flex-direction:column;max-width:390px;margin:0 auto;left:50%;transform:translateX(-50%)';
-  screen.innerHTML = '<div style="background:var(--surface);border-bottom:0.5px solid var(--border);padding:14px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0">'
-    + '<button onclick="match_closeChat()" style="background:none;border:none;cursor:pointer;padding:4px;display:flex;align-items:center"><svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 5l-5 5 5 5"/></svg></button>'
-    + '<div style="font-size:15px;font-weight:700;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + (ideaName || '').replace(/</g, '&lt;') + '</div>'
-    + '</div>'
-    + '<div id="chat-msg-list" style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px"></div>'
-    + '<div style="background:var(--surface);border-top:0.5px solid var(--border);padding:10px 14px;display:flex;gap:8px;align-items:flex-end;flex-shrink:0">'
-    + '<textarea id="chat-input" rows="1" style="flex:1;border:1.5px solid var(--border);border-radius:10px;padding:9px 12px;font-size:13px;font-family:var(--sans);color:var(--text);background:var(--surface2);resize:none;outline:none;line-height:1.5;max-height:80px;overflow-y:auto" placeholder="メッセージを送る..." oninput="this.style.height=\'auto\';this.style.height=Math.min(this.scrollHeight,80)+\'px\'" onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();match_sendMessage();}"></textarea>'
-    + '<button onclick="match_sendMessage()" style="background:var(--amber-mid);border:none;border-radius:10px;padding:10px 16px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans);flex-shrink:0">送信</button>'
-    + '</div>';
-  document.body.appendChild(screen);
-  match_loadMessages(roomId);
-  try {
-    match_chatSub = sb.channel('chat_room_' + roomId)
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: 'room_id=eq.' + roomId }, payload => {
-        if (payload.new.sender_id !== currentUser?.id) match_appendMessage(payload.new);
-      })
-      .subscribe();
-  } catch(e) { console.error('chat sub error', e); }
-}
-
-function match_closeChat() {
-  if (match_chatSub) { try { match_chatSub.unsubscribe(); } catch(e){} match_chatSub = null; }
-  match_currentRoomId = null;
-  document.getElementById('match-chat-screen')?.remove();
-}
-
-async function match_loadMessages(roomId) {
-  const { data } = await sb.from('chat_messages').select('id,sender_id,text,created_at').eq('room_id', roomId).order('created_at', { ascending: true });
-  const el = document.getElementById('chat-msg-list');
-  if (!el) return;
-  el.innerHTML = '';
-  (data || []).forEach(m => match_appendMessage(m));
-}
-
-function match_appendMessage(msg) {
-  const el = document.getElementById('chat-msg-list');
-  if (!el) return;
-  const isSelf = msg.sender_id === currentUser?.id;
-  const wrap = document.createElement('div');
-  wrap.style.cssText = 'display:flex;flex-direction:column;align-items:' + (isSelf ? 'flex-end' : 'flex-start');
-  const bubble = document.createElement('div');
-  bubble.className = isSelf ? 'chat-bubble-self' : 'chat-bubble-other';
-  bubble.textContent = msg.text;
-  const time = document.createElement('div');
-  time.className = 'chat-time';
-  time.textContent = new Date(msg.created_at).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
-  wrap.appendChild(bubble);
-  wrap.appendChild(time);
-  el.appendChild(wrap);
-  el.scrollTop = el.scrollHeight;
-}
-
-async function match_sendMessage() {
-  if (!currentUser || !match_currentRoomId) return;
-  const inp = document.getElementById('chat-input');
-  const text = inp?.value?.trim();
-  if (!text) return;
-  inp.value = '';
-  inp.style.height = 'auto';
-  const optimistic = { sender_id: currentUser.id, text, created_at: new Date().toISOString() };
-  match_appendMessage(optimistic);
-  const { error } = await sb.from('chat_messages').insert({ room_id: match_currentRoomId, sender_id: currentUser.id, text });
-  if (error) { showToast('送信に失敗しました'); }
+async function devSubmitForm() {
+  const name   = document.getElementById('dev-f-name')?.value?.trim();
+  const handle = document.getElementById('dev-f-handle')?.value?.trim();
+  const bio    = document.getElementById('dev-f-bio')?.value?.trim();
+  const price_range = document.getElementById('dev-f-price')?.value?.trim();
+  const x_id   = document.getElementById('dev-f-xid')?.value?.trim();
+  if (!name)   { showToast('名前を入力してください'); return; }
+  if (!handle) { showToast('ハンドル名を入力してください'); return; }
+  const works = [1,2,3].map(i => ({
+    name: document.getElementById('dev-fw-name-'+i)?.value?.trim(),
+    url:  document.getElementById('dev-fw-url-'+i)?.value?.trim(),
+    desc: document.getElementById('dev-fw-desc-'+i)?.value?.trim(),
+  })).filter(w => w.name);
+  const btn = document.querySelector('#dev-form-ov button[onclick="devSubmitForm()"]');
+  if (btn) { btn.disabled = true; btn.textContent = '登録中...'; }
+  const { error } = await sb.from('developers').insert({ name, handle, bio, works, skills: dev_selectedSkills, price_range, x_id });
+  if (error) { showToast('登録に失敗しました'); if(btn){btn.disabled=false;btn.textContent='登録する';} return; }
+  document.getElementById('dev-form-ov')?.remove();
+  dev_selectedSkills = [];
+  if (typeof posthog !== 'undefined') posthog.capture('developer_registered');
+  showToast('登録しました！');
+  board_initialized = false;
+  await dev_loadDevs();
 }
 
 checkInAppBrowser();
