@@ -1954,7 +1954,7 @@ async function loadSentryStats() {
   }
   if (statusEl) statusEl.textContent = '✓ 保存済み';
   const ORG     = 'shikakeru';
-  const PROJECT = 'aipo';
+  const PROJECT = 'javascript';
   try {
     const since = new Date(Date.now() - 24*60*60*1000).toISOString();
     const res = await fetch(
