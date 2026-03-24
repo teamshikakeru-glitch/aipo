@@ -1,7 +1,7 @@
 {
   "rewrites": [
     { "source": "/lp2", "destination": "/lp2.html" },
-    { "source": "/saiban", "destination": "/saiban.html" },  ← これだけ追加
+    { "source": "/saiban", "destination": "/saiban.html" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
