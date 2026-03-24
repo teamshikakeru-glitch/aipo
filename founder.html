@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>創設メンバー募集 | あいぽ</title>
+<meta name="description" content="アイデアを上場するSNS「あいぽ」の創設メンバーを先着100名限定で募集中。¥980の買い切りで永久Proになれます。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f9f7f3;
+    --surface: #ffffff;
+    --surface2: #f3f0ea;
+    --border: rgba(0,0,0,0.08);
+    --text: #1a1714;
+    --text2: #4a4540;
+    --text3: #8a8078;
+    --amber: #e8850a;
+    --amber-dark: #bf6d00;
+    --amber-bg: #fff8ed;
+    --amber-border: #fde8b8;
+    --sans: 'Noto Sans JP', sans-serif;
+    --mono: 'Space Mono', monospace;
+    --r: 16px;
+  }
+
+  body {
+    background: var(--bg);
+    font-family: var(--sans);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  .wrap {
+    max-width: 390px;
+    margin: 0 auto;
+    padding: 0 20px 60px;
+  }
+
+  /* ── ヘッダー ── */
+  .header {
+    padding: 20px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .logo {
+    font-family: var(--mono);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--amber);
+    letter-spacing: -.02em;
+  }
+  .logo-sub {
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 1px;
+  }
+
+  /* ── ヒーロー ── */
+  .hero {
+    padding: 36px 0 32px;
+    text-align: center;
+  }
+  .hero-badge {
+    display: inline-block;
+    background: var(--amber-bg);
+    border: 1.5px solid var(--amber-border);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--amber);
+    margin-bottom: 20px;
+    letter-spacing: .04em;
+  }
+  .hero-title {
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--text);
+    line-height: 1.3;
+    letter-spacing: -.02em;
+    margin-bottom: 14px;
+  }
+  .hero-title span {
+    color: var(--amber);
+  }
+  .hero-sub {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.75;
+    margin-bottom: 28px;
+  }
+  .cta-btn {
+    display: block;
+    width: 100%;
+    padding: 17px;
+    background: var(--amber);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: var(--sans);
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(232,133,10,0.35);
+    transition: opacity .15s, transform .1s;
+  }
+  .cta-btn:active { opacity: .85; transform: scale(.98); }
+  .cta-note {
+    font-size: 11px;
+    color: var(--text3);
+    text-align: center;
+    margin-top: 10px;
+  }
+
+  /* ── 約束セクション ── */
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text3);
+    letter-spacing: .06em;
+    margin-bottom: 14px;
+    text-align: center;
+  }
+  .promise-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 36px;
+  }
+  .promise-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 16px 18px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .promise-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+    line-height: 1;
+    margin-top: 1px;
+  }
+  .promise-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+  .promise-desc {
+    font-size: 12px;
+    color: var(--text2);
+    line-height: 1.65;
+  }
+
+  /* ── 価格カード ── */
+  .price-card {
+    background: linear-gradient(135deg, #fff8ed, #fde8b8);
+    border: 2px solid var(--amber);
+    border-radius: 20px;
+    padding: 24px 20px;
+    text-align: center;
+    margin-bottom: 36px;
+    position: relative;
+    overflow: hidden;
+  }
+  .price-card::before {
+    content: '';
+    position: absolute;
+    top: -30px;
+    right: -30px;
+    width: 120px;
+    height: 120px;
+    background: rgba(232,133,10,0.07);
+    border-radius: 50%;
+  }
+  .price-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--amber);
+    letter-spacing: .08em;
+    margin-bottom: 8px;
+  }
+  .price-main {
+    font-family: var(--mono);
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 4px;
+    letter-spacing: -.03em;
+  }
+  .price-unit {
+    font-size: 13px;
+    color: var(--text3);
+    margin-bottom: 12px;
+  }
+  .price-compare {
+    display: inline-block;
+    background: rgba(0,0,0,0.05);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 11px;
+    color: var(--text2);
+    margin-bottom: 20px;
+  }
+  .price-compare s { color: var(--text3); }
+
+  /* ── 購入後の流れ ── */
+  .flow-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-bottom: 36px;
+    position: relative;
+  }
+  .flow-list::before {
+    content: '';
+    position: absolute;
+    left: 17px;
+    top: 24px;
+    bottom: 24px;
+    width: 1.5px;
+    background: var(--amber-border);
+  }
+  .flow-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 12px 0;
+  }
+  .flow-num {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--amber);
+    color: #fff;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+  .flow-text {
+    padding-top: 7px;
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* ── FAQ ── */
+  .faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 36px;
+  }
+  .faq-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .faq-q {
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    padding: 14px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    font-family: var(--sans);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    line-height: 1.5;
+  }
+  .faq-q::after {
+    content: '+';
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--text3);
+    flex-shrink: 0;
+    transition: transform .2s;
+  }
+  .faq-item.open .faq-q::after {
+    transform: rotate(45deg);
+  }
+  .faq-a {
+    display: none;
+    padding: 0 16px 14px;
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.7;
+    border-top: 1px solid var(--border);
+  }
+  .faq-item.open .faq-a {
+    display: block;
+  }
+
+  /* ── フッター ── */
+  .footer {
+    text-align: center;
+    padding-top: 8px;
+  }
+  .footer-link {
+    display: inline-block;
+    font-size: 13px;
+    color: var(--amber);
+    font-weight: 700;
+    text-decoration: none;
+    padding: 12px 24px;
+    border: 1.5px solid var(--amber-border);
+    border-radius: 12px;
+    background: var(--amber-bg);
+  }
+  .footer-copy {
+    margin-top: 20px;
+    font-size: 11px;
+    color: var(--text3);
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 32px 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- PostHog -->
+<script>
+!function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=(s.asset_host||s.api_host.replace(".i.posthog.com","-assets.i.posthog.com"))+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+" (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys getNextSurveyStep onSessionId setPersonPropertiesForFlags".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+posthog.init('phc_665tIWLYkMFBazlz7Q6CPiZjEK3rYzJtoTF7QG2JPYB', {
+  api_host: 'https://us.i.posthog.com',
+  person_profiles: 'identified_only'
+});
+posthog.capture('founder_lp_view');
+</script>
+
+<div class="wrap">
+
+  <!-- ヘッダー -->
+  <div class="header">
+    <div>
+      <div class="logo">あいぽ</div>
+      <div class="logo-sub">アイデアIPO市場</div>
+    </div>
+  </div>
+
+  <!-- ヒーロー -->
+  <section class="hero">
+    <div class="hero-badge">👑 創設メンバー先着100名限定</div>
+    <h1 class="hero-title">あなたのひらめきを<br><span>上場しろ。</span></h1>
+    <p class="hero-sub">創設メンバーは先着100名限定。<br>今なら<strong>¥980の買い切り</strong>で永久Proになれます。</p>
+    <a href="https://buy.stripe.com/dRmfZj2T71I20Ew8bnfbq01" class="cta-btn" onclick="posthog.capture('founder_cta_click',{location:'hero'})">
+      👑 創設メンバーになる（¥980）
+    </a>
+    <p class="cta-note">月額なし・一度きりの支払い</p>
+  </section>
+
+  <!-- 約束3点 -->
+  <p class="section-title">創設メンバーの特典</p>
+  <div class="promise-list">
+    <div class="promise-card">
+      <div class="promise-icon">👑</div>
+      <div>
+        <div class="promise-title">永久バッジ</div>
+        <div class="promise-desc">#001〜#100の番号付き称号が永久につく。あなたが最初期のメンバーであることを示すバッジです。</div>
+      </div>
+    </div>
+    <div class="promise-card">
+      <div class="promise-icon">⚡</div>
+      <div>
+        <div class="promise-title">今すぐProに</div>
+        <div class="promise-desc">上場・コメント無制限、1日4票の応援が即日使えるようになります。</div>
+      </div>
+    </div>
+    <div class="promise-card">
+      <div class="promise-icon">💰</div>
+      <div>
+        <div class="promise-title">買い切り</div>
+        <div class="promise-desc">月額なし。一度の支払いで永久にProとして使い続けられます。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 価格 -->
+  <div class="price-card">
+    <div class="price-label">創設メンバー限定価格</div>
+    <div class="price-main">¥980</div>
+    <div class="price-unit">買い切り・月額なし</div>
+    <div class="price-compare">通常Pro <s>¥300/月</s> → 約3ヶ月分でずっと使える</div>
+    <a href="https://buy.stripe.com/dRmfZj2T71I20Ew8bnfbq01" class="cta-btn" onclick="posthog.capture('founder_cta_click',{location:'price'})">
+      👑 創設メンバーになる
+    </a>
+    <p class="cta-note" style="margin-top:12px">先着100名に達し次第、募集終了</p>
+  </div>
+
+  <!-- 購入後の流れ -->
+  <p class="section-title">購入後の流れ</p>
+  <div class="flow-list">
+    <div class="flow-item">
+      <div class="flow-num">1</div>
+      <div class="flow-text">Stripeで¥980を決済する</div>
+    </div>
+    <div class="flow-item">
+      <div class="flow-num">2</div>
+      <div class="flow-text">あいぽにログインすると👑バッジが表示される</div>
+    </div>
+    <div class="flow-item">
+      <div class="flow-num">3</div>
+      <div class="flow-text">Pro機能がすべて使えるようになる</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- FAQ -->
+  <p class="section-title">よくある質問</p>
+  <div class="faq-list">
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">月額はかかりますか？</button>
+      <div class="faq-a">かかりません。¥980の買い切りです。追加費用は一切ありません。</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">100名を超えたら？</button>
+      <div class="faq-a">創設メンバーの募集は終了します。以降はPro（¥300/月）のみになります。</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">すぐ使えますか？</button>
+      <div class="faq-a">決済完了後、あいぽにログインすると即日反映されます。</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">返金はできますか？</button>
+      <div class="faq-a">ご購入後のキャンセル・返金は原則お受けできません。ご了承の上ご購入ください。</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">あいぽとは何ですか？</button>
+      <div class="faq-a">アイデアを株式市場のように上場して、票とコメントで価値を評価するSNSです。</div>
+    </div>
+  </div>
+
+  <!-- フッター -->
+  <div class="footer">
+    <a href="https://aipo-tau.vercel.app/lp2.html" class="footer-link">あいぽについてもっと知る →</a>
+    <p class="footer-copy">© 2025 あいぽ</p>
+  </div>
+
+</div>
+
+<script>
+function toggleFaq(btn) {
+  const item = btn.parentElement;
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+</script>
+
+</body>
+</html>
