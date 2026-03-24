@@ -524,6 +524,7 @@ input[type=file] { display: none; }
       </div>
       <div style="display:flex;gap:8px;align-items:center">
         <div style="display:flex;align-items:center;gap:5px;background:var(--surface2);border-radius:20px;padding:4px 10px;cursor:pointer" onclick="openChargeModal()"><div style="font-size:12px;font-weight:700;color:var(--green);font-family:var(--mono)" id="user-balance">0</div><div style="font-size:9px;color:var(--text3)">円</div></div>
+        <div onclick="openCertSheet()" style="display:flex;align-items:center;gap:4px;background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:4px 10px;cursor:pointer"><span style="font-size:11px">🎫</span><div style="font-size:9px;font-weight:700;color:var(--text2)">株券図鑑</div><div id="cert-sheet-count" style="font-size:9px;font-weight:700;color:var(--amber);display:none"></div></div>
         <div onclick="showPricingSheet()" style="display:flex;align-items:center;gap:4px;background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:20px;padding:4px 10px;cursor:pointer;margin-left:auto"><svg width="10" height="10" viewBox="0 0 20 20" fill="none" stroke="var(--amber-mid)" stroke-width="2"><circle cx="10" cy="10" r="8"/><path d="M10 6v4l3 3"/></svg><div style="font-size:9px;font-weight:700;color:var(--amber)">プランを見る</div></div>
       </div>
     </div>
@@ -581,7 +582,7 @@ input[type=file] { display: none; }
   <div class="nav-item active" id="nav-feed" onclick="goTo('feed')"><div class="nav-icon-box"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="6" height="6" rx="1.5"/><rect x="11" y="3" width="6" height="6" rx="1.5"/><rect x="3" y="11" width="6" height="6" rx="1.5"/><rect x="11" y="11" width="6" height="6" rx="1.5"/></svg></div>マーケット</div>
   <div class="nav-item" id="nav-post-tab" onclick="goTo('post');phCapture('apply_cta_click')"><div class="nav-icon-box" style="background:var(--amber-mid);border-color:var(--amber-mid);box-shadow:0 2px 8px rgba(232,133,10,.35)"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2.5"><path d="M10 15V5M5 9l5-5 5 5"/></svg></div>上場</div>
   <div class="nav-item" id="nav-hiroba-btn" onclick="if(window.$crisp){$crisp.push(['do','chat:show']);$crisp.push(['do','chat:open']);}" style="position:relative"><div class="nav-icon-box" style="position:relative"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M2 5h16M2 10h10M2 15h7"/><circle cx="16" cy="15" r="2.5"/><path d="M16 13v-3"/></svg></div>広場</div>
-  <div class="nav-item" id="nav-portfolio" onclick="goTo('portfolio')"><div class="nav-icon-box" style="position:relative"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3L3 7v10h14V7L10 3z"/></svg><div id="notif-badge" style="display:none;position:absolute;top:-4px;right:-4px;min-width:14px;height:14px;background:#c0392b;border-radius:7px;border:1.5px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;padding:0 3px;line-height:1"></div></div>ホーム</div>
+  <div class="nav-item" id="nav-portfolio" onclick="goTo('portfolio')"><div class="nav-icon-box" style="position:relative"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3L3 7v10h14V7L10 3z"/></svg><div id="notif-badge" style="display:none;position:absolute;top:-4px;right:-4px;min-width:14px;height:14px;background:#c0392b;border-radius:7px;border:1.5px solid var(--bg);align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;padding:0 3px;line-height:1"></div></div>ホーム</div>
   <div class="nav-item" id="nav-match" onclick="goTo('match')"><div class="nav-icon-box"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2" y="3" width="16" height="13" rx="2"/><path d="M6 7h8M6 11h5" stroke-linecap="round"/></svg></div>掲示板</div>
 </div>
 
@@ -2311,8 +2312,73 @@ function showRealizedDetail(ideaId) {
     });
 }
 
+async function openCertSheet() {
+  document.getElementById('cert-fullsheet')?.remove();
+  const certs = currentUser ? await loadCertsFromDB() : loadCerts();
+  const allCerts = certs.length ? certs : _loadCertsLocal();
+  const ideas_map = Object.fromEntries(ideas.map(i => [i.id, i]));
+
+  const sheet = document.createElement('div');
+  sheet.id = 'cert-fullsheet';
+  sheet.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:400;display:flex;align-items:flex-end;justify-content:center';
+  sheet.onclick = e => { if (e.target === sheet) sheet.remove(); };
+
+  const listHTML = allCerts.length === 0
+    ? '<div style="padding:32px;text-align:center;font-size:13px;color:var(--text3)">まだ株券がありません<br><span style="font-size:11px">アイデアに応援票を入れると取得できます</span></div>'
+    : `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 2px 8px">${allCerts.slice().reverse().map(c => {
+        const idea = ideas_map[c.ideaId];
+        const currentScore = idea ? parseFloat(idea.score||50).toFixed(1) : parseFloat(c.score||50).toFixed(1);
+        const nameShort = (c.ideaName||'').length > 12 ? (c.ideaName||'').slice(0,12)+'…' : (c.ideaName||'');
+        return `<div onclick="sheet_showZukan('${c.ideaId}')" style="background:#faf8f4;border:1px solid ${c.isEarly?'#f5d68a':'#e0d8cc'};border-radius:12px;padding:12px;cursor:pointer;position:relative">
+          ${c.isEarly ? '<div style="position:absolute;top:-4px;right:8px;font-size:8px;font-weight:700;color:#854f0b;background:#fef9f0;border:1px solid #fde68a;border-radius:20px;padding:2px 6px">早期</div>' : ''}
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <div style="font-family:var(--mono);font-size:8px;color:#a09080">AIPO</div>
+            <div style="font-family:var(--mono);font-size:8px;color:#a09080">${c.serial||'AI-0000'}</div>
+          </div>
+          <div style="margin-bottom:8px">
+            <div style="font-family:var(--mono);font-size:7px;color:#a09080;margin-bottom:2px">IDEA</div>
+            <div style="font-size:11px;font-weight:700;color:#1a1400;line-height:1.3">${nameShort}</div>
+          </div>
+          <div style="display:flex;gap:10px;margin-bottom:8px">
+            <div><div style="font-family:var(--mono);font-size:7px;color:#a09080">TICKER</div><div style="font-family:var(--mono);font-size:11px;font-weight:700;color:#1a1400">${c.ticker}</div></div>
+            <div><div style="font-family:var(--mono);font-size:7px;color:#a09080">SCORE</div><div style="font-family:var(--mono);font-size:11px;font-weight:700;color:#1a7a4a">${currentScore}</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:5px;padding:4px 8px;background:#e8e3d8;border-radius:4px">
+            <div style="width:12px;height:12px;border-radius:50%;border:1.5px solid #c0392b;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="7" height="7" viewBox="0 0 20 20" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#c0392b" stroke-width="2.5" stroke-linecap="round"/></svg>
+            </div>
+            <div style="font-family:monospace;font-size:7px;color:#a09080">${(c.votesAtTime+1)}票目</div>
+          </div>
+        </div>`;
+      }).join('')}</div>`;
+
+  sheet.innerHTML = `<div style="background:var(--surface);border-radius:24px 24px 0 0;padding:20px 16px 40px;width:100%;max-width:390px;max-height:88vh;overflow-y:auto">
+    <div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div>
+        <div style="font-size:17px;font-weight:700;color:var(--text);letter-spacing:-.02em">株券図鑑</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:1px">あなたの投資記録（${allCerts.length}枚）</div>
+      </div>
+      <button onclick="document.getElementById('cert-fullsheet').remove()" style="background:none;border:none;font-size:20px;color:var(--text3);cursor:pointer;line-height:1">&times;</button>
+    </div>
+    ${listHTML}
+  </div>`;
+  document.body.appendChild(sheet);
+}
+
+function sheet_showZukan(ideaId) {
+  document.getElementById('cert-fullsheet')?.remove();
+  showZukan(ideaId);
+}
+
 async function renderCertCollection() {
-  const certs = currentUser ? await loadCertsFromDB() : loadCerts(); if (!certs.length) { document.getElementById('cert-collection-section').innerHTML = ''; return; }
+  let certs = currentUser ? await loadCertsFromDB() : loadCerts();
+  // DB が空でも localStorage に株券がある場合はそちらを優先
+  if (!certs.length) certs = _loadCertsLocal();
+  // 株券図鑑ボタンの件数バッジを更新
+  const cntEl = document.getElementById('cert-sheet-count');
+  if (cntEl) { if (certs.length > 0) { cntEl.textContent = certs.length; cntEl.style.display = ''; } else { cntEl.style.display = 'none'; } }
+  if (!certs.length) { document.getElementById('cert-collection-section').innerHTML = ''; return; }
   const section = document.getElementById('cert-collection-section');
   const ideas_map = Object.fromEntries(ideas.map(i => [i.id, i]));
   section.innerHTML = `
