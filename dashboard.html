@@ -1954,11 +1954,13 @@ async function loadSentryStats() {
   const ORG = 'shikakeru';
   try {
     const res = await fetch(
-      `https://sentry.io/api/0/organizations/${ORG}/issues/?limit=25&statsPeriod=24h`,
-      { headers: { 'Authorization': `Bearer ${TOKEN}` } }
+      `https://sentry.io/api/0/projects/${ORG}/javascript/issues/`,
+      { headers: { 'Authorization': `Bearer ${TOKEN}`, 'Content-Type': 'application/json' } }
     );
-    const issues = await res.json();
-    if (!Array.isArray(issues)) throw new Error('invalid');
+    const text = await res.text();
+    console.log('Sentry response:', res.status, text.slice(0, 200));
+    if (!res.ok) throw new Error('status ' + res.status);
+    const issues = JSON.parse(text);
     const totalErrors = issues.reduce((s, i) => s + parseInt(i.count || 0), 0);
     const totalUsers  = issues.reduce((s, i) => s + parseInt(i.userCount || 0), 0);
     if (el_errors) el_errors.textContent = totalErrors;
