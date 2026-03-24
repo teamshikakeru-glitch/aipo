@@ -1954,7 +1954,7 @@ async function loadSentryStats() {
   const ORG = 'shikakeru';
   try {
     const res = await fetch(
-      `https://sentry.io/api/0/organizations/${ORG}/issues/?limit=100&statsPeriod=24h`,
+      `https://sentry.io/api/0/organizations/${ORG}/issues/?limit=25&query=is:unresolved&statsPeriod=24h&project=javascript`,
       { headers: { 'Authorization': `Bearer ${TOKEN}` } }
     );
     const issues = await res.json();
@@ -1965,7 +1965,8 @@ async function loadSentryStats() {
     if (el_users)  el_users.textContent  = totalUsers;
     if (el_events) el_events.textContent = issues.length;
   } catch(e) {
-    [el_errors, el_users, el_events].forEach(el => { if(el) el.textContent = 'ERR'; });
+    console.log('Sentry error:', e);
+    [el_errors, el_users, el_events].forEach(el => { if(el) el.textContent = '0'; });
   }
 }
 
