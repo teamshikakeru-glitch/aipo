@@ -555,7 +555,13 @@
               <div class="metric-cell"><div class="metric-num" id="ph-voted">—</div><div class="metric-lbl">idea_voted</div></div>
               <div class="metric-cell"><div class="metric-num" id="ph-upgrade">—</div><div class="metric-lbl">upgrade_clicked</div></div>
             </div>
-            <div style="font-size:10px;color:var(--text-muted);text-align:center" id="ph-note">Personal APIキーを設定すると表示されます</div>
+            <div style="margin-top:8px;display:flex;gap:6px;align-items:center">
+              <input id="ph-key-input" type="password" placeholder="phx_..."
+                style="flex:1;padding:6px 10px;font-size:11px;border:1px solid #e0ded8;border-radius:8px;font-family:monospace">
+              <button onclick="savePosthogKey()"
+                style="padding:6px 12px;background:#e8850a;color:#fff;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer">保存</button>
+              <span id="ph-key-status" style="font-size:10px;color:#22a85f"></span>
+            </div>
           </div>
         </div>
       </div>
@@ -1886,6 +1892,49 @@ async function sendBroadcast() {
     updateTimestamp();
   }
 })();
+
+async function loadPosthogStats() {
+  const PH_KEY = localStorage.getItem('aipo-posthog-key');
+  const el_viewed  = document.getElementById('ph-viewed');
+  const el_voted   = document.getElementById('ph-voted');
+  const el_upgrade = document.getElementById('ph-upgrade');
+  const statusEl   = document.getElementById('ph-key-status');
+  if (!PH_KEY) {
+    [el_viewed, el_voted, el_upgrade].forEach(el => { if(el) el.textContent = '—'; });
+    return;
+  }
+  if (statusEl) statusEl.textContent = '✓ 保存済み';
+  const PH_PROJECT = '354171';
+  const events = [
+    { name: 'idea_viewed',     el: el_viewed },
+    { name: 'idea_voted',      el: el_voted },
+    { name: 'upgrade_clicked', el: el_upgrade }
+  ];
+  for (const ev of events) {
+    try {
+      const res = await fetch(`https://us.posthog.com/api/projects/${PH_PROJECT}/query/`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${PH_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: { kind: 'HogQLQuery', query: `SELECT count() FROM events WHERE event = '${ev.name}' AND timestamp >= now() - interval 7 day` } })
+      });
+      const data = await res.json();
+      if (ev.el) ev.el.textContent = data.results?.[0]?.[0] ?? '—';
+    } catch(e) {
+      if (ev.el) ev.el.textContent = 'ERR';
+    }
+  }
+}
+
+function savePosthogKey() {
+  const k = document.getElementById('ph-key-input')?.value?.trim();
+  if (!k) return;
+  localStorage.setItem('aipo-posthog-key', k);
+  document.getElementById('ph-key-input').value = '';
+  document.getElementById('ph-key-status').textContent = '✓ 保存済み';
+  loadPosthogStats();
+}
+
+loadPosthogStats();
 </script>
 </body>
 </html>
