@@ -637,36 +637,26 @@
     <div style="background:#fff;border:1px solid #e5e3de;border-radius:12px;padding:18px;margin-bottom:20px">
       <div class="section-title" style="margin-bottom:14px">📝 新規登録 / 編集</div>
       <input type="hidden" id="impl-edit-id">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-        <div>
-          <div style="font-size:11px;font-weight:700;color:#8a8078;margin-bottom:4px">ティッカー</div>
-          <input id="impl-ticker" placeholder="DEVBOARD" style="width:100%;padding:8px 10px;border:1px solid #e5e3de;border-radius:8px;font-size:13px;font-family:inherit">
-        </div>
-        <div>
-          <div style="font-size:11px;font-weight:700;color:#8a8078;margin-bottom:4px">上場日</div>
-          <input id="impl-posted-at" placeholder="2026年2月" style="width:100%;padding:8px 10px;border:1px solid #e5e3de;border-radius:8px;font-size:13px;font-family:inherit">
-        </div>
+      <input type="hidden" id="impl-ticker">
+      <input type="hidden" id="impl-idea-name">
+      <input type="hidden" id="impl-score">
+      <input type="hidden" id="impl-votes">
+      <input type="hidden" id="impl-posted-at">
+
+      <div style="margin-bottom:12px">
+        <div style="font-size:11px;font-weight:700;color:#8a8078;margin-bottom:4px">元のアイデアを選択</div>
+        <select id="impl-idea-select" onchange="impl_onIdeaSelect()" style="width:100%;padding:9px 10px;border:1px solid #e5e3de;border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:#1a1714">
+          <option value="">読み込み中...</option>
+        </select>
+        <div id="impl-idea-select-hint" style="font-size:11px;color:#8a8078;margin-top:4px"></div>
       </div>
-      <div style="margin-bottom:8px">
-        <div style="font-size:11px;font-weight:700;color:#8a8078;margin-bottom:4px">アイデア名</div>
-        <input id="impl-idea-name" placeholder="個人開発界隈の掲示板が欲しい" style="width:100%;padding:8px 10px;border:1px solid #e5e3de;border-radius:8px;font-size:13px;font-family:inherit">
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
-        <div>
-          <div style="font-size:11px;font-weight:700;color:#8a8078;margin-bottom:4px">スコア</div>
-          <input id="impl-score" type="number" placeholder="72.4" style="width:100%;padding:8px 10px;border:1px solid #e5e3de;border-radius:8px;font-size:13px;font-family:inherit">
-        </div>
-        <div>
-          <div style="font-size:11px;font-weight:700;color:#8a8078;margin-bottom:4px">票数</div>
-          <input id="impl-votes" type="number" placeholder="12" style="width:100%;padding:8px 10px;border:1px solid #e5e3de;border-radius:8px;font-size:13px;font-family:inherit">
-        </div>
-        <div>
-          <div style="font-size:11px;font-weight:700;color:#8a8078;margin-bottom:4px">ステータス</div>
-          <select id="impl-status" style="width:100%;padding:8px 10px;border:1px solid #e5e3de;border-radius:8px;font-size:13px;font-family:inherit;background:#fff">
-            <option value="released">リリース済み</option>
-            <option value="wip">開発中</option>
-          </select>
-        </div>
+
+      <div style="margin-bottom:12px">
+        <div style="font-size:11px;font-weight:700;color:#8a8078;margin-bottom:4px">ステータス</div>
+        <select id="impl-status" style="width:100%;padding:9px 10px;border:1px solid #e5e3de;border-radius:8px;font-size:13px;font-family:inherit;background:#fff">
+          <option value="released">リリース済み</option>
+          <option value="wip">開発中</option>
+        </select>
       </div>
       <div style="margin-bottom:8px">
         <div style="font-size:11px;font-weight:700;color:#8a8078;margin-bottom:4px">実装タイトル</div>
@@ -878,9 +868,54 @@ function refreshCurrentTab() {
 
 // ══ 上場実装管理 ══════════════════════════════════════════════
 
+let impl_ideas_cache = [];
+
+async function impl_loadIdeas() {
+  const sel = document.getElementById('impl-idea-select');
+  if (!sel) return;
+  if (impl_ideas_cache.length) { impl_populateSelect(); return; }
+  sel.innerHTML = '<option value="">読み込み中...</option>';
+  const { data, error } = await supabase.from('ideas').select('id, ticker, name, score, votes, posted_at').order('score', { ascending: false });
+  if (error || !data) { sel.innerHTML = '<option value="">取得失敗</option>'; return; }
+  impl_ideas_cache = data;
+  impl_populateSelect();
+}
+
+function impl_populateSelect() {
+  const sel = document.getElementById('impl-idea-select');
+  if (!sel) return;
+  const currentVal = sel.value;
+  sel.innerHTML = '<option value="">— アイデアを選択してください —</option>' +
+    impl_ideas_cache.map(d =>
+      `<option value="${d.id}">${d.ticker} · ${d.name} (${parseFloat(d.score||0).toFixed(1)}点)</option>`
+    ).join('');
+  if (currentVal) sel.value = currentVal;
+}
+
+function impl_onIdeaSelect() {
+  const sel = document.getElementById('impl-idea-select');
+  const ideaId = sel.value;
+  const hint = document.getElementById('impl-idea-select-hint');
+  if (!ideaId) {
+    ['impl-ticker','impl-idea-name','impl-score','impl-votes','impl-posted-at'].forEach(id => document.getElementById(id).value = '');
+    hint.textContent = '';
+    return;
+  }
+  const d = impl_ideas_cache.find(x => x.id === ideaId);
+  if (!d) return;
+  document.getElementById('impl-ticker').value = d.ticker || '';
+  document.getElementById('impl-idea-name').value = d.name || '';
+  document.getElementById('impl-score').value = d.score || '';
+  document.getElementById('impl-votes').value = d.votes || '';
+  const postedAt = d.posted_at ? (() => { const dt = new Date(d.posted_at); return `${dt.getFullYear()}年${dt.getMonth()+1}月`; })() : '';
+  document.getElementById('impl-posted-at').value = postedAt;
+  hint.textContent = `ティッカー: ${d.ticker}　スコア: ${parseFloat(d.score||0).toFixed(1)}点　${d.votes||0}票　上場日: ${postedAt}`;
+}
+
 async function impl_loadList() {
   const el = document.getElementById('impl-admin-list');
   if (!el) return;
+  impl_loadIdeas();
   el.innerHTML = '<div style="text-align:center;color:#8a8078;padding:20px;font-size:13px">読み込み中...</div>';
   const { data, error } = await supabase.from('implementations').select('*').order('created_at', { ascending: false });
   if (error || !data) { el.innerHTML = '<div style="color:red;font-size:13px;padding:10px">読み込みエラー</div>'; return; }
@@ -905,27 +940,35 @@ async function impl_loadList() {
 }
 
 function impl_clearForm() {
-  ['impl-edit-id','impl-ticker','impl-posted-at','impl-idea-name','impl-title',
-   'impl-link1-label','impl-link1-url','impl-link2-label','impl-link2-url',
-   'impl-link3-label','impl-link3-url'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.value = '';
-  });
-  document.getElementById('impl-score').value = '';
-  document.getElementById('impl-votes').value = '';
-  document.getElementById('impl-description').value = '';
+  document.getElementById('impl-edit-id').value = '';
+  document.getElementById('impl-idea-select').value = '';
+  ['impl-ticker','impl-idea-name','impl-score','impl-votes','impl-posted-at'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('impl-idea-select-hint').textContent = '';
   document.getElementById('impl-status').value = 'released';
+  document.getElementById('impl-title').value = '';
+  document.getElementById('impl-description').value = '';
+  ['impl-link1-label','impl-link1-url','impl-link2-label','impl-link2-url','impl-link3-label','impl-link3-url'].forEach(id => { document.getElementById(id).value = ''; });
   document.getElementById('impl-save-btn').textContent = '登録する';
   document.getElementById('impl-form-msg').textContent = '';
 }
 
 function impl_editLoad(c) {
   document.getElementById('impl-edit-id').value = c.id || '';
-  document.getElementById('impl-ticker').value = c.ticker || '';
-  document.getElementById('impl-posted-at').value = c.posted_at || '';
-  document.getElementById('impl-idea-name').value = c.idea_name || '';
-  document.getElementById('impl-score').value = c.score || '';
-  document.getElementById('impl-votes').value = c.votes || '';
+  const hint = document.getElementById('impl-idea-select-hint');
+
+  const idea = impl_ideas_cache.find(x => x.ticker === c.ticker);
+  if (idea) {
+    document.getElementById('impl-idea-select').value = idea.id;
+    impl_onIdeaSelect();
+  } else {
+    document.getElementById('impl-ticker').value = c.ticker || '';
+    document.getElementById('impl-idea-name').value = c.idea_name || '';
+    document.getElementById('impl-score').value = c.score || '';
+    document.getElementById('impl-votes').value = c.votes || '';
+    document.getElementById('impl-posted-at').value = c.posted_at || '';
+    if (hint) hint.textContent = `ティッカー: ${c.ticker}`;
+  }
+
   document.getElementById('impl-status').value = c.status || 'released';
   document.getElementById('impl-title').value = c.title || '';
   document.getElementById('impl-description').value = c.description || '';
@@ -935,7 +978,6 @@ function impl_editLoad(c) {
     document.getElementById(`impl-link${i+1}-url`).value = links[i]?.url || '';
   });
   document.getElementById('impl-save-btn').textContent = '更新する';
-  document.getElementById('tab-3').scrollTop = 0;
   window.scrollTo(0, 0);
 }
 
@@ -944,7 +986,7 @@ async function impl_save() {
   const idea_name = document.getElementById('impl-idea-name').value.trim();
   const title = document.getElementById('impl-title').value.trim();
   if (!ticker || !idea_name || !title) {
-    document.getElementById('impl-form-msg').textContent = '⚠ ティッカー・アイデア名・タイトルは必須です';
+    document.getElementById('impl-form-msg').textContent = '⚠ アイデアの選択と実装タイトルは必須です';
     return;
   }
   const links = [
@@ -954,7 +996,7 @@ async function impl_save() {
   ].filter(l => l.label && l.url);
 
   const payload = {
-    ticker: ticker.toUpperCase(),
+    ticker,
     idea_name,
     title,
     score: parseFloat(document.getElementById('impl-score').value) || null,
@@ -967,6 +1009,7 @@ async function impl_save() {
 
   const editId = document.getElementById('impl-edit-id').value;
   const msgEl = document.getElementById('impl-form-msg');
+  msgEl.style.color = '#8a8078';
   msgEl.textContent = '保存中...';
 
   let error;
