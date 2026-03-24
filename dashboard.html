@@ -875,7 +875,7 @@ async function impl_loadIdeas() {
   if (!sel) return;
   if (impl_ideas_cache.length) { impl_populateSelect(); return; }
   sel.innerHTML = '<option value="">読み込み中...</option>';
-  const { data, error } = await supabase.from('ideas').select('id, ticker, name, score, votes, posted_at').order('score', { ascending: false });
+  const { data, error } = await sb.from('ideas').select('id, ticker, name, score, votes, posted_at').order('score', { ascending: false });
   if (error || !data) { sel.innerHTML = '<option value="">取得失敗</option>'; return; }
   impl_ideas_cache = data;
   impl_populateSelect();
@@ -917,7 +917,7 @@ async function impl_loadList() {
   if (!el) return;
   impl_loadIdeas();
   el.innerHTML = '<div style="text-align:center;color:#8a8078;padding:20px;font-size:13px">読み込み中...</div>';
-  const { data, error } = await supabase.from('implementations').select('*').order('created_at', { ascending: false });
+  const { data, error } = await sb.from('implementations').select('*').order('created_at', { ascending: false });
   if (error || !data) { el.innerHTML = '<div style="color:red;font-size:13px;padding:10px">読み込みエラー</div>'; return; }
   if (!data.length) { el.innerHTML = '<div style="text-align:center;color:#8a8078;padding:20px;font-size:13px">登録されていません</div>'; return; }
   el.innerHTML = data.map(c => {
@@ -1014,9 +1014,9 @@ async function impl_save() {
 
   let error;
   if (editId) {
-    ({ error } = await supabase.from('implementations').update(payload).eq('id', editId));
+    ({ error } = await sb.from('implementations').update(payload).eq('id', editId));
   } else {
-    ({ error } = await supabase.from('implementations').insert(payload));
+    ({ error } = await sb.from('implementations').insert(payload));
   }
 
   if (error) { msgEl.style.color = 'red'; msgEl.textContent = '保存失敗: ' + error.message; return; }
@@ -1028,7 +1028,7 @@ async function impl_save() {
 
 async function impl_delete(id) {
   if (!confirm('この実装カードを削除しますか？')) return;
-  const { error } = await supabase.from('implementations').delete().eq('id', id);
+  const { error } = await sb.from('implementations').delete().eq('id', id);
   if (error) { alert('削除失敗: ' + error.message); return; }
   impl_loadList();
 }
