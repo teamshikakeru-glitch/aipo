@@ -1954,7 +1954,7 @@ async function loadSentryStats() {
   const ORG = 'shikakeru';
   try {
     const res = await fetch(
-      `https://sentry.io/api/0/organizations/${ORG}/issues/?limit=25&query=is:unresolved&statsPeriod=24h&project=javascript`,
+      `https://sentry.io/api/0/organizations/${ORG}/issues/?limit=25&statsPeriod=24h`,
       { headers: { 'Authorization': `Bearer ${TOKEN}` } }
     );
     const issues = await res.json();
