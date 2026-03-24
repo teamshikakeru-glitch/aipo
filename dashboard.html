@@ -853,7 +853,7 @@ function showDashToast(msg) {
 }
 
 function updateTimestamp() {
-  const now = new Date();
+  const now = new Date(new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' }));
   setText('lastUpdated', [now.getHours(),now.getMinutes(),now.getSeconds()].map(n=>String(n).padStart(2,'0')).join(':'));
 }
 
