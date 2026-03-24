@@ -670,7 +670,7 @@
   <div class="main">
     <div>
       <div class="user-list-header">
-        <div class="section-title" style="margin-bottom:0">ユーザー一覧（最終投票が早い順）</div>
+        <div class="section-title" style="margin-bottom:0">ユーザー一覧（最終投票が新しい順）</div>
         <button class="broadcast-btn" onclick="openBroadcast()">📢 一斉送信</button>
       </div>
       <div id="user-list-body">
@@ -1727,7 +1727,7 @@ async function loadUsers() {
     if (!la && !lb) return 0;
     if (!la) return 1;
     if (!lb) return -1;
-    return new Date(la) - new Date(lb);
+    return new Date(lb) - new Date(la);
   });
 
   if (profiles.length===0) { el.innerHTML='<div style="color:var(--text-muted);font-size:13px;padding:12px 0">ユーザーなし</div>'; return; }
