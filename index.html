@@ -28,6 +28,8 @@ posthog.init('phc_665tIWLYkMFBazlz7Q6CPiZjEK3rYzJtoTF7QG2JPYB', {
   person_profiles: 'identified_only'
 });
 </script>
+<!-- Crisp チャットウィジェット -->
+<script type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="cd2b8817-cabd-4cf0-9c0a-c62f0285237d";(function(){var d=document;var s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script defer src="/_vercel/insights/script.js"></script>
@@ -575,7 +577,7 @@ input[type=file] { display: none; }
 <div class="bottom-nav">
   <div class="nav-item active" id="nav-feed" onclick="goTo('feed')"><div class="nav-icon-box"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="6" height="6" rx="1.5"/><rect x="11" y="3" width="6" height="6" rx="1.5"/><rect x="3" y="11" width="6" height="6" rx="1.5"/><rect x="11" y="11" width="6" height="6" rx="1.5"/></svg></div>マーケット</div>
   <div class="nav-item" id="nav-post-tab" onclick="goTo('post')"><div class="nav-icon-box" style="background:var(--amber-mid);border-color:var(--amber-mid);box-shadow:0 2px 8px rgba(232,133,10,.35)"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2.5"><path d="M10 15V5M5 9l5-5 5 5"/></svg></div>上場</div>
-  <div class="nav-item" id="nav-hiroba-btn" onclick="$crisp.push(['do','chat:open'])" style="position:relative"><div class="nav-icon-box" style="position:relative"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M2 5h16M2 10h10M2 15h7"/><circle cx="16" cy="15" r="2.5"/><path d="M16 13v-3"/></svg></div>広場</div>
+  <div class="nav-item" id="nav-hiroba-btn" onclick="window.$crisp&&$crisp.push(['do','chat:open'])" style="position:relative"><div class="nav-icon-box" style="position:relative"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M2 5h16M2 10h10M2 15h7"/><circle cx="16" cy="15" r="2.5"/><path d="M16 13v-3"/></svg></div>広場</div>
   <div class="nav-item" id="nav-portfolio" onclick="goTo('portfolio')"><div class="nav-icon-box" style="position:relative"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3L3 7v10h14V7L10 3z"/></svg><div id="notif-badge" style="display:none;position:absolute;top:-4px;right:-4px;min-width:14px;height:14px;background:#c0392b;border-radius:7px;border:1.5px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;padding:0 3px;line-height:1"></div></div>ホーム</div>
   <div class="nav-item" id="nav-match" onclick="goTo('match')"><div class="nav-icon-box"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2" y="3" width="16" height="13" rx="2"/><path d="M6 7h8M6 11h5" stroke-linecap="round"/></svg></div>掲示板</div>
 </div>
