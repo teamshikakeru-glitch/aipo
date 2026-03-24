@@ -1,7 +1,7 @@
 {
-  "routes": [
-    { "src": "/founder", "dest": "/founder.html" },
-    { "src": "/dashboard", "dest": "/dashboard.html" },
-    { "src": "/(.*)", "dest": "/index.html" }
+  "rewrites": [
+    { "source": "/lp2", "destination": "/lp2.html" },
+    { "source": "/saiban", "destination": "/saiban.html" },  ← これだけ追加
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
