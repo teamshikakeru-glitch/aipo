@@ -6,200 +6,266 @@
 <title>家庭内民事裁判所</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600&family=Noto+Sans+JP:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#eceae4;
+  --bg:#f5f3ef;
   --surface:#ffffff;
-  --surface2:#f3f0ea;
-  --border:rgba(0,0,0,0.08);
+  --border:rgba(0,0,0,0.10);
   --text:#1a1714;
-  --text2:#4a4540;
-  --text3:#8a8078;
-  --amber-mid:#e8850a;
-  --green-light:#22a85f;
-  --red:#e24b4a;
+  --text2:#5a5550;
+  --text3:#9a9088;
+  --accent:#1a1714;
+  --accent-fg:#ffffff;
+  --red:#c0392b;
+  --gold:#b8860b;
+  --serif:'Noto Serif JP',serif;
   --sans:'Noto Sans JP',sans-serif;
-  --mono:'Space Mono',monospace;
 }
 html,body{
   min-height:100vh;
   background:var(--bg);
-  font-family:var(--sans);
+  font-family:var(--serif);
   color:var(--text);
   -webkit-font-smoothing:antialiased;
   overflow-x:hidden;
 }
 .page{
-  max-width:390px;
+  max-width:560px;
   margin:0 auto;
-  padding:0 16px 60px;
+  padding:0 24px 80px;
   min-height:100vh;
 }
 .screen{display:none}
 .screen.active{display:block}
 
-/* ヘッダー */
-.header{
-  padding:20px 0 24px;
+/* ── ロゴヘッダー ── */
+.logo-area{
+  padding:40px 0 36px;
   text-align:center;
+  border-bottom:1px solid var(--border);
+  margin-bottom:36px;
 }
-.header-icon{font-size:36px;margin-bottom:6px}
-.header-title{
-  font-size:20px;font-weight:900;color:var(--text);
-  letter-spacing:.02em;
+.logo-rule-top{
+  width:40px;height:1px;background:var(--gold);
+  margin:0 auto 18px;
 }
-.header-sub{
-  font-size:12px;color:var(--text3);margin-top:4px;line-height:1.6;
+.logo-title{
+  font-family:var(--serif);font-size:24px;font-weight:600;
+  color:var(--text);letter-spacing:.15em;
+}
+.logo-sub{
+  font-family:var(--sans);font-size:11px;color:var(--text3);
+  margin-top:8px;letter-spacing:.08em;
+}
+.logo-rule-bottom{
+  width:40px;height:1px;background:var(--gold);
+  margin:18px auto 0;
 }
 
-/* ケース選択 */
+/* ── セクションラベル ── */
+.inp-label{
+  font-family:var(--sans);font-size:11px;font-weight:500;
+  color:var(--text3);margin-bottom:8px;letter-spacing:.1em;
+  text-transform:uppercase;
+}
+
+/* ── ケース選択 ── */
 .case-grid{
-  display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:28px;
 }
 .case-btn{
-  padding:12px 8px;background:var(--surface);border:2px solid var(--border);
-  border-radius:12px;font-size:13px;font-weight:700;color:var(--text2);
-  font-family:var(--sans);cursor:pointer;text-align:center;transition:all .15s;
+  padding:14px 10px;background:var(--surface);
+  border:1px solid var(--border);border-radius:4px;
+  font-family:var(--serif);font-size:14px;color:var(--text2);
+  cursor:pointer;text-align:center;transition:all .15s;
+  letter-spacing:.05em;
 }
+.case-btn:hover{border-color:var(--text3)}
 .case-btn.selected{
-  border-color:var(--amber-mid);color:var(--amber-mid);background:#fff8ed;
+  background:var(--accent);color:var(--accent-fg);
+  border-color:var(--accent);
 }
 
-/* テキストエリア */
-.inp-label{
-  font-size:12px;font-weight:700;color:var(--text3);margin-bottom:6px;
-  letter-spacing:.04em;
-}
+/* ── テキストエリア ── */
 textarea{
-  width:100%;padding:12px 14px;background:var(--surface);
-  border:1.5px solid var(--border);border-radius:12px;
-  font-size:13px;font-family:var(--sans);color:var(--text);
-  resize:none;outline:none;line-height:1.7;
+  width:100%;padding:14px 16px;background:var(--surface);
+  border:1px solid var(--border);border-radius:4px;
+  font-size:14px;font-family:var(--serif);color:var(--text);
+  resize:none;outline:none;line-height:1.8;
   transition:border-color .15s;
 }
-textarea:focus{border-color:var(--amber-mid)}
+textarea:focus{border-color:var(--text)}
+textarea::placeholder{color:var(--text3)}
 
-/* ボタン */
+/* ── ボタン ── */
 .btn-primary{
-  display:block;width:100%;padding:15px;
-  background:var(--amber-mid);color:#fff;border:none;border-radius:14px;
-  font-size:15px;font-weight:700;font-family:var(--sans);
-  cursor:pointer;text-align:center;transition:opacity .15s,transform .1s;
-  margin-top:16px;
+  display:block;width:100%;padding:16px;
+  background:var(--accent);color:var(--accent-fg);
+  border:none;border-radius:4px;
+  font-family:var(--serif);font-size:15px;font-weight:600;
+  letter-spacing:.1em;cursor:pointer;text-align:center;
+  transition:opacity .15s;margin-top:20px;
 }
-.btn-primary:active{opacity:.85;transform:scale(.98)}
-.btn-primary:disabled{opacity:.5;cursor:default}
+.btn-primary:hover{opacity:.85}
+.btn-primary:active{opacity:.75}
+.btn-primary:disabled{opacity:.4;cursor:default}
 .btn-secondary{
   display:block;width:100%;padding:14px;
-  background:var(--surface);color:var(--text2);
-  border:1.5px solid var(--border);border-radius:14px;
-  font-size:14px;font-weight:700;font-family:var(--sans);
-  cursor:pointer;text-align:center;margin-top:10px;
+  background:transparent;color:var(--text2);
+  border:1px solid var(--border);border-radius:4px;
+  font-family:var(--serif);font-size:14px;
+  cursor:pointer;text-align:center;margin-top:12px;
+  transition:border-color .15s;
 }
+.btn-secondary:hover{border-color:var(--text3)}
 
-/* カード */
-.card{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:16px;padding:16px;margin-bottom:12px;
+/* ── 召喚状画面ヘッダー ── */
+.summon-header{
+  padding:40px 0 32px;
+  text-align:center;
+  border-bottom:1px solid var(--border);
+  margin-bottom:32px;
 }
-.card-label{
-  font-size:10px;font-weight:700;color:var(--text3);
-  letter-spacing:.08em;margin-bottom:6px;
+.court-number{
+  font-family:var(--sans);font-size:11px;font-weight:500;
+  color:var(--gold);letter-spacing:.2em;margin-bottom:12px;
 }
-.card-content{
-  font-size:13px;color:var(--text);line-height:1.75;
-}
-
-/* 法廷番号バッジ */
-.court-badge{
-  display:inline-block;
-  background:var(--surface2);border:1px solid var(--border);
-  border-radius:20px;padding:5px 14px;
-  font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text3);
-  margin-bottom:20px;
-}
-
-/* 召喚状画面 */
 .summon-title{
-  font-size:22px;font-weight:900;color:var(--text);
-  text-align:center;margin-bottom:20px;line-height:1.4;
-}
-.share-row{display:flex;gap:10px;margin-bottom:20px}
-.btn-line{
-  flex:1;padding:13px 8px;background:#06C755;color:#fff;border:none;
-  border-radius:12px;font-size:13px;font-weight:700;font-family:var(--sans);
-  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;
-}
-.btn-copy{
-  flex:1;padding:13px 8px;background:var(--surface);color:var(--text2);
-  border:1.5px solid var(--border);border-radius:12px;
-  font-size:13px;font-weight:700;font-family:var(--sans);cursor:pointer;
-  display:flex;align-items:center;justify-content:center;gap:6px;
+  font-family:var(--serif);font-size:22px;font-weight:600;
+  color:var(--text);letter-spacing:.1em;line-height:1.5;
 }
 
-/* 待機ステータス */
+/* ── シェアボタン ── */
+.share-row{display:flex;gap:10px;margin-bottom:24px}
+.btn-line{
+  flex:1;padding:14px 10px;background:var(--accent);color:var(--accent-fg);
+  border:none;border-radius:4px;
+  font-family:var(--sans);font-size:13px;font-weight:500;
+  cursor:pointer;text-align:center;letter-spacing:.04em;transition:opacity .15s;
+}
+.btn-line:hover{opacity:.85}
+.btn-copy{
+  flex:1;padding:14px 10px;background:var(--surface);color:var(--text2);
+  border:1px solid var(--border);border-radius:4px;
+  font-family:var(--sans);font-size:13px;font-weight:500;
+  cursor:pointer;text-align:center;letter-spacing:.04em;transition:border-color .15s;
+}
+.btn-copy:hover{border-color:var(--text3)}
+
+/* ── 待機ステータス ── */
 .status-waiting{
-  text-align:center;padding:24px 16px;
-  background:var(--surface);border:1px solid var(--border);border-radius:16px;
+  text-align:center;padding:32px 20px;
+  border:1px solid var(--border);border-radius:4px;
+  background:var(--surface);
 }
 .status-waiting-text{
-  font-size:14px;font-weight:700;color:var(--text2);
+  font-family:var(--sans);font-size:13px;color:var(--text3);
+  letter-spacing:.06em;margin-bottom:16px;
 }
 .dots span{
-  display:inline-block;animation:blink 1.2s infinite;font-size:18px;
-  color:var(--amber-mid);
+  display:inline-block;
+  width:6px;height:6px;border-radius:50%;
+  background:var(--text3);margin:0 3px;
+  animation:blink 1.2s infinite;
 }
 .dots span:nth-child(2){animation-delay:.2s}
 .dots span:nth-child(3){animation-delay:.4s}
-@keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+@keyframes blink{0%,80%,100%{opacity:.15}40%{opacity:1}}
 
-/* 被告画面 */
-.defendant-header{
-  font-size:16px;font-weight:900;color:var(--red);
-  text-align:center;margin-bottom:16px;padding:14px;
-  background:#fff5f5;border:1.5px solid #fecaca;border-radius:12px;
+/* ── カード ── */
+.card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:4px;padding:20px;margin-bottom:16px;
+}
+.card-label{
+  font-family:var(--sans);font-size:10px;font-weight:500;
+  color:var(--text3);letter-spacing:.12em;margin-bottom:10px;
+}
+.card-content{
+  font-family:var(--serif);font-size:14px;color:var(--text);line-height:1.8;
 }
 
-/* 審議中画面 */
+/* ── 被告画面 ── */
+.defendant-notice{
+  border-left:3px solid var(--red);
+  padding:14px 16px;margin-bottom:28px;background:var(--surface);
+}
+.defendant-notice-text{
+  font-family:var(--sans);font-size:13px;font-weight:500;
+  color:var(--red);letter-spacing:.04em;
+}
+
+/* ── 審議中画面 ── */
 .deliberation-wrap{
-  text-align:center;padding:40px 16px;
+  text-align:center;padding:80px 20px 60px;
 }
-.gavel-icon{font-size:56px;margin-bottom:20px;animation:swing .8s ease-in-out infinite alternate}
-@keyframes swing{from{transform:rotate(-15deg)}to{transform:rotate(15deg)}}
+.spinner{
+  width:40px;height:40px;border:2px solid var(--border);
+  border-top-color:var(--text);border-radius:50%;
+  margin:0 auto 28px;animation:spin 1s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.deliberation-rule{
+  width:24px;height:1px;background:var(--gold);margin:0 auto 20px;
+}
 .deliberation-title{
-  font-size:18px;font-weight:900;color:var(--text);margin-bottom:8px;
+  font-family:var(--serif);font-size:18px;font-weight:600;
+  color:var(--text);letter-spacing:.1em;margin-bottom:12px;
+}
+.deliberation-sub{
+  font-family:var(--sans);font-size:12px;color:var(--text3);
+  line-height:1.8;letter-spacing:.04em;
 }
 
-/* 判決画面 */
-.verdict-seal{
-  width:88px;height:88px;border-radius:50%;
-  background:var(--red);display:flex;align-items:center;justify-content:center;
-  margin:0 auto 20px;
-  box-shadow:0 0 0 6px rgba(226,75,74,0.15);
+/* ── 判決画面 ── */
+.verdict-header{
+  padding:48px 0 36px;
+  text-align:center;
+  border-bottom:1px solid var(--border);
+  margin-bottom:36px;
 }
-.verdict-seal-text{
-  font-size:22px;font-weight:900;color:#fff;letter-spacing:.1em;
-  font-family:var(--mono);
+.verdict-rule-top{
+  width:24px;height:1px;background:var(--gold);margin:0 auto 20px;
 }
 .verdict-title{
-  font-size:28px;font-weight:900;text-align:center;margin-bottom:24px;
-  letter-spacing:.2em;color:var(--text);
+  font-family:var(--serif);font-size:32px;font-weight:600;
+  color:var(--text);letter-spacing:.3em;
 }
-.verdict-section-label{
-  font-size:10px;font-weight:700;color:var(--red);letter-spacing:.1em;
-  margin-bottom:8px;
-}
-.verdict-text{
-  font-size:14px;line-height:1.8;color:var(--text);
-}
-.verdict-comment{
-  font-size:13px;line-height:1.7;color:var(--text2);font-style:italic;
+.verdict-rule-bottom{
+  width:24px;height:1px;background:var(--gold);margin:20px auto 0;
 }
 
-/* セクション区切り */
-.section-gap{height:20px}
+.verdict-shumon{
+  border:1.5px solid var(--red);border-radius:4px;
+  padding:20px;margin-bottom:16px;
+}
+.verdict-shumon-label{
+  font-family:var(--sans);font-size:10px;font-weight:500;
+  color:var(--red);letter-spacing:.15em;margin-bottom:12px;
+}
+.verdict-text{
+  font-family:var(--serif);font-size:15px;line-height:1.9;color:var(--text);
+}
+
+.verdict-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:4px;padding:20px;margin-bottom:16px;
+}
+.verdict-comment-label{
+  font-family:var(--sans);font-size:10px;font-weight:500;
+  color:var(--text3);letter-spacing:.12em;margin-bottom:10px;
+}
+.verdict-comment{
+  font-family:var(--serif);font-size:13px;line-height:1.8;
+  color:var(--text2);font-style:italic;
+}
+
+.section-gap{height:28px}
+.section-divider{
+  height:1px;background:var(--border);margin:28px 0;
+}
 </style>
 </head>
 <body>
@@ -208,119 +274,114 @@ textarea:focus{border-color:var(--amber-mid)}
 
   <!-- ① トップ画面 -->
   <div id="screen-top" class="screen">
-    <div class="header">
-      <div class="header-icon">⚖️</div>
-      <div class="header-title">家庭内民事裁判所</div>
-      <div class="header-sub">AI裁判長が、愛のある判決を下します</div>
+    <div class="logo-area">
+      <div class="logo-rule-top"></div>
+      <div class="logo-title">家庭内民事裁判所</div>
+      <div class="logo-sub">令和7年 · AI裁判長制度</div>
+      <div class="logo-rule-bottom"></div>
     </div>
 
-    <div class="inp-label">ケース種別</div>
+    <div class="inp-label">事件の種別</div>
     <div class="case-grid" id="case-grid">
-      <button class="case-btn" onclick="selectCase(this,'夫婦ケンカ')">💑 夫婦ケンカ</button>
-      <button class="case-btn" onclick="selectCase(this,'兄弟喧嘩')">👫 兄弟喧嘩</button>
-      <button class="case-btn" onclick="selectCase(this,'親子問題')">👨‍👧 親子問題</button>
-      <button class="case-btn" onclick="selectCase(this,'その他')">🤝 その他</button>
+      <button class="case-btn" onclick="selectCase(this,'夫婦ケンカ')">夫婦間</button>
+      <button class="case-btn" onclick="selectCase(this,'兄弟喧嘩')">兄弟・姉妹間</button>
+      <button class="case-btn" onclick="selectCase(this,'親子問題')">親子間</button>
+      <button class="case-btn" onclick="selectCase(this,'その他')">その他</button>
     </div>
 
-    <div class="inp-label" style="margin-top:4px">原告の主張</div>
-    <textarea id="plaintiff-claim-input" rows="5" placeholder="何があったか、正直に話してください"></textarea>
+    <div class="inp-label">訴　状</div>
+    <textarea id="plaintiff-claim-input" rows="6" placeholder="事の経緯を詳細にご記入ください"></textarea>
 
-    <button class="btn-primary" onclick="submitCase()">⚖️ 提訴する</button>
+    <button class="btn-primary" onclick="submitCase()">提訴する</button>
   </div>
 
   <!-- ② 召喚状画面（原告） -->
   <div id="screen-plaintiff" class="screen">
-    <div class="header">
-      <div class="header-icon">📜</div>
+    <div class="summon-header">
+      <div class="court-number" id="court-badge-plaintiff">第 ???? 号法廷</div>
+      <div class="summon-title">法廷が開廷しました</div>
     </div>
-    <div style="text-align:center;margin-bottom:8px">
-      <div class="court-badge" id="court-badge-plaintiff">第????号法廷</div>
-    </div>
-    <div class="summon-title">法廷が<br>開廷しました</div>
 
-    <div class="card" style="margin-bottom:16px">
-      <div class="card-label">相手に送る召喚状</div>
-      <div class="card-content" style="font-size:12px;color:var(--text3)">以下のボタンから相手を呼び出してください</div>
+    <div class="inp-label" style="margin-bottom:12px">相手方への召喚状</div>
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-content" style="font-size:13px;color:var(--text3);line-height:1.7">
+        以下のボタンから相手方を呼び出してください。<br>被告が入廷すると自動で次の手続きに進みます。
+      </div>
     </div>
 
     <div class="share-row">
-      <button class="btn-line" id="btn-line-share" onclick="shareToLine()">
-        <span style="font-size:18px">💬</span> LINEで召喚
-      </button>
-      <button class="btn-copy" id="btn-copy-url" onclick="copyUrl()">
-        <span style="font-size:16px">📋</span> URLをコピー
-      </button>
+      <button class="btn-line" id="btn-line-share" onclick="shareToLine()">LINE で召喚状を送る</button>
+      <button class="btn-copy" id="btn-copy-url" onclick="copyUrl()">リンクをコピー</button>
     </div>
 
     <div class="status-waiting">
       <div class="status-waiting-text">被告の入廷を待っています</div>
-      <div class="dots" style="margin-top:8px">
-        <span>●</span><span>●</span><span>●</span>
+      <div class="dots">
+        <span></span><span></span><span></span>
       </div>
     </div>
   </div>
 
   <!-- ③ 被告入廷画面 -->
   <div id="screen-defendant" class="screen">
-    <div class="header" style="padding-bottom:12px">
-      <div class="header-icon">🔴</div>
+    <div class="logo-area">
+      <div class="logo-rule-top"></div>
+      <div class="logo-title">家庭内民事裁判所</div>
+      <div class="logo-sub">令和7年 · AI裁判長制度</div>
+      <div class="logo-rule-bottom"></div>
     </div>
-    <div class="defendant-header">あなたは被告として召喚されました</div>
 
-    <div class="card">
-      <div class="card-label">原告の主張</div>
+    <div class="defendant-notice">
+      <div class="defendant-notice-text">あなたは被告として召喚されました</div>
+    </div>
+
+    <div class="inp-label" style="margin-bottom:10px">原告の主張</div>
+    <div class="card" style="margin-bottom:28px">
       <div class="card-content" id="plaintiff-claim-display">読み込み中...</div>
     </div>
 
-    <div class="inp-label" style="margin-top:16px">あなたの反論</div>
-    <textarea id="defendant-claim-input" rows="5" placeholder="あなたの言い分を話してください"></textarea>
+    <div class="inp-label">答　弁</div>
+    <textarea id="defendant-claim-input" rows="6" placeholder="あなたの言い分を話してください"></textarea>
 
-    <button class="btn-primary" onclick="submitDefendant()">📝 反論を提出する</button>
+    <button class="btn-primary" onclick="submitDefendant()">反論を提出する</button>
   </div>
 
   <!-- ④ 審議中画面 -->
   <div id="screen-deliberation" class="screen">
     <div class="deliberation-wrap">
-      <div class="gavel-icon">🔨</div>
+      <div class="spinner"></div>
+      <div class="deliberation-rule"></div>
       <div class="deliberation-title">AI裁判長が審議中です</div>
-      <div class="dots">
-        <span>●</span><span>●</span><span>●</span>
-      </div>
-      <div style="margin-top:20px;font-size:12px;color:var(--text3);line-height:1.7">
-        両者の主張を精査しています<br>しばらくお待ちください
-      </div>
+      <div class="deliberation-sub">両者の主張を精査しています<br>しばらくお待ちください</div>
     </div>
   </div>
 
   <!-- ⑤ 判決画面 -->
   <div id="screen-verdict" class="screen">
-    <div style="padding-top:32px">
-      <div class="verdict-seal"><div class="verdict-seal-text">判</div></div>
+    <div class="verdict-header">
+      <div class="verdict-rule-top"></div>
       <div class="verdict-title">判　決</div>
-
-      <div class="card" style="margin-bottom:12px">
-        <div class="verdict-section-label">主　文</div>
-        <div class="verdict-text" id="verdict-main">読み込み中...</div>
-      </div>
-
-      <div class="card">
-        <div class="verdict-section-label">裁判長のひとこと</div>
-        <div class="verdict-comment" id="verdict-comment">...</div>
-      </div>
-
-      <div class="section-gap"></div>
-
-      <div class="share-row">
-        <button class="btn-line" onclick="shareVerdictToLine()">
-          <span style="font-size:18px">💬</span> LINEで共有
-        </button>
-        <button class="btn-copy" onclick="copyVerdict()">
-          <span style="font-size:16px">📋</span> コピー
-        </button>
-      </div>
-
-      <button class="btn-secondary" onclick="location.href='saiban.html'">もう一度裁判する</button>
+      <div class="verdict-rule-bottom"></div>
     </div>
+
+    <div class="verdict-shumon">
+      <div class="verdict-shumon-label">主　文</div>
+      <div class="verdict-text" id="verdict-main">読み込み中...</div>
+    </div>
+
+    <div class="verdict-card">
+      <div class="verdict-comment-label">裁判長のひとこと</div>
+      <div class="verdict-comment" id="verdict-comment">...</div>
+    </div>
+
+    <div class="section-gap"></div>
+
+    <div class="share-row">
+      <button class="btn-line" onclick="shareVerdictToLine()">LINE で共有する</button>
+      <button class="btn-copy" onclick="copyVerdict()">判決文をコピー</button>
+    </div>
+
+    <button class="btn-secondary" onclick="location.href='saiban.html'">もう一度裁判する</button>
   </div>
 
 </div>
@@ -381,8 +442,8 @@ function shareToLine() {
 function copyUrl() {
   navigator.clipboard.writeText(getDefendantUrl()).then(() => {
     const btn = document.getElementById('btn-copy-url');
-    btn.textContent = '✅ コピー済み';
-    setTimeout(() => { btn.innerHTML = '<span style="font-size:16px">📋</span> URLをコピー'; }, 2000);
+    btn.textContent = 'コピーしました';
+    setTimeout(() => { btn.textContent = 'リンクをコピー'; }, 2000);
   });
 }
 
@@ -458,7 +519,7 @@ function shareVerdictToLine() {
   const main = document.getElementById('verdict-main').textContent;
   const comment = document.getElementById('verdict-comment').textContent;
   const text = encodeURIComponent(
-    '⚖️ 家庭内民事裁判所 判決\n\n【主文】\n' + main + '\n\n【裁判長のひとこと】\n' + comment +
+    '家庭内民事裁判所 判決\n\n【主文】\n' + main + '\n\n【裁判長のひとこと】\n' + comment +
     '\n\nhttps://aipo-tau.vercel.app/saiban'
   );
   window.open('https://line.me/R/msg/text/?' + text, '_blank');
@@ -467,7 +528,7 @@ function shareVerdictToLine() {
 function copyVerdict() {
   const main = document.getElementById('verdict-main').textContent;
   const comment = document.getElementById('verdict-comment').textContent;
-  const text = '⚖️ 家庭内民事裁判所 判決\n\n【主文】\n' + main + '\n\n【裁判長のひとこと】\n' + comment;
+  const text = '家庭内民事裁判所 判決\n\n【主文】\n' + main + '\n\n【裁判長のひとこと】\n' + comment;
   navigator.clipboard.writeText(text).then(() => alert('コピーしました'));
 }
 
@@ -494,7 +555,7 @@ async function init() {
   if (error || !room) { alert('法廷が見つかりません'); return; }
 
   if (role === 'plaintiff') {
-    document.getElementById('court-badge-plaintiff').textContent = '第' + roomId + '号法廷';
+    document.getElementById('court-badge-plaintiff').textContent = '第 ' + roomId + ' 号法廷';
     if (room.status === 'judged') {
       const v = JSON.parse(room.verdict);
       showVerdictScreen(v);
