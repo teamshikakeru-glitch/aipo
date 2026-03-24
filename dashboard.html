@@ -1944,9 +1944,9 @@ loadPosthogStats();
 
 async function loadSentryStats() {
   const TOKEN = localStorage.getItem('aipo-sentry-key');
-  const el_errors  = document.getElementById('sentry-errors');
-  const el_users   = document.getElementById('sentry-users');
-  const el_events  = document.getElementById('sentry-events');
+  const el_errors  = document.getElementById('snt-errors');
+  const el_users   = document.getElementById('snt-users');
+  const el_events  = document.getElementById('snt-events');
   if (!TOKEN) {
     [el_errors, el_users, el_events].forEach(el => { if(el) el.textContent = '—'; });
     return;
