@@ -432,6 +432,10 @@ posthog.capture('founder_lp_view');
     </div>
   </div>
 
+  <div style="background:#fff8ed;border:1.5px solid #fde8b8;border-radius:12px;padding:12px 14px;margin-bottom:8px;margin-top:-16px">
+    <p style="font-size:11px;color:#e8850a;font-weight:700;line-height:1.7">⚠️ 注意：Stripeの決済メールアドレスとあいぽのログインメールアドレスを同じにしてください。異なる場合はバッジが自動反映されません。</p>
+  </div>
+
   <div class="divider"></div>
 
   <!-- FAQ -->
@@ -452,6 +456,10 @@ posthog.capture('founder_lp_view');
     <div class="faq-item">
       <button class="faq-q" onclick="toggleFaq(this)">返金はできますか？</button>
       <div class="faq-a">ご購入後のキャンセル・返金は原則お受けできません。ご了承の上ご購入ください。</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">購入後にバッジが表示されない場合は？</button>
+      <div class="faq-a">Stripeで決済したメールアドレスと、あいぽにログインしているメールアドレスが同じである必要があります。異なる場合はX（<a href="https://x.com/aideaipo" style="color:var(--amber)">@aideaipo</a>）までDMでご連絡ください。</div>
     </div>
     <div class="faq-item">
       <button class="faq-q" onclick="toggleFaq(this)">あいぽとは何ですか？</button>
