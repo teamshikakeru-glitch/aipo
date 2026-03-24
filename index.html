@@ -142,7 +142,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); over
 .primary-btn:active { background: #c06d08; transform: scale(.98); }
 .primary-btn:disabled { background: var(--surface2); color: var(--text3); cursor: not-allowed; transform: none; }
 .hint { font-size: 11px; color: var(--text3); margin-top: 6px; line-height: 1.6; }
-.toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(8px); background: var(--text); border-radius: 20px; padding: 11px 22px; font-size: 13px; color: #fff; opacity: 0; transition: all .25s; pointer-events: none; z-index: 100; max-width: 320px; width: 90%; text-align: center; font-weight: 700; }
+.toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(8px); background: var(--text); border-radius: 20px; padding: 11px 22px; font-size: 13px; color: #fff; opacity: 0; transition: all .25s; pointer-events: none; z-index: 9999; max-width: 320px; width: 90%; text-align: center; font-weight: 700; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 input[type=file] { display: none; }
 .guide-screen { position:fixed; inset:0; background:var(--surface); z-index:997; display:none; flex-direction:column; }
@@ -1496,9 +1496,9 @@ async function showDetail(id) {
   document.getElementById('detail-sub-title').textContent = idea.ticker;
   document.getElementById('detail-content').innerHTML = `
     ${(()=>{ const dp=getDividendPreview(idea); return !voted&&dp?`<div style="background:${dp.bg};border:1.5px solid ${dp.border};border-radius:var(--r-md);padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between"><div><div style="font-size:10px;font-weight:700;color:${dp.color};letter-spacing:.04em;margin-bottom:2px">${dp.badge||'配当予告'}</div><div style="font-size:12px;color:${dp.color}">注目銘柄になったとき → <strong>${dp.text}</strong></div></div><div style="font-size:10px;font-weight:700;color:var(--text3);background:var(--surface2);border:1px solid var(--border2);border-radius:4px;padding:3px 8px;white-space:nowrap">配当あり</div></div>`:''; })()}
-    <button onclick="voteFromDetail('${idea.id}')" style="width:100%;padding:15px;border-radius:var(--r-lg);font-size:15px;font-weight:700;font-family:var(--sans);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px;${voted?'background:var(--surface2);color:var(--text3);border:1.5px solid var(--border2)':'background:var(--green-light);color:#fff'}">
+    <button onclick="voteFromDetail('${idea.id}')" ${voted||votesLeft<=0?'disabled':''} style="width:100%;padding:15px;border-radius:var(--r-lg);font-size:15px;font-weight:700;font-family:var(--sans);border:none;cursor:${voted||votesLeft<=0?'not-allowed':'pointer'};display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px;${voted?'background:var(--surface2);color:var(--text3);border:1.5px solid var(--border2)':votesLeft<=0?'background:var(--surface2);color:var(--text3);border:1.5px solid var(--border2)':'background:var(--green-light);color:#fff'}">
       <svg width="16" height="16" viewBox="0 0 20 20" fill="${voted?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z"/></svg>
-      ${voted?'応援済み（'+idea.votes+'票）':'このアイデアを応援する（残り'+votesLeft+'票）'}
+      ${voted?'応援済み（'+idea.votes+'票）':votesLeft<=0?'本日の票を使い切りました':'このアイデアを応援する（残り'+votesLeft+'票）'}
     </button>
     <div class="hero-card">
       <div class="hero-top">
@@ -2550,8 +2550,16 @@ function showSimilarWarning(similar) {
   return new Promise(resolve => {
     const modal = document.createElement('div');
     modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:600;display:flex;align-items:flex-end;justify-content:center';
-    modal.innerHTML = `<div style="background:var(--surface);border-radius:24px 24px 0 0;padding:24px 20px 40px;width:100%;max-width:390px"><div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 18px"></div><div style="font-size:16px;font-weight:700;margin-bottom:6px">似たアイデアがあります</div><div style="font-size:13px;color:var(--text3);margin-bottom:12px">以下のアイデアと内容が似ています。このまま上場しますか？</div>${similar.slice(0,3).map(s=>`<div onclick="showDetail('${s.id}');modal.remove();resolve(false)" style="background:var(--bg);border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:pointer"><div style="font-size:12px;font-weight:700;color:var(--text)">${s.name}</div><div style="font-size:10px;color:var(--text3);margin-top:2px">${s.ticker} · スコア ${parseFloat(s.score||50).toFixed(1)}</div></div>`).join('')}<div style="display:flex;gap:8px;margin-top:14px"><button onclick="modal.remove();resolve(false)" style="flex:1;padding:13px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r-lg);font-size:14px;font-weight:700;color:var(--text2);cursor:pointer;font-family:var(--sans)">修正する</button><button onclick="modal.remove();resolve(true)" style="flex:1;padding:13px;background:var(--amber-mid);border:none;border-radius:var(--r-lg);font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">このまま上場</button></div></div>`;
-    modal.addEventListener('click', e => { if(e.target===modal) { modal.remove(); resolve(false); } });
+    const cardsHtml = similar.slice(0,3).map((s,i) =>
+      `<div data-idx="${i}" style="background:var(--bg);border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:pointer"><div style="font-size:12px;font-weight:700;color:var(--text)">${s.name}</div><div style="font-size:10px;color:var(--text3);margin-top:2px">${s.ticker} · スコア ${parseFloat(s.score||50).toFixed(1)}</div></div>`
+    ).join('');
+    modal.innerHTML = `<div style="background:var(--surface);border-radius:24px 24px 0 0;padding:24px 20px 40px;width:100%;max-width:390px"><div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 18px"></div><div style="font-size:16px;font-weight:700;margin-bottom:6px">似たアイデアがあります</div><div style="font-size:13px;color:var(--text3);margin-bottom:12px">以下のアイデアと内容が似ています。このまま上場しますか？</div>${cardsHtml}<div style="display:flex;gap:8px;margin-top:14px"><button id="sim-cancel" style="flex:1;padding:13px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r-lg);font-size:14px;font-weight:700;color:var(--text2);cursor:pointer;font-family:var(--sans)">修正する</button><button id="sim-proceed" style="flex:1;padding:13px;background:var(--amber-mid);border:none;border-radius:var(--r-lg);font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">このまま上場</button></div></div>`;
+    modal.addEventListener('click', e => { if (e.target === modal) { modal.remove(); resolve(false); } });
+    modal.querySelector('#sim-cancel').addEventListener('click', () => { modal.remove(); resolve(false); });
+    modal.querySelector('#sim-proceed').addEventListener('click', () => { modal.remove(); resolve(true); });
+    modal.querySelectorAll('[data-idx]').forEach((el, i) => {
+      el.addEventListener('click', () => { modal.remove(); resolve(false); showDetail(similar[i].id); });
+    });
     document.body.appendChild(modal);
   });
 }
