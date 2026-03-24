@@ -529,7 +529,7 @@ input[type=file] { display: none; }
     </div>
   </div>
   <div style="padding:14px 12px 0;overflow-y:auto;padding-bottom:90px" id="portfolio-scroll">
-    <div id="notif-entry-btn" style="display:none;background:var(--surface);border:1.5px solid var(--amber-border);border-radius:var(--r-lg);padding:12px 16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="openNotifSheet()">
+    <div id="notif-entry-btn" style="display:none;background:var(--surface);border:1.5px solid var(--amber-border);border-radius:var(--r-lg);padding:12px 16px;margin-bottom:12px;align-items:center;justify-content:space-between;cursor:pointer" onclick="openNotifSheet()">
       <div style="display:flex;align-items:center;gap:8px">
         <div style="width:8px;height:8px;border-radius:50%;background:var(--amber-mid);animation:blink 1.8s infinite"></div>
         <span style="font-size:13px;font-weight:700;color:var(--text)">新しい通知があります</span>
@@ -700,15 +700,25 @@ async function postIdeaToDB(ideaData) {
 
 async function loadVotedIds() {
   if (!currentUser) return;
-  const today = new Date().toISOString().slice(0, 10);
-  const { data, error } = await sb.from('votes').select('idea_id').eq('user_id', currentUser.id).gte('created_at', today + 'T00:00:00').lte('created_at', today + 'T23:59:59');
+  // JST（UTC+9）基準で「今日」の範囲をUTCに変換してクエリ
+  const jstNow = new Date(Date.now() + 9 * 60 * 60 * 1000);
+  const todayJST = jstNow.toISOString().slice(0, 10); // "YYYY-MM-DD" in JST
+  const startUTC = new Date(todayJST + 'T00:00:00+09:00').toISOString();
+  const endUTC   = new Date(todayJST + 'T23:59:59+09:00').toISOString();
+  const { data, error } = await sb.from('votes')
+    .select('idea_id')
+    .eq('user_id', currentUser.id)
+    .gte('created_at', startUTC)
+    .lte('created_at', endUTC);
   if (error || !data) return;
   data.forEach(row => votedIds.add(row.idea_id));
   const used = data.length;
   const base = isPro ? 4 : 3;
-  // dividendBonus.votes は loadDividends 後にセットされるので安全に加算
   votesLeft = Math.max(0, base + dividendBonus.votes - used);
   document.getElementById('votes-left').textContent = votesLeft;
+  const disp = document.getElementById('portfolio-votes-display');
+  if (disp) disp.textContent = votesLeft;
+  updatePlanBadge();
 }
 
 async function voteIdeaToDB(ideaId, votesAtTime) {
@@ -2943,12 +2953,18 @@ async function loadNotifBadge() {
       .eq('user_id', currentUser.id)
       .eq('is_read', false);
     const badge = document.getElementById('notif-badge');
-    if (!badge) return;
-    if (count && count > 0) {
-      badge.textContent = count > 99 ? '99+' : count;
-      badge.style.display = 'flex';
-    } else {
-      badge.style.display = 'none';
+    const entryBtn = document.getElementById('notif-entry-btn');
+    const hasUnread = count && count > 0;
+    if (badge) {
+      if (hasUnread) {
+        badge.textContent = count > 99 ? '99+' : count;
+        badge.style.display = 'flex';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+    if (entryBtn) {
+      entryBtn.style.display = hasUnread ? 'flex' : 'none';
     }
   } catch(e) {}
 }
@@ -2970,6 +2986,8 @@ async function openNotifSheet() {
       await sb.from('notifications').update({ is_read: true }).in('id', unreadIds);
       const badge = document.getElementById('notif-badge');
       if (badge) badge.style.display = 'none';
+      const entryBtn = document.getElementById('notif-entry-btn');
+      if (entryBtn) entryBtn.style.display = 'none';
     }
   }
 
