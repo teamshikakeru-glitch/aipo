@@ -670,7 +670,7 @@
   <div class="main">
     <div>
       <div class="user-list-header">
-        <div class="section-title" style="margin-bottom:0">ユーザー一覧（登録日時が早い順）</div>
+        <div class="section-title" style="margin-bottom:0">ユーザー一覧（最終投票が早い順）</div>
         <button class="broadcast-btn" onclick="openBroadcast()">📢 一斉送信</button>
       </div>
       <div id="user-list-body">
@@ -1718,12 +1718,16 @@ async function loadUsers() {
   const dot = document.getElementById('dot-1');
   if (dot) dot.style.display = unreadSet.size > 0 ? 'block' : 'none';
 
-  // 未読メッセージありのユーザーを上位に、その中は最新メッセージ順、残りは新着順
+  // 未読メッセージありのユーザーを上位に、その中は最新メッセージ順、残りは最終投票日時が早い順（投票なしは末尾）
   profiles.sort((a, b) => {
     const au = unreadSet.has(a.id), bu = unreadSet.has(b.id);
     if (bu !== au) return (bu ? 1 : 0) - (au ? 1 : 0);
     if (au && bu) return new Date(latestMsgMap[b.id]) - new Date(latestMsgMap[a.id]);
-    return new Date(b.created_at) - new Date(a.created_at);
+    const la = lastVoteMap[a.id], lb = lastVoteMap[b.id];
+    if (!la && !lb) return 0;
+    if (!la) return 1;
+    if (!lb) return -1;
+    return new Date(la) - new Date(lb);
   });
 
   if (profiles.length===0) { el.innerHTML='<div style="color:var(--text-muted);font-size:13px;padding:12px 0">ユーザーなし</div>'; return; }
