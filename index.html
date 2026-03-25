@@ -530,6 +530,7 @@ input[type=file] { display: none; }
     </div>
   </div>
   <div style="padding:14px 12px 0;overflow-y:auto;padding-bottom:90px" id="portfolio-scroll">
+    <div id="referral-section" style="display:none"></div>
     <div id="notif-entry-btn" style="display:none;background:var(--surface);border:1.5px solid var(--amber-border);border-radius:var(--r-lg);padding:12px 16px;margin-bottom:12px;align-items:center;justify-content:space-between;cursor:pointer" onclick="openNotifSheet()">
       <div style="display:flex;align-items:center;gap:8px">
         <div style="width:8px;height:8px;border-radius:50%;background:var(--amber-mid);animation:blink 1.8s infinite"></div>
@@ -611,6 +612,9 @@ input[type=file] { display: none; }
 <div class="toast" id="toast"></div>
 
 <script>
+// XSS防御: ユーザー生成コンテンツをHTMLに挿入する前にエスケープ
+function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = String(s); return d.innerHTML; }
+
 const SUPABASE_URL = 'https://qjffvspnnxyykoyhnazm.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqZmZ2c3Bubnh5eWtveWhuYXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzMTIxMzMsImV4cCI6MjA4Njg4ODEzM30.OqeeMZs73RjKY5POW-naf0dB8sFWfZDUKaKvE99EiBo';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -631,6 +635,7 @@ function phCapture(event, extra) {
     sessionStorage.setItem('aipo_utm_medium', params.get('utm_medium') || '');
     sessionStorage.setItem('aipo_utm_campaign', params.get('utm_campaign') || '');
     sessionStorage.setItem('aipo_idea_id', params.get('id') || params.get('idea') || '');
+    sessionStorage.setItem('aipo_ref_code', params.get('ref') || '');
     sessionStorage.setItem('aipo_referrer_saved', '1');
   }
 })();
@@ -657,6 +662,7 @@ let insightScore = 0;
 let myEarlyVotes = {};
 let dividendBonus = { votes: 0, postRights: 0, commentRights: 0 };
 let pendingDividends = [];
+let referralBonusVotes = 0;
 
 function founderBadgeHTML(userId) {
   const f = founderMap[userId];
@@ -671,16 +677,16 @@ async function fetchIdeas() {
     if (error || !data || data.length === 0) { renderFeed(); return; }
     data.forEach(row => { if (row.user_id && row.profiles) { founderMap[row.user_id] = { isFounder: row.profiles.is_founder, founderNumber: row.profiles.founder_number }; } });
     ideas = data.map(row => ({
-      id: row.id, ticker: row.ticker, emoji: row.emoji || '💡', name: row.name,
-      desc: row.description, genre: row.genre, tech: row.tech,
+      id: row.id, ticker: esc(row.ticker), emoji: row.emoji || '💡', name: esc(row.name),
+      desc: esc(row.description), genre: esc(row.genre), tech: esc(row.tech),
       baseScore: parseFloat(row.base_score) || 50, score: parseFloat(row.score) || 50,
       votes: row.votes, views: row.views, shares: row.shares || 0, progress: row.progress_step,
       progressStep: row.progress_step,
       postedDaysAgo: (Date.now() - new Date(row.posted_at)) / 86400000,
       daysSinceLastVote: row.last_voted_at ? (Date.now() - new Date(row.last_voted_at).getTime()) / 86400000 : (Date.now() - new Date(row.posted_at).getTime()) / 86400000,
       history: [parseFloat(row.score) || 50], lastReason: '最新データを取得しました', lastDelta: 0,
-      commentList: (row.comments || []).map(c => ({ name: '@' + (c.profiles?.x_username || 'ユーザー'), text: c.text, time: timeAgo(c.created_at) })),
-      actions: (row.actions || []).sort((a,b) => a.order_num - b.order_num).map(a => a.text),
+      commentList: (row.comments || []).map(c => ({ name: '@' + esc(c.profiles?.x_username || 'ユーザー'), text: esc(c.text), time: timeAgo(c.created_at) })),
+      actions: (row.actions || []).sort((a,b) => a.order_num - b.order_num).map(a => esc(a.text)),
       userId: row.user_id,
     }));
     if (currentUser) { ideas.forEach(idea => { if (idea.userId === currentUser.id) myIdeas.add(idea.id); }); }
@@ -719,7 +725,7 @@ async function loadVotedIds() {
   data.forEach(row => votedIds.add(row.idea_id));
   const used = data.length;
   const base = isPro ? 4 : 3;
-  votesLeft = Math.max(0, base + dividendBonus.votes - used);
+  votesLeft = Math.max(0, base + dividendBonus.votes + referralBonusVotes - used);
   document.getElementById('votes-left').textContent = votesLeft;
   const disp = document.getElementById('portfolio-votes-display');
   if (disp) disp.textContent = votesLeft;
@@ -802,10 +808,12 @@ function canPost() { return isPro || postCount < FREE_POST_LIMIT + dividendBonus
 
 async function checkProStatus() {
   if (!currentUser) return;
-  const { data } = await sb.from('profiles').select('is_pro, is_founder, founder_number, x_username').eq('id', currentUser.id).single();
+  const { data } = await sb.from('profiles').select('is_pro, is_founder, founder_number, x_username, referral_bonus_votes, referral_code').eq('id', currentUser.id).single();
   if (data?.x_username) currentUser.x_username = data.x_username;
   if (data?.is_pro || data?.is_founder) { isPro = true; }
   if (data?.is_founder) { currentUser.founderNumber = data.founder_number ?? 0; currentUser.isFounder = true; }
+  referralBonusVotes = data?.referral_bonus_votes || 0;
+  currentUser.referralCode = data?.referral_code || '';
   updatePlanBadge();
   loadFounderCount();
   await applyPendingPlan();
@@ -1212,6 +1220,7 @@ function goTo(s) {
 
 function renderPortfolio() {
   loadRealizedProducts();
+  renderReferralSection();
   const greetEl = document.getElementById('portfolio-greeting');
   if (greetEl && currentUser?.x_username) greetEl.textContent = 'おかえり、' + currentUser.x_username;
   else if (greetEl && currentUser) greetEl.textContent = 'おかえり';
@@ -2904,6 +2913,82 @@ function showLoginSheet() {
   document.body.appendChild(overlay);
 }
 
+function generateRefCode() {
+  return Array.from(crypto.getRandomValues(new Uint8Array(4)))
+    .map(b => b.toString(36).padStart(2, '0')).join('').slice(0, 8).toUpperCase();
+}
+
+async function applyReferralIfNeeded(userId, refCode) {
+  try {
+    const { data: referrer } = await sb.from('profiles')
+      .select('id').eq('referral_code', refCode).maybeSingle();
+    if (!referrer || referrer.id === userId) return;
+    const { data: existing } = await sb.from('referrals')
+      .select('id').eq('referred_id', userId).maybeSingle();
+    if (existing) return;
+    await sb.rpc('apply_referral_bonus', {
+      referrer_uuid: referrer.id,
+      referred_uuid: userId,
+      ref_code: refCode
+    });
+    showToast('招待ボーナス: +2票もらいました！');
+  } catch(e) { console.error('applyReferral error:', e); }
+}
+
+async function renderReferralSection() {
+  if (!currentUser) return;
+  const sec = document.getElementById('referral-section');
+  if (!sec) return;
+  sec.style.display = 'block';
+  const code = currentUser.referralCode || '';
+  const url = 'https://aipo-tau.vercel.app/?ref=' + code;
+  const { data: refs } = await sb.from('referrals')
+    .select('id, created_at').eq('referrer_id', currentUser.id)
+    .order('created_at', { ascending: false });
+  const count = refs?.length || 0;
+  const maxBonus = 5;
+  const currentBonus = Math.min(count, maxBonus);
+  sec.innerHTML = `
+    <div style="background:var(--surface);border:1.5px solid var(--amber-border);border-radius:var(--r-lg);padding:16px;margin-bottom:12px">
+      <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:var(--amber-mid);letter-spacing:.08em;margin-bottom:10px">INVITE FRIENDS</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:12px;line-height:1.6">
+        招待リンクで友達が登録すると、あなたに<b style="color:var(--green)">+1票/日</b>（最大+${maxBonus}票）、友達に<b style="color:var(--green)">+2票</b>ボーナス！
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <input readonly value="${url}" style="flex:1;padding:10px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r-md);font-size:11px;font-family:var(--mono);color:var(--text);min-width:0" id="referral-url-input">
+        <button onclick="copyReferralUrl()" style="padding:10px 16px;background:var(--amber-mid);border:none;border-radius:var(--r-md);font-size:12px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans);white-space:nowrap">コピー</button>
+      </div>
+      <button onclick="shareReferralOnX()" style="width:100%;padding:10px;background:#000;border:none;border-radius:var(--r-md);font-size:12px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans);display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:12px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        Xで招待する
+      </button>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-top:0.5px solid var(--border)">
+        <div style="font-size:12px;color:var(--text2)">招待済み</div>
+        <div style="font-size:14px;font-weight:700;color:var(--amber-mid);font-family:var(--mono)">${count}人</div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-top:0.5px solid var(--border)">
+        <div style="font-size:12px;color:var(--text2)">招待ボーナス</div>
+        <div style="font-size:14px;font-weight:700;color:var(--green);font-family:var(--mono)">+${currentBonus}票/日 <span style="font-size:10px;color:var(--text3)">/ 上限${maxBonus}</span></div>
+      </div>
+    </div>`;
+}
+
+function copyReferralUrl() {
+  const input = document.getElementById('referral-url-input');
+  if (!input) return;
+  navigator.clipboard.writeText(input.value).then(() => {
+    showToast('招待リンクをコピーしました');
+    phCapture('referral_link_copied');
+  });
+}
+
+function shareReferralOnX() {
+  const url = 'https://aipo-tau.vercel.app/?ref=' + (currentUser?.referralCode || '');
+  const text = 'アイデアを1行で「上場」できるプラットフォーム「あいぽ」\n面白いアイデアに投票して応援しよう！';
+  window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(url), '_blank');
+  phCapture('referral_share_x');
+}
+
 async function doLogin() {
   const { error } = await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin + '/' } });
   if (error) showToast('ログインに失敗しました');
@@ -2916,10 +3001,17 @@ async function doLogout() {
 }
 
 async function ensureProfile(user) {
-  const { data } = await sb.from('profiles').select('id, x_username, is_founder, founder_number').eq('id', user.id).maybeSingle();
+  const { data } = await sb.from('profiles').select('id, x_username, is_founder, founder_number, referral_code').eq('id', user.id).maybeSingle();
   const xName = data?.x_username || user.user_metadata?.preferred_username || user.user_metadata?.user_name || '';
-  if (!data) { await sb.from('profiles').insert({ id: user.id, x_username: xName, is_founder: false, balance: 0, is_pro: false }); }
-  else { const updates = {}; if (!data.x_username && xName) updates.x_username = xName; if (Object.keys(updates).length > 0) await sb.from('profiles').update(updates).eq('id', user.id); }
+  if (!data) {
+    const refCode = generateRefCode();
+    await sb.from('profiles').insert({ id: user.id, x_username: xName, is_founder: false, balance: 0, is_pro: false, referral_code: refCode });
+  } else {
+    const updates = {};
+    if (!data.x_username && xName) updates.x_username = xName;
+    if (!data.referral_code) updates.referral_code = generateRefCode();
+    if (Object.keys(updates).length > 0) await sb.from('profiles').update(updates).eq('id', user.id);
+  }
   if (xName) currentUser.x_username = xName;
   if (data?.is_founder) { currentUser.isFounder = true; currentUser.founderNumber = data.founder_number ?? 0; }
   const icoEl = document.getElementById('profile-btn-ico');
@@ -2982,6 +3074,8 @@ async function init() {
     if (hasSession && currentUser) {
       await ensureProfile(currentUser); await checkProStatus(); await loadVotedIds(); await loadInsightScore(); await loadDividends(); loadNotifBadge(); loadCertsFromDB(); checkAdminMsgBadge();
       trackReferrer(currentUser.id);
+      const refCode = sessionStorage.getItem('aipo_ref_code');
+      if (refCode) { await applyReferralIfNeeded(currentUser.id, refCode); sessionStorage.removeItem('aipo_ref_code'); }
       const guideDone = localStorage.getItem('guide-done');
       if (!guideDone) { setTimeout(() => { guideScreen.classList.add('active'); }, 1200); }
     } else {

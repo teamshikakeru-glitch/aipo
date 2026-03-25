@@ -3,12 +3,22 @@ export const config = { runtime: 'edge' };
 const SB_URL = 'https://qjffvspnnxyykoyhnazm.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqZmZ2c3Bubnh5eWtveWhuYXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzMTIxMzMsImV4cCI6MjA4Njg4ODEzM30.OqeeMZs73RjKY5POW-naf0dB8sFWfZDUKaKvE99EiBo';
 
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
 export default async function handler(req) {
   const { searchParams } = new URL(req.url);
   const id  = searchParams.get('id');
   const img = searchParams.get('img'); // 株券画像URL（オプション）
 
-  if (!id) {
+  if (!id || !/^[a-zA-Z0-9_-]+$/.test(id)) {
     return Response.redirect('https://aipo-tau.vercel.app/', 302);
   }
 
@@ -25,15 +35,17 @@ export default async function handler(req) {
     return Response.redirect('https://aipo-tau.vercel.app/', 302);
   }
 
-  const appUrl     = `https://aipo-tau.vercel.app/?id=${id}`;
+  const appUrl     = `https://aipo-tau.vercel.app/?id=${encodeURIComponent(id)}`;
   const score      = parseFloat(idea.score || 50).toFixed(1);
-  const name       = idea.name || 'アイデア';
-  const ticker     = idea.ticker || 'IDEA';
-  const votes      = idea.votes || 0;
-  // 株券画像があればそれを、なければロゴ画像を使用
-  const ogImageUrl = img || `https://aipo-tau.vercel.app/og-image.png`;
+  const name       = escapeHtml(idea.name || 'アイデア');
+  const ticker     = escapeHtml(idea.ticker || 'IDEA');
+  const votes      = parseInt(idea.votes, 10) || 0;
+  // 株券画像があればそれを、なければロゴ画像を使用（URLバリデーション）
+  const imgSafe    = img && /^https:\/\//.test(img) ? escapeHtml(img) : null;
+  const ogImageUrl = imgSafe || `https://aipo-tau.vercel.app/og-image.png`;
   const title      = `「${name}」${ticker} — あいぽ`;
-  const description = `📊 スコア ${score}pt ／ 応援 ${votes}票${idea.genre ? ` ／ ${idea.genre}` : ''} | アイデアIPO市場「あいぽ」`;
+  const genre      = escapeHtml(idea.genre || '');
+  const description = `📊 スコア ${score}pt ／ 応援 ${votes}票${genre ? ` ／ ${genre}` : ''} | アイデアIPO市場「あいぽ」`;
 
   const html = `<!DOCTYPE html>
 <html lang="ja">

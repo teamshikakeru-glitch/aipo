@@ -1,7 +1,11 @@
 const https = require('https');
 
 module.exports = async (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  const allowedOrigins = ['https://aipo-tau.vercel.app'];
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
   const token = req.query.token;
   if (!token) return res.status(400).json({ error: 'no token' });
 
