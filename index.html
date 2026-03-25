@@ -58,6 +58,11 @@ posthog.init('phc_665tIWLYkMFBazlz7Q6CPiZjEK3rYzJtoTF7QG2JPYB', {
   --mono: 'Space Mono', monospace;--sans: 'Noto Sans JP', sans-serif;
   --r-xl: 22px;--r-lg: 16px;--r-md: 10px;
 }
+/* Onboarding */
+.ob-step{animation:obFadeIn .4s ease-out}
+@keyframes obFadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.ob-dot{width:8px;height:8px;border-radius:50%;background:var(--border2)}
+.ob-dot.active{background:var(--amber-mid);width:24px;border-radius:4px}
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; max-width: 100%; }
 html, body { overflow-x: hidden !important; width: 100%; max-width: 100vw; position: relative; }
 html { overflow-x: hidden; }
@@ -69,15 +74,15 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); over
 .hd-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 .logo-wrap { display: flex; align-items: center; gap: 10px; }
 .logo-name { font-size: 20px; font-weight: 700; color: var(--text); letter-spacing: -.03em; }
-.logo-sub { font-size: 10px; color: var(--text3); margin-top: 1px; }
+.logo-sub { font-size: 11px; color: var(--text3); margin-top: 1px; }
 .hd-right { display: flex; align-items: center; gap: 8px; }
 .live-wrap { display: flex; align-items: center; gap: 4px; }
 .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green-light); animation: blink 1.8s infinite; }
 @keyframes blink { 0%,100%{opacity:1}50%{opacity:.25} }
-.live-lbl { font-size: 10px; font-weight: 700; color: var(--green); }
+.live-lbl { font-size: 11px; font-weight: 700; color: var(--green); }
 .votes-chip { background: var(--amber-mid); border-radius: 20px; padding: 6px 14px; display: flex; align-items: center; gap: 4px; }
 .votes-n { font-family: var(--mono); font-size: 15px; font-weight: 700; color: #fff; }
-.votes-l { font-size: 10px; color: rgba(255,255,255,.8); font-weight: 700; }
+.votes-l { font-size: 11px; color: rgba(255,255,255,.8); font-weight: 700; }
 .pill-tab { background:transparent;border:0.5px solid var(--border2);border-radius:20px;padding:5px 14px;font-size:11px;font-weight:700;color:var(--text3);cursor:pointer;white-space:nowrap;font-family:var(--sans);transition:all .15s;flex-shrink:0; }
 .pill-tab.active { background:var(--text);color:#fff;border-color:var(--text); }
 .pill-tab.genre-active { background:var(--amber-bg);color:var(--amber);border-color:var(--amber-border); }
@@ -111,7 +116,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); over
 .upload-btn.done { background: var(--green-bg); border-color: var(--green-border); color: var(--green); pointer-events: none; }
 .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 390px; background: rgba(245,241,234,.72); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 0.5px solid rgba(220,210,195,.6); display: flex; justify-content: space-around; align-items: stretch; z-index: 30; padding-bottom: env(safe-area-inset-bottom, 0px); }
 .nav-icon-box { width: 30px; height: 30px; border-radius: 9px; background: #fff; border: 0.5px solid rgba(0,0,0,.08); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,.06); flex-shrink: 0; }
-.nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 8px 0 12px; cursor: pointer; color: var(--text3); font-size: 10px; font-weight: 700; transition: color .15s; }
+.nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 8px 0 12px; cursor: pointer; color: var(--text3); font-size: 11px; font-weight: 700; transition: color .15s; }
 .nav-item.active { color: var(--amber-mid); }
 .nav-item svg { width: 18px; height: 18px; }
 .nav-post-wrap-unused { display:none; }
@@ -600,7 +605,7 @@ input[type=file] { display: none; }
 
 <div class="bottom-nav">
   <div class="nav-item active" id="nav-feed" onclick="goTo('feed')"><div class="nav-icon-box"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="6" height="6" rx="1.5"/><rect x="11" y="3" width="6" height="6" rx="1.5"/><rect x="3" y="11" width="6" height="6" rx="1.5"/><rect x="11" y="11" width="6" height="6" rx="1.5"/></svg></div>マーケット</div>
-  <div class="nav-item" id="nav-post-tab" onclick="goTo('post');phCapture('apply_cta_click')"><div class="nav-icon-box" style="background:var(--amber-mid);border-color:var(--amber-mid);box-shadow:0 2px 8px rgba(232,133,10,.35)"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2.5"><path d="M10 15V5M5 9l5-5 5 5"/></svg></div>上場</div>
+  <div class="nav-item" id="nav-post-tab" onclick="goTo('post');phCapture('apply_cta_click')" style="position:relative"><div class="nav-icon-box" style="background:var(--amber-mid);border-color:var(--amber-mid);box-shadow:0 4px 16px rgba(232,133,10,.4);width:44px;height:44px;border-radius:14px;margin-top:-12px"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2.5"><path d="M10 4v12M4 10h12"/></svg></div><span style="margin-top:2px">上場</span></div>
   <div class="nav-item" id="nav-hiroba-btn" onclick="if(window.$crisp){$crisp.push(['do','chat:show']);$crisp.push(['do','chat:open']);}" style="position:relative"><div class="nav-icon-box" style="position:relative"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M2 5h16M2 10h10M2 15h7"/><circle cx="16" cy="15" r="2.5"/><path d="M16 13v-3"/></svg></div>広場</div>
   <div class="nav-item" id="nav-portfolio" onclick="goTo('portfolio')"><div class="nav-icon-box" style="position:relative"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3L3 7v10h14V7L10 3z"/></svg><div id="notif-badge" style="display:none;position:absolute;top:-4px;right:-4px;min-width:14px;height:14px;background:#c0392b;border-radius:7px;border:1.5px solid var(--bg);align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;padding:0 3px;line-height:1"></div></div>ホーム</div>
   <div class="nav-item" id="nav-match" onclick="goTo('match')"><div class="nav-icon-box"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2" y="3" width="16" height="13" rx="2"/><path d="M6 7h8M6 11h5" stroke-linecap="round"/></svg></div>掲示板</div>
@@ -609,6 +614,34 @@ input[type=file] { display: none; }
 <div class="postbox-overlay" id="postbox-overlay">
   <svg width="110" height="150" viewBox="0 0 80 120" fill="none"><rect x="15" y="50" width="50" height="65" rx="8" fill="#cc2222"/><rect x="18" y="52" width="18" height="28" rx="4" fill="rgba(255,255,255,.1)"/><rect x="22" y="68" width="36" height="6" rx="3" fill="#1a0000"/><ellipse cx="40" cy="82" rx="15" ry="15" fill="#bb1111"/><text x="40" y="79" text-anchor="middle" font-size="6" fill="white" font-weight="bold" font-family="serif">郵便</text><text x="40" y="87" text-anchor="middle" font-size="5" fill="white" font-family="sans-serif">POST</text><ellipse cx="40" cy="50" rx="26" ry="8" fill="#dd2222"/><rect x="14" y="44" width="52" height="8" rx="4" fill="#ee3333"/><rect x="14" y="38" width="52" height="8" rx="3" fill="#ee3333"/><ellipse cx="40" cy="38" rx="26" ry="7" fill="#ff4444"/><ellipse cx="40" cy="32" rx="8" ry="4" fill="#cc1111"/></svg>
   <div class="hiroba-done-msg"><div class="postbox-done">AIが受け取りました</div><div class="postbox-sub" style="margin-top:6px;opacity:0;transition:opacity .3s 1.1s" id="postbox-sub">少し待つとAIが返信します</div></div>
+</div>
+
+<!-- ONBOARDING -->
+<div id="onboarding-overlay" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(255,252,245,.98);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);overflow-y:auto">
+  <div style="max-width:340px;margin:0 auto;padding:60px 24px 40px;text-align:center;min-height:100vh;display:flex;flex-direction:column;justify-content:center">
+    <div id="ob-step-1" class="ob-step">
+      <div style="font-size:56px;margin-bottom:20px">💡</div>
+      <h2 style="font-size:22px;font-weight:700;color:var(--text);margin-bottom:10px;line-height:1.4">アイデアを、上場しよう。</h2>
+      <p style="font-size:14px;color:var(--text2);line-height:1.8;margin-bottom:32px">あいぽは、アイデアを一行で「上場」し、みんなの投票でその価値が動くプラットフォームです。</p>
+      <div style="display:flex;justify-content:center;gap:6px;margin-bottom:24px"><span class="ob-dot active"></span><span class="ob-dot"></span><span class="ob-dot"></span></div>
+      <button onclick="obNext(2)" style="width:100%;padding:14px;background:var(--amber-mid);border:none;border-radius:14px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">次へ</button>
+    </div>
+    <div id="ob-step-2" class="ob-step" style="display:none">
+      <div style="font-size:56px;margin-bottom:20px">📊</div>
+      <h2 style="font-size:22px;font-weight:700;color:var(--text);margin-bottom:10px;line-height:1.4">投票でスコアが動く。</h2>
+      <p style="font-size:14px;color:var(--text2);line-height:1.8;margin-bottom:32px">面白いアイデアに「応援」票を入れると、スコアがリアルタイムに変動。応援した証に「株券」も発行されます。</p>
+      <div style="display:flex;justify-content:center;gap:6px;margin-bottom:24px"><span class="ob-dot"></span><span class="ob-dot active"></span><span class="ob-dot"></span></div>
+      <button onclick="obNext(3)" style="width:100%;padding:14px;background:var(--amber-mid);border:none;border-radius:14px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">次へ</button>
+    </div>
+    <div id="ob-step-3" class="ob-step" style="display:none">
+      <div style="font-size:56px;margin-bottom:20px">🚀</div>
+      <h2 style="font-size:22px;font-weight:700;color:var(--text);margin-bottom:10px;line-height:1.4">作る前に、需要がわかる。</h2>
+      <p style="font-size:14px;color:var(--text2);line-height:1.8;margin-bottom:32px">スコアが高いアイデアは需要がある証拠。まずは他のアイデアを見て、応援してみましょう。</p>
+      <div style="display:flex;justify-content:center;gap:6px;margin-bottom:24px"><span class="ob-dot"></span><span class="ob-dot"></span><span class="ob-dot active"></span></div>
+      <button onclick="obClose()" style="width:100%;padding:14px;background:var(--amber-mid);border:none;border-radius:14px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">はじめる</button>
+      <button onclick="obClose()" style="width:100%;padding:10px;background:none;border:none;font-size:13px;color:var(--text3);cursor:pointer;font-family:var(--sans);margin-top:8px">スキップ</button>
+    </div>
+  </div>
 </div>
 
 </div><!-- /app -->
@@ -629,6 +662,25 @@ input[type=file] { display: none; }
 <script>
 // XSS防御: ユーザー生成コンテンツをHTMLに挿入する前にエスケープ
 function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = String(s); return d.innerHTML; }
+
+// Onboarding
+function obInit() {
+  if (localStorage.getItem('aipo-ob-done')) return;
+  document.getElementById('onboarding-overlay').style.display = 'block';
+}
+function obNext(step) {
+  document.querySelectorAll('.ob-step').forEach(s => s.style.display = 'none');
+  const el = document.getElementById('ob-step-' + step);
+  if (el) el.style.display = 'block';
+}
+function obClose() {
+  localStorage.setItem('aipo-ob-done', '1');
+  const ov = document.getElementById('onboarding-overlay');
+  ov.style.transition = 'opacity .3s';
+  ov.style.opacity = '0';
+  setTimeout(() => ov.style.display = 'none', 300);
+}
+setTimeout(obInit, 500);
 
 const SUPABASE_URL = 'https://qjffvspnnxyykoyhnazm.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqZmZ2c3Bubnh5eWtveWhuYXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzMTIxMzMsImV4cCI6MjA4Njg4ODEzM30.OqeeMZs73RjKY5POW-naf0dB8sFWfZDUKaKvE99EiBo';
