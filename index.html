@@ -7,6 +7,21 @@
   <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>あいぽ — アイデアIPO市場</title>
+<meta name="description" content="思いついたら一行で上場。票とコメントでアイデアの価値がリアルタイムで動く。アイデアIPO市場「あいぽ」">
+<link rel="canonical" href="https://aipo-tau.vercel.app/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://aipo-tau.vercel.app/">
+<meta property="og:site_name" content="あいぽ">
+<meta property="og:title" content="あいぽ — アイデアIPO市場">
+<meta property="og:description" content="思いついたら一行で上場。票とコメントでアイデアの価値がリアルタイムで動く。アイデアIPO市場「あいぽ」">
+<meta property="og:image" content="https://aipo-tau.vercel.app/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@aideaipo">
+<meta name="twitter:title" content="あいぽ — アイデアIPO市場">
+<meta name="twitter:description" content="思いついたら一行で上場。票とコメントでアイデアの価値がリアルタイムで動く。アイデアIPO市場「あいぽ」">
+<meta name="twitter:image" content="https://aipo-tau.vercel.app/og-image.png">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -1743,8 +1758,8 @@ function openShareSheet(id) {
   const idea = ideas.find(i=>i.id===id); if(!idea) return;
   document.getElementById('share-sheet-overlay')?.remove();
   const score = parseFloat(idea.score||50).toFixed(1);
-  _shareAppUrl = `https://aipo-tau.vercel.app/api/share?id=${idea.id}`;
-  _shareOgUrl  = `https://aipo-tau.vercel.app/api/share?id=${idea.id}`;
+  _shareAppUrl = `${location.origin}/api/share?id=${idea.id}`;
+  _shareOgUrl  = `${location.origin}/api/share?id=${idea.id}`;
   _shareText   = `「${idea.name}」${idea.ticker}\n📊 スコア ${score}pt ／ 応援 ${idea.votes||0}票\n\n#あいぽ #アイデアIPO${idea.genre?' #'+idea.genre:''}`;
   const nameShort = idea.name.length > 18 ? idea.name.slice(0,18)+'…' : idea.name;
   _openShareSheetUI(nameShort, idea.ticker, score, idea.votes||0);
@@ -1754,8 +1769,8 @@ function openShareSheetCert(ideaId, name, ticker) {
   document.getElementById('share-sheet-overlay')?.remove();
   const idea = ideas.find(i=>i.id===ideaId);
   const score = idea ? parseFloat(idea.score||50).toFixed(1) : '—';
-  _shareAppUrl = `https://aipo-tau.vercel.app/api/share?id=${ideaId}`;
-  _shareOgUrl  = `https://aipo-tau.vercel.app/api/share?id=${ideaId}`;
+  _shareAppUrl = `${location.origin}/api/share?id=${ideaId}`;
+  _shareOgUrl  = `${location.origin}/api/share?id=${ideaId}`;
   _shareText   = `「${name}」${ticker}\n📊 スコア ${score}pt\n\n#あいぽ #アイデアIPO`;
   const nameShort = name.length > 18 ? name.slice(0,18)+'…' : name;
   _openShareSheetUI(nameShort, ticker, score, '');
@@ -2071,7 +2086,7 @@ function _shareCopy() { const ideaId3=_shareOgUrl.match(/id=([^&]+)/)?.[1]; if(i
 
 function shareToX(id) {
   const idea = ideas.find(i=>i.id===id); if(!idea) return;
-  const shareUrl = `https://aipo-tau.vercel.app/api/share?id=${idea.id}`;
+  const shareUrl = `${location.origin}/api/share?id=${idea.id}`;
   const score = parseFloat(idea.score||50).toFixed(1);
   const text = [`「${idea.name}」${idea.ticker}`,`📊 スコア ${score}pt ／ 応援 ${idea.votes||0}票`,``,`#あいぽ #アイデアIPO${idea.genre ? ` #${idea.genre}` : ``}`].join('\n');
   window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl)}`, '_blank', 'noopener,width=600,height=500');
@@ -2079,7 +2094,7 @@ function shareToX(id) {
 
 function copyIdeaLink(id) {
   _incrementShares(id);
-  navigator.clipboard.writeText(`https://aipo-tau.vercel.app/api/share?id=${id}`).then(()=>showToast('リンクをコピーしました')).catch(()=>showToast('コピーできませんでした'));
+  navigator.clipboard.writeText(`${location.origin}/api/share?id=${id}`).then(()=>showToast('リンクをコピーしました')).catch(()=>showToast('コピーできませんでした'));
 }
 
 async function _incrementShares(ideaId) {
@@ -2941,7 +2956,7 @@ async function renderReferralSection() {
   if (!sec) return;
   sec.style.display = 'block';
   const code = currentUser.referralCode || '';
-  const url = 'https://aipo-tau.vercel.app/?ref=' + code;
+  const url = location.origin + '/?ref=' + code;
   const { data: refs } = await sb.from('referrals')
     .select('id, created_at').eq('referrer_id', currentUser.id)
     .order('created_at', { ascending: false });
@@ -2983,7 +2998,7 @@ function copyReferralUrl() {
 }
 
 function shareReferralOnX() {
-  const url = 'https://aipo-tau.vercel.app/?ref=' + (currentUser?.referralCode || '');
+  const url = location.origin + '/?ref=' + (currentUser?.referralCode || '');
   const text = 'アイデアを1行で「上場」できるプラットフォーム「あいぽ」\n面白いアイデアに投票して応援しよう！';
   window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(url), '_blank');
   phCapture('referral_share_x');

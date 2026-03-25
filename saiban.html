@@ -429,7 +429,7 @@ async function submitCase() {
 }
 
 function getDefendantUrl() {
-  return 'https://aipo-tau.vercel.app/saiban?room=' + roomId + '&role=defendant';
+  return location.origin + '/saiban?room=' + roomId + '&role=defendant';
 }
 
 function shareToLine() {
@@ -520,7 +520,7 @@ function shareVerdictToLine() {
   const comment = document.getElementById('verdict-comment').textContent;
   const text = encodeURIComponent(
     '家庭内民事裁判所 判決\n\n【主文】\n' + main + '\n\n【裁判長のひとこと】\n' + comment +
-    '\n\nhttps://aipo-tau.vercel.app/saiban'
+    '\n\n' + location.origin + '/saiban'
   );
   window.open('https://line.me/R/msg/text/?' + text, '_blank');
 }

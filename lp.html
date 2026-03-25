@@ -5,8 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>あいぽ — ひらめきが、唯一の資産になる。</title>
 <meta name="description" content="AIが何でも作れる時代、0→1のひらめきだけが価値になる。アイデアIPO市場「あいぽ」">
+<link rel="canonical" href="https://aipo-tau.vercel.app/lp">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://aipo-tau.vercel.app/lp">
+<meta property="og:site_name" content="あいぽ">
 <meta property="og:title" content="あいぽ — ひらめきが、唯一の資産になる。">
+<meta property="og:description" content="AIが何でも作れる時代、0→1のひらめきだけが価値になる。アイデアIPO市場「あいぽ」">
+<meta property="og:image" content="https://aipo-tau.vercel.app/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@aideaipo">
+<meta name="twitter:title" content="あいぽ — ひらめきが、唯一の資産になる。">
+<meta name="twitter:description" content="AIが何でも作れる時代、0→1のひらめきだけが価値になる。アイデアIPO市場「あいぽ」">
+<meta name="twitter:image" content="https://aipo-tau.vercel.app/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -756,7 +768,7 @@ footer{
     <a href="#era" class="nav-link-text">思想</a>
     <a href="#plans" class="nav-link-text">プラン</a>
     <a href="#recruit" class="nav-link-text">投資家</a>
-    <a href="https://aipo-tau.vercel.app" class="nav-btn">
+    <a href="/" class="nav-btn">
       上場する
       <svg width="11" height="11" viewBox="0 0 20 20"><path d="M4 10h12M10 4l6 6-6 6"/></svg>
     </a>
@@ -814,7 +826,7 @@ footer{
   </p>
 
   <div class="hero-cta">
-    <a href="https://aipo-tau.vercel.app" class="btn-primary">
+    <a href="/" class="btn-primary">
       アイデアを上場する（無料）
       <svg width="13" height="13" viewBox="0 0 20 20"><path d="M4 10h12M10 4l6 6-6 6"/></svg>
     </a>
@@ -852,7 +864,7 @@ footer{
         <div class="market-badge"><span class="live-dot"></span>LIVE</div>
         <span style="font-size:11px;font-weight:700;color:var(--ink);font-family:var(--mono);letter-spacing:.06em">IDEA MARKET</span>
       </div>
-      <a href="https://aipo-tau.vercel.app" class="market-all">すべて →</a>
+      <a href="/" class="market-all">すべて →</a>
     </div>
     <div class="market-card">
       <div id="market-rows">
@@ -1047,7 +1059,7 @@ footer{
         <li class="pf ok"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>コメント <strong>3回/月</strong></li>
         <li class="pf no"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>無制限上場</li>
       </ul>
-      <a href="https://aipo-tau.vercel.app" class="price-btn pb-f">無料ではじめる</a>
+      <a href="/" class="price-btn pb-f">無料ではじめる</a>
     </div>
     <div class="price-card featured">
       <span class="price-badge rec">おすすめ</span>
@@ -1135,7 +1147,7 @@ footer{
       上場しろ。
     </h2>
     <p class="final-sub">一行でいい。<br>あなたのアイデアに、市場が答える。</p>
-    <a href="https://aipo-tau.vercel.app" class="btn-primary" style="max-width:320px;margin:0 auto">
+    <a href="/" class="btn-primary" style="max-width:320px;margin:0 auto">
       今すぐ無料で上場する
       <svg width="13" height="13" viewBox="0 0 20 20"><path d="M4 10h12M10 4l6 6-6 6"/></svg>
     </a>
@@ -1233,7 +1245,7 @@ function renderMarket(ideas){
     const uc=d>0.1?'cu':d<-0.1?'cd':'cf';
     const dc=d>0.1?'du':d<-0.1?'dd':'df';
     const name=(idea.name||'').length>18?(idea.name||'').slice(0,18)+'…':(idea.name||'');
-    return`<div class="mc-row" onclick="window.open('https://aipo-tau.vercel.app','_blank')">
+    return`<div class="mc-row" onclick="window.open('/','_blank')">
       <div class="mc-rank${i<3?' top':''}">#${i+1}</div>
       <div class="mc-score-w">
         <div class="mc-score ${uc}" id="ms-${idea.id}">${score.toFixed(1)}</div>
@@ -1244,7 +1256,7 @@ function renderMarket(ideas){
         <div class="mc-name">${name}</div>
         <div class="mc-meta" style="${genreC(idea.genre)}">${idea.genre||'—'}</div>
       </div>
-      <button class="mc-vote" onclick="event.stopPropagation();window.open('https://aipo-tau.vercel.app','_blank')">応援</button>
+      <button class="mc-vote" onclick="event.stopPropagation();window.open('/','_blank')">応援</button>
     </div>`;
   }).join('');
 }
