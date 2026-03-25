@@ -2178,65 +2178,40 @@ async function loadCertsFromDB() {
       .select('*').eq('user_id', currentUser.id)
       .order('created_at', { ascending: false });
     if (error || !data) return _loadCertsLocal();
-    // DBにデータがある場合のみキャッシュ＆localStorage更新
-    if (data.length > 0) {
-      _certsCache = data.map(r => ({
-        ideaId: r.idea_id, ticker: r.ticker, ideaName: r.idea_name,
-        score: r.score, emoji: r.emoji || '💡', votesAtTime: r.votes_at_time,
-        dateStr: new Date(r.created_at).toLocaleDateString('ja-JP',{year:'numeric',month:'2-digit',day:'2-digit'}),
-        timeStr: new Date(r.created_at).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}),
-        isEarly: r.is_early, serial: r.serial,
-      }));
-      localStorage.setItem('aipo-certificates', JSON.stringify(_certsCache));
-      return _certsCache;
-    }
-    // DBが空→localStorageにデータがあれば復元
-    const localCerts = _loadCertsLocal();
-    if (localCerts.length > 0) {
-      _certsCache = localCerts;
-      for (const c of localCerts) {
-        try {
-          await sb.from('user_certificates').upsert({
-            user_id: currentUser.id, idea_id: c.ideaId,
-            ticker: c.ticker, idea_name: c.ideaName,
-            score: c.score, emoji: c.emoji || '💡',
-            votes_at_time: c.votesAtTime, is_early: c.isEarly,
-            serial: c.serial, created_at: new Date().toISOString(),
-          }, { onConflict: 'user_id,idea_id' });
-        } catch(e) { console.error('cert migration error:', e); }
-      }
-      return _certsCache;
-    }
-    // DB・localStorageともに空→投票履歴から株券を復元
+    // DBの株券をローカルフォーマットに変換
+    let certs = data.map(r => ({
+      ideaId: r.idea_id, ticker: r.ticker, ideaName: r.idea_name,
+      score: r.score, emoji: r.emoji || '💡', votesAtTime: r.votes_at_time,
+      dateStr: new Date(r.created_at).toLocaleDateString('ja-JP',{year:'numeric',month:'2-digit',day:'2-digit'}),
+      timeStr: new Date(r.created_at).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}),
+      isEarly: r.is_early, serial: r.serial,
+    }));
+    // 投票履歴と照合し、株券が欠落していれば復元
     try {
       const { data: votes } = await sb.from('votes')
         .select('idea_id, idea_votes_at_time, created_at')
         .eq('user_id', currentUser.id)
         .order('created_at', { ascending: true });
       if (votes && votes.length > 0) {
+        const existingIds = new Set(certs.map(c => c.ideaId));
         const ideasMap = Object.fromEntries(ideas.map(i => [i.id, i]));
-        const recovered = [];
         const seen = new Set();
         for (const v of votes) {
-          if (seen.has(v.idea_id)) continue;
+          if (seen.has(v.idea_id) || existingIds.has(v.idea_id)) continue;
           seen.add(v.idea_id);
           const idea = ideasMap[v.idea_id];
           const vat = v.idea_votes_at_time ?? 0;
           const dt = new Date(v.created_at);
           const serial = 'AI-' + String(dt.getMonth()+1).padStart(2,'0') + String(dt.getDate()).padStart(2,'0');
           const cert = {
-            ideaId: v.idea_id,
-            ticker: idea?.ticker || 'IDEA',
-            ideaName: idea?.name || 'アイデア',
-            score: idea?.score || 50,
-            emoji: idea?.emoji || '💡',
-            votesAtTime: vat,
+            ideaId: v.idea_id, ticker: idea?.ticker || 'IDEA',
+            ideaName: idea?.name || 'アイデア', score: idea?.score || 50,
+            emoji: idea?.emoji || '💡', votesAtTime: vat,
             dateStr: dt.toLocaleDateString('ja-JP',{year:'numeric',month:'2-digit',day:'2-digit'}),
             timeStr: dt.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}),
-            isEarly: vat < 5,
-            serial,
+            isEarly: vat < 5, serial,
           };
-          recovered.push(cert);
+          certs.push(cert);
           try {
             await sb.from('user_certificates').upsert({
               user_id: currentUser.id, idea_id: v.idea_id,
@@ -2247,15 +2222,10 @@ async function loadCertsFromDB() {
             }, { onConflict: 'user_id,idea_id' });
           } catch(e) { console.error('cert recovery save error:', e); }
         }
-        if (recovered.length > 0) {
-          _certsCache = recovered;
-          localStorage.setItem('aipo-certificates', JSON.stringify(recovered));
-          console.log(`株券を${recovered.length}枚復元しました`);
-          return _certsCache;
-        }
       }
     } catch(e) { console.error('cert recovery error:', e); }
-    _certsCache = [];
+    _certsCache = certs;
+    if (certs.length > 0) localStorage.setItem('aipo-certificates', JSON.stringify(certs));
     return _certsCache;
   } catch(e) { return _loadCertsLocal(); }
 }
