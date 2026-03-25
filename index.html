@@ -2190,11 +2190,10 @@ async function loadCertsFromDB() {
       localStorage.setItem('aipo-certificates', JSON.stringify(_certsCache));
       return _certsCache;
     }
-    // DBが空→localStorageにデータがあれば復元してDBにマイグレーション
+    // DBが空→localStorageにデータがあれば復元
     const localCerts = _loadCertsLocal();
     if (localCerts.length > 0) {
       _certsCache = localCerts;
-      // localStorageの株券をDBに非同期マイグレーション
       for (const c of localCerts) {
         try {
           await sb.from('user_certificates').upsert({
@@ -2208,6 +2207,54 @@ async function loadCertsFromDB() {
       }
       return _certsCache;
     }
+    // DB・localStorageともに空→投票履歴から株券を復元
+    try {
+      const { data: votes } = await sb.from('votes')
+        .select('idea_id, idea_votes_at_time, created_at')
+        .eq('user_id', currentUser.id)
+        .order('created_at', { ascending: true });
+      if (votes && votes.length > 0) {
+        const ideasMap = Object.fromEntries(ideas.map(i => [i.id, i]));
+        const recovered = [];
+        const seen = new Set();
+        for (const v of votes) {
+          if (seen.has(v.idea_id)) continue;
+          seen.add(v.idea_id);
+          const idea = ideasMap[v.idea_id];
+          const vat = v.idea_votes_at_time ?? 0;
+          const dt = new Date(v.created_at);
+          const serial = 'AI-' + String(dt.getMonth()+1).padStart(2,'0') + String(dt.getDate()).padStart(2,'0');
+          const cert = {
+            ideaId: v.idea_id,
+            ticker: idea?.ticker || 'IDEA',
+            ideaName: idea?.name || 'アイデア',
+            score: idea?.score || 50,
+            emoji: idea?.emoji || '💡',
+            votesAtTime: vat,
+            dateStr: dt.toLocaleDateString('ja-JP',{year:'numeric',month:'2-digit',day:'2-digit'}),
+            timeStr: dt.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}),
+            isEarly: vat < 5,
+            serial,
+          };
+          recovered.push(cert);
+          try {
+            await sb.from('user_certificates').upsert({
+              user_id: currentUser.id, idea_id: v.idea_id,
+              ticker: cert.ticker, idea_name: cert.ideaName,
+              score: cert.score, emoji: cert.emoji,
+              votes_at_time: vat, is_early: vat < 5,
+              serial, created_at: v.created_at,
+            }, { onConflict: 'user_id,idea_id' });
+          } catch(e) { console.error('cert recovery save error:', e); }
+        }
+        if (recovered.length > 0) {
+          _certsCache = recovered;
+          localStorage.setItem('aipo-certificates', JSON.stringify(recovered));
+          console.log(`株券を${recovered.length}枚復元しました`);
+          return _certsCache;
+        }
+      }
+    } catch(e) { console.error('cert recovery error:', e); }
     _certsCache = [];
     return _certsCache;
   } catch(e) { return _loadCertsLocal(); }
