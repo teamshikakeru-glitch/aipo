@@ -498,23 +498,50 @@ input[type=file] { display: none; }
 </div>
 
 <div class="screen" id="screen-hiroba">
-  <div class="sub-header">
-    <div class="back-btn" onclick="goTo('feed')"><svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 5l-5 5 5 5"/></svg></div>
-    <div class="sub-title">メッセージ</div>
-    <div id="msg-unread-badge" style="display:none;font-size:10px;font-weight:700;color:#fff;background:var(--red);border-radius:100px;padding:3px 10px;margin-left:auto"></div>
+  <div class="sub-header" style="border-bottom:none">
+    <div class="sub-title" style="width:100%;text-align:center">みんなの広場</div>
   </div>
-  <div style="padding:0 14px 100px;">
-    <div style="background:var(--surface);border-radius:16px;border:0.5px solid var(--border2);padding:16px;margin:14px 0;">
-      <div style="font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:.1em;margin-bottom:10px;">VOICE YOUR OPINION</div>
-      <textarea class="hiroba-textarea" id="hiroba-input" rows="2" placeholder="こんな機能が欲しい、ここが使いづらい、なんでも..."></textarea>
+  <div style="padding:0 16px 100px;overflow-y:auto">
+    <!-- 郵便ポスト＋メッセージエリア -->
+    <div style="text-align:center;padding:20px 0 10px">
+      <div id="hiroba-post-box" style="position:relative;display:inline-block;margin-bottom:8px">
+        <!-- 郵便ポストSVG -->
+        <svg width="80" height="100" viewBox="0 0 80 120" fill="none" style="filter:drop-shadow(0 4px 12px rgba(0,0,0,.08))">
+          <rect x="15" y="45" width="50" height="70" rx="6" fill="#cc2222"/>
+          <rect x="20" y="48" width="16" height="24" rx="3" fill="rgba(255,255,255,.12)"/>
+          <rect x="24" y="62" width="32" height="5" rx="2.5" fill="#1a0000"/>
+          <ellipse cx="40" cy="78" rx="14" ry="14" fill="#bb1111"/>
+          <text x="40" y="75" text-anchor="middle" font-size="5.5" fill="white" font-weight="bold" font-family="sans-serif">郵便</text>
+          <text x="40" y="84" text-anchor="middle" font-size="4.5" fill="rgba(255,255,255,.7)" font-family="sans-serif">POST</text>
+          <ellipse cx="40" cy="45" rx="25" ry="7" fill="#dd2222"/>
+          <rect x="15" y="39" width="50" height="8" rx="4" fill="#ee3333"/>
+          <rect x="15" y="33" width="50" height="8" rx="3" fill="#ee3333"/>
+          <ellipse cx="40" cy="33" rx="25" ry="6" fill="#ff4444"/>
+          <ellipse cx="40" cy="28" rx="7" ry="3.5" fill="#cc1111"/>
+        </svg>
+        <!-- 手紙アニメーション用 -->
+        <div id="hiroba-letter" style="display:none;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:10">
+          <svg width="40" height="30" viewBox="0 0 40 30" fill="none"><rect x="2" y="2" width="36" height="26" rx="3" fill="#fff" stroke="#ddd" stroke-width="1.5"/><path d="M2 4l18 12L38 4" stroke="#ddd" stroke-width="1.5" fill="none"/></svg>
+        </div>
+      </div>
+      <div style="font-size:13px;color:var(--text3);line-height:1.7;margin-bottom:4px">AIが24時間あなたの声を見ています</div>
+      <div style="font-size:11px;color:var(--text3);opacity:.7">機能要望・バグ報告・感想など、何でもお気軽に</div>
+    </div>
+
+    <!-- 入力フォーム -->
+    <div style="background:var(--surface);border-radius:16px;border:0.5px solid var(--border2);padding:16px;margin:12px 0">
+      <textarea class="hiroba-textarea" id="hiroba-input" rows="3" placeholder="あいぽをもっと良くするアイデアや感想を教えてください..." style="font-size:14px;line-height:1.7"></textarea>
       <div class="hiroba-tags">
         <div class="hiroba-tag sel" onclick="selHirobaTag(this)" data-tag="機能要望">機能要望</div>
         <div class="hiroba-tag" onclick="selHirobaTag(this)" data-tag="バグ報告">バグ報告</div>
-        <div class="hiroba-tag" onclick="selHirobaTag(this)" data-tag="アイデア">アイデア</div>
+        <div class="hiroba-tag" onclick="selHirobaTag(this)" data-tag="感想">感想</div>
         <div class="hiroba-tag" onclick="selHirobaTag(this)" data-tag="その他">その他</div>
       </div>
       <label class="hiroba-anon"><input type="checkbox" id="hiroba-anon-check" style="width:16px;height:16px;accent-color:var(--amber-mid)">匿名で投稿する</label>
-      <button class="hiroba-send" onclick="sendHiroba()"><svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2"><path d="M3 10l14-7-7 14-2-6z"/></svg>送信する</button>
+      <button class="hiroba-send" onclick="sendHirobaWithAnim()" style="font-size:14px;padding:12px">
+        <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2" style="margin-right:4px"><path d="M2 5l16-3-4 16-5-8z"/><path d="M18 2L9 11"/></svg>
+        ポストに届ける
+      </button>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
       <a href="https://x.com/aideaipo" target="_blank" rel="noopener" style="text-decoration:none;background:var(--surface);border-radius:14px;border:0.5px solid var(--border2);padding:14px;display:flex;flex-direction:column;gap:8px;">
@@ -619,10 +646,11 @@ input[type=file] { display: none; }
 </div>
 
 <div class="bottom-nav">
-  <div class="nav-item active" id="nav-feed" onclick="goTo('feed')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg><span>マーケット</span></div>
-  <div class="nav-item" id="nav-post-tab" onclick="if(!currentUser){showLoginSheet();return;}goTo('post');phCapture('apply_cta_click')"><div style="width:44px;height:44px;border-radius:14px;background:var(--amber-mid);display:flex;align-items:center;justify-content:center;margin-top:-14px;box-shadow:0 4px 14px rgba(232,133,10,.35)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div><span style="margin-top:1px">上場</span></div>
-  <div class="nav-item" id="nav-portfolio" onclick="if(!currentUser){showLoginSheet();return;}goTo('portfolio')" style="position:relative"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-6 9 6v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 22V12h6v10"/></svg><div id="notif-badge" style="display:none;position:absolute;top:2px;right:calc(50% - 16px);min-width:14px;height:14px;background:#c0392b;border-radius:7px;border:1.5px solid var(--bg);align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;padding:0 3px;line-height:1"></div><span>ホーム</span></div>
-  <div class="nav-item" id="nav-match" onclick="goTo('match')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h6" stroke-linecap="round"/></svg><span>掲示板</span></div>
+  <div class="nav-item active" id="nav-feed" onclick="goTo('feed')"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg><span>マーケット</span></div>
+  <div class="nav-item" id="nav-hiroba" onclick="goTo('hiroba')"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span>広場</span></div>
+  <div class="nav-item" id="nav-post-tab" onclick="if(!currentUser){showLoginSheet();return;}goTo('post');phCapture('apply_cta_click')"><div style="width:42px;height:42px;border-radius:13px;background:var(--amber-mid);display:flex;align-items:center;justify-content:center;margin-top:-12px;box-shadow:0 4px 14px rgba(232,133,10,.3)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div><span style="margin-top:1px">上場</span></div>
+  <div class="nav-item" id="nav-portfolio" onclick="if(!currentUser){showLoginSheet();return;}goTo('portfolio')" style="position:relative"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-6 9 6v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 22V12h6v10"/></svg><div id="notif-badge" style="display:none;position:absolute;top:2px;right:calc(50% - 14px);min-width:14px;height:14px;background:#c0392b;border-radius:7px;border:1.5px solid var(--bg);align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;padding:0 3px;line-height:1"></div><span>ホーム</span></div>
+  <div class="nav-item" id="nav-match" onclick="goTo('match')"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h6" stroke-linecap="round"/></svg><span>掲示板</span></div>
 </div>
 
 <div class="postbox-overlay" id="postbox-overlay">
@@ -2788,12 +2816,51 @@ async function sendHiroba() {
   if (!currentUser) { showLoginSheet(); return; }
   const { error } = await sb.from('hiroba_posts').insert({ text, tag: hiroba_tag, user_id: currentUser.id });
   if (error) { showToast('送信に失敗しました'); console.error(error); return; }
-  inp.value = ''; showToast('送信しました！ 💌');
-  const overlay = document.getElementById('postbox-overlay');
-  const sub = document.getElementById('postbox-sub');
-  overlay.classList.add('show'); overlay.style.display='flex';
-  if (sub) sub.style.opacity = '1';
-  setTimeout(() => { overlay.classList.remove('show'); overlay.style.display='none'; if(sub) sub.style.opacity='0'; loadHirobaList(); }, 2200);
+  inp.value = '';
+  loadHirobaList();
+}
+
+async function sendHirobaWithAnim() {
+  const inp = document.getElementById('hiroba-input'); const text = inp?.value?.trim();
+  if (!text) { showToast('メッセージを入力してください'); return; }
+  if (!currentUser) { showLoginSheet(); return; }
+
+  // 手紙アニメーション
+  const letter = document.getElementById('hiroba-letter');
+  if (letter) {
+    letter.style.display = 'block';
+    letter.style.transition = 'none';
+    letter.style.transform = 'translate(-50%, 60px) scale(1)';
+    letter.style.opacity = '1';
+    requestAnimationFrame(() => {
+      letter.style.transition = 'all 0.6s cubic-bezier(.2,.8,.3,1)';
+      letter.style.transform = 'translate(-50%, -20px) scale(0.3)';
+      letter.style.opacity = '0';
+    });
+    setTimeout(() => { letter.style.display = 'none'; }, 700);
+  }
+
+  // ポスト揺れアニメーション
+  const postBox = document.getElementById('hiroba-post-box');
+  if (postBox) {
+    postBox.style.transition = 'transform .15s';
+    setTimeout(() => { postBox.style.transform = 'rotate(-3deg)'; }, 400);
+    setTimeout(() => { postBox.style.transform = 'rotate(3deg)'; }, 500);
+    setTimeout(() => { postBox.style.transform = 'rotate(-1deg)'; }, 600);
+    setTimeout(() => { postBox.style.transform = 'rotate(0deg)'; }, 700);
+  }
+
+  // DB保存
+  const { error } = await sb.from('hiroba_posts').insert({ text, tag: hiroba_tag, user_id: currentUser.id });
+  if (error) { showToast('送信に失敗しました'); console.error(error); return; }
+
+  inp.value = '';
+
+  // 成功メッセージ
+  setTimeout(() => {
+    showToast('届きました！ AIが確認します');
+    loadHirobaList();
+  }, 800);
 }
 
 const ADMIN_UUID = '7f3162ec-c281-435f-8e8e-3b6d65b8b1c9';
