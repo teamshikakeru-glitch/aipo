@@ -26,7 +26,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="あいぽ">
-<meta name="theme-color" content="#fff8ed">
+<meta name="theme-color" content="#f5f4f0">
 <!-- Sentry エラー監視 -->
 <script src="https://browser.sentry-cdn.com/8.51.0/bundle.min.js" crossorigin="anonymous"></script>
 <script>
@@ -49,14 +49,14 @@ posthog.init('phc_665tIWLYkMFBazlz7Q6CPiZjEK3rYzJtoTF7QG2JPYB', {
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <style>
 :root {
-  --bg: #eceae4;--surface: #ffffff;--surface2: #f7f6f3;
-  --border: rgba(0,0,0,0.07);--border2: rgba(0,0,0,0.12);
-  --text: #1a1916;--text2: #6b6860;--text3: #b0aea6;
-  --amber: #bf6d00;--amber-bg: #fff8ed;--amber-mid: #e8850a;--amber-border: #f5d68a;
-  --green: #1a7a4a;--green-light: #22a85f;--green-bg: #edf7f2;--green-border: #9de0cc;
-  --red: #c0392b;--teal: #0f7a5e;
+  --bg: #f5f4f0;--surface: #ffffff;--surface2: #faf9f7;
+  --border: rgba(0,0,0,0.06);--border2: rgba(0,0,0,0.10);
+  --text: #1a1917;--text2: #5c5a54;--text3: #9e9c96;
+  --amber: #c47a08;--amber-bg: #fef8ee;--amber-mid: #e8850a;--amber-border: #f0dbb0;
+  --green: #1a7a4a;--green-light: #22a85f;--green-bg: #f0f9f4;--green-border: #b8e6d0;
+  --red: #c0392b;--teal: #1a7a4a;
   --mono: 'Space Mono', monospace;--sans: 'Noto Sans JP', sans-serif;
-  --r-xl: 22px;--r-lg: 16px;--r-md: 10px;
+  --r-xl: 20px;--r-lg: 14px;--r-md: 8px;
 }
 /* Onboarding */
 .ob-step{animation:obFadeIn .4s ease-out}
@@ -70,7 +70,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); over
 .app { max-width: 390px; margin: 0 auto; min-height: 100vh; overflow: hidden; width: 100%; }
 .screen { display: none; min-height: 100vh; padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)); overflow-x: hidden; overflow-y: visible; width: 100%; }
 .screen.active { display: block; background: var(--surface); }
-.header { background: var(--surface); padding: 16px 18px 0; position: sticky; top: 0; z-index: 20; }
+.header { background: var(--surface); padding: 14px 16px 0; position: sticky; top: 0; z-index: 20; border-bottom: 0.5px solid var(--border); }
 .hd-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 .logo-wrap { display: flex; align-items: center; gap: 10px; }
 .logo-name { font-size: 20px; font-weight: 700; color: var(--text); letter-spacing: -.03em; }
@@ -83,14 +83,14 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); over
 .votes-chip { background: var(--amber-mid); border-radius: 20px; padding: 6px 14px; display: flex; align-items: center; gap: 4px; }
 .votes-n { font-family: var(--mono); font-size: 15px; font-weight: 700; color: #fff; }
 .votes-l { font-size: 11px; color: rgba(255,255,255,.8); font-weight: 700; }
-.pill-tab { background:transparent;border:0.5px solid var(--border2);border-radius:20px;padding:5px 14px;font-size:11px;font-weight:700;color:var(--text3);cursor:pointer;white-space:nowrap;font-family:var(--sans);transition:all .15s;flex-shrink:0; }
+.pill-tab { background:transparent;border:1px solid var(--border2);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;color:var(--text3);cursor:pointer;white-space:nowrap;font-family:var(--sans);transition:all .15s;flex-shrink:0; }
 .pill-tab.active { background:var(--text);color:#fff;border-color:var(--text); }
 .pill-tab.genre-active { background:var(--amber-bg);color:var(--amber);border-color:var(--amber-border); }
 #tab-scroll::-webkit-scrollbar { display:none; }
 .feed-body { padding: 10px 14px 0; }
 .skeleton { background: linear-gradient(90deg, var(--surface2) 25%, var(--border) 50%, var(--surface2) 75%); background-size: 200% 100%; animation: shimmer 1.2s infinite; border-radius: 6px; }
 @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-.stock-group { background: var(--surface); border-radius: var(--r-xl); overflow: hidden; margin-bottom: 12px; box-shadow: 0 1px 6px rgba(0,0,0,.06); }
+.stock-group { background: var(--surface); border-radius: var(--r-xl); overflow: hidden; margin-bottom: 10px; border: 0.5px solid var(--border); }
 .srow { display: flex; align-items: center; padding: 12px 16px; border-bottom: 0.5px solid var(--border); cursor: pointer; transition: background .1s; overflow: hidden; position: relative; }
 .srow:last-child { border-bottom: none; }
 .srow:active { background: var(--surface2); }
@@ -114,8 +114,8 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); over
 .upload-btn { background: var(--surface2); border: 1.5px solid var(--border2); border-radius: 20px; padding: 5px 12px; font-size: 11px; color: var(--text2); cursor: pointer; font-family: var(--sans); font-weight: 700; transition: all .15s; }
 .upload-btn:hover { border-color: var(--amber-border); color: var(--amber); background: var(--amber-bg); }
 .upload-btn.done { background: var(--green-bg); border-color: var(--green-border); color: var(--green); pointer-events: none; }
-.bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 390px; background: rgba(245,241,234,.72); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 0.5px solid rgba(220,210,195,.6); display: flex; justify-content: space-around; align-items: stretch; z-index: 30; padding-bottom: env(safe-area-inset-bottom, 0px); }
-.nav-icon-box { width: 30px; height: 30px; border-radius: 9px; background: #fff; border: 0.5px solid rgba(0,0,0,.08); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,.06); flex-shrink: 0; }
+.bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 390px; background: rgba(255,255,255,.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 0.5px solid var(--border); display: flex; justify-content: space-around; align-items: stretch; z-index: 30; padding-bottom: env(safe-area-inset-bottom, 0px); }
+.nav-icon-box { width: 32px; height: 32px; border-radius: 10px; background: var(--surface2); border: none; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 8px 0 12px; cursor: pointer; color: var(--text3); font-size: 11px; font-weight: 700; transition: color .15s; }
 .nav-item.active { color: var(--amber-mid); }
 .nav-item svg { width: 18px; height: 18px; }
