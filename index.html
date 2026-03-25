@@ -1344,7 +1344,8 @@ function setViewMode(mode) {
 
 function buildRowCompact(idea) {
   const _n = esc(idea.name), _g = esc(idea.genre);
-  const scoreColor = idea.score>=70?'var(--green)':idea.score>=40?'var(--amber)':'var(--text3)';
+  const delta = idea.score - idea.baseScore;
+  const scoreColor = delta > 0.3 ? '#1a6dcc' : delta < -0.3 ? '#cc3333' : 'var(--text2)';
   const voted = votedIds.has(idea.id);
   return `<div id="row-${idea.id}" onclick="showDetail('${idea.id}')" style="border-bottom:0.5px solid var(--border);cursor:pointer;display:flex;align-items:center;padding:10px 14px;gap:10px">
     <div style="min-width:36px;text-align:center;flex-shrink:0">
@@ -1360,7 +1361,8 @@ function buildRowCompact(idea) {
 
 function buildRowList(idea) {
   const _n = esc(idea.name), _g = esc(idea.genre);
-  const scoreColor = idea.score>=70?'var(--green)':idea.score>=40?'var(--amber)':'var(--text3)';
+  const delta = idea.score - idea.baseScore;
+  const scoreColor = delta > 0.3 ? '#1a6dcc' : delta < -0.3 ? '#cc3333' : 'var(--text2)';
   const voted = votedIds.has(idea.id);
   return `<div id="row-${idea.id}" onclick="showDetail('${idea.id}')" style="border-bottom:0.5px solid var(--border);cursor:pointer;display:flex;align-items:center;padding:8px 14px;gap:10px">
     <div style="font-family:var(--mono);font-size:14px;font-weight:700;color:${scoreColor};min-width:36px;text-align:center;flex-shrink:0">${idea.score.toFixed(1)}</div>
@@ -1378,7 +1380,8 @@ function renderTop3() {
   const ranks = ['1st','2nd','3rd'];
   grid.innerHTML = top3.map((idea, i) => {
     const voted = votedIds.has(idea.id); const gold = i === 0 ? ' gold' : ''; const nm = idea.name.length > 16 ? idea.name.slice(0,16)+'…' : idea.name;
-    const scoreColor = idea.score>=70?'var(--green)':idea.score>=40?'var(--amber)':'var(--text3)';
+    const d = idea.score - idea.baseScore;
+    const scoreColor = d > 0.3 ? '#1a6dcc' : d < -0.3 ? '#cc3333' : 'var(--text2)';
     return `<div class="top3-card${gold}" onclick="showDetail('${idea.id}')"><div class="top3-rank${i===0?' r1':''}">${ranks[i]}</div><div class="top3-score-v" style="color:${scoreColor}">${idea.score.toFixed(1)}</div><div class="top3-name-v">${esc(nm)}</div><div class="top3-votes-v">${idea.votes}票</div><button class="top3-vb ${voted?'voted':''}" onclick="event.stopPropagation();voteIdea('${idea.id}')"><svg width="9" height="9" viewBox="0 0 20 20" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="${voted?'var(--green-light)':'currentColor'}" stroke-width="2.5" stroke-linecap="round"/></svg></button></div>`;
   }).join('');
 }
@@ -1411,7 +1414,8 @@ function renderFeed() {
 
 function buildRow(idea) {
   const _n = esc(idea.name), _g = esc(idea.genre);
-  const scoreColor = idea.score>=70?'var(--green)':idea.score>=40?'var(--amber)':'var(--text3)';
+  const delta = idea.score - idea.baseScore;
+  const scoreColor = delta > 0.3 ? '#1a6dcc' : delta < -0.3 ? '#cc3333' : 'var(--text2)';
   const voted = votedIds.has(idea.id);
   const isHot = idea.votes >= HOT_THRESHOLD;
   return `<div id="row-${idea.id}" onclick="showDetail('${idea.id}')" style="border-bottom:0.5px solid var(--border);cursor:pointer;display:flex;align-items:center;padding:14px 16px;gap:12px">
