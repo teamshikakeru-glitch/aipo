@@ -143,8 +143,8 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); over
 .hero-genre { font-size: 13px; color: var(--text3); margin-top: 6px; }
 .hero-score-wrap { text-align: right; flex-shrink: 0; }
 .hero-score { font-family: var(--mono); font-size: 36px; font-weight: 700; line-height: 1; }
-.hero-score.up { color: var(--green-light); }
-.hero-score.dn { color: var(--red); }
+.hero-score.up { color: #1a6dcc; }
+.hero-score.dn { color: #cc3333; }
 .hero-score.fl { color: var(--text); }
 .hero-pill { display: inline-block; padding: 4px 12px; border-radius: 8px; font-family: var(--mono); font-size: 13px; font-weight: 700; margin-top: 4px; color: #fff; }
 .big-spark-wrap { margin: 4px 0 10px; }
@@ -695,7 +695,7 @@ function obClose() {
   ov.style.opacity = '0';
   setTimeout(() => ov.style.display = 'none', 300);
 }
-setTimeout(obInit, 500);
+setTimeout(obInit, 2000); // スプラッシュが消えた後に表示
 
 // Social proof: ユーザー数を表示
 async function updateSocialProof() {
@@ -1221,10 +1221,9 @@ function toggleProMenu() {
   const existing = document.getElementById('pro-menu');
   if (existing) { existing.remove(); return; }
   const badge = document.getElementById('plan-badge');
-  const rect = badge.getBoundingClientRect();
   const menu = document.createElement('div');
   menu.id = 'pro-menu';
-  menu.style.cssText = `position:fixed;top:${rect.bottom+6}px;right:16px;background:var(--surface);border:1.5px solid var(--border2);border-radius:14px;padding:8px;z-index:100;box-shadow:0 4px 20px rgba(0,0,0,0.12);min-width:200px`;
+  menu.style.cssText = `position:fixed;top:56px;right:16px;background:var(--surface);border:1.5px solid var(--border2);border-radius:14px;padding:8px;z-index:100;box-shadow:0 4px 20px rgba(0,0,0,0.12);min-width:200px`;
   menu.innerHTML = isPro ? `<div style="padding:10px 12px;font-size:13px;color:var(--text2);border-bottom:0.5px solid var(--border)">現在：あいぽ Pro</div><div onclick="downgradeFree();document.getElementById('pro-menu').remove()" style="padding:10px 12px;font-size:13px;color:var(--red);cursor:pointer;font-weight:700">無料プランに戻す</div>` : `<div style="padding:10px 12px;font-size:13px;color:var(--text2);border-bottom:0.5px solid var(--border)">現在：無料プラン</div><div onclick="showUpgradeModal('あいぽ Proにアップグレード');document.getElementById('pro-menu').remove()" style="padding:10px 12px;font-size:13px;color:var(--amber);cursor:pointer;font-weight:700">✦ Proにアップグレード（¥300/月）</div>`;
   document.body.appendChild(menu);
   setTimeout(() => document.addEventListener('click', function close(e) { if (!menu.contains(e.target) && e.target !== badge) { menu.remove(); document.removeEventListener('click', close); } }), 100);
@@ -1700,7 +1699,7 @@ async function showDetail(id) {
   if (idea && typeof posthog !== 'undefined') posthog.capture('idea_viewed', { ticker: idea.ticker, score: Math.round(idea.score) });
   idea.views = (idea.views || 0) + 1;
   const delta = idea.score - idea.baseScore; const ds = (delta>=0?'+':'')+delta.toFixed(1);
-  const sc = delta>0.3?'up':delta<-0.3?'dn':'fl'; const pc = delta>0.3?'#22a85f':delta<-0.3?'#c0392b':'#aaa';
+  const sc = delta>0.3?'up':delta<-0.3?'dn':'fl'; const pc = delta>0.3?'#1a6dcc':delta<-0.3?'#cc3333':'#aaa';
   const isHot = idea.votes >= HOT_THRESHOLD;
   const v1=Math.min(idea.votes*3,30), v2=Math.min(Math.round(idea.views*0.1),20), v3=idea.progress*10;
   const isMyIdea = myIdeas.has(idea.id); const voted = votedIds.has(idea.id);
@@ -1811,7 +1810,7 @@ function voteFromDetail(id) {
   if (!currentUser) { showLoginSheet(); return; }
   if (votedIds.has(id)) { showToast('このアイデアにはすでに応援済みです'); return; }
   if (votesLeft <= 0) { updateXBonus(); showUpgradeModal('今日の票を使い切りました'); return; }
-  voteIdea(id); showDetail(id);
+  voteIdea(id); setTimeout(() => showDetail(id), 600);
 }
 
 function postComment(id) {
