@@ -170,10 +170,10 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); over
 .vote-hero-btn { display:none !important; }
 .desc-card { background: var(--surface); border-radius: var(--r-xl); padding: 16px 18px; margin-bottom: 12px; }
 .post-body { padding: 20px 18px; }
-.step-lbl { font-family: var(--mono); font-size: 10px; color: var(--amber-mid); letter-spacing: .1em; font-weight: 700; margin-bottom: 20px; }
+.step-lbl { font-family: var(--mono); font-size: 11px; color: var(--amber-mid); letter-spacing: .08em; font-weight: 700; margin-bottom: 16px; }
 .field-wrap { margin-bottom: 18px; }
 .field-lbl { font-size: 13px; font-weight: 700; color: var(--text2); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
-.field-req { font-size: 10px; color: var(--red); font-weight: 700; }
+.field-req { font-size: 10px; color: var(--amber-mid); font-weight: 700; }
 .field-opt { font-size: 10px; color: var(--text3); font-weight: 400; }
 .inp { width: 100%; background: var(--surface2); border: 1.5px solid var(--border2); border-radius: var(--r-md); padding: 13px 14px; font-size: 15px; font-family: var(--sans); color: var(--text); resize: none; outline: none; transition: border-color .15s; }
 .inp:focus { border-color: var(--amber-mid); background: var(--surface); }
@@ -428,10 +428,9 @@ input[type=file] { display: none; }
     <div class="hd-row">
       <div class="logo-wrap"><div><div class="logo-name">あいぽ</div><div class="logo-sub">アイデアIPO市場</div></div></div>
       <div class="hd-right">
-        <div class="live-wrap"><div class="live-dot"></div><div class="live-lbl">LIVE</div></div>
-        <div id="plan-badge" onclick="toggleProMenu()" style="font-size:9px;font-weight:700;background:var(--surface2);color:var(--text3);border:1px solid var(--border2);border-radius:20px;padding:3px 8px;cursor:pointer">残3回</div>
+        <div id="plan-badge" onclick="toggleProMenu()" style="display:none">残3回</div>
         <div class="votes-chip"><span class="votes-n" id="votes-left">3</span><span class="votes-l">票</span></div>
-        <button id="profile-btn" onclick="currentUser ? openProfileModal() : showLoginSheet()" title="プロフィール設定 / ログイン" style="width:30px;height:30px;border-radius:50%;border:1.5px solid var(--border);cursor:pointer;overflow:hidden;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0"><span id="profile-btn-ico" style="font-size:14px">👤</span></button>
+        <button id="profile-btn" onclick="currentUser ? openProfileModal() : showLoginSheet()" title="プロフィール設定 / ログイン" style="width:32px;height:32px;border-radius:50%;border:1.5px solid var(--border2);cursor:pointer;overflow:hidden;background:var(--surface2);display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0"><span id="profile-btn-ico" style="font-size:14px">👤</span></button>
       </div>
     </div>
     <div class="top3-wrap">
@@ -460,7 +459,7 @@ input[type=file] { display: none; }
   <div class="feed-body" id="feed-body">
     <div class="ptr-indicator" id="ptr-indicator">引っ張って更新</div>
     <div class="next-update" id="next-lbl" style="display:none"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 14px 4px"><span style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.04em" id="sec-label"></span><span style="font-size:10px;color:var(--text3)" id="next-lbl-inline"></span></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px 4px"><span style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.04em" id="sec-label"></span><span id="social-proof" style="font-size:11px;color:var(--text3);display:flex;align-items:center;gap:4px"><span style="width:6px;height:6px;border-radius:50%;background:var(--green-light);display:inline-block"></span><span id="sp-count">--</span>人が参加中</span></div>
     <div class="stock-group" id="stock-list">
       <div style="display:grid;grid-template-columns:64px 1fr auto;align-items:center;padding:10px 12px;gap:10px;border-bottom:0.5px solid var(--border)"><div><div class="skeleton" style="height:22px;margin-bottom:5px"></div><div class="skeleton" style="height:10px;width:30px;margin:0 auto"></div></div><div><div class="skeleton" style="height:11px;width:60px;margin-bottom:5px"></div><div class="skeleton" style="height:14px;margin-bottom:4px"></div><div class="skeleton" style="height:10px;width:80px"></div></div><div class="skeleton" style="width:46px;height:28px;border-radius:14px"></div></div>
       <div style="display:grid;grid-template-columns:64px 1fr auto;align-items:center;padding:10px 12px;gap:10px"><div><div class="skeleton" style="height:22px;margin-bottom:5px"></div><div class="skeleton" style="height:10px;width:30px;margin:0 auto"></div></div><div><div class="skeleton" style="height:11px;width:55px;margin-bottom:5px"></div><div class="skeleton" style="height:14px;margin-bottom:4px"></div><div class="skeleton" style="height:10px;width:75px"></div></div><div class="skeleton" style="width:46px;height:28px;border-radius:14px"></div></div>
@@ -484,6 +483,10 @@ input[type=file] { display: none; }
   <div class="sub-header"><div class="back-btn" onclick="goTo('feed')"><svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 5l-5 5 5 5"/></svg></div><div class="sub-title">アイデアを上場する</div></div>
   <div class="post-body">
     <div class="step-lbl">NEW LISTING — IPO申請</div>
+    <div style="background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:10px;padding:10px 14px;margin-bottom:16px;display:flex;align-items:center;gap:10px">
+      <span style="font-size:20px">30</span>
+      <div><div style="font-size:13px;font-weight:700;color:var(--text)">秒で上場完了</div><div style="font-size:11px;color:var(--text3);margin-top:1px">アイデア名とジャンルだけでOK</div></div>
+    </div>
     <div class="field-wrap"><div class="field-lbl">アイデア名 <span class="field-req">必須</span></div><input class="inp" id="inp-title" type="text" placeholder="例：習い事スケジュール管理アプリ" maxlength="40"><div class="hint">「こんなのあったら面白そう」という一言でもOKです。</div></div>
     <div class="field-wrap"><div class="field-lbl">ジャンル <span class="field-req">必須</span></div><div class="genre-grid" id="genre-grid"><div class="genre-item" onclick="selGenre(this)" style="grid-column:1/-1">起業家・スタートアップ</div><div class="genre-item" onclick="selGenre(this)">副業・フリーランス</div><div class="genre-item" onclick="selGenre(this)">業務効率</div><div class="genre-item" onclick="selGenre(this)">社会課題</div><div class="genre-item" onclick="selGenre(this)">テクノロジー</div></div></div>
     <div class="field-wrap"><div class="field-lbl">ティッカー <span class="field-opt">任意・英大文字5字以内</span></div><input class="inp inp-sm" id="inp-ticker" type="text" placeholder="例：HABIT" maxlength="5" style="text-transform:uppercase"><div class="hint">空欄だとアイデア名から自動生成します。</div></div>
@@ -693,6 +696,16 @@ function obClose() {
   setTimeout(() => ov.style.display = 'none', 300);
 }
 setTimeout(obInit, 500);
+
+// Social proof: ユーザー数を表示
+async function updateSocialProof() {
+  try {
+    const { count } = await sb.from('profiles').select('id', { count: 'exact', head: true });
+    const el = document.getElementById('sp-count');
+    if (el && count) el.textContent = count;
+  } catch(e) {}
+}
+setTimeout(updateSocialProof, 2000);
 
 // Pull to refresh
 (function() {
