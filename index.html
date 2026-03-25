@@ -3681,8 +3681,9 @@ function boardRenderCommentBody(body) {
     '<span style="color:var(--amber-mid);font-weight:700">@$1</span>');
 }
 
-function boardRenderComment(c) {
-  return '<div id="cmt-row-'+c.id+'" style="display:flex;gap:10px;margin-bottom:16px">'
+function boardRenderComment(c, isReply) {
+  const ml = isReply ? 'margin-left:36px;' : '';
+  return '<div id="cmt-row-'+c.id+'" style="display:flex;gap:10px;margin-bottom:14px;'+ml+'">'
     +bAvatar(c.author_name)
     +'<div style="flex:1;min-width:0">'
     +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">'
@@ -3690,10 +3691,49 @@ function boardRenderComment(c) {
     +'<span style="font-size:10px;color:var(--text3)">'+bRelTime(c.created_at)+'</span>'
     +'</div>'
     +'<div style="font-size:13px;color:var(--text);line-height:1.6;background:var(--bg);border-radius:10px;padding:10px 12px;white-space:pre-wrap;word-break:break-word">'+boardRenderCommentBody(c.body)+'</div>'
+    +'<div style="display:flex;gap:12px;margin-top:5px">'
     +'<button id="like-btn-'+c.id+'" onclick="boardLikeComment(\''+c.id+'\',this)" '
-    +'style="background:none;border:none;font-size:12px;color:var(--text3);cursor:pointer;margin-top:5px;padding:2px 0;font-family:var(--sans);display:inline-flex;align-items:center;gap:3px">'
+    +'style="background:none;border:none;font-size:12px;color:var(--text3);cursor:pointer;padding:2px 0;font-family:var(--sans);display:inline-flex;align-items:center;gap:3px">'
     +'<span style="font-size:14px">♡</span> '+(c.likes||0)+'</button>'
+    +(isReply ? '' : '<button onclick="boardStartReply(\''+c.id+'\',\''+bEsc(c.author_name)+'\')" '
+    +'style="background:none;border:none;font-size:12px;color:var(--text3);cursor:pointer;padding:2px 0;font-family:var(--sans)">返信</button>')
+    +'</div>'
+    +'<div id="replies-'+c.id+'"></div>'
     +'</div></div>';
+}
+
+// 返信状態管理
+let board_replyTo = null;
+
+function boardStartReply(commentId, authorName) {
+  board_replyTo = { commentId, authorName };
+  // 現在の投稿詳細のテキストエリアを取得
+  const taList = document.querySelectorAll('textarea[id^="board-cmt-body-"]');
+  if (taList.length > 0) {
+    const ta = taList[0];
+    ta.placeholder = '@' + authorName + ' に返信中…';
+    ta.focus();
+    // 返信バッジ表示
+    let badge = document.getElementById('reply-badge');
+    if (!badge) {
+      badge = document.createElement('div');
+      badge.id = 'reply-badge';
+      badge.style.cssText = 'padding:6px 12px;font-size:11px;color:var(--amber-mid);background:rgba(232,133,10,.08);border-radius:8px;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px';
+      ta.parentElement.insertBefore(badge, ta);
+    }
+    badge.innerHTML = '<span>@'+bEsc(authorName)+' に返信</span>'
+      +'<button onclick="boardCancelReply()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:0;margin:0;line-height:1">×</button>';
+  }
+}
+
+function boardCancelReply() {
+  board_replyTo = null;
+  const badge = document.getElementById('reply-badge');
+  if (badge) badge.remove();
+  const taList = document.querySelectorAll('textarea[id^="board-cmt-body-"]');
+  if (taList.length > 0) {
+    taList[0].placeholder = 'コメントを入力…（@でメンション）';
+  }
 }
 
 function boardOpenDetail(idx) {
@@ -3764,7 +3804,15 @@ function boardAddRealtimeComment(postId, c) {
   if (!wrap) return;
   const isEmpty = wrap.querySelector('[data-empty]');
   if (isEmpty) wrap.innerHTML = '';
-  wrap.insertAdjacentHTML('afterbegin', boardRenderComment(c));
+  if (c.parent_id) {
+    // 返信 → 親コメントの返信エリアに追加
+    const repliesWrap = document.getElementById('replies-'+c.parent_id);
+    if (repliesWrap) {
+      repliesWrap.insertAdjacentHTML('beforeend', boardRenderComment(c, true));
+      return;
+    }
+  }
+  wrap.insertAdjacentHTML('afterbegin', boardRenderComment(c, false));
 }
 
 async function boardLoadComments(postId) {
@@ -3775,7 +3823,24 @@ async function boardLoadComments(postId) {
     wrap.innerHTML = '<div data-empty="1" style="text-align:center;color:var(--text3);padding:20px 0;font-size:12px">まだコメントがありません</div>';
     return;
   }
-  wrap.innerHTML = data.map(boardRenderComment).join('');
+  // 親コメントと返信を分離
+  const parents = data.filter(c => !c.parent_id);
+  const repliesMap = {};
+  data.filter(c => c.parent_id).forEach(c => {
+    if (!repliesMap[c.parent_id]) repliesMap[c.parent_id] = [];
+    repliesMap[c.parent_id].push(c);
+  });
+  // 親コメント→その返信の順で表示
+  let html = '';
+  parents.forEach(p => {
+    html += boardRenderComment(p, false);
+    const replies = repliesMap[p.id];
+    if (replies) {
+      replies.sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+      replies.forEach(r => { html += boardRenderComment(r, true); });
+    }
+  });
+  wrap.innerHTML = html;
 }
 
 function boardMentionCheck(textarea, postId) {
@@ -3836,10 +3901,13 @@ async function boardSubmitComment(postId) {
   if (!body) { showToast('コメントを入力してください'); return; }
   const btn = document.querySelector('#board-detail-ov button[onclick*="boardSubmitComment"]');
   if (btn) { btn.disabled = true; btn.textContent = '送信中'; }
-  const { error } = await sb.from('board_comments').insert({ post_id: postId, body, author_name: authorName });
+  const insertData = { post_id: postId, body, author_name: authorName };
+  if (board_replyTo) insertData.parent_id = board_replyTo.commentId;
+  const { error } = await sb.from('board_comments').insert(insertData);
   if (btn) { btn.disabled = false; btn.textContent = '送信'; }
   if (error) { showToast('送信に失敗しました'); return; }
   ta.value = '';
+  boardCancelReply();
   document.getElementById('board-mention-drop').style.display = 'none';
   board_loadPosts();
 }
