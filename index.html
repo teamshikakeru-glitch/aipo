@@ -59,7 +59,9 @@ posthog.init('phc_665tIWLYkMFBazlz7Q6CPiZjEK3rYzJtoTF7QG2JPYB', {
   --r-xl: 20px;--r-lg: 14px;--r-md: 8px;
 }
 /* Onboarding */
-.ob-step{animation:obFadeIn .4s ease-out}
+.ob-step{transition:opacity .3s,transform .3s}
+.ob-step button{transition:transform .1s,opacity .1s}
+.ob-step button:active{transform:scale(.96);opacity:.8}
 @keyframes obFadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 .ob-dot{width:8px;height:8px;border-radius:50%;background:var(--border2)}
 .ob-dot.active{background:var(--amber-mid);width:24px;border-radius:4px}
@@ -731,17 +733,39 @@ function obInit() {
   if (localStorage.getItem('aipo-ob-done')) return;
   document.getElementById('onboarding-overlay').style.display = 'block';
 }
+let obBusy = false;
 function obNext(step) {
-  document.querySelectorAll('.ob-step').forEach(s => s.style.display = 'none');
-  const el = document.getElementById('ob-step-' + step);
-  if (el) el.style.display = 'block';
+  if (obBusy) return;
+  obBusy = true;
+  // 現在のステップをフェードアウト
+  document.querySelectorAll('.ob-step').forEach(s => {
+    s.style.opacity = '0';
+    s.style.transform = 'translateY(-10px)';
+  });
+  setTimeout(() => {
+    document.querySelectorAll('.ob-step').forEach(s => s.style.display = 'none');
+    const el = document.getElementById('ob-step-' + step);
+    if (el) {
+      el.style.display = 'block';
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(10px)';
+      requestAnimationFrame(() => {
+        el.style.transition = 'opacity .3s, transform .3s';
+        el.style.opacity = '1';
+        el.style.transform = 'translateY(0)';
+      });
+    }
+    obBusy = false;
+  }, 250);
 }
 function obClose() {
+  if (obBusy) return;
+  obBusy = true;
   localStorage.setItem('aipo-ob-done', '1');
   const ov = document.getElementById('onboarding-overlay');
-  ov.style.transition = 'opacity .3s';
+  ov.style.transition = 'opacity .4s';
   ov.style.opacity = '0';
-  setTimeout(() => ov.style.display = 'none', 300);
+  setTimeout(() => { ov.style.display = 'none'; obBusy = false; }, 400);
 }
 setTimeout(obInit, 2000); // スプラッシュが消えた後に表示
 
@@ -3255,8 +3279,8 @@ function showLoginSheet() {
   overlay.innerHTML = `
     <div style="background:var(--surface);border-radius:24px 24px 0 0;padding:28px 24px calc(48px + env(safe-area-inset-bottom,0px));width:100%;max-width:390px;animation:slideUp .35s cubic-bezier(.16,1,.3,1)">
       <div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 20px"></div>
-      <div style="font-size:18px;font-weight:700;color:var(--text);text-align:center;margin-bottom:6px">ログインして使う</div>
-      <div style="font-size:13px;color:var(--text3);text-align:center;line-height:1.7;margin-bottom:24px">アイデアを応援・上場するには<br>ログインが必要です</div>
+      <div style="font-size:18px;font-weight:700;color:var(--text);text-align:center;margin-bottom:6px">10秒で始められます</div>
+      <div style="font-size:13px;color:var(--text3);text-align:center;line-height:1.7;margin-bottom:24px">Googleアカウントでログインするだけ。<br>すぐにアイデアを応援できます。</div>
       <div style="background:var(--surface2);border-radius:var(--r-lg);padding:16px;margin-bottom:20px">
         <div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:0.5px solid var(--border)">
           <div style="width:32px;height:32px;border-radius:8px;background:#fff8ed;display:flex;align-items:center;justify-content:center;flex-shrink:0">
