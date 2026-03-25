@@ -103,6 +103,12 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); over
 @keyframes voteParticle { 0%{opacity:1;transform:translateY(0) scale(1)} 100%{opacity:0;transform:translateY(-40px) scale(0.5)} }
 .vote-pop { animation: votePop .4s cubic-bezier(.17,.67,.21,1.27); }
 .vote-particle { position:absolute;pointer-events:none;font-size:16px;animation:voteParticle .7s ease-out forwards; }
+/* Pull to refresh */
+.ptr-indicator { text-align:center;padding:0;max-height:0;overflow:hidden;transition:max-height .3s,padding .3s;font-size:12px;color:var(--text3);font-weight:600; }
+.ptr-indicator.show { max-height:50px;padding:14px 0; }
+.ptr-indicator.loading { color:var(--amber-mid); }
+@keyframes ptrSpin { to{transform:rotate(360deg)} }
+.ptr-spin { display:inline-block;width:16px;height:16px;border:2px solid var(--border2);border-top-color:var(--amber-mid);border-radius:50%;animation:ptrSpin .6s linear infinite;vertical-align:middle;margin-right:6px; }
 .hot-badge { font-size: 11px; background: var(--amber-bg); border: 1px solid var(--amber-border); color: var(--amber); border-radius: 4px; padding: 2px 6px; font-weight: 700; }
 .stag { font-size: 9px; padding: 2px 7px; border-radius: 20px; font-weight: 700; }
 .stag-genre { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
@@ -451,7 +457,8 @@ input[type=file] { display: none; }
       </div>
     </div>
   </div>
-  <div class="feed-body">
+  <div class="feed-body" id="feed-body">
+    <div class="ptr-indicator" id="ptr-indicator">引っ張って更新</div>
     <div class="next-update" id="next-lbl" style="display:none"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 14px 4px"><span style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.04em" id="sec-label"></span><span style="font-size:10px;color:var(--text3)" id="next-lbl-inline"></span></div>
     <div class="stock-group" id="stock-list">
@@ -686,6 +693,37 @@ function obClose() {
   setTimeout(() => ov.style.display = 'none', 300);
 }
 setTimeout(obInit, 500);
+
+// Pull to refresh
+(function() {
+  let startY = 0, pulling = false;
+  const feedBody = document.getElementById('feed-body');
+  const ptr = document.getElementById('ptr-indicator');
+  if (!feedBody || !ptr) return;
+  feedBody.addEventListener('touchstart', e => {
+    if (feedBody.scrollTop <= 0) { startY = e.touches[0].clientY; pulling = true; }
+  }, { passive: true });
+  feedBody.addEventListener('touchmove', e => {
+    if (!pulling) return;
+    const diff = e.touches[0].clientY - startY;
+    if (diff > 60) { ptr.classList.add('show'); ptr.textContent = '離すと更新'; }
+    else if (diff > 10) { ptr.classList.add('show'); ptr.textContent = '引っ張って更新'; }
+    else { ptr.classList.remove('show'); }
+  }, { passive: true });
+  feedBody.addEventListener('touchend', async () => {
+    if (!pulling) return;
+    pulling = false;
+    if (ptr.classList.contains('show') && ptr.textContent === '離すと更新') {
+      ptr.classList.add('loading');
+      ptr.innerHTML = '<span class="ptr-spin"></span>更新中...';
+      try { await fetchIdeas(); renderFeed(); } catch(e) {}
+      ptr.classList.remove('show','loading');
+      ptr.textContent = '引っ張って更新';
+    } else {
+      ptr.classList.remove('show');
+    }
+  });
+})();
 
 const SUPABASE_URL = 'https://qjffvspnnxyykoyhnazm.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqZmZ2c3Bubnh5eWtveWhuYXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzMTIxMzMsImV4cCI6MjA4Njg4ODEzM30.OqeeMZs73RjKY5POW-naf0dB8sFWfZDUKaKvE99EiBo';
@@ -1327,7 +1365,7 @@ function renderPortfolio() {
   const myList = ideas.filter(i => myIdeas.has(i.id));
   const votedList = ideas.filter(i => votedIds.has(i.id) && !myIdeas.has(i.id)).slice(0, 5);
   const combined = [...myList, ...votedList];
-  if (combined.length === 0) { el.innerHTML = `<div style="padding:32px 20px;text-align:center"><div style="font-size:28px;margin-bottom:10px">💡</div><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">まだ活動がありません</div><div style="font-size:11px;color:var(--text3);line-height:1.7">マーケットでアイデアを応援したり<br>「＋」から上場してみましょう</div></div>`; return; }
+  if (combined.length === 0) { el.innerHTML = `<div style="padding:40px 20px;text-align:center"><div style="font-size:36px;margin-bottom:12px;opacity:.6">📊</div><div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px">まだ活動がありません</div><div style="font-size:13px;color:var(--text3);line-height:1.7;margin-bottom:16px">マーケットでアイデアに応援票を入れると、<br>ここにあなたの投資記録が表示されます。</div><button onclick="goTo('feed')" style="background:var(--amber-mid);color:#fff;border:none;border-radius:12px;padding:10px 24px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--sans)">マーケットを見る</button></div>`; return; }
   const certs = loadCerts();
   const certIdeaIds = new Set(certs.map(c => c.ideaId));
   el.innerHTML = `<div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.07em;margin-bottom:8px">応援銘柄</div><div style="background:var(--surface);border-radius:var(--r-xl);overflow:hidden;margin-bottom:12px">${combined.map(idea => {
@@ -1381,7 +1419,7 @@ function buildRowList(idea) {
 function renderTop3() {
   const top3 = ideas.slice().sort((a,b) => b.score - a.score).slice(0, 3);
   const grid = document.getElementById('top3-grid'); if (!grid) return;
-  if (top3.length === 0) { grid.innerHTML = '<div style="padding:12px;text-align:center;font-size:10px;color:var(--text3);width:100%">まだアイデアがありません</div>'; return; }
+  if (top3.length === 0) { grid.innerHTML = '<div style="padding:16px;text-align:center;font-size:12px;color:var(--text3);width:100%">ランキングを読み込み中...</div>'; return; }
   const ranks = ['1st','2nd','3rd'];
   grid.innerHTML = top3.map((idea, i) => {
     const voted = votedIds.has(idea.id); const gold = i === 0 ? ' gold' : ''; const nm = idea.name.length > 16 ? idea.name.slice(0,16)+'…' : idea.name;
@@ -1411,7 +1449,7 @@ function renderFeed() {
   else { list = list.sort((a,b) => b.score - a.score); secEl.textContent = `銘柄一覧 · ${list.length}件`; }
   if (currentGenre) list = list.filter(i => i.genre === currentGenre);
   const el = document.getElementById('stock-list'); const inlineLbl = document.getElementById('next-lbl-inline'); if (inlineLbl) inlineLbl.textContent = '';
-  if (list.length === 0) { el.innerHTML = '<div style="padding:24px;text-align:center;font-size:13px;color:var(--text3)">注目銘柄はまだありません。</div>'; }
+  if (list.length === 0) { el.innerHTML = '<div style="padding:40px 20px;text-align:center"><div style="font-size:36px;margin-bottom:12px;opacity:.6">🌱</div><div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px">まだアイデアがありません</div><div style="font-size:13px;color:var(--text3);line-height:1.7;margin-bottom:16px">最初のアイデアを上場してみませんか？<br>あなたのひらめきが、誰かの「欲しい！」になるかも。</div><button onclick="if(!currentUser){showLoginSheet();return;}goTo(\'post\')" style="background:var(--amber-mid);color:#fff;border:none;border-radius:12px;padding:10px 24px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--sans)">アイデアを上場する</button></div>'; }
   else if (viewMode === 'compact') { el.innerHTML = list.map(idea => buildRowCompact(idea)).join(''); }
   else if (viewMode === 'list') { el.innerHTML = list.map(idea => buildRowList(idea)).join(''); }
   else { el.innerHTML = list.map(idea => buildRow(idea)).join(''); requestAnimationFrame(() => { list.forEach(idea => drawSpark('spark-'+idea.id, idea.history, (idea.score-idea.baseScore)>=0, 60, 38)); }); }
