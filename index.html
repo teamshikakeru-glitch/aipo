@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-visual">
 <title>あいぽ — アイデアIPO市場</title>
 <meta name="description" content="思いついたら一行で上場。票とコメントでアイデアの価値がリアルタイムで動く。アイデアIPO市場「あいぽ」">
 <meta name="robots" content="index, follow">
@@ -67,7 +67,7 @@ function loadHtml2Canvas(){return new Promise(function(r){if(window.html2canvas)
 :root {
   --bg: #f5f4f0;--surface: #ffffff;--surface2: #faf9f7;
   --border: rgba(0,0,0,0.06);--border2: rgba(0,0,0,0.10);
-  --text: #1a1917;--text2: #5c5a54;--text3: #6b6966;
+  --text: #1a1917;--text2: #545250;--text3: #5e5c58;
   --amber: #956005;--amber-bg: #fef8ee;--amber-mid: #e8850a;--amber-border: #f0dbb0;
   --green: #1a7a4a;--green-light: #22a85f;--green-bg: #f0f9f4;--green-border: #b8e6d0;
   --red: #c0392b;--teal: #1a7a4a;
@@ -86,12 +86,13 @@ function loadHtml2Canvas(){return new Promise(function(r){if(window.html2canvas)
 .ob-dot{width:8px;height:8px;border-radius:50%;background:var(--border2)}
 .ob-dot.active{background:var(--amber-mid);width:24px;border-radius:4px}
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; max-width: 100%; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; } }
 :focus-visible { outline: 2px solid var(--amber-mid); outline-offset: 2px; }
 html, body { overflow-x: hidden !important; width: 100%; max-width: 100vw; position: relative; }
 html { overflow-x: hidden; }
 body { background: var(--bg); color: var(--text); font-family: var(--sans); overflow-x: hidden !important; overflow-y: auto; width: 100%; touch-action: pan-y pinch-zoom; }
 .app { max-width: 390px; margin: 0 auto; min-height: 100vh; overflow: hidden; width: 100%; }
-.screen { display: none; min-height: 100vh; padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)); overflow-x: hidden; overflow-y: visible; width: 100%; }
+.screen { display: none; min-height: 100vh; padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)); overflow-x: hidden; overflow-y: visible; width: 100%; content-visibility: auto; contain-intrinsic-size: auto 100vh; }
 .screen.active { display: block; background: var(--surface); }
 .header { background: var(--surface); padding: 14px 16px 0; position: sticky; top: 0; z-index: 20; border-bottom: 0.5px solid var(--border); }
 .hd-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
@@ -113,7 +114,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); over
 .feed-body { padding: 10px 14px 0; contain: layout style; }
 .skeleton { background: linear-gradient(90deg, var(--surface2) 25%, var(--border) 50%, var(--surface2) 75%); background-size: 200% 100%; animation: shimmer 1.2s infinite; border-radius: 6px; }
 @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-.stock-group { background: var(--surface); border-radius: var(--r-xl); overflow: hidden; margin-bottom: 10px; border: 0.5px solid var(--border); contain: content; min-height: 120px; }
+.stock-group { background: var(--surface); border-radius: var(--r-xl); overflow: hidden; margin-bottom: 10px; border: 0.5px solid var(--border); contain: content; min-height: 120px; content-visibility: auto; contain-intrinsic-size: auto 400px; }
 .srow { display: flex; align-items: center; padding: 12px 16px; border-bottom: 0.5px solid var(--border); cursor: pointer; transition: background .1s; overflow: hidden; position: relative; }
 .srow:last-child { border-bottom: none; }
 .srow:active { background: var(--surface2); }
@@ -149,12 +150,12 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); over
 .upload-btn:hover { border-color: var(--amber-border); color: var(--amber); background: var(--amber-bg); }
 .upload-btn.done { background: var(--green-bg); border-color: var(--green-border); color: var(--green); pointer-events: none; }
 .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 390px; background: rgba(255,255,255,.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 0.5px solid var(--border); display: flex; justify-content: space-around; align-items: stretch; z-index: 30; padding-bottom: env(safe-area-inset-bottom, 0px); will-change: transform; contain: layout style; }
-.nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 8px 0 10px; cursor: pointer; color: var(--text3); transition: color .15s; background: none; border: none; font: inherit; }
+.nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 10px 0 12px; cursor: pointer; color: var(--text3); transition: color .15s; background: none; border: none; font: inherit; min-height: 48px; }
 .nav-item span { font-size: 10px; font-weight: 600; }
 .nav-item.active { color: var(--amber-mid); }
 .nav-item svg { width: 22px; height: 22px; }
 .sub-header { background: var(--surface); border-bottom: 0.5px solid var(--border); padding: 14px 18px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 20; overflow: hidden; }
-.back-btn { cursor: pointer; color: var(--text2); display: flex; align-items: center; background: none; border: none; padding: 0; font: inherit; }
+.back-btn { cursor: pointer; color: var(--text2); display: flex; align-items: center; background: none; border: none; padding: 8px; margin: -8px; font: inherit; min-width: 44px; min-height: 44px; justify-content: center; }
 .sub-title { font-size: 16px; font-weight: 700; }
 .detail-body { padding: 14px; }
 .hero-card { background: var(--surface); border-radius: var(--r-xl); padding: 18px; margin-bottom: 12px; }
@@ -231,7 +232,7 @@ input[type=file] { display: none; }
 .guide-footer { padding:20px 28px 48px; }
 .guide-next-btn { width:100%; padding:16px; background:var(--amber-mid); border:none; border-radius:var(--r-lg); font-size:16px; font-weight:700; color:#fff; cursor:pointer; font-family:var(--sans); transition:all .15s; }
 .guide-next-btn:active { transform:scale(.98); }
-.guide-skip { display:block; text-align:center; font-size:13px; color:var(--text3); margin-top:12px; cursor:pointer; padding:4px; }
+.guide-skip { display:block; text-align:center; font-size:13px; color:var(--text3); margin-top:12px; cursor:pointer; padding:4px; background:none; border:none; font-family:var(--sans); width:100%; }
 .cert-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:400;display:flex;align-items:flex-end;justify-content:center}
 .cert-modal-box{background:var(--surface);border-radius:24px 24px 0 0;padding:24px 20px 44px;width:100%;max-width:390px;animation:slideUp .35s cubic-bezier(.16,1,.3,1)}
 @keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
@@ -271,7 +272,7 @@ input[type=file] { display: none; }
 .top3-delta-v{font-family:var(--mono);font-size:7px;padding:1px 3px;border-radius:2px;display:inline-block;margin-bottom:4px}
 .top3-name-v{font-size:9px;font-weight:700;color:var(--text);line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .top3-votes-v{font-size:7px;color:var(--text3);margin-top:3px}
-.top3-vb{position:absolute;bottom:7px;right:7px;width:20px;height:20px;border-radius:50%;border:0.5px solid var(--border2);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .12s}
+.top3-vb{position:absolute;bottom:2px;right:2px;width:28px;height:28px;border-radius:50%;border:0.5px solid var(--border2);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .12s}
 .top3-vb:hover,.top3-vb.voted{background:var(--green-bg);border-color:var(--green-light)}
 .splash { position: fixed; inset: 0; background: var(--amber-bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999; transition: opacity .5s; }
 .splash.hide { opacity: 0; pointer-events: none; }
@@ -287,7 +288,7 @@ input[type=file] { display: none; }
 .login-banner-title { font-size: 14px; font-weight: 700; color: var(--text); line-height: 1.4; }
 .login-banner-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
 .login-banner-btn { flex-shrink: 0; padding: 8px 16px; background: var(--text); color: #fff; border: none; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: var(--sans); }
-.login-banner-close { flex-shrink: 0; background: none; border: none; font-size: 18px; color: var(--text3); cursor: pointer; padding: 4px; }
+.login-banner-close { flex-shrink: 0; background: none; border: none; font-size: 18px; color: var(--text3); cursor: pointer; padding: 8px; min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; }
 .login-title { font-size: 28px; font-weight: 700; color: var(--text); letter-spacing: -.03em; text-align: center; margin-bottom: 8px; }
 .login-desc { font-size: 14px; color: var(--text2); text-align: center; line-height: 1.75; }
 .login-features { width: 100%; background: var(--surface2); border-radius: var(--r-xl); padding: 20px; margin-top: 32px; }
@@ -354,7 +355,7 @@ input[type=file] { display: none; }
 .hiroba-textarea{width:100%;border:1px solid var(--border);border-radius:10px;padding:12px;font-size:16px;color:var(--text);background:var(--surface2);font-family:var(--sans);resize:none;outline:none;line-height:1.6;transition:border-color .15s;-webkit-user-select:text;user-select:text;pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:rgba(0,0,0,.05)}
 .hiroba-textarea:focus{border-color:var(--amber-border)}
 .hiroba-tags{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
-.hiroba-tag{padding:5px 12px;border-radius:100px;border:1px solid var(--border);font-size:11px;font-weight:700;color:var(--text3);background:var(--surface);cursor:pointer;transition:all .15s;font-family:var(--sans)}
+.hiroba-tag{padding:5px 12px;border-radius:100px;border:1px solid var(--border);font-size:11px;font-weight:700;color:var(--text3);background:var(--surface);cursor:pointer;transition:all .15s;font-family:var(--sans);line-height:1.4}
 .hiroba-tag.sel{background:var(--amber-bg);border-color:var(--amber-border);color:var(--amber)}
 .hiroba-anon{display:flex;align-items:center;gap:6px;margin:8px 0;font-size:12px;color:var(--text3)}
 .hiroba-send{width:100%;padding:14px;background:var(--ink,#1a1400);border:none;border-radius:100px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans);display:flex;align-items:center;justify-content:center;gap:6px;margin-top:10px;transition:opacity .15s}
@@ -413,7 +414,7 @@ input[type=file] { display: none; }
 </head>
 <body>
 
-<div class="guide-screen" id="guide-screen">
+<div class="guide-screen" id="guide-screen" role="dialog" aria-modal="true" aria-label="使い方ガイド">
   <div class="guide-slides" id="guide-slides">
     <div class="guide-slide active" id="gs-0"><div class="guide-ico" style="background:#fff8ed"><svg width="60" height="60" viewBox="0 0 96 96" fill="none"><path d="M48 12C34 12 24 22 24 36C24 44 28 51 35 56L35 64L61 64L61 56C68 51 72 44 72 36C72 22 62 12 48 12Z" fill="#f5d68a" opacity=".5"/><polyline points="33,52 39,43 44,47 51,35 62,20" stroke="#bf6d00" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="62" cy="20" r="7" fill="#bf6d00"/><line x1="37" y1="66" x2="59" y2="66" stroke="#bf6d00" stroke-width="3.5" stroke-linecap="round"/><line x1="40" y1="72" x2="56" y2="72" stroke="#bf6d00" stroke-width="3" stroke-linecap="round"/></svg></div><div class="guide-title">あいぽへようこそ</div><div class="guide-desc">アイデアを一行入力するだけで<br>「上場」できる市場です。<br><br>あなたのアイデアに<br>市場価値をつけましょう。</div></div>
     <div class="guide-slide" id="gs-1"><div class="guide-ico" style="background:#edf7f2"><svg width="60" height="60" viewBox="0 0 60 60" fill="none"><rect x="8" y="12" width="44" height="36" rx="8" fill="#9FE1CB" opacity=".3"/><rect x="8" y="12" width="44" height="36" rx="8" stroke="#1a7a4a" stroke-width="2.5" fill="none"/><line x1="16" y1="24" x2="44" y2="24" stroke="#1a7a4a" stroke-width="2" stroke-linecap="round" opacity=".5"/><line x1="16" y1="30" x2="36" y2="30" stroke="#1a7a4a" stroke-width="2" stroke-linecap="round" opacity=".5"/><line x1="16" y1="36" x2="40" y2="36" stroke="#1a7a4a" stroke-width="2" stroke-linecap="round" opacity=".5"/><circle cx="46" cy="42" r="10" fill="#22a85f"/><path d="M41 42l4 4 6-6" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div class="guide-title">アイデアを上場する</div><div class="guide-desc">「＋」ボタンからアイデアを投稿。<br>アイデア名を一行書くだけでOK。<br><br>説明や技術を追加するほど<br>スコアが上がります。</div></div>
@@ -423,7 +424,7 @@ input[type=file] { display: none; }
     <div class="guide-slide" id="gs-5"><div class="guide-ico" style="background:linear-gradient(135deg,#fff8ed,#fde8b8);box-shadow:0 4px 16px rgba(232,133,10,.2)"><svg width="60" height="60" viewBox="0 0 60 60" fill="none"><circle cx="30" cy="30" r="24" fill="#f5d68a" opacity=".2"/><path d="M18 38V24L30 16L42 24V38H18Z" fill="#e8850a" opacity=".15" stroke="#e8850a" stroke-width="2" stroke-linejoin="round"/><text x="30" y="35" text-anchor="middle" font-size="14" font-weight="700" fill="#bf6d00">PRO</text></svg></div><div class="guide-title">あいぽ Pro</div><div class="guide-desc" style="text-align:left;background:var(--surface2);border-radius:16px;padding:16px 18px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-weight:700;font-size:15px">月額 ¥300</span><span style="font-size:11px;color:var(--text3)">いつでも解約可能</span></div><div style="display:flex;flex-direction:column;gap:10px"><div style="display:flex;align-items:center;gap:10px"><div style="width:20px;height:20px;border-radius:50%;background:var(--green-light);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span style="font-size:13px">コメント・上場が<strong>無制限</strong></span></div><div style="display:flex;align-items:center;gap:10px"><div style="width:20px;height:20px;border-radius:50%;background:var(--green-light);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span style="font-size:13px">応援票が<strong>+1票</strong>（計4票/日）</span></div></div></div></div>
   </div>
   <div class="guide-dots" id="guide-dots"><div class="guide-dot active"></div><div class="guide-dot"></div><div class="guide-dot"></div><div class="guide-dot"></div><div class="guide-dot"></div><div class="guide-dot"></div></div>
-  <div class="guide-footer"><button class="guide-next-btn" id="guide-next-btn" onclick="guideNext()">次へ</button><span class="guide-skip" onclick="guideFinish()">スキップ</span></div>
+  <div class="guide-footer"><button class="guide-next-btn" id="guide-next-btn" onclick="guideNext()">次へ</button><button class="guide-skip" onclick="guideFinish()" type="button">スキップ</button></div>
 </div>
 
 <div class="splash" id="splash">
@@ -432,9 +433,9 @@ input[type=file] { display: none; }
   <div class="splash-sub">あなたのアイデアに市場価値をつけよう</div>
 </div>
 
-<div class="login-screen" id="login-screen">
+<div class="login-screen" id="login-screen" role="dialog" aria-modal="true" aria-label="ログイン">
   <div class="login-top">
-    <div class="login-title">あいぽへようこそ</div>
+    <h2 class="login-title">あいぽへようこそ</h2>
     <div class="login-desc">アイデアを上場して、<br>世界に価値を問いましょう。</div>
     <div class="login-features">
       <div class="login-feature"><div class="lf-ico" style="background:#fff8ed"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><polyline points="8.5,13 10,10.5 12,12 14,8.5 16,5.5" stroke="#bf6d00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16" cy="5.5" r="2" fill="#bf6d00"/></svg></div><div><div class="lf-title">アイデアを上場する</div><div class="lf-sub">一行入力するだけでIPO申請できます</div></div></div>
@@ -458,9 +459,9 @@ input[type=file] { display: none; }
     <div class="hd-row">
       <div class="logo-wrap"><div><h1 class="logo-name">あいぽ</h1><div class="logo-sub">アイデアIPO市場</div></div></div>
       <div class="hd-right">
-        <div id="plan-badge" onclick="toggleProMenu()" style="display:none">残3回</div>
+        <button id="plan-badge" onclick="toggleProMenu()" style="display:none;background:none;border:none;font:inherit;cursor:pointer;color:inherit;padding:0">残3回</button>
         <div class="votes-chip"><span class="votes-n" id="votes-left">3</span><span class="votes-l">票</span></div>
-        <button id="profile-btn" onclick="currentUser ? openProfileModal() : showLoginSheet()" title="プロフィール設定 / ログイン" style="width:32px;height:32px;border-radius:50%;border:1.5px solid var(--border2);cursor:pointer;overflow:hidden;background:var(--surface2);display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0"><span id="profile-btn-ico" style="font-size:14px">👤</span></button>
+        <button id="profile-btn" onclick="currentUser ? openProfileModal() : showLoginSheet()" title="プロフィール設定 / ログイン" aria-label="プロフィール設定 / ログイン" style="width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border2);cursor:pointer;overflow:hidden;background:var(--surface2);display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0"><span id="profile-btn-ico" style="font-size:14px" aria-hidden="true">👤</span></button>
       </div>
     </div>
     <div class="top3-wrap">
@@ -481,8 +482,8 @@ input[type=file] { display: none; }
         <button class="pill-tab genre-tab" onclick="setGenre(this,'業務効率')">業務効率</button>
       </div>
       <div style="display:flex;background:var(--surface2);border-radius:8px;padding:2px;gap:2px;border:0.5px solid var(--border2);margin-right:10px;flex-shrink:0">
-        <button id="vtb-compact" onclick="setViewMode('compact')" style="width:26px;height:22px;border-radius:6px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text3)"><svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="5" height="12" rx="1"/><line x1="11" y1="6" x2="17" y2="6" stroke-linecap="round"/><line x1="11" y1="10" x2="17" y2="10" stroke-linecap="round"/><line x1="11" y1="14" x2="15" y2="14" stroke-linecap="round"/></svg></button>
-        <button id="vtb-list" onclick="setViewMode('list')" style="width:26px;height:22px;border-radius:6px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text3)"><svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="3" y1="5" x2="17" y2="5" stroke-linecap="round"/><line x1="3" y1="10" x2="17" y2="10" stroke-linecap="round"/><line x1="3" y1="15" x2="17" y2="15" stroke-linecap="round"/></svg></button>
+        <button id="vtb-compact" onclick="setViewMode('compact')" aria-label="コンパクト表示" style="width:26px;height:22px;border-radius:6px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text3)"><svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="5" height="12" rx="1"/><line x1="11" y1="6" x2="17" y2="6" stroke-linecap="round"/><line x1="11" y1="10" x2="17" y2="10" stroke-linecap="round"/><line x1="11" y1="14" x2="15" y2="14" stroke-linecap="round"/></svg></button>
+        <button id="vtb-list" onclick="setViewMode('list')" aria-label="リスト表示" style="width:26px;height:22px;border-radius:6px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text3)"><svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="3" y1="5" x2="17" y2="5" stroke-linecap="round"/><line x1="3" y1="10" x2="17" y2="10" stroke-linecap="round"/><line x1="3" y1="15" x2="17" y2="15" stroke-linecap="round"/></svg></button>
       </div>
     </div>
   </div>
@@ -516,8 +517,8 @@ input[type=file] { display: none; }
       <span style="font-size:20px">30</span>
       <div><div style="font-size:13px;font-weight:700;color:var(--text)">秒で上場完了</div><div style="font-size:11px;color:var(--text3);margin-top:1px">アイデア名とジャンルだけでOK</div></div>
     </div>
-    <div class="field-wrap"><label class="field-lbl" for="inp-title">アイデア名 <span class="field-req">必須</span></label><input class="inp" id="inp-title" type="text" placeholder="例：習い事スケジュール管理アプリ" maxlength="40" autocomplete="off"><div class="hint">「こんなのあったら面白そう」という一言でもOKです。</div></div>
-    <div class="field-wrap"><div class="field-lbl">ジャンル <span class="field-req">必須</span></div><div class="genre-grid" id="genre-grid" role="group" aria-label="ジャンル選択"><button type="button" class="genre-item" onclick="selGenre(this)" style="grid-column:1/-1">起業家・スタートアップ</button><button type="button" class="genre-item" onclick="selGenre(this)">副業・フリーランス</button><button type="button" class="genre-item" onclick="selGenre(this)">業務効率</button><button type="button" class="genre-item" onclick="selGenre(this)">社会課題</button><button type="button" class="genre-item" onclick="selGenre(this)">テクノロジー</button></div></div>
+    <div class="field-wrap"><label class="field-lbl" for="inp-title">アイデア名 <span class="field-req">必須</span></label><input class="inp" id="inp-title" type="text" placeholder="例：習い事スケジュール管理アプリ" maxlength="40" autocomplete="off" aria-required="true"><div class="hint">「こんなのあったら面白そう」という一言でもOKです。</div></div>
+    <div class="field-wrap"><div class="field-lbl">ジャンル <span class="field-req">必須</span></div><div class="genre-grid" id="genre-grid" role="group" aria-label="ジャンル選択" aria-required="true"><button type="button" class="genre-item" onclick="selGenre(this)" style="grid-column:1/-1">起業家・スタートアップ</button><button type="button" class="genre-item" onclick="selGenre(this)">副業・フリーランス</button><button type="button" class="genre-item" onclick="selGenre(this)">業務効率</button><button type="button" class="genre-item" onclick="selGenre(this)">社会課題</button><button type="button" class="genre-item" onclick="selGenre(this)">テクノロジー</button></div></div>
     <div class="field-wrap"><label class="field-lbl" for="inp-ticker">ティッカー <span class="field-opt">任意・英大文字5字以内</span></label><input class="inp inp-sm" id="inp-ticker" type="text" placeholder="例：HABIT" maxlength="5" style="text-transform:uppercase" autocomplete="off"><div class="hint">空欄だとアイデア名から自動生成します。</div></div>
     <div class="field-wrap"><label class="field-lbl" for="inp-desc">詳しく説明する <span class="field-opt">任意・後から追加可</span></label><textarea class="inp inp-sm" id="inp-desc" rows="3" placeholder="どんな問題を解決するか、誰に使ってほしいか、など自由に。書くほどスコアが上がります。"></textarea></div>
     <div class="field-wrap"><label class="field-lbl" for="inp-tech">作る技術 <span class="field-opt">任意</span></label><input class="inp inp-sm" id="inp-tech" type="text" placeholder="例：React Native、Python、Webアプリ" autocomplete="off"></div>
@@ -561,10 +562,10 @@ input[type=file] { display: none; }
     <div style="background:var(--surface);border-radius:16px;border:0.5px solid var(--border2);padding:16px;margin:12px 0">
       <textarea class="hiroba-textarea" id="hiroba-input" rows="3" placeholder="あいぽをもっと良くするアイデアや感想を教えてください..." style="font-size:14px;line-height:1.7" aria-label="フィードバックを入力"></textarea>
       <div class="hiroba-tags">
-        <div class="hiroba-tag sel" onclick="selHirobaTag(this)" data-tag="機能要望" role="button" tabindex="0">機能要望</div>
-        <div class="hiroba-tag" onclick="selHirobaTag(this)" data-tag="バグ報告" role="button" tabindex="0">バグ報告</div>
-        <div class="hiroba-tag" onclick="selHirobaTag(this)" data-tag="感想" role="button" tabindex="0">感想</div>
-        <div class="hiroba-tag" onclick="selHirobaTag(this)" data-tag="その他" role="button" tabindex="0">その他</div>
+        <button class="hiroba-tag sel" onclick="selHirobaTag(this)" data-tag="機能要望" type="button">機能要望</button>
+        <button class="hiroba-tag" onclick="selHirobaTag(this)" data-tag="バグ報告" type="button">バグ報告</button>
+        <button class="hiroba-tag" onclick="selHirobaTag(this)" data-tag="感想" type="button">感想</button>
+        <button class="hiroba-tag" onclick="selHirobaTag(this)" data-tag="その他" type="button">その他</button>
       </div>
       <label class="hiroba-anon"><input type="checkbox" id="hiroba-anon-check" style="width:16px;height:16px;accent-color:var(--amber-mid)">匿名で投稿する</label>
       <button class="hiroba-send" onclick="sendHirobaWithAnim()" style="font-size:14px;padding:12px">
@@ -636,21 +637,21 @@ input[type=file] { display: none; }
         <div style="text-align:right"><div style="font-size:24px;font-weight:700;color:var(--amber-mid);font-family:var(--mono);line-height:1" id="portfolio-votes-display">3</div><div style="font-size:9px;color:var(--text3);margin-top:1px">今日の票</div></div>
       </div>
       <div style="display:flex;gap:8px;align-items:center">
-        <div style="display:flex;align-items:center;gap:5px;background:var(--surface2);border-radius:20px;padding:4px 10px;cursor:pointer" onclick="openChargeModal()"><div style="font-size:12px;font-weight:700;color:var(--green);font-family:var(--mono)" id="user-balance">0</div><div style="font-size:9px;color:var(--text3)">円</div></div>
-        <div onclick="openCertSheet()" style="display:flex;align-items:center;gap:4px;background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:4px 10px;cursor:pointer"><span style="font-size:11px">🎫</span><div style="font-size:9px;font-weight:700;color:var(--text2)">株券図鑑</div><div id="cert-sheet-count" style="font-size:9px;font-weight:700;color:var(--amber);display:none"></div></div>
-        <div onclick="showPricingSheet()" style="display:flex;align-items:center;gap:4px;background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:20px;padding:4px 10px;cursor:pointer;margin-left:auto"><svg width="10" height="10" viewBox="0 0 20 20" fill="none" stroke="var(--amber-mid)" stroke-width="2"><circle cx="10" cy="10" r="8"/><path d="M10 6v4l3 3"/></svg><div style="font-size:9px;font-weight:700;color:var(--amber)">プランを見る</div></div>
+        <button onclick="openChargeModal()" aria-label="残高を管理" style="display:flex;align-items:center;gap:5px;background:var(--surface2);border-radius:20px;padding:4px 10px;cursor:pointer;border:none;font:inherit"><span style="font-size:12px;font-weight:700;color:var(--green);font-family:var(--mono)" id="user-balance">0</span><span style="font-size:9px;color:var(--text3)">円</span></button>
+        <button onclick="openCertSheet()" aria-label="株券図鑑を開く" style="display:flex;align-items:center;gap:4px;background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:4px 10px;cursor:pointer;font:inherit"><span style="font-size:11px" aria-hidden="true">🎫</span><span style="font-size:9px;font-weight:700;color:var(--text2)">株券図鑑</span><span id="cert-sheet-count" style="font-size:9px;font-weight:700;color:var(--amber);display:none"></span></button>
+        <button onclick="showPricingSheet()" aria-label="プランを見る" style="display:flex;align-items:center;gap:4px;background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:20px;padding:4px 10px;cursor:pointer;margin-left:auto;font:inherit"><svg width="10" height="10" viewBox="0 0 20 20" fill="none" stroke="var(--amber-mid)" stroke-width="2" aria-hidden="true"><circle cx="10" cy="10" r="8"/><path d="M10 6v4l3 3"/></svg><span style="font-size:9px;font-weight:700;color:var(--amber)">プランを見る</span></button>
       </div>
     </div>
   </div>
   <div style="padding:14px 12px 0;overflow-y:auto;padding-bottom:90px" id="portfolio-scroll">
     <div id="referral-section" style="display:none"></div>
-    <div id="notif-entry-btn" style="display:none;background:var(--surface);border:1.5px solid var(--amber-border);border-radius:var(--r-lg);padding:12px 16px;margin-bottom:12px;align-items:center;justify-content:space-between;cursor:pointer" onclick="openNotifSheet()">
+    <button id="notif-entry-btn" style="display:none;background:var(--surface);border:1.5px solid var(--amber-border);border-radius:var(--r-lg);padding:12px 16px;margin-bottom:12px;align-items:center;justify-content:space-between;cursor:pointer;width:100%;font:inherit;text-align:left" onclick="openNotifSheet()" aria-label="新しい通知を確認">
       <div style="display:flex;align-items:center;gap:8px">
         <div style="width:8px;height:8px;border-radius:50%;background:var(--amber-mid);animation:blink 1.8s infinite"></div>
         <span style="font-size:13px;font-weight:700;color:var(--text)">新しい通知があります</span>
       </div>
-      <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="var(--text3)" stroke-width="2"><path d="M7 5l5 5-5 5"/></svg>
-    </div>
+      <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="var(--text3)" stroke-width="2" aria-hidden="true"><path d="M7 5l5 5-5 5"/></svg>
+    </button>
     <button onclick="requestPushPermission()" id="push-btn"
       style="width:100%;padding:12px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-lg);font-size:13px;font-weight:700;color:var(--amber);cursor:pointer;font-family:var(--sans);margin-bottom:8px">
       🔔 スコア変動通知をONにする
@@ -668,15 +669,15 @@ input[type=file] { display: none; }
   <div class="sub-header" style="border-bottom:0.5px solid var(--border)">
     <h2 style="font-size:16px;font-weight:700;color:var(--text);padding:0 4px;margin:0">開発掲示板</h2>
   </div>
-  <div style="display:flex;border-bottom:0.5px solid var(--border);background:var(--surface)">
-    <button id="board-tab-board" class="board-subtab active" onclick="boardSetSubTab('board')">📝 掲示板</button>
-    <button id="board-tab-devs" class="board-subtab" onclick="boardSetSubTab('devs')">👨‍💻 開発者</button>
-    <button id="board-tab-impl" class="board-subtab" onclick="boardSetSubTab('impl')">🏛 上場実装</button>
+  <div style="display:flex;border-bottom:0.5px solid var(--border);background:var(--surface)" role="tablist" aria-label="掲示板タブ">
+    <button id="board-tab-board" class="board-subtab active" onclick="boardSetSubTab('board')" role="tab" aria-selected="true" aria-controls="board-panel-board">📝 掲示板</button>
+    <button id="board-tab-devs" class="board-subtab" onclick="boardSetSubTab('devs')" role="tab" aria-selected="false" aria-controls="board-panel-devs">👨‍💻 開発者</button>
+    <button id="board-tab-impl" class="board-subtab" onclick="boardSetSubTab('impl')" role="tab" aria-selected="false" aria-controls="board-panel-impl">🏛 上場実装</button>
   </div>
-  <div id="board-panel-board" style="padding:14px;overflow-y:auto">
+  <div id="board-panel-board" role="tabpanel" aria-labelledby="board-tab-board" style="padding:14px;overflow-y:auto">
     <div id="board-list-body"></div>
   </div>
-  <div id="board-panel-devs" style="display:none;padding:14px;overflow-y:auto">
+  <div id="board-panel-devs" role="tabpanel" aria-labelledby="board-tab-devs" style="display:none;padding:14px;overflow-y:auto">
     <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
       <button onclick="devOpenForm()" style="background:var(--amber-mid);border:none;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">＋ 開発者登録</button>
     </div>
@@ -690,7 +691,7 @@ input[type=file] { display: none; }
     </div>
     <div id="dev-list-body"></div>
   </div>
-  <div id="board-panel-impl" style="display:none;padding:14px;overflow-y:auto">
+  <div id="board-panel-impl" role="tabpanel" aria-labelledby="board-tab-impl" style="display:none;padding:14px;overflow-y:auto">
     <div id="impl-list-body"></div>
   </div>
   <button id="board-fab" onclick="boardOpenForm()" aria-label="新規投稿を作成" style="position:fixed;bottom:calc(72px + env(safe-area-inset-bottom,0px));right:16px;width:52px;height:52px;border-radius:50%;background:var(--amber-mid);border:none;box-shadow:0 4px 16px rgba(232,133,10,.4);font-size:26px;cursor:pointer;z-index:25;color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--sans)">＋</button>
@@ -709,7 +710,7 @@ input[type=file] { display: none; }
 </div>
 
 <!-- ONBOARDING -->
-<div id="onboarding-overlay" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(255,252,245,.98);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);overflow-y:auto">
+<div id="onboarding-overlay" role="dialog" aria-modal="true" aria-label="オンボーディング" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(255,252,245,.98);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);overflow-y:auto">
   <div style="max-width:340px;margin:0 auto;padding:60px 24px 40px;text-align:center;min-height:100vh;display:flex;flex-direction:column;justify-content:center">
     <div id="ob-step-1" class="ob-step">
       <div style="font-size:56px;margin-bottom:20px">💡</div>
@@ -740,18 +741,24 @@ input[type=file] { display: none; }
 
 <div style="padding:16px 20px 32px;text-align:center;border-top:0.5px solid var(--border)">
   <div style="display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin-bottom:8px">
-    <a href="/legal.html#tokusho" target="_blank" rel="noopener" style="font-family:var(--mono);font-size:10px;color:var(--text3);text-decoration:none;letter-spacing:.04em">特定商取引法</a>
-    <a href="/legal.html#terms" target="_blank" rel="noopener" style="font-family:var(--mono);font-size:10px;color:var(--text3);text-decoration:none;letter-spacing:.04em">利用規約</a>
-    <a href="/legal.html#privacy" target="_blank" rel="noopener" style="font-family:var(--mono);font-size:10px;color:var(--text3);text-decoration:none;letter-spacing:.04em">プライバシーポリシー</a>
-    <a href="/cdn-cgi/l/email-protection#ed99888c80c39e8584868c86889f98ad8a808c8481c38e8280" style="font-family:var(--mono);font-size:10px;color:var(--text3);text-decoration:none;letter-spacing:.04em">お問い合わせ</a>
+    <a href="/legal.html#tokusho" target="_blank" rel="noopener" style="font-family:var(--mono);font-size:10px;color:var(--text3);text-decoration:none;letter-spacing:.04em;padding:8px 4px">特定商取引法</a>
+    <a href="/legal.html#terms" target="_blank" rel="noopener" style="font-family:var(--mono);font-size:10px;color:var(--text3);text-decoration:none;letter-spacing:.04em;padding:8px 4px">利用規約</a>
+    <a href="/legal.html#privacy" target="_blank" rel="noopener" style="font-family:var(--mono);font-size:10px;color:var(--text3);text-decoration:none;letter-spacing:.04em;padding:8px 4px">プライバシーポリシー</a>
+    <a href="/cdn-cgi/l/email-protection#ed99888c80c39e8584868c86889f98ad8a808c8481c38e8280" style="font-family:var(--mono);font-size:10px;color:var(--text3);text-decoration:none;letter-spacing:.04em;padding:8px 4px">お問い合わせ</a>
   </div>
   <div style="font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:.04em">© 2026 あいぽ · 中川航輝</div>
 </div>
 
 <label for="file-input" class="sr-only">画像を選択</label><input type="file" id="file-input" accept="image/*">
-<div class="toast" id="toast" role="alert" aria-live="polite"></div>
+<div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
 <script>
+// role="button" 要素にEnter/Spaceキーでクリック発火
+document.addEventListener('keydown', function(e) {
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.getAttribute('role') === 'button') {
+    e.preventDefault(); e.target.click();
+  }
+});
 // XSS防御: ユーザー生成コンテンツをHTMLに挿入する前にエスケープ
 function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = String(s); return d.innerHTML; }
 
@@ -794,7 +801,9 @@ function obClose() {
   ov.style.opacity = '0';
   setTimeout(() => { ov.style.display = 'none'; obBusy = false; }, 400);
 }
-setTimeout(obInit, 2000); // スプラッシュが消えた後に表示
+// スプラッシュが消えた後に表示（アイドル時に実行）
+if ('requestIdleCallback' in window) { requestIdleCallback(obInit, { timeout: 3000 }); }
+else { setTimeout(obInit, 2000); }
 
 // Social proof: ユーザー数を表示
 async function updateSocialProof() {
@@ -804,7 +813,8 @@ async function updateSocialProof() {
     if (el && count) el.textContent = count;
   } catch(e) {}
 }
-setTimeout(updateSocialProof, 2000);
+if ('requestIdleCallback' in window) { requestIdleCallback(function() { updateSocialProof(); }, { timeout: 4000 }); }
+else { setTimeout(updateSocialProof, 2000); }
 
 // Pull to refresh
 (function() {
@@ -1102,7 +1112,7 @@ async function openRealizedManager() {
         </div>`).join('');
 
   const unrealizedListHTML = unrealized.map(p => `
-    <div onclick="openSetRealizedForm('${p.id}','${p.name.replace(/'/g,"\\'").replace(/"/g,'&quot;')}','${p.ticker}')" style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:0.5px solid var(--border);cursor:pointer;transition:background .1s" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background='transparent'">
+    <div onclick="openSetRealizedForm('${p.id}','${p.name.replace(/'/g,"\\'").replace(/"/g,'&quot;')}','${p.ticker}')" role="button" tabindex="0" style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:0.5px solid var(--border);cursor:pointer;transition:background .1s" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background='transparent'">
       <div style="flex:1;min-width:0">
         <div style="font-size:12px;font-weight:700;color:var(--text);overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${p.name}</div>
         <div style="font-size:10px;color:var(--text3);margin-top:1px">${p.ticker} · スコア ${parseFloat(p.score||50).toFixed(1)} · ${p.votes||0}票</div>
@@ -1300,6 +1310,9 @@ function showUpgradeModal(reason) {
   if (existing) existing.remove();
   const modal = document.createElement('div');
   modal.id = 'upgrade-modal';
+  modal.setAttribute('role', 'dialog');
+  modal.setAttribute('aria-modal', 'true');
+  modal.setAttribute('aria-label', 'アップグレード');
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:flex;align-items:flex-end;justify-content:center';
   modal.innerHTML = `<div style="background:var(--surface);border-radius:24px 24px 0 0;padding:28px 24px 40px;width:100%;max-width:390px;max-height:90vh;overflow-y:auto"><div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 20px"></div><div style="font-size:17px;font-weight:700;text-align:center;margin-bottom:6px">${reason}</div><div style="font-size:13px;color:var(--text2);text-align:center;line-height:1.7;margin-bottom:12px">プランを選んでください</div><div id="modal-balance-row" style="background:var(--surface2);border:1.5px solid var(--border2);border-radius:var(--r-lg);padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between"><div><div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px">残高で追加票を買う</div><div style="font-size:11px;color:var(--text3)">現在の残高: <span id="modal-balance-val">...</span>円</div></div><button onclick="document.getElementById('upgrade-modal').remove();buyWithBalance('vote',50)" style="background:var(--amber-mid);color:#fff;border:none;border-radius:20px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans);white-space:nowrap">+1票 ¥50</button></div><div style="background:linear-gradient(135deg,#fff8ed,#fde8b8);border:2px solid var(--amber-mid);border-radius:var(--r-lg);padding:16px;margin-bottom:12px;position:relative;overflow:hidden"><div id="modal-founder-remaining" style="position:absolute;top:10px;right:10px;background:var(--amber-mid);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px">先着100名限定</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:20px">👑</span><div><div style="font-size:14px;font-weight:700;color:var(--text)">創設メンバー</div><div style="font-size:11px;color:var(--amber)">永久称号・一度きりの支払い</div></div><div style="margin-left:auto;font-size:22px;font-weight:700;color:var(--amber)">¥980</div></div><div style="font-size:12px;color:var(--text2);line-height:1.8;margin-bottom:12px">✓ Pro機能すべて（コメント・上場 無制限）<br>✓ 👑 創設メンバーバッジが永久に付く<br>✓ 買い切り・月額なし</div><div style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px 10px;font-size:11px;color:#e8850a;font-weight:600;text-align:center;margin-bottom:8px"><span>✓ 今すぐ使える</span><span>✓ 月額なし・買い切り¥980</span><span>✓ 先着100名限定</span><span>✓ 👑 永久バッジ付き</span></div><button onclick="upgradeFounder()" style="width:100%;padding:13px;background:var(--amber-mid);border:none;border-radius:var(--r-md);font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">👑 創設メンバーになる（¥980）</button></div><div style="background:var(--surface2);border:1.5px solid var(--border2);border-radius:var(--r-lg);padding:16px;margin-bottom:12px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:18px">⭐</span><div><div style="font-size:14px;font-weight:700;color:var(--text)">あいぽ Pro</div><div style="font-size:11px;color:var(--text3)">月額・いつでも解約可</div></div><div style="margin-left:auto;font-size:20px;font-weight:700;color:var(--text)">¥300<span style="font-size:11px;color:var(--text3);font-weight:400">/月</span></div></div><div style="font-size:12px;color:var(--text2);line-height:1.8;margin-bottom:12px">✓ コメント・上場 無制限<br>✓ 応援票 +1（計4票/日）</div><button onclick="upgradePro()" style="width:100%;padding:13px;background:var(--surface);border:1.5px solid var(--border2);border-radius:var(--r-md);font-size:14px;font-weight:700;color:var(--text);cursor:pointer;font-family:var(--sans)">Proにアップグレード（¥300/月）</button></div><button onclick="document.getElementById('upgrade-modal').remove()" style="width:100%;padding:13px;background:transparent;border:none;font-size:14px;color:var(--text3);cursor:pointer;font-family:var(--sans)">今はしない</button></div>`;
   document.body.appendChild(modal);
@@ -1416,6 +1429,9 @@ function showScoreGuide() {
   if (existing) { existing.remove(); return; }
   const modal = document.createElement('div');
   modal.id = 'score-guide-modal';
+  modal.setAttribute('role', 'dialog');
+  modal.setAttribute('aria-modal', 'true');
+  modal.setAttribute('aria-label', 'スコアガイド');
   modal.style.cssText = 'position:fixed;inset:0;z-index:500;display:flex;align-items:flex-end;justify-content:center';
   modal.innerHTML = `<div style="position:absolute;inset:0;background:rgba(0,0,0,.45)" onclick="document.getElementById('score-guide-modal').remove()"></div><div style="position:relative;background:var(--surface);border-radius:24px 24px 0 0;padding:20px 20px 40px;width:100%;max-width:390px"><div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px"></div><div style="font-family:var(--mono);font-size:10px;color:var(--amber-mid);font-weight:700;letter-spacing:.1em;margin-bottom:14px">SCORE GUIDE</div><div style="display:flex;flex-direction:column;gap:8px">${[{range:'80〜99',label:'超注目',color:'#bf6d00',bg:'#fff8ed',border:'#f5d68a',desc:'市場が熱狂している'},{range:'65〜79',label:'注目',color:'#1a7a4a',bg:'#edf7f2',border:'#9de0cc',desc:'多くの人が評価している'},{range:'50〜64',label:'普通',color:'#185FA5',bg:'#f0f7ff',border:'#b5d4f4',desc:'着実に成長中'},{range:'35〜49',label:'低調',color:'#6b6860',bg:'var(--surface2)',border:'var(--border2)',desc:'票・閲覧がもう少し欲しい'},{range:'10〜34',label:'要テコ入れ',color:'#9a9590',bg:'var(--surface2)',border:'var(--border2)',desc:'活動が少ない状態'}].map(g=>`<div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:${g.bg};border:1px solid ${g.border};border-radius:10px"><div style="font-family:var(--mono);font-size:16px;font-weight:700;color:${g.color};min-width:40px">${g.range}</div><div><div style="font-size:13px;font-weight:700;color:${g.color}">${g.label}</div><div style="font-size:11px;color:var(--text3);margin-top:1px">${g.desc}</div></div></div>`).join('')}</div><div style="margin-top:14px;padding:10px 12px;background:var(--bg);border-radius:8px;font-size:11px;color:var(--text3);line-height:1.7">スコアは票・閲覧・コメント・進捗をもとに計算されます。<br>毎日1.5pt自然に下がるため、継続的な活動が大切です。</div></div>`;
   document.body.appendChild(modal);
@@ -1516,7 +1532,7 @@ function renderPortfolio() {
   el.innerHTML = `<div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.07em;margin-bottom:8px">応援銘柄</div><div style="background:var(--surface);border-radius:var(--r-xl);overflow:hidden;margin-bottom:12px">${combined.map(idea => {
     const delta = idea.score - idea.baseScore; const ds = (delta>=0?'+':'') + delta.toFixed(1); const sc = delta>0.3?'var(--green-light)':delta<-0.3?'var(--red)':'var(--text)';
     const isHot = idea.votes >= HOT_THRESHOLD; const isMine = myIdeas.has(idea.id); const hasCert = certIdeaIds.has(idea.id);
-    return `<div onclick="showDetail('${idea.id}')" style="display:flex;align-items:center;padding:11px 14px;border-bottom:0.5px solid var(--border);gap:8px;cursor:pointer"><div style="min-width:40px"><div style="font-family:var(--mono);font-size:15px;font-weight:700;color:${sc};line-height:1">${idea.score.toFixed(1)}</div><div style="font-family:var(--mono);font-size:7px;color:var(--green-light);background:rgba(34,168,95,.1);padding:1px 3px;border-radius:2px;margin-top:2px;display:inline-block">${ds}</div></div><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:4px;margin-bottom:1px;flex-wrap:wrap"><span style="font-family:var(--mono);font-size:9px;color:var(--text3)">${esc(idea.ticker)}</span>${isMine?`<span style="font-size:8px;color:var(--text3);background:var(--surface2);border:1px solid var(--border2);border-radius:3px;padding:1px 4px">自分</span>`:''}${hasCert?`<span style="font-size:8px;color:#854f0b;background:#fef9f0;border:1px solid #fde68a;border-radius:3px;padding:1px 4px">🎫</span>`:''}${isHot?`<span style="font-size:8px;color:var(--amber);background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:3px;padding:1px 4px">注目</span>`:''}</div><div style="font-size:12px;font-weight:700;color:var(--text);overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${esc(idea.name)}</div><div style="font-size:9px;color:var(--text3);margin-top:1px">${idea.votes}票</div></div><svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="var(--border2)" stroke-width="2"><path d="M7 5l5 5-5 5"/></svg></div>`;
+    return `<div onclick="showDetail('${idea.id}')" role="button" tabindex="0" aria-label="${esc(idea.name)}の詳細を見る" style="display:flex;align-items:center;padding:11px 14px;border-bottom:0.5px solid var(--border);gap:8px;cursor:pointer"><div style="min-width:40px"><div style="font-family:var(--mono);font-size:15px;font-weight:700;color:${sc};line-height:1">${idea.score.toFixed(1)}</div><div style="font-family:var(--mono);font-size:7px;color:var(--green-light);background:rgba(34,168,95,.1);padding:1px 3px;border-radius:2px;margin-top:2px;display:inline-block">${ds}</div></div><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:4px;margin-bottom:1px;flex-wrap:wrap"><span style="font-family:var(--mono);font-size:9px;color:var(--text3)">${esc(idea.ticker)}</span>${isMine?`<span style="font-size:8px;color:var(--text3);background:var(--surface2);border:1px solid var(--border2);border-radius:3px;padding:1px 4px">自分</span>`:''}${hasCert?`<span style="font-size:8px;color:#854f0b;background:#fef9f0;border:1px solid #fde68a;border-radius:3px;padding:1px 4px">🎫</span>`:''}${isHot?`<span style="font-size:8px;color:var(--amber);background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:3px;padding:1px 4px">注目</span>`:''}</div><div style="font-size:12px;font-weight:700;color:var(--text);overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${esc(idea.name)}</div><div style="font-size:9px;color:var(--text3);margin-top:1px">${idea.votes}票</div></div><svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="var(--border2)" stroke-width="2"><path d="M7 5l5 5-5 5"/></svg></div>`;
   }).join('')}</div>`;
 }
 
@@ -1535,7 +1551,7 @@ function buildRowCompact(idea) {
   const delta = idea.score - idea.baseScore;
   const scoreColor = delta > 0.3 ? '#1a6dcc' : delta < -0.3 ? '#cc3333' : 'var(--text2)';
   const voted = votedIds.has(idea.id);
-  return `<div id="row-${idea.id}" onclick="showDetail('${idea.id}')" style="border-bottom:0.5px solid var(--border);cursor:pointer;display:flex;align-items:center;padding:10px 14px;gap:10px">
+  return `<div id="row-${idea.id}" onclick="showDetail('${idea.id}')" role="button" tabindex="0" aria-label="${_n}の詳細を見る" style="border-bottom:0.5px solid var(--border);cursor:pointer;display:flex;align-items:center;padding:10px 14px;gap:10px">
     <div style="min-width:36px;text-align:center;flex-shrink:0">
       <div style="font-family:var(--mono);font-size:16px;font-weight:700;color:${scoreColor};line-height:1">${idea.score.toFixed(1)}</div>
     </div>
@@ -1543,7 +1559,7 @@ function buildRowCompact(idea) {
       <div style="font-size:13px;font-weight:700;color:var(--text);overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${_n}</div>
       <div style="font-size:11px;color:var(--text3);margin-top:2px">${_g} · ${idea.votes}票</div>
     </div>
-    <button onclick="event.stopPropagation();voteIdea('${idea.id}')" style="background:${voted?'var(--surface2)':'var(--amber-mid)'};color:${voted?'var(--text3)':'#fff'};border:none;border-radius:10px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans);flex-shrink:0">${voted?'済':'応援'}</button>
+    <button onclick="event.stopPropagation();voteIdea('${idea.id}')" aria-label="${_n}を応援する" style="background:${voted?'var(--surface2)':'var(--amber-mid)'};color:${voted?'var(--text3)':'#fff'};border:none;border-radius:10px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans);flex-shrink:0">${voted?'済':'応援'}</button>
   </div>`;
 }
 
@@ -1552,7 +1568,7 @@ function buildRowList(idea) {
   const delta = idea.score - idea.baseScore;
   const scoreColor = delta > 0.3 ? '#1a6dcc' : delta < -0.3 ? '#cc3333' : 'var(--text2)';
   const voted = votedIds.has(idea.id);
-  return `<div id="row-${idea.id}" onclick="showDetail('${idea.id}')" style="border-bottom:0.5px solid var(--border);cursor:pointer;display:flex;align-items:center;padding:8px 14px;gap:10px">
+  return `<div id="row-${idea.id}" onclick="showDetail('${idea.id}')" role="button" tabindex="0" aria-label="${_n}の詳細を見る" style="border-bottom:0.5px solid var(--border);cursor:pointer;display:flex;align-items:center;padding:8px 14px;gap:10px">
     <div style="font-family:var(--mono);font-size:14px;font-weight:700;color:${scoreColor};min-width:36px;text-align:center;flex-shrink:0">${idea.score.toFixed(1)}</div>
     <div style="flex:1;min-width:0">
       <div style="font-size:13px;font-weight:700;color:var(--text);overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${_n}</div>
@@ -1821,7 +1837,7 @@ function showIPOBanner(idea) {
   const feedBody = document.querySelector('#screen-feed .feed-body'); if (!feedBody) return;
   const banner = document.createElement('div'); banner.id = 'ipo-banner';
   banner.style.cssText = 'position:sticky;top:0;z-index:15;background:linear-gradient(135deg,#fff8ed,#fef3e2);border-bottom:1.5px solid var(--amber-border);padding:10px 16px;display:flex;align-items:center;gap:10px;animation:slideDown .4s cubic-bezier(.4,0,.2,1)';
-  banner.innerHTML = `<style>@keyframes slideDown{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}</style><div style="width:8px;height:8px;border-radius:50%;background:var(--amber-mid);flex-shrink:0;animation:blink 1.8s infinite"></div><div style="flex:1;min-width:0"><div style="font-size:9px;font-weight:700;color:var(--amber);letter-spacing:.06em;margin-bottom:2px">NEW LISTING</div><div style="font-size:12px;font-weight:700;color:var(--text);overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${idea.name || '新しいアイデアが上場しました'}</div><div style="font-size:10px;color:var(--text3);margin-top:1px">たった今上場しました</div></div><span onclick="document.getElementById('ipo-banner').remove()" style="font-size:16px;color:var(--text3);cursor:pointer;padding:0 4px">×</span>`;
+  banner.innerHTML = `<style>@keyframes slideDown{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}</style><div style="width:8px;height:8px;border-radius:50%;background:var(--amber-mid);flex-shrink:0;animation:blink 1.8s infinite"></div><div style="flex:1;min-width:0"><div style="font-size:9px;font-weight:700;color:var(--amber);letter-spacing:.06em;margin-bottom:2px">NEW LISTING</div><div style="font-size:12px;font-weight:700;color:var(--text);overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${idea.name || '新しいアイデアが上場しました'}</div><div style="font-size:10px;color:var(--text3);margin-top:1px">たった今上場しました</div></div><button onclick="document.getElementById('ipo-banner').remove()" aria-label="バナーを閉じる" style="font-size:16px;color:var(--text3);cursor:pointer;padding:4px 8px;background:none;border:none;line-height:1;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center">×</button>`;
   feedBody.prepend(banner);
   setTimeout(() => { if (banner.parentNode) banner.remove(); }, 5000);
 }
@@ -1871,7 +1887,7 @@ async function showDetail(id) {
       <div id="actions-view-${idea.id}">${idea.actions.map((a,i)=>`<div class="action-row"><div class="action-num">0${i+1}</div><div class="action-text">${a}</div></div>`).join('')}</div>
       <div id="actions-edit-${idea.id}" style="display:none">${idea.actions.map(function(a,i){ return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-family:var(--mono);font-size:12px;color:var(--amber-mid);min-width:22px;font-weight:700">0'+(i+1)+'</span><input class="inp inp-sm" id="action-inp-'+idea.id+'-'+i+'" value="'+a.replace(/"/g,'&quot;')+'" style="flex:1"></div>'; }).join('')}<button onclick="saveField('${idea.id}','actions')" style="margin-top:4px;width:100%;padding:10px;background:var(--amber-mid);border:none;border-radius:var(--r-md);font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">保存する</button></div>
     </div>
-    ${isMyIdea ? `<div class="info-card"><div class="ic-title">進捗ステータス</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">${[['0','アイデア段階','基本'],['1','開発中','+10pt'],['2','テスト中','+20pt'],['3','リリース済み','+30pt']].map(([val,label,sub])=>`<div onclick="updateProgress('${idea.id}',${val})" style="border:1.5px solid ${idea.progressStep==val?'var(--amber-mid)':'var(--border2)'};background:${idea.progressStep==val?'var(--amber-bg)':'var(--surface)'};border-radius:var(--r-md);padding:10px 12px;cursor:pointer;transition:all .15s"><div style="font-size:12px;font-weight:700;color:${idea.progressStep==val?'var(--amber)':'var(--text2)'}">${label}</div><div style="font-size:10px;color:${idea.progressStep==val?'var(--amber-mid)':'var(--text3)'};margin-top:2px">${sub}</div></div>`).join('')}</div></div>` : ''}
+    ${isMyIdea ? `<div class="info-card"><div class="ic-title">進捗ステータス</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">${[['0','アイデア段階','基本'],['1','開発中','+10pt'],['2','テスト中','+20pt'],['3','リリース済み','+30pt']].map(([val,label,sub])=>`<button onclick="updateProgress('${idea.id}',${val})" style="border:1.5px solid ${idea.progressStep==val?'var(--amber-mid)':'var(--border2)'};background:${idea.progressStep==val?'var(--amber-bg)':'var(--surface)'};border-radius:var(--r-md);padding:10px 12px;cursor:pointer;transition:all .15s;text-align:left;font:inherit;width:100%"><div style="font-size:12px;font-weight:700;color:${idea.progressStep==val?'var(--amber)':'var(--text2)'}">${label}</div><div style="font-size:10px;color:${idea.progressStep==val?'var(--amber-mid)':'var(--text3)'};margin-top:2px">${sub}</div></button>`).join('')}</div></div>` : ''}
     <div class="info-card" id="comment-section-${idea.id}">
       <div class="ic-title">コメント（${(idea.commentList||[]).length}件）</div>
       <div id="comment-list-${idea.id}">${(idea.commentList||[]).length === 0 ? '<div style="font-size:12px;color:var(--text3);padding:8px 0">まだコメントはありません。最初のコメントを書いてみましょう。</div>' : (idea.commentList||[]).map(c=>`<div style="padding:10px 0;border-bottom:0.5px solid var(--border)"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px"><div style="display:flex;align-items:center;gap:6px"><span style="font-size:12px;font-weight:700;color:var(--text)">${c.name}</span>${c.tag ? `<span style="font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;${getTagStyle(c.tag)}">${c.tag}</span>` : ''}</div><span style="font-size:10px;color:var(--text3)">${c.time}</span></div><div style="font-size:13px;color:var(--text);line-height:1.6">${c.text}</div></div>`).join('')}</div>
@@ -2070,6 +2086,9 @@ function openShareSheetCert(ideaId, name, ticker) {
 function _openShareSheetUI(nameShort, ticker, score, votes) {
   const overlay = document.createElement('div');
   overlay.id = 'share-sheet-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-label', 'シェア');
   overlay.style.cssText = 'position:fixed;left:0;right:0;top:0;bottom:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:flex-end;justify-content:center;-webkit-overflow-scrolling:touch';
   overlay.onclick = e => { if(e.target===overlay) overlay.remove(); };
   overlay.innerHTML = `<div style="width:100%;max-width:390px;background:var(--surface);border-radius:22px 22px 0 0;padding:0 0 calc(24px + env(safe-area-inset-bottom,0px));animation:slideUp .3s cubic-bezier(.16,1,.3,1)">
@@ -2088,30 +2107,30 @@ function _openShareSheetUI(nameShort, ticker, score, votes) {
       </div>
     </div>
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:0 16px 16px">
-      <div onclick="_shareLine()" style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer">
-        <div style="width:50px;height:50px;border-radius:50%;background:#06C755;display:flex;align-items:center;justify-content:center">
+      <button onclick="_shareLine()" aria-label="LINEでシェア" style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;background:none;border:none;padding:0;font:inherit">
+        <div style="width:50px;height:50px;border-radius:50%;background:#06C755;display:flex;align-items:center;justify-content:center" aria-hidden="true">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
         </div>
         <span style="font-size:11px;color:var(--text3)">LINE</span>
-      </div>
-      <div onclick="_shareX()" style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer">
-        <div style="width:50px;height:50px;border-radius:50%;background:#000;display:flex;align-items:center;justify-content:center">
+      </button>
+      <button onclick="_shareX()" aria-label="Xでシェア" style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;background:none;border:none;padding:0;font:inherit">
+        <div style="width:50px;height:50px;border-radius:50%;background:#000;display:flex;align-items:center;justify-content:center" aria-hidden="true">
           <svg width="18" height="18" viewBox="0 0 20 20" fill="#fff"><path d="M2 2l7.5 8.5L2 18h2l6.3-7.1L16 18h4L12 9.2 18.5 2h-2L10.6 8.6 5 2H2z"/></svg>
         </div>
         <span style="font-size:11px;color:var(--text3)">X</span>
-      </div>
-      <div onclick="_shareFb()" style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer">
-        <div style="width:50px;height:50px;border-radius:50%;background:#1877F2;display:flex;align-items:center;justify-content:center">
+      </button>
+      <button onclick="_shareFb()" aria-label="Facebookでシェア" style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;background:none;border:none;padding:0;font:inherit">
+        <div style="width:50px;height:50px;border-radius:50%;background:#1877F2;display:flex;align-items:center;justify-content:center" aria-hidden="true">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
         </div>
         <span style="font-size:11px;color:var(--text3)">Facebook</span>
-      </div>
-      <div onclick="_shareCopy()" style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer">
-        <div style="width:50px;height:50px;border-radius:50%;background:var(--bg);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center">
+      </button>
+      <button onclick="_shareCopy()" aria-label="リンクをコピー" style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;background:none;border:none;padding:0;font:inherit">
+        <div style="width:50px;height:50px;border-radius:50%;background:var(--bg);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center" aria-hidden="true">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="1.8" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
         </div>
         <span style="font-size:11px;color:var(--text3)">コピー</span>
-      </div>
+      </button>
     </div>
     <div style="margin:0 16px 4px;background:var(--bg);border-radius:10px;padding:10px 12px;font-size:12px;color:var(--text2);line-height:1.75">
       「${nameShort}」${ticker}<br>
@@ -2589,7 +2608,7 @@ async function loadRealizedProducts() {
       <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:12px;scrollbar-width:none;margin:-2px -12px 14px;padding-left:14px;padding-right:14px">
         ${data.map(p => {
           const nameShort = p.name.length > 14 ? p.name.slice(0,14)+'…' : p.name;
-          return `<div onclick="showRealizedDetail('${p.id}')" style="flex-shrink:0;width:140px;background:var(--surface);border:1.5px solid var(--green-border);border-radius:14px;padding:12px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden">
+          return `<div onclick="showRealizedDetail('${p.id}')" role="button" tabindex="0" aria-label="${esc(p.name)}の詳細" style="flex-shrink:0;width:140px;background:var(--surface);border:1.5px solid var(--green-border);border-radius:14px;padding:12px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden">
             <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--green-light),#4ade80)"></div>
             <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
               <div style="width:28px;height:28px;border-radius:8px;background:var(--green-bg);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">${p.emoji||'💡'}</div>
@@ -2691,6 +2710,9 @@ async function openCertSheet() {
 
   const sheet = document.createElement('div');
   sheet.id = 'cert-fullsheet';
+  sheet.setAttribute('role', 'dialog');
+  sheet.setAttribute('aria-modal', 'true');
+  sheet.setAttribute('aria-label', '株券図鑑');
   sheet.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:400;display:flex;align-items:flex-end;justify-content:center';
   sheet.onclick = e => { if (e.target === sheet) sheet.remove(); };
 
@@ -2700,7 +2722,7 @@ async function openCertSheet() {
         const idea = ideas_map[c.ideaId];
         const currentScore = idea ? parseFloat(idea.score||50).toFixed(1) : parseFloat(c.score||50).toFixed(1);
         const nameShort = (c.ideaName||'').length > 12 ? (c.ideaName||'').slice(0,12)+'…' : (c.ideaName||'');
-        return `<div onclick="sheet_showZukan('${c.ideaId}')" style="background:#faf8f4;border:1px solid ${c.isEarly?'#f5d68a':'#e0d8cc'};border-radius:12px;padding:12px;cursor:pointer;position:relative">
+        return `<div onclick="sheet_showZukan('${c.ideaId}')" role="button" tabindex="0" style="background:#faf8f4;border:1px solid ${c.isEarly?'#f5d68a':'#e0d8cc'};border-radius:12px;padding:12px;cursor:pointer;position:relative">
           ${c.isEarly ? '<div style="position:absolute;top:-4px;right:8px;font-size:8px;font-weight:700;color:#854f0b;background:#fef9f0;border:1px solid #fde68a;border-radius:20px;padding:2px 6px">早期</div>' : ''}
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
             <div style="font-family:var(--mono);font-size:8px;color:#a09080">AIPO</div>
@@ -2760,7 +2782,7 @@ async function renderCertCollection() {
         const currentScore = idea ? parseFloat(idea.score||50).toFixed(1) : parseFloat(c.score||50).toFixed(1);
         const nameShort = (c.ideaName||'').length > 12 ? (c.ideaName||'').slice(0,12)+'…' : (c.ideaName||'');
         const isHot = (idea?.votes || 0) >= HOT_THRESHOLD;
-        return `<div onclick="showZukan('${c.ideaId}')" style="background:#faf8f4;border:1px solid #e0d8cc;border-radius:12px;padding:12px;cursor:pointer;transition:all .2s;position:relative;overflow:visible;${c.isEarly?'border-color:#f5d68a;background:#fffdf5':''}">
+        return `<div onclick="showZukan('${c.ideaId}')" role="button" tabindex="0" style="background:#faf8f4;border:1px solid #e0d8cc;border-radius:12px;padding:12px;cursor:pointer;transition:all .2s;position:relative;overflow:visible;${c.isEarly?'border-color:#f5d68a;background:#fffdf5':''}">
           ${isHot ? '<div style="position:absolute;top:-4px;right:8px;font-size:8px;font-weight:700;color:var(--amber);background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:20px;padding:2px 6px">注目</div>' : ''}
           ${c.isEarly ? '<div style="position:absolute;top:-4px;right:8px;font-size:8px;font-weight:700;color:#854f0b;background:#fef9f0;border:1px solid #fde68a;border-radius:20px;padding:2px 6px">早期</div>' : ''}
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
@@ -2949,7 +2971,7 @@ async function loadHirobaImpl() {
       const statusColor = c.status === 'released' ? 'var(--green-light)' : 'var(--amber-mid)';
       const statusBg = c.status === 'released' ? 'rgba(34,168,95,.08)' : 'rgba(232,133,10,.08)';
       const linkCount = (c.links || []).length;
-      return `<div style="background:var(--surface);border:0.5px solid var(--border2);border-radius:14px;padding:16px;margin-bottom:8px;cursor:pointer" onclick="goTo('match');setTimeout(()=>{boardSetSubTab('impl');impl_rendered=false;impl_render()},300)">
+      return `<div role="button" tabindex="0" style="background:var(--surface);border:0.5px solid var(--border2);border-radius:14px;padding:16px;margin-bottom:8px;cursor:pointer" onclick="goTo('match');setTimeout(()=>{boardSetSubTab('impl');impl_rendered=false;impl_render()},300)">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
           <span style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--amber);letter-spacing:.06em">${esc(c.ticker)}</span>
           <span style="font-size:10px;font-weight:700;color:${statusColor};background:${statusBg};border-radius:20px;padding:2px 8px">${statusLabel}</span>
@@ -2985,7 +3007,7 @@ async function loadHirobaBoardPosts() {
     wrap.innerHTML = data.map((p, idx) => {
       const cnt = p.board_comments?.[0]?.count ?? 0;
       const preview = (p.body||'').replace(/\n/g,' ').slice(0, 60);
-      return '<div onclick="goTo(\'match\');setTimeout(()=>boardOpenDetail('+idx+'),300)" style="background:var(--surface);border:0.5px solid var(--border2);border-radius:14px;padding:14px 16px;margin-bottom:8px;cursor:pointer">'
+      return '<div onclick="goTo(\'match\');setTimeout(()=>boardOpenDetail('+idx+'),300)" role="button" tabindex="0" style="background:var(--surface);border:0.5px solid var(--border2);border-radius:14px;padding:14px 16px;margin-bottom:8px;cursor:pointer">'
         +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'+bTagBadge(p.tag)+'<span style="font-size:11px;color:var(--text3)">'+bRelTime(p.created_at)+'</span></div>'
         +'<div style="font-size:14px;font-weight:700;color:var(--text);line-height:1.4;margin-bottom:4px">'+bEsc(p.title)+'</div>'
         +'<div style="font-size:12px;color:var(--text3);line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">'+bEsc(preview)+'</div>'
@@ -3366,6 +3388,9 @@ function showLoginSheet() {
   document.getElementById('login-sheet-overlay')?.remove();
   const overlay = document.createElement('div');
   overlay.id = 'login-sheet-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-label', 'ログイン');
   overlay.style.cssText = 'position:fixed;left:0;right:0;top:0;bottom:0;background:rgba(0,0,0,.6);z-index:99999;display:flex;align-items:flex-end;justify-content:center';
   overlay.onclick = e => { if(e.target===overlay) overlay.remove(); };
   overlay.innerHTML = `
@@ -3580,11 +3605,11 @@ async function init() {
     console.error('init post-splash error:', e);
   }
 
-  // プッシュ通知登録
+  // プッシュ通知登録（アイドル時に遅延実行）
   if ('serviceWorker' in navigator && 'PushManager' in window) {
-    navigator.serviceWorker.register('/service-worker.js').then(reg => {
-      console.log('SW registered');
-    });
+    var _registerSW = function() { navigator.serviceWorker.register('/service-worker.js').catch(function(){}); };
+    if ('requestIdleCallback' in window) { requestIdleCallback(_registerSW, { timeout: 5000 }); }
+    else { setTimeout(_registerSW, 3000); }
   }
 }
 
@@ -3680,6 +3705,9 @@ async function openNotifSheet() {
 
   const overlay = document.createElement('div');
   overlay.id = 'notif-sheet-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-label', '通知');
   overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;display:flex;align-items:flex-end;justify-content:center';
   overlay.onclick = e => { if(e.target===overlay) overlay.remove(); };
 
@@ -3691,7 +3719,7 @@ async function openNotifSheet() {
         const bg   = typeBg[n.type]    || 'var(--surface2)';
         const ago  = timeAgo(n.created_at);
         const unread = !n.is_read;
-        return `<div onclick="onNotifTap('${n.idea_id||''}','${n.type}')" style="display:flex;align-items:flex-start;gap:10px;padding:13px 18px;border-bottom:0.5px solid var(--border);cursor:pointer;background:${unread?'var(--amber-bg)':'transparent'};transition:background .15s">
+        return `<div onclick="onNotifTap('${n.idea_id||''}','${n.type}')" role="button" tabindex="0" style="display:flex;align-items:flex-start;gap:10px;padding:13px 18px;border-bottom:0.5px solid var(--border);cursor:pointer;background:${unread?'var(--amber-bg)':'transparent'};transition:background .15s">
           <div style="min-width:44px;padding-top:2px">
             <div style="font-size:9px;font-weight:700;color:${col};background:${bg};border-radius:5px;padding:2px 7px;text-align:center;white-space:nowrap">${lbl}</div>
           </div>
@@ -3957,9 +3985,9 @@ function boardSetSubTab(tab) {
   document.getElementById('board-panel-impl').style.display  = tab==='impl'  ? 'block' : 'none';
   const fab = document.getElementById('board-fab');
   if (fab) fab.style.display = tab==='board' ? 'flex' : 'none';
-  document.querySelectorAll('.board-subtab').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.board-subtab').forEach(el => { el.classList.remove('active'); el.setAttribute('aria-selected', 'false'); });
   const active = document.getElementById('board-tab-'+tab);
-  if (active) active.classList.add('active');
+  if (active) { active.classList.add('active'); active.setAttribute('aria-selected', 'true'); }
   if (tab === 'impl') impl_render();
 }
 
@@ -4094,7 +4122,7 @@ function board_renderPosts() {
   body.innerHTML = board_posts.map((p, idx) => {
     const cnt = p.board_comments?.[0]?.count ?? 0;
     const preview = p.body.replace(/\n/g,' ');
-    return '<div class="board-card" onclick="boardOpenDetail('+idx+')" style="cursor:pointer">'
+    return '<div class="board-card" onclick="boardOpenDetail('+idx+')" role="button" tabindex="0" style="cursor:pointer">'
       +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'+bTagBadge(p.tag)+'<span style="font-size:11px;color:var(--text3)">'+bRelTime(p.created_at)+'</span></div>'
       +'<div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;line-height:1.4">'+bEsc(p.title)+'</div>'
       +'<div style="font-size:12px;color:var(--text3);line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">'+bEsc(preview)+'</div>'
@@ -4448,7 +4476,7 @@ function dev_renderDevs() {
     const founderBadge = d.is_founder
       ? '<div style="display:inline-flex;align-items:center;gap:3px;background:linear-gradient(135deg,#fffbe6,#fff3cd);border:1px solid #f5c842;border-radius:20px;padding:2px 9px;font-size:10px;font-weight:800;color:#b8860b;margin-bottom:6px">👑 創設メンバー'+(d.founder_number?'<span style="color:var(--text3);font-weight:600"> #'+d.founder_number+'</span>':'')+'</div>'
       : '';
-    return '<div class="board-card" onclick="devOpenDetail('+realIdx+')" style="cursor:pointer">'
+    return '<div class="board-card" onclick="devOpenDetail('+realIdx+')" role="button" tabindex="0" style="cursor:pointer">'
       +(founderBadge?'<div>'+founderBadge+'</div>':'')
       +'<div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:8px">'
       +bAvatar(d.name||'?')
@@ -4596,8 +4624,11 @@ async function requestPushPermission() {
   }
 }
 
-checkInAppBrowser();
-init();
+// 初期化をメインスレッドブロッキングから解放
+requestAnimationFrame(function() {
+  checkInAppBrowser();
+  init();
+});
 </script>
 </body>
 </html>
