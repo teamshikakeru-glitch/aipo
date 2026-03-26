@@ -3092,7 +3092,7 @@ async function loadHirobaList() {
 
   // messagesテーブル（AI通知）と admin_messages（管理者メッセージ）を並行取得
   const [sysRes, adminRes] = await Promise.allSettled([
-    sb.from('messages').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false }),
+    sb.from('messages').select('*').eq('to_id', currentUser.id).order('created_at', { ascending: false }),
     sb.from('admin_messages').select('*')
       .or(`and(from_user_id.eq.${ADMIN_UUID},to_user_id.eq.${currentUser.id}),and(from_user_id.eq.${currentUser.id},to_user_id.eq.${ADMIN_UUID})`)
       .order('created_at', { ascending: true }),
@@ -3116,7 +3116,7 @@ async function loadHirobaList() {
 
   // システムメッセージ描画
   const sysHtml = sysMsgs.map(m =>
-    `<div style="padding:14px 16px;border-bottom:0.5px solid var(--border);${!m.is_read?'background:var(--amber-bg)':''}"><div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><div style="width:24px;height:24px;border-radius:50%;background:#1a1400;display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="font-size:10px">🤖</span></div><div style="font-size:12px;font-weight:700;color:var(--text)">あいぽ運営</div><div style="font-size:10px;color:var(--text3);margin-left:auto">${timeAgo(m.created_at)}</div>${!m.is_read?'<div style="width:7px;height:7px;border-radius:50%;background:var(--amber-mid);flex-shrink:0"></div>':''}</div><div style="font-size:13px;color:var(--text);line-height:1.7">${m.content}</div></div>`
+    `<div style="padding:14px 16px;border-bottom:0.5px solid var(--border);${!m.is_read?'background:var(--amber-bg)':''}"><div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><div style="width:24px;height:24px;border-radius:50%;background:#1a1400;display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="font-size:10px">🤖</span></div><div style="font-size:12px;font-weight:700;color:var(--text)">あいぽ運営</div><div style="font-size:10px;color:var(--text3);margin-left:auto">${timeAgo(m.created_at)}</div>${!m.is_read?'<div style="width:7px;height:7px;border-radius:50%;background:var(--amber-mid);flex-shrink:0"></div>':''}</div><div style="font-size:13px;color:var(--text);line-height:1.7">${m.body || m.content || ''}</div></div>`
   ).join('');
   sysMsgs.filter(m => !m.is_read).forEach(m => sb.from('messages').update({ is_read: true }).eq('id', m.id).catch(() => {}));
 
