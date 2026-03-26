@@ -34,11 +34,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="あいぽ">
 <meta name="theme-color" content="#f5f4f0">
-<!-- Sentry エラー監視（非同期ロード） -->
-<script>
-(function(){var s=document.createElement('script');s.src='https://browser.sentry-cdn.com/8.51.0/bundle.min.js';s.crossOrigin='anonymous';s.onload=function(){Sentry.init({dsn:"https://dbd59d3a5d7000db3b82776422bbb457@o4511096709054464.ingest.us.sentry.io/4511096719933440",tracesSampleRate:0.2});};document.head.appendChild(s);})();
-</script>
-<!-- PostHog ユーザー行動分析 -->
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" as="script" crossorigin>
+<!-- PostHog stub（即時） + Sentry/PostHog実体/Crispはアイドル時に遅延ロード -->
 <script>
 !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=(s.asset_host||s.api_host.replace(".i.posthog.com","-assets.i.posthog.com"))+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+" (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys getNextSurveyStep onSessionId setPersonPropertiesForFlags".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
 posthog.init('phc_665tIWLYkMFBazlz7Q6CPiZjEK3rYzJtoTF7QG2JPYB', {
@@ -46,8 +43,22 @@ posthog.init('phc_665tIWLYkMFBazlz7Q6CPiZjEK3rYzJtoTF7QG2JPYB', {
   person_profiles: 'identified_only'
 });
 </script>
-<!-- Crisp チャットウィジェット -->
-<script type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="cd2b8817-cabd-4cf0-9c0a-c62f0285237d";$crisp.push(["do","chat:hide"]);$crisp.push(["on","chat:closed",function(){$crisp.push(["do","chat:hide"]);}]);(function(){var d=document;var s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>
+<script>
+// Sentry + Crisp を初回インタラクションまたはアイドル時に遅延ロード
+(function(){
+  var loaded=false;
+  function loadDeferred(){
+    if(loaded)return;loaded=true;
+    // Sentry
+    var s=document.createElement('script');s.src='https://browser.sentry-cdn.com/8.51.0/bundle.min.js';s.crossOrigin='anonymous';s.onload=function(){Sentry.init({dsn:"https://dbd59d3a5d7000db3b82776422bbb457@o4511096709054464.ingest.us.sentry.io/4511096719933440",tracesSampleRate:0.2});};document.head.appendChild(s);
+    // Crisp
+    window.$crisp=[];window.CRISP_WEBSITE_ID="cd2b8817-cabd-4cf0-9c0a-c62f0285237d";$crisp.push(["do","chat:hide"]);$crisp.push(["on","chat:closed",function(){$crisp.push(["do","chat:hide"]);}]);var d=document;var c=d.createElement("script");c.src="https://client.crisp.chat/l.js";c.async=1;d.getElementsByTagName("head")[0].appendChild(c);
+  }
+  if('requestIdleCallback' in window){requestIdleCallback(loadDeferred,{timeout:4000});}
+  else{setTimeout(loadDeferred,3000);}
+  ['scroll','click','touchstart','keydown'].forEach(function(e){document.addEventListener(e,loadDeferred,{once:true,passive:true});});
+})();
+</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // html2canvas を遅延ロード（シェア機能使用時に必要）
@@ -57,8 +68,8 @@ function loadHtml2Canvas(){return new Promise(function(r){if(window.html2canvas)
 :root {
   --bg: #f5f4f0;--surface: #ffffff;--surface2: #faf9f7;
   --border: rgba(0,0,0,0.06);--border2: rgba(0,0,0,0.10);
-  --text: #1a1917;--text2: #5c5a54;--text3: #767472;
-  --amber: #c47a08;--amber-bg: #fef8ee;--amber-mid: #e8850a;--amber-border: #f0dbb0;
+  --text: #1a1917;--text2: #5c5a54;--text3: #6b6966;
+  --amber: #956005;--amber-bg: #fef8ee;--amber-mid: #e8850a;--amber-border: #f0dbb0;
   --green: #1a7a4a;--green-light: #22a85f;--green-bg: #f0f9f4;--green-border: #b8e6d0;
   --red: #c0392b;--teal: #1a7a4a;
   --mono: 'Space Mono', monospace;--sans: 'Noto Sans JP', sans-serif;
@@ -76,6 +87,7 @@ function loadHtml2Canvas(){return new Promise(function(r){if(window.html2canvas)
 .ob-dot{width:8px;height:8px;border-radius:50%;background:var(--border2)}
 .ob-dot.active{background:var(--amber-mid);width:24px;border-radius:4px}
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; max-width: 100%; }
+:focus-visible { outline: 2px solid var(--amber-mid); outline-offset: 2px; }
 html, body { overflow-x: hidden !important; width: 100%; max-width: 100vw; position: relative; }
 html { overflow-x: hidden; }
 body { background: var(--bg); color: var(--text); font-family: var(--sans); overflow-x: hidden !important; overflow-y: auto; width: 100%; touch-action: pan-y pinch-zoom; }
@@ -99,10 +111,10 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); over
 .pill-tab.active { background:var(--text);color:#fff;border-color:var(--text); }
 .pill-tab.genre-active { background:var(--amber-bg);color:var(--amber);border-color:var(--amber-border); }
 #tab-scroll::-webkit-scrollbar { display:none; }
-.feed-body { padding: 10px 14px 0; }
+.feed-body { padding: 10px 14px 0; contain: layout style; }
 .skeleton { background: linear-gradient(90deg, var(--surface2) 25%, var(--border) 50%, var(--surface2) 75%); background-size: 200% 100%; animation: shimmer 1.2s infinite; border-radius: 6px; }
 @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-.stock-group { background: var(--surface); border-radius: var(--r-xl); overflow: hidden; margin-bottom: 10px; border: 0.5px solid var(--border); contain: content; }
+.stock-group { background: var(--surface); border-radius: var(--r-xl); overflow: hidden; margin-bottom: 10px; border: 0.5px solid var(--border); contain: content; min-height: 120px; }
 .srow { display: flex; align-items: center; padding: 12px 16px; border-bottom: 0.5px solid var(--border); cursor: pointer; transition: background .1s; overflow: hidden; position: relative; }
 .srow:last-child { border-bottom: none; }
 .srow:active { background: var(--surface2); }
@@ -137,12 +149,11 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); over
 .upload-btn { background: var(--surface2); border: 1.5px solid var(--border2); border-radius: 20px; padding: 5px 12px; font-size: 11px; color: var(--text2); cursor: pointer; font-family: var(--sans); font-weight: 700; transition: all .15s; }
 .upload-btn:hover { border-color: var(--amber-border); color: var(--amber); background: var(--amber-bg); }
 .upload-btn.done { background: var(--green-bg); border-color: var(--green-border); color: var(--green); pointer-events: none; }
-.bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 390px; background: rgba(255,255,255,.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 0.5px solid var(--border); display: flex; justify-content: space-around; align-items: stretch; z-index: 30; padding-bottom: env(safe-area-inset-bottom, 0px); }
+.bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 390px; background: rgba(255,255,255,.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 0.5px solid var(--border); display: flex; justify-content: space-around; align-items: stretch; z-index: 30; padding-bottom: env(safe-area-inset-bottom, 0px); will-change: transform; contain: layout style; }
 .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 8px 0 10px; cursor: pointer; color: var(--text3); transition: color .15s; background: none; border: none; font: inherit; }
 .nav-item span { font-size: 10px; font-weight: 600; }
 .nav-item.active { color: var(--amber-mid); }
 .nav-item svg { width: 22px; height: 22px; }
-.nav-post-wrap-unused { display:none; }
 .sub-header { background: var(--surface); border-bottom: 0.5px solid var(--border); padding: 14px 18px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 20; overflow: hidden; }
 .back-btn { cursor: pointer; color: var(--text2); display: flex; align-items: center; background: none; border: none; padding: 0; font: inherit; }
 .sub-title { font-size: 16px; font-weight: 700; }
@@ -251,7 +262,7 @@ input[type=file] { display: none; }
 .top3-label{display:flex;align-items:center;gap:5px;margin-bottom:8px}
 .top3-label-txt{font-size:9px;font-weight:700;color:var(--text3);letter-spacing:.06em}
 .top3-label::before,.top3-label::after{content:'';flex:1;height:.5px;background:var(--border)}
-.top3-grid{display:flex;gap:5px}
+.top3-grid{display:flex;gap:5px;min-height:90px}
 .top3-card{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:9px 8px 28px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
 .top3-card:hover{border-color:rgba(232,133,10,.4)}
 .top3-card.gold{border-color:#f5d68a;background:#fffdf5}
@@ -494,12 +505,12 @@ input[type=file] { display: none; }
 </div>
 
 <div class="screen" id="screen-detail" style="padding-bottom:90px">
-  <div class="sub-header"><button class="back-btn" onclick="goTo('feed')" aria-label="フィードに戻る"><svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M13 5l-5 5 5 5"/></svg></button><div class="sub-title" id="detail-sub-title"></div></div>
+  <div class="sub-header"><button class="back-btn" onclick="goTo('feed')" aria-label="フィードに戻る"><svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M13 5l-5 5 5 5"/></svg></button><h2 class="sub-title" id="detail-sub-title"></h2></div>
   <div class="detail-body" id="detail-content"></div>
 </div>
 
 <div class="screen" id="screen-post">
-  <div class="sub-header"><button class="back-btn" onclick="goTo('feed')" aria-label="フィードに戻る"><svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M13 5l-5 5 5 5"/></svg></button><div class="sub-title">アイデアを上場する</div></div>
+  <div class="sub-header"><button class="back-btn" onclick="goTo('feed')" aria-label="フィードに戻る"><svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M13 5l-5 5 5 5"/></svg></button><h2 class="sub-title">アイデアを上場する</h2></div>
   <div class="post-body">
     <div class="step-lbl">NEW LISTING — IPO申請</div>
     <div style="background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:10px;padding:10px 14px;margin-bottom:16px;display:flex;align-items:center;gap:10px">
@@ -518,7 +529,7 @@ input[type=file] { display: none; }
 
 <div class="screen" id="screen-hiroba">
   <div class="sub-header" style="border-bottom:none">
-    <div class="sub-title" style="width:100%;text-align:center">みんなの広場</div>
+    <h2 class="sub-title" style="width:100%;text-align:center">みんなの広場</h2>
   </div>
   <div style="padding:0 16px 100px;overflow-y:auto">
     <!-- 郵便ポスト＋メッセージエリア -->
@@ -551,10 +562,10 @@ input[type=file] { display: none; }
     <div style="background:var(--surface);border-radius:16px;border:0.5px solid var(--border2);padding:16px;margin:12px 0">
       <textarea class="hiroba-textarea" id="hiroba-input" rows="3" placeholder="あいぽをもっと良くするアイデアや感想を教えてください..." style="font-size:14px;line-height:1.7" aria-label="フィードバックを入力"></textarea>
       <div class="hiroba-tags">
-        <div class="hiroba-tag sel" onclick="selHirobaTag(this)" data-tag="機能要望">機能要望</div>
-        <div class="hiroba-tag" onclick="selHirobaTag(this)" data-tag="バグ報告">バグ報告</div>
-        <div class="hiroba-tag" onclick="selHirobaTag(this)" data-tag="感想">感想</div>
-        <div class="hiroba-tag" onclick="selHirobaTag(this)" data-tag="その他">その他</div>
+        <div class="hiroba-tag sel" onclick="selHirobaTag(this)" data-tag="機能要望" role="button" tabindex="0">機能要望</div>
+        <div class="hiroba-tag" onclick="selHirobaTag(this)" data-tag="バグ報告" role="button" tabindex="0">バグ報告</div>
+        <div class="hiroba-tag" onclick="selHirobaTag(this)" data-tag="感想" role="button" tabindex="0">感想</div>
+        <div class="hiroba-tag" onclick="selHirobaTag(this)" data-tag="その他" role="button" tabindex="0">その他</div>
       </div>
       <label class="hiroba-anon"><input type="checkbox" id="hiroba-anon-check" style="width:16px;height:16px;accent-color:var(--amber-mid)">匿名で投稿する</label>
       <button class="hiroba-send" onclick="sendHirobaWithAnim()" style="font-size:14px;padding:12px">
@@ -656,7 +667,7 @@ input[type=file] { display: none; }
 
 <div class="screen" id="screen-match" style="padding-bottom:90px">
   <div class="sub-header" style="border-bottom:0.5px solid var(--border)">
-    <div style="font-size:16px;font-weight:700;color:var(--text);padding:0 4px">開発掲示板</div>
+    <h2 style="font-size:16px;font-weight:700;color:var(--text);padding:0 4px;margin:0">開発掲示板</h2>
   </div>
   <div style="display:flex;border-bottom:0.5px solid var(--border);background:var(--surface)">
     <button id="board-tab-board" class="board-subtab active" onclick="boardSetSubTab('board')">📝 掲示板</button>
@@ -683,7 +694,7 @@ input[type=file] { display: none; }
   <div id="board-panel-impl" style="display:none;padding:14px;overflow-y:auto">
     <div id="impl-list-body"></div>
   </div>
-  <button id="board-fab" onclick="boardOpenForm()" style="position:fixed;bottom:calc(72px + env(safe-area-inset-bottom,0px));right:16px;width:52px;height:52px;border-radius:50%;background:var(--amber-mid);border:none;box-shadow:0 4px 16px rgba(232,133,10,.4);font-size:26px;cursor:pointer;z-index:25;color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--sans)">＋</button>
+  <button id="board-fab" onclick="boardOpenForm()" aria-label="新規投稿を作成" style="position:fixed;bottom:calc(72px + env(safe-area-inset-bottom,0px));right:16px;width:52px;height:52px;border-radius:50%;background:var(--amber-mid);border:none;box-shadow:0 4px 16px rgba(232,133,10,.4);font-size:26px;cursor:pointer;z-index:25;color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--sans)">＋</button>
 </div>
 
 <nav class="bottom-nav" role="navigation" aria-label="メインナビゲーション">
@@ -1560,7 +1571,7 @@ function renderTop3() {
     const voted = votedIds.has(idea.id); const gold = i === 0 ? ' gold' : ''; const nm = idea.name.length > 16 ? idea.name.slice(0,16)+'…' : idea.name;
     const d = idea.score - idea.baseScore;
     const scoreColor = d > 0.3 ? '#1a6dcc' : d < -0.3 ? '#cc3333' : 'var(--text2)';
-    return `<div class="top3-card${gold}" onclick="showDetail('${idea.id}')"><div class="top3-rank${i===0?' r1':''}">${ranks[i]}</div><div class="top3-score-v" style="color:${scoreColor}">${idea.score.toFixed(1)}</div><div class="top3-name-v">${esc(nm)}</div><div class="top3-votes-v">${idea.votes}票</div><button class="top3-vb ${voted?'voted':''}" onclick="event.stopPropagation();voteIdea('${idea.id}')"><svg width="9" height="9" viewBox="0 0 20 20" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="${voted?'var(--green-light)':'currentColor'}" stroke-width="2.5" stroke-linecap="round"/></svg></button></div>`;
+    return `<div class="top3-card${gold}" onclick="showDetail('${idea.id}')" role="button" tabindex="0" aria-label="${esc(nm)}の詳細を見る"><div class="top3-rank${i===0?' r1':''}">${ranks[i]}</div><div class="top3-score-v" style="color:${scoreColor}">${idea.score.toFixed(1)}</div><div class="top3-name-v">${esc(nm)}</div><div class="top3-votes-v">${idea.votes}票</div><button class="top3-vb ${voted?'voted':''}" onclick="event.stopPropagation();voteIdea('${idea.id}')" aria-label="${esc(nm)}を応援する"><svg width="9" height="9" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="${voted?'var(--green-light)':'currentColor'}" stroke-width="2.5" stroke-linecap="round"/></svg></button></div>`;
   }).join('');
 }
 
@@ -1596,7 +1607,7 @@ function buildRow(idea) {
   const scoreColor = delta > 0.3 ? '#1a6dcc' : delta < -0.3 ? '#cc3333' : 'var(--text2)';
   const voted = votedIds.has(idea.id);
   const isHot = idea.votes >= HOT_THRESHOLD;
-  return `<div id="row-${idea.id}" onclick="showDetail('${idea.id}')" style="border-bottom:0.5px solid var(--border);cursor:pointer;display:flex;align-items:center;padding:14px 16px;gap:12px">
+  return `<div id="row-${idea.id}" onclick="showDetail('${idea.id}')" role="button" tabindex="0" aria-label="${_n}の詳細を見る" style="border-bottom:0.5px solid var(--border);cursor:pointer;display:flex;align-items:center;padding:14px 16px;gap:12px">
     <div style="min-width:44px;text-align:center;flex-shrink:0">
       <div style="font-family:var(--mono);font-size:22px;font-weight:700;color:${scoreColor};line-height:1">${idea.score.toFixed(1)}</div>
       <div style="font-size:11px;color:var(--text3);margin-top:3px">${idea.votes}票</div>
@@ -1608,7 +1619,7 @@ function buildRow(idea) {
         ${isHot?'<span style="font-size:10px;background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border);border-radius:4px;padding:1px 6px;font-weight:700">注目</span>':''}
       </div>
     </div>
-    <button onclick="event.stopPropagation();voteIdea('${idea.id}')" style="background:${voted?'var(--surface2)':'var(--amber-mid)'};color:${voted?'var(--text3)':'#fff'};border:none;border-radius:12px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans);white-space:nowrap;flex-shrink:0">${voted?'応援済み':'応援'}</button>
+    <button onclick="event.stopPropagation();voteIdea('${idea.id}')" aria-label="${_n}を応援する" style="background:${voted?'var(--surface2)':'var(--amber-mid)'};color:${voted?'var(--text3)':'#fff'};border:none;border-radius:12px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans);white-space:nowrap;flex-shrink:0">${voted?'応援済み':'応援'}</button>
   </div>`;
 }
 
@@ -1840,7 +1851,7 @@ async function showDetail(id) {
           ${(()=>{ const g=scoreGrade(idea.score); return `<div style="font-size:11px;font-weight:700;color:${g.color};background:${g.bg};border-radius:6px;padding:3px 8px;margin-top:6px;text-align:center">${g.label}</div>`; })()}
         </div>
       </div>
-      <div class="big-spark-wrap" style="position:relative"><canvas id="big-spark" style="width:100%;height:90px;display:block"></canvas><div id="spark-loading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text3)">グラフ読込中...</div></div>
+      <div class="big-spark-wrap" style="position:relative"><canvas id="big-spark" width="358" height="90" style="width:100%;height:90px;display:block"></canvas><div id="spark-loading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text3)">グラフ読込中...</div></div>
       <div class="reason-row"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="var(--text3)" stroke-width="1"/><line x1="6" y1="5" x2="6" y2="8" stroke="var(--text3)" stroke-width="1" stroke-linecap="round"/><circle cx="6" cy="3.5" r=".5" fill="var(--text3)"/></svg><span class="reason-text">${idea.lastReason||'スコアを計算中です'}</span></div>
       <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
         ${(()=>{ const pct=calcPercentile(idea); const gr=calcGenreRank(idea); const pctColor=pct>=80?'var(--green)':pct>=50?'var(--amber)':'var(--text3)'; return `<div style="background:var(--surface2);border-radius:8px;padding:6px 12px;font-size:12px;color:${pctColor};font-weight:700">全体 上位${100-pct+1<1?1:100-pct+1}%</div><div style="background:var(--surface2);border-radius:8px;padding:6px 12px;font-size:12px;color:var(--text2);font-weight:700">${esc(idea.genre)} ${gr.rank}/${gr.total}位</div>`; })()}
@@ -1976,6 +1987,9 @@ function showPostPreview() {
   const overlay = document.createElement('div');
   overlay.id = 'post-preview-modal';
   overlay.className = 'preview-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-label', 'プレビュー');
   overlay.innerHTML = `<div class="preview-box"><div class="preview-handle"></div><div class="preview-title">マーケットでの表示プレビュー</div><div class="preview-sub">このように表示されます</div><div class="preview-card"><div class="preview-card-inner"><div class="preview-score-col"><div class="preview-score-num" style="color:${scoreColor}">${score.toFixed(1)}</div><div class="preview-score-lbl">スコア</div></div><div class="preview-info"><div class="preview-ticker-row"><span class="preview-ticker">${ticker}</span><span style="font-size:9px;color:var(--text3)">· ${selectedGenre || 'その他'}</span></div><div class="preview-name">${displayName}</div><div class="preview-meta">0票 · たった今</div></div><div class="preview-vote-btn"><svg width="11" height="11" viewBox="0 0 20 20" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="var(--green)" stroke-width="2.2" stroke-linecap="round"/></svg></div></div></div><div class="preview-hint">初期スコアは <strong>${score.toFixed(1)}</strong> です。</div><div class="preview-actions"><button class="preview-cancel" onclick="document.getElementById('post-preview-modal').remove()">修正する</button><button class="preview-confirm" onclick="document.getElementById('post-preview-modal').remove();doPost()">上場する →</button></div></div>`;
   overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
   document.body.appendChild(overlay);
@@ -2417,6 +2431,9 @@ function showCertificate(idea, votesAtTime) {
   const overlay = document.createElement('div');
   overlay.className = 'cert-modal-overlay';
   overlay.id = 'cert-modal-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-label', '株券');
   overlay.onclick = e => { if(e.target===overlay) overlay.remove(); };
   overlay.innerHTML = `
     <div class="cert-modal-box">
@@ -2883,6 +2900,7 @@ async function openChargeModal() {
   const existing = document.getElementById('charge-modal-overlay'); if (existing) { existing.remove(); return; }
   const overlay = document.createElement('div');
   overlay.className = 'charge-modal-overlay'; overlay.id = 'charge-modal-overlay';
+  overlay.setAttribute('role', 'dialog'); overlay.setAttribute('aria-modal', 'true'); overlay.setAttribute('aria-label', '残高チャージ');
   overlay.onclick = e => { if(e.target===overlay) overlay.remove(); };
   overlay.innerHTML = `<div style="background:var(--surface);border-radius:24px 24px 0 0;padding:24px 20px 40px;width:100%;max-width:390px"><div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 18px"></div><div style="font-size:16px;font-weight:700;margin-bottom:4px">残高チャージ</div><div style="font-size:13px;color:var(--text3);margin-bottom:16px">現在の残高: <strong>${bal.toLocaleString()}円</strong></div><div class="charge-option selected" id="c500" onclick="selectCharge(500)"><div><div class="charge-option-amount">¥500</div><div class="charge-option-bonus">+50pt</div></div><div class="charge-option-total">550pt</div></div><div class="charge-option" id="c1000" onclick="selectCharge(1000)"><div><div class="charge-option-amount">¥1,000</div><div class="charge-option-bonus">+200pt おすすめ</div></div><div class="charge-option-total">1,200pt</div></div><div class="charge-option" id="c3000" onclick="selectCharge(3000)"><div><div class="charge-option-amount">¥3,000</div><div class="charge-option-bonus">+900pt お得</div></div><div class="charge-option-total">3,900pt</div></div><button onclick="chargeNow()" style="width:100%;margin-top:14px;padding:14px;background:var(--amber-mid);border:none;border-radius:var(--r-lg);font-size:15px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">チャージする</button></div>`;
   document.body.appendChild(overlay);
@@ -3276,7 +3294,7 @@ function showLoginBanner() {
       <div class="login-banner-sub">10秒で登録 · 毎日3票もらえます</div>
     </div>
     <button class="login-banner-btn" onclick="showLoginSheet()">ログイン</button>
-    <button class="login-banner-close" onclick="this.closest('.login-banner').remove()">&times;</button>
+    <button class="login-banner-close" onclick="this.closest('.login-banner').remove()" aria-label="バナーを閉じる">&times;</button>
   </div>`;
 }
 
@@ -3293,12 +3311,15 @@ async function openProfileModal() {
   const overlay = document.createElement('div');
   overlay.className = 'profile-overlay';
   overlay.id = 'profile-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-label', 'プロフィール設定');
   overlay.onclick = e => { if(e.target===overlay) overlay.remove(); };
   overlay.innerHTML = `<div class="profile-sheet"><div class="profile-handle"></div><div style="font-size:16px;font-weight:700;text-align:center;margin-bottom:16px">プロフィール設定</div>
-<div class="profile-avatar-wrap">${avatarUrl ? `<img class="profile-avatar" src="${avatarUrl}" alt="avatar" onerror="this.style.display='none'">` : `<div class="profile-avatar-placeholder">${initials}</div>`}</div>
-<div class="profile-field"><div class="profile-label">X（Twitter）ユーザー名</div><input class="profile-input" id="prof-xusername" type="text" placeholder="例: your_username" value="${xUsername}" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"><div style="font-size:11px;color:var(--text3);margin-top:5px">@なしで入力してください。株券のHOLDER欄に表示されます。</div></div>
-<div class="profile-field"><div class="profile-label">表示名</div><input class="profile-input" id="prof-displayname" type="text" placeholder="例: Koki Nakagawa" value="${displayName}" autocomplete="off"><div style="font-size:11px;color:var(--text3);margin-top:5px">コメントやプロフィールに表示されます。</div></div>
-<div class="profile-field"><div class="profile-label">メールアドレス</div><input class="profile-input" id="prof-email" type="text" value="${currentUser.email || ''}" readonly></div>
+<div class="profile-avatar-wrap">${avatarUrl ? `<img class="profile-avatar" src="${avatarUrl}" alt="${esc(displayName || 'ユーザー')}のプロフィール画像" width="72" height="72" onerror="this.style.display='none'">` : `<div class="profile-avatar-placeholder">${initials}</div>`}</div>
+<div class="profile-field"><label class="profile-label" for="prof-xusername">X（Twitter）ユーザー名</label><input class="profile-input" id="prof-xusername" type="text" placeholder="例: your_username" value="${xUsername}" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"><div style="font-size:11px;color:var(--text3);margin-top:5px">@なしで入力してください。株券のHOLDER欄に表示されます。</div></div>
+<div class="profile-field"><label class="profile-label" for="prof-displayname">表示名</label><input class="profile-input" id="prof-displayname" type="text" placeholder="例: Koki Nakagawa" value="${displayName}" autocomplete="off"><div style="font-size:11px;color:var(--text3);margin-top:5px">コメントやプロフィールに表示されます。</div></div>
+<div class="profile-field"><label class="profile-label" for="prof-email">メールアドレス</label><input class="profile-input" id="prof-email" type="text" value="${currentUser.email || ''}" readonly></div>
 <div style="font-size:11px;color:var(--text3);line-height:1.7;margin-bottom:18px;padding:10px 12px;background:var(--bg);border-radius:10px">アカウント：${currentUser.email || ''}<br>${currentUser.isFounder ? '👑 創設メンバー #' + (currentUser.founderNumber===0?'00':String(currentUser.founderNumber).padStart(2,'0')) : isPro ? '⭐ Proプラン' : '無料プラン'}</div>
 <button class="profile-save-btn" id="prof-save-btn" onclick="saveProfile()">保存する</button>
 <div class="profile-status" id="prof-status"></div>
