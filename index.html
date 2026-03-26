@@ -2535,7 +2535,7 @@ async function loadCertsFromDB() {
             const { error: uErr } = await sb.from('user_certificates').upsert({
               user_id: currentUser.id, idea_id: v.idea_id,
               ticker: cert.ticker, idea_name: cert.ideaName,
-              score: cert.score, emoji: cert.emoji,
+              score: Math.round(cert.score), emoji: cert.emoji,
               votes_at_time: vat, is_early: vat < 5,
               serial, created_at: v.created_at,
             }, { onConflict: 'user_id,idea_id' });
@@ -2582,7 +2582,7 @@ async function saveCertToCollection(idea, votesAtTime) {
     const { error: certErr } = await sb.from('user_certificates').upsert({
       user_id: currentUser.id, idea_id: idea.id,
       ticker: idea.ticker, idea_name: idea.name,
-      score: idea.score, emoji: idea.emoji || '💡',
+      score: Math.round(idea.score), emoji: idea.emoji || '💡',
       votes_at_time: votesAtTime, is_early: votesAtTime < 5,
       serial, created_at: today.toISOString(),
     }, { onConflict: 'user_id,idea_id' });
