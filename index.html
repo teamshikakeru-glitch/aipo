@@ -2487,7 +2487,7 @@ function showCertificate(idea, votesAtTime) {
 
 // ─── 株券: Supabase保存 + localStorage フォールバック ───
 let _certsCache = null;
-let _certsDbAvailable = false; // user_certificatesテーブルが未設定のため無効化
+let _certsDbAvailable = true; // user_certificatesテーブル設定済み
 
 async function loadCertsFromDB() {
   if (!currentUser || !_certsDbAvailable) return _loadCertsLocal();
