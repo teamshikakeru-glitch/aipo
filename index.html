@@ -281,8 +281,23 @@ input[type=file] { display: none; }
 .splash-name { font-size: 32px; font-weight: 700; color: var(--text); letter-spacing: -.03em; animation: splashFade .6s .2s both; }
 .splash-sub { font-size: 13px; color: var(--text3); margin-top: 6px; animation: splashFade .6s .3s both; }
 @keyframes splashFade { 0%{opacity:0;transform:translateY(8px)} 100%{opacity:1;transform:translateY(0)} }
-.login-screen { position: fixed; inset: 0; background: var(--surface); display: none; flex-direction: column; align-items: center; justify-content: space-between; padding: 60px 32px 60px; z-index: 998; }
+.login-screen { position: fixed; inset: 0; background: var(--surface); display: none; flex-direction: column; align-items: center; justify-content: space-between; padding: 40px 24px 40px; z-index: 998; overflow-y: auto; }
 .login-screen.active { display: flex; }
+.login-social-proof { display: flex; gap: 16px; justify-content: center; margin-top: 16px; }
+.login-sp-item { text-align: center; }
+.login-sp-num { font-family: var(--mono); font-size: 28px; font-weight: 700; color: var(--amber-mid); line-height: 1.2; }
+.login-sp-label { font-size: 11px; color: var(--text3); margin-top: 2px; }
+@keyframes countUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.login-sp-num { animation: countUp .6s .4s both; }
+.login-top3-preview { width: 100%; margin-top: 20px; }
+.login-top3-title { font-size: 12px; font-weight: 700; color: var(--text3); letter-spacing: .04em; margin-bottom: 8px; text-align: center; }
+.login-top3-list { display: flex; flex-direction: column; gap: 6px; }
+.login-top3-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--surface2); border-radius: var(--r-lg); cursor: pointer; transition: background .15s; }
+.login-top3-row:active { background: var(--border); }
+.login-top3-rank { font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--amber); width: 24px; text-align: center; flex-shrink: 0; }
+.login-top3-name { font-size: 13px; font-weight: 700; color: var(--text); flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.login-top3-score { font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--text2); flex-shrink: 0; }
+.login-skip-btn { width: 100%; padding: 13px; background: transparent; border: 1.5px solid var(--border2); border-radius: var(--r-lg); font-size: 14px; font-weight: 700; color: var(--text2); cursor: pointer; font-family: var(--sans); margin-top: 8px; transition: opacity .15s; }
 .login-banner { background: linear-gradient(135deg, #fff8ed, #fde8b8); border-bottom: 1px solid var(--amber-border); padding: 14px 16px; display: flex; align-items: center; gap: 12px; }
 .login-banner-text { flex: 1; }
 .login-banner-title { font-size: 14px; font-weight: 700; color: var(--text); line-height: 1.4; }
@@ -291,7 +306,7 @@ input[type=file] { display: none; }
 .login-banner-close { flex-shrink: 0; background: none; border: none; font-size: 18px; color: var(--text3); cursor: pointer; padding: 8px; min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; }
 .login-title { font-size: 28px; font-weight: 700; color: var(--text); letter-spacing: -.03em; text-align: center; margin-bottom: 8px; }
 .login-desc { font-size: 14px; color: var(--text2); text-align: center; line-height: 1.75; }
-.login-features { width: 100%; background: var(--surface2); border-radius: var(--r-xl); padding: 20px; margin-top: 32px; }
+.login-features { width: 100%; background: var(--surface2); border-radius: var(--r-xl); padding: 20px; margin-top: 20px; }
 .login-feature { display: flex; align-items: center; gap: 14px; padding: 10px 0; border-bottom: 0.5px solid var(--border); }
 .login-feature:last-child { border-bottom: none; }
 .lf-ico { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -430,17 +445,27 @@ input[type=file] { display: none; }
 <div class="splash" id="splash">
   <div class="splash-logo"><svg width="80" height="80" viewBox="0 0 80 80" fill="none" role="img" aria-label="あいぽロゴ"><rect width="80" height="80" rx="20" fill="#fff8ed"/><text x="40" y="52" text-anchor="middle" font-size="40">💡</text></svg></div>
   <div class="splash-name">あいぽ</div>
-  <div class="splash-sub">あなたのアイデアに市場価値をつけよう</div>
+  <div class="splash-sub">思いついたら一行で上場。価値がリアルタイムで動く。</div>
 </div>
 
 <div class="login-screen" id="login-screen" role="dialog" aria-modal="true" aria-label="ログイン">
   <div class="login-top">
-    <h2 class="login-title">あいぽへようこそ</h2>
-    <div class="login-desc">アイデアを上場して、<br>世界に価値を問いましょう。</div>
+    <h2 class="login-title">アイデアに値段がつく</h2>
+    <div class="login-desc">思いつきを一行で上場。<br>みんなの投票で価値がリアルタイムに動く。</div>
+    <div class="login-social-proof">
+      <div class="login-sp-item"><div class="login-sp-num" id="login-sp-users">--</div><div class="login-sp-label">人が参加中</div></div>
+      <div class="login-sp-item"><div class="login-sp-num" id="login-sp-ideas">--</div><div class="login-sp-label">アイデアが上場中</div></div>
+    </div>
+    <div class="login-top3-preview" id="login-top3-preview">
+      <div class="login-top3-title">TOP RANKING</div>
+      <div class="login-top3-list" id="login-top3-list">
+        <div style="display:flex;align-items:center;justify-content:center;padding:12px 0"><div class="loading-spinner"></div></div>
+      </div>
+    </div>
     <div class="login-features">
-      <div class="login-feature"><div class="lf-ico" style="background:#fff8ed"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><polyline points="8.5,13 10,10.5 12,12 14,8.5 16,5.5" stroke="#bf6d00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16" cy="5.5" r="2" fill="#bf6d00"/></svg></div><div><div class="lf-title">アイデアを上場する</div><div class="lf-sub">一行入力するだけでIPO申請できます</div></div></div>
-      <div class="login-feature"><div class="lf-ico" style="background:#edf7f2"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#1a7a4a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><div class="lf-title">アイデアを応援する</div><div class="lf-sub">1日3票で注目のアイデアに投票</div></div></div>
-      <div class="login-feature"><div class="lf-ico" style="background:#f0f7ff"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 13l4-4 4 4 6-6" stroke="#185FA5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><div class="lf-title">リアルタイムで価値が動く</div><div class="lf-sub">30分ごとにスコアが自動更新</div></div></div>
+      <div class="login-feature"><div class="lf-ico" style="background:#fff8ed"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><polyline points="8.5,13 10,10.5 12,12 14,8.5 16,5.5" stroke="#bf6d00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16" cy="5.5" r="2" fill="#bf6d00"/></svg></div><div><div class="lf-title">一行で上場</div><div class="lf-sub">アイデアを書くだけでIPO完了</div></div></div>
+      <div class="login-feature"><div class="lf-ico" style="background:#edf7f2"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#1a7a4a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><div class="lf-title">毎日3票で応援</div><div class="lf-sub">早期に応援すると配当がもらえます</div></div></div>
+      <div class="login-feature"><div class="lf-ico" style="background:#f0f7ff"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 13l4-4 4 4 6-6" stroke="#185FA5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><div class="lf-title">スコアが30分で変動</div><div class="lf-sub">7つの要素でリアルタイム更新</div></div></div>
     </div>
   </div>
   <div class="login-bottom">
@@ -448,6 +473,7 @@ input[type=file] { display: none; }
       <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
       Googleでログインする
     </button>
+    <button class="login-skip-btn" onclick="skipLoginScreen()">ログインせずにマーケットを見る</button>
     <div class="login-note">ログインすることで<a href="/legal.html#terms" target="_blank" rel="noopener" style="color:var(--amber);text-decoration:underline">利用規約</a>・<a href="/legal.html#privacy" target="_blank" rel="noopener" style="color:var(--amber);text-decoration:underline">プライバシーポリシー</a>に<br>同意したものとみなします</div>
   </div>
 </div>
@@ -3308,6 +3334,59 @@ function guideNext() {
 
 function guideFinish() { localStorage.setItem('guide-done','1'); document.getElementById('guide-screen').classList.remove('active'); }
 
+async function showLoginScreenWithPreview() {
+  const ls = document.getElementById('login-screen');
+  if (!ls) return;
+  ls.classList.add('active');
+  phCapture('login_screen_view');
+  // 社会的証明: ユーザー数とアイデア数を並行取得
+  try {
+    const [usersRes, ideasRes] = await Promise.all([
+      sb.from('profiles').select('id', { count: 'exact', head: true }),
+      sb.from('ideas').select('id', { count: 'exact', head: true })
+    ]);
+    const usersEl = document.getElementById('login-sp-users');
+    const ideasEl = document.getElementById('login-sp-ideas');
+    if (usersEl && usersRes.count) { animateCount(usersEl, usersRes.count); }
+    if (ideasEl && ideasRes.count) { animateCount(ideasEl, ideasRes.count); }
+  } catch(e) {}
+  // TOP3アイデアのプレビュー表示
+  try {
+    const top3 = ideas.slice().sort((a,b) => b.score - a.score).slice(0, 3);
+    const listEl = document.getElementById('login-top3-list');
+    if (listEl && top3.length > 0) {
+      const ranks = ['1st','2nd','3rd'];
+      listEl.innerHTML = top3.map((idea, i) => {
+        const nm = idea.name.length > 20 ? idea.name.slice(0,20) + '...' : idea.name;
+        return '<div class="login-top3-row" onclick="skipLoginScreen();setTimeout(function(){showDetail(\'' + idea.id + '\')},100)"><div class="login-top3-rank">' + ranks[i] + '</div><div class="login-top3-name">' + esc(nm) + '</div><div class="login-top3-score">' + idea.score.toFixed(1) + '</div></div>';
+      }).join('');
+    }
+  } catch(e) {}
+}
+
+function animateCount(el, target) {
+  var duration = 600, start = 0, startTime = null;
+  function step(ts) {
+    if (!startTime) startTime = ts;
+    var progress = Math.min((ts - startTime) / duration, 1);
+    var eased = 1 - Math.pow(1 - progress, 3);
+    el.textContent = Math.floor(eased * target);
+    if (progress < 1) requestAnimationFrame(step);
+    else el.textContent = target;
+  }
+  requestAnimationFrame(step);
+}
+
+function skipLoginScreen() {
+  var ls = document.getElementById('login-screen');
+  if (ls) {
+    ls.style.transition = 'opacity .3s';
+    ls.style.opacity = '0';
+    setTimeout(function() { ls.classList.remove('active'); ls.style.opacity = ''; ls.style.transition = ''; }, 300);
+  }
+  phCapture('login_screen_skip');
+}
+
 function showLoginBanner() {
   const container = document.getElementById('login-banner-container');
   if (!container || currentUser) return;
@@ -3582,7 +3661,7 @@ async function init() {
   }
 
   clearTimeout(safetyTimer);
-  setTimeout(hideSplash, 800);
+  setTimeout(hideSplash, 600);
 
   try {
     if (hasSession && currentUser) {
@@ -3595,8 +3674,8 @@ async function init() {
       const guideDone = localStorage.getItem('guide-done');
       if (!guideDone) { localStorage.setItem('guide-done','1'); }
     } else {
-      // 未ログインユーザーにはガイドを出さず、フィードを直接見せる
-      // ログイン導線はフィード上部のCTAバナーで表示
+      // 未ログインユーザーにはログイン画面を表示（スキップ可能）
+      showLoginScreenWithPreview();
       showLoginBanner();
     }
     checkUpgradeSuccess();
