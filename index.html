@@ -34,7 +34,6 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="あいぽ">
 <meta name="theme-color" content="#f5f4f0">
-<link rel="preload" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" as="script" crossorigin="anonymous">
 <!-- PostHog stub（即時） + Sentry/PostHog実体/Crispはアイドル時に遅延ロード -->
 <script>
 !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=(s.asset_host||s.api_host.replace(".i.posthog.com","-assets.i.posthog.com"))+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+" (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys getNextSurveyStep onSessionId setPersonPropertiesForFlags".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
@@ -2469,7 +2468,7 @@ function showCertificate(idea, votesAtTime) {
 
 // ─── 株券: Supabase保存 + localStorage フォールバック ───
 let _certsCache = null;
-let _certsDbAvailable = true; // user_certificatesテーブルが利用可能か
+let _certsDbAvailable = false; // user_certificatesテーブルが未設定のため無効化
 
 async function loadCertsFromDB() {
   if (!currentUser || !_certsDbAvailable) return _loadCertsLocal();
@@ -2477,7 +2476,8 @@ async function loadCertsFromDB() {
     const { data, error } = await sb.from('user_certificates')
       .select('*').eq('user_id', currentUser.id)
       .order('created_at', { ascending: false });
-    if (error || !data) { _certsDbAvailable = false; return _loadCertsLocal(); }
+    if (error) { _certsDbAvailable = false; return _loadCertsLocal(); }
+    if (!data) return _loadCertsLocal();
     // DBの株券をローカルフォーマットに変換
     let certs = data.map(r => ({
       ideaId: r.idea_id, ticker: r.ticker, ideaName: r.idea_name,
@@ -2512,15 +2512,16 @@ async function loadCertsFromDB() {
             isEarly: vat < 5, serial,
           };
           certs.push(cert);
-          if (_certsDbAvailable) try {
-            await sb.from('user_certificates').upsert({
+          if (_certsDbAvailable) {
+            const { error: uErr } = await sb.from('user_certificates').upsert({
               user_id: currentUser.id, idea_id: v.idea_id,
               ticker: cert.ticker, idea_name: cert.ideaName,
               score: cert.score, emoji: cert.emoji,
               votes_at_time: vat, is_early: vat < 5,
               serial, created_at: v.created_at,
             }, { onConflict: 'user_id,idea_id' });
-          } catch(e) { _certsDbAvailable = false; }
+            if (uErr) { _certsDbAvailable = false; }
+          }
         }
       }
     } catch(e) { console.error('cert recovery error:', e); }
@@ -2559,15 +2560,14 @@ async function saveCertToCollection(idea, votesAtTime) {
   localStorage.setItem('aipo-certificates', JSON.stringify(updated));
   // Supabaseにも非同期保存（ログインしていれば）
   if (currentUser && _certsDbAvailable) {
-    try {
-      await sb.from('user_certificates').upsert({
-        user_id: currentUser.id, idea_id: idea.id,
-        ticker: idea.ticker, idea_name: idea.name,
-        score: idea.score, emoji: idea.emoji || '💡',
-        votes_at_time: votesAtTime, is_early: votesAtTime < 5,
-        serial, created_at: today.toISOString(),
-      }, { onConflict: 'user_id,idea_id' });
-    } catch(e) { _certsDbAvailable = false; }
+    const { error: certErr } = await sb.from('user_certificates').upsert({
+      user_id: currentUser.id, idea_id: idea.id,
+      ticker: idea.ticker, idea_name: idea.name,
+      score: idea.score, emoji: idea.emoji || '💡',
+      votes_at_time: votesAtTime, is_early: votesAtTime < 5,
+      serial, created_at: today.toISOString(),
+    }, { onConflict: 'user_id,idea_id' });
+    if (certErr) _certsDbAvailable = false;
   }
 }
 
