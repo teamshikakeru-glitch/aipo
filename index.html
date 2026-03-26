@@ -265,6 +265,12 @@ input[type=file] { display: none; }
 @keyframes splashFade { 0%{opacity:0;transform:translateY(8px)} 100%{opacity:1;transform:translateY(0)} }
 .login-screen { position: fixed; inset: 0; background: var(--surface); display: none; flex-direction: column; align-items: center; justify-content: space-between; padding: 60px 32px 60px; z-index: 998; }
 .login-screen.active { display: flex; }
+.login-banner { background: linear-gradient(135deg, #fff8ed, #fde8b8); border-bottom: 1px solid var(--amber-border); padding: 14px 16px; display: flex; align-items: center; gap: 12px; }
+.login-banner-text { flex: 1; }
+.login-banner-title { font-size: 14px; font-weight: 700; color: var(--text); line-height: 1.4; }
+.login-banner-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.login-banner-btn { flex-shrink: 0; padding: 8px 16px; background: var(--text); color: #fff; border: none; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: var(--sans); }
+.login-banner-close { flex-shrink: 0; background: none; border: none; font-size: 18px; color: var(--text3); cursor: pointer; padding: 4px; }
 .login-title { font-size: 28px; font-weight: 700; color: var(--text); letter-spacing: -.03em; text-align: center; margin-bottom: 8px; }
 .login-desc { font-size: 14px; color: var(--text2); text-align: center; line-height: 1.75; }
 .login-features { width: 100%; background: var(--surface2); border-radius: var(--r-xl); padding: 20px; margin-top: 32px; }
@@ -406,7 +412,7 @@ input[type=file] { display: none; }
 <div class="splash" id="splash">
   <div class="splash-logo"><svg width="80" height="80" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="20" fill="#fff8ed"/><text x="40" y="52" text-anchor="middle" font-size="40">💡</text></svg></div>
   <div class="splash-name">あいぽ</div>
-  <div class="splash-sub">アイデアIPO市場</div>
+  <div class="splash-sub">あなたのアイデアに市場価値をつけよう</div>
 </div>
 
 <div class="login-screen" id="login-screen">
@@ -429,6 +435,7 @@ input[type=file] { display: none; }
 </div>
 
 <div class="app">
+<div id="login-banner-container"></div>
 <div class="screen active" id="screen-feed">
   <div class="header">
     <div class="hd-row">
@@ -1290,6 +1297,39 @@ async function upgradePro() { document.getElementById('upgrade-modal')?.remove()
 function checkUpgradeSuccess() {
   const params = new URLSearchParams(window.location.search);
   if (params.get('upgraded') === 'true') { isPro = true; updatePlanBadge(); showToast('Proにアップグレードしました！'); window.history.replaceState({}, '', '/'); }
+}
+
+// 決済後にバッジが反映されるまでポーリング（Webhook遅延対応）
+async function pollForPlanUpdate() {
+  if (!currentUser || currentUser.isFounder || isPro) return;
+  let attempts = 0;
+  const maxAttempts = 10;
+  const interval = setInterval(async () => {
+    attempts++;
+    if (attempts > maxAttempts) { clearInterval(interval); return; }
+    try {
+      const { data } = await sb.from('profiles').select('is_pro, is_founder, founder_number').eq('id', currentUser.id).single();
+      if (data?.is_founder) {
+        currentUser.isFounder = true;
+        currentUser.founderNumber = data.founder_number ?? 0;
+        isPro = true;
+        updatePlanBadge();
+        showToast('👑 創設メンバーが適用されました！');
+        clearInterval(interval);
+        return;
+      }
+      if (data?.is_pro) {
+        isPro = true;
+        updatePlanBadge();
+        showToast('⭐ Proプランが適用されました！');
+        clearInterval(interval);
+        return;
+      }
+      // pending_foundersもチェック
+      await applyPendingPlan();
+      if (currentUser.isFounder || isPro) { clearInterval(interval); }
+    } catch(e) { console.error('pollForPlanUpdate error:', e); }
+  }, 5000); // 5秒ごとに確認
 }
 
 function toggleProMenu() {
@@ -3219,6 +3259,19 @@ function guideNext() {
 
 function guideFinish() { localStorage.setItem('guide-done','1'); document.getElementById('guide-screen').classList.remove('active'); }
 
+function showLoginBanner() {
+  const container = document.getElementById('login-banner-container');
+  if (!container || currentUser) return;
+  container.innerHTML = `<div class="login-banner">
+    <div class="login-banner-text">
+      <div class="login-banner-title">みんなのアイデアに投票しよう</div>
+      <div class="login-banner-sub">10秒で登録 · 毎日3票もらえます</div>
+    </div>
+    <button class="login-banner-btn" onclick="showLoginSheet()">ログイン</button>
+    <button class="login-banner-close" onclick="this.closest('.login-banner').remove()">&times;</button>
+  </div>`;
+}
+
 async function openProfileModal() {
   try {
   const existing = document.getElementById('profile-overlay');
@@ -3263,8 +3316,14 @@ async function saveProfile() {
   if (btn) { btn.textContent = '保存中...'; btn.disabled = true; }
   const xUsername = document.getElementById('prof-xusername')?.value?.trim().replace(/^@/,'') || '';
   const displayName = document.getElementById('prof-displayname')?.value?.trim() || '';
+  // Xユーザー名のバリデーション（Xの仕様: 1-15文字、英数字とアンダースコアのみ）
+  if (xUsername && !/^[a-zA-Z0-9_]{1,15}$/.test(xUsername)) {
+    if (status) { status.textContent = 'Xユーザー名は英数字とアンダースコアのみ（15文字以内）です。'; status.style.color = 'var(--red)'; }
+    if (btn) { btn.textContent = '保存する'; btn.disabled = false; }
+    return;
+  }
   const { error } = await sb.from('profiles').upsert({ id: currentUser.id, x_username: xUsername, display_name: displayName, updated_at: new Date() }, { onConflict: 'id' });
-  if (error) { if (status) { status.textContent = '保存に失敗しました。'; status.style.color = 'var(--red)'; } if (btn) { btn.textContent = '保存する'; btn.disabled = false; } return; }
+  if (error) { console.error('saveProfile error:', error); if (status) { status.textContent = '保存に失敗しました: ' + (error.message || error.details || '不明なエラー'); status.style.color = 'var(--red)'; } if (btn) { btn.textContent = '保存する'; btn.disabled = false; } return; }
   currentUser.x_username = xUsername;
   if (status) { status.textContent = '✓ 保存しました'; status.style.color = 'var(--green)'; }
   if (btn) { btn.textContent = '保存する'; btn.disabled = false; }
@@ -3473,14 +3532,17 @@ async function init() {
   try {
     if (hasSession && currentUser) {
       await ensureProfile(currentUser); await checkProStatus(); await loadVotedIds(); await loadInsightScore(); await loadDividends(); loadNotifBadge(); await loadCertsFromDB(); checkAdminMsgBadge();
+      // 未課金ユーザーの場合、決済後のバッジ反映をポーリング
+      if (!currentUser.isFounder && !isPro) { pollForPlanUpdate(); }
       trackReferrer(currentUser.id);
       const refCode = sessionStorage.getItem('aipo_ref_code');
       if (refCode) { await applyReferralIfNeeded(currentUser.id, refCode); sessionStorage.removeItem('aipo_ref_code'); }
       const guideDone = localStorage.getItem('guide-done');
-      if (!guideDone) { setTimeout(() => { guideScreen.classList.add('active'); }, 1200); }
+      if (!guideDone) { localStorage.setItem('guide-done','1'); }
     } else {
-      const guideDone = localStorage.getItem('guide-done');
-      if (!guideDone) { setTimeout(() => { guideScreen.classList.add('active'); }, 1200); }
+      // 未ログインユーザーにはガイドを出さず、フィードを直接見せる
+      // ログイン導線はフィード上部のCTAバナーで表示
+      showLoginBanner();
     }
     checkUpgradeSuccess();
     updateXBonus();
