@@ -2,7 +2,8 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="index, follow">
 <title>あいぽ — ひらめきが、唯一の資産になる。</title>
 <meta name="description" content="AIが何でも作れる時代、0→1のひらめきだけが価値になる。アイデアIPO市場「あいぽ」">
 <link rel="canonical" href="https://aipo-tau.vercel.app/lp">
@@ -21,7 +22,20 @@
 <meta name="twitter:image" content="https://aipo-tau.vercel.app/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://qjffvspnnxyykoyhnazm.supabase.co" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"></noscript>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "あいぽ",
+  "description": "AIが何でも作れる時代、0→1のひらめきだけが価値になる。アイデアIPO市場「あいぽ」",
+  "url": "https://aipo-tau.vercel.app/lp",
+  "applicationCategory": "SocialNetworkingApplication"
+}
+</script>
 <style>
 /* ─── RESET ─── */
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -75,7 +89,7 @@ button{font-family:inherit;cursor:pointer}
   --bg2:#f1efe9;
   --ink:#111;
   --ink2:#444;
-  --ink3:#888;
+  --ink3:#666;
   --ink4:#bbb;
   --amber:#d97706;
   --amber-light:#f59f0a;
@@ -768,9 +782,9 @@ footer{
     <a href="#era" class="nav-link-text">思想</a>
     <a href="#plans" class="nav-link-text">プラン</a>
     <a href="#recruit" class="nav-link-text">投資家</a>
-    <a href="/" class="nav-btn">
+    <a href="/" class="nav-btn" aria-label="あいぽでアイデアを上場する">
       上場する
-      <svg width="11" height="11" viewBox="0 0 20 20"><path d="M4 10h12M10 4l6 6-6 6"/></svg>
+      <svg width="11" height="11" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12M10 4l6 6-6 6"/></svg>
     </a>
   </div>
 </nav>
@@ -828,7 +842,7 @@ footer{
   <div class="hero-cta">
     <a href="/" class="btn-primary">
       アイデアを上場する（無料）
-      <svg width="13" height="13" viewBox="0 0 20 20"><path d="M4 10h12M10 4l6 6-6 6"/></svg>
+      <svg width="13" height="13" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12M10 4l6 6-6 6"/></svg>
     </a>
     <a href="#era" class="btn-sub">なぜ今なのか</a>
   </div>
@@ -1169,7 +1183,7 @@ footer{
   </div>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" async></script>
 <script>
 // ── スプラッシュ ──
 (function(){
@@ -1245,7 +1259,7 @@ function renderMarket(ideas){
     const uc=d>0.1?'cu':d<-0.1?'cd':'cf';
     const dc=d>0.1?'du':d<-0.1?'dd':'df';
     const name=(idea.name||'').length>18?(idea.name||'').slice(0,18)+'…':(idea.name||'');
-    return`<div class="mc-row" onclick="window.open('/','_blank')">
+    return`<div class="mc-row" onclick="window.open('/','_blank','noopener')">
       <div class="mc-rank${i<3?' top':''}">#${i+1}</div>
       <div class="mc-score-w">
         <div class="mc-score ${uc}" id="ms-${idea.id}">${score.toFixed(1)}</div>
@@ -1256,7 +1270,7 @@ function renderMarket(ideas){
         <div class="mc-name">${name}</div>
         <div class="mc-meta" style="${genreC(idea.genre)}">${idea.genre||'—'}</div>
       </div>
-      <button class="mc-vote" onclick="event.stopPropagation();window.open('/','_blank')">応援</button>
+      <button class="mc-vote" onclick="event.stopPropagation();window.open('/','_blank','noopener')">応援</button>
     </div>`;
   }).join('');
 }

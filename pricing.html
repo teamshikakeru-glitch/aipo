@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="robots" content="index, follow">
 <title>料金・ルール — あいぽ</title>
 <meta name="description" content="あいぽの料金プラン。無料・Pro（¥300/月）・創設メンバー（¥980買い切り）の3プランから選べます。">
 <link rel="canonical" href="https://aipo-tau.vercel.app/pricing">
@@ -19,13 +20,22 @@
 <meta name="twitter:title" content="料金・ルール — あいぽ">
 <meta name="twitter:description" content="あいぽの料金プラン。無料・Pro（¥300/月）・創設メンバー（¥980買い切り）の3プランから選べます。">
 <meta name="twitter:image" content="https://aipo-tau.vercel.app/og-image.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "料金・ルール — あいぽ",
+  "description": "あいぽの料金プラン。無料・Pro（¥300/月）・創設メンバー（¥980買い切り）の3プランから選べます。",
+  "url": "https://aipo-tau.vercel.app/pricing"
+}
+</script>
 <style>
 :root {
   --surface: #ffffff;
   --bg: #f7f4ef;
   --ink: #1a1916;
   --ink2: #4a4740;
-  --ink3: #9a9590;
+  --ink3: #736e68;
   --amber: #bf6d00;
   --amber-mid: #e8850a;
   --amber-bg: #fffbf5;
@@ -107,7 +117,7 @@ body { font-family: var(--sans); background: var(--bg); color: var(--ink); -webk
 
 /* FAQ */
 .faq-item { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); margin-bottom: 8px; overflow: hidden; }
-.faq-q { padding: 16px 20px; font-size: 14px; font-weight: 700; color: var(--ink); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+.faq-q { padding: 16px 20px; font-size: 14px; font-weight: 700; color: var(--ink); cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: none; border: none; width: 100%; text-align: left; font-family: inherit; }
 .faq-q .ic { font-size: 18px; color: var(--ink3); transition: transform .2s; }
 .faq-item.open .faq-q .ic { transform: rotate(45deg); }
 .faq-a { display: none; padding: 0 20px 16px; font-size: 13px; color: var(--ink2); line-height: 1.8; }
@@ -137,7 +147,7 @@ body { font-family: var(--sans); background: var(--bg); color: var(--ink); -webk
 
   <div class="hero">
     <div class="hero-label">PRICING & RULES</div>
-    <div class="hero-title">料金と、使い方のルール</div>
+    <h1 class="hero-title">料金と、使い方のルール</h1>
     <div class="hero-sub">あいぽは無料から始められます。<br>気に入ったらアップグレードしてください。</div>
   </div>
 
@@ -286,33 +296,33 @@ body { font-family: var(--sans); background: var(--bg); color: var(--ink); -webk
   <!-- FAQ -->
   <div class="sec-title">よくある質問</div>
 
-  <div class="faq-item" onclick="this.classList.toggle('open')">
-    <div class="faq-q">創設メンバーは何人まで？<span class="ic">+</span></div>
+  <div class="faq-item">
+    <button class="faq-q" onclick="this.parentElement.classList.toggle('open')" type="button">創設メンバーは何人まで？<span class="ic">+</span></button>
     <div class="faq-a">先着100名です。枠が埋まり次第終了します。後から申し込むことはできません。</div>
   </div>
 
-  <div class="faq-item" onclick="this.classList.toggle('open')">
-    <div class="faq-q">購入後すぐにバッジが付きますか？<span class="ic">+</span></div>
+  <div class="faq-item">
+    <button class="faq-q" onclick="this.parentElement.classList.toggle('open')" type="button">購入後すぐにバッジが付きますか？<span class="ic">+</span></button>
     <div class="faq-a">はい、Stripeでの決済完了後、自動的にバッジが付与されます。反映まで数分かかる場合があります。付かない場合はアプリを再読み込みしてください。</div>
   </div>
 
-  <div class="faq-item" onclick="this.classList.toggle('open')">
-    <div class="faq-q">創設メンバーはProより得ですか？<span class="ic">+</span></div>
+  <div class="faq-item">
+    <button class="faq-q" onclick="this.parentElement.classList.toggle('open')" type="button">創設メンバーはProより得ですか？<span class="ic">+</span></button>
     <div class="faq-a">はい。創設メンバーは¥980の一度きりの支払いでProの全機能が永久に使えます。Proは月¥300なので、4ヶ月以上使うなら創設メンバーがお得です。</div>
   </div>
 
-  <div class="faq-item" onclick="this.classList.toggle('open')">
-    <div class="faq-q">無料プランでもアイデアを上場できますか？<span class="ic">+</span></div>
+  <div class="faq-item">
+    <button class="faq-q" onclick="this.parentElement.classList.toggle('open')" type="button">無料プランでもアイデアを上場できますか？<span class="ic">+</span></button>
     <div class="faq-a">はい、月3件まで上場できます。3件を超えると上場にはProか創設メンバーへのアップグレードが必要になります。</div>
   </div>
 
-  <div class="faq-item" onclick="this.classList.toggle('open')">
-    <div class="faq-q">応援票は毎日リセットされますか？<span class="ic">+</span></div>
+  <div class="faq-item">
+    <button class="faq-q" onclick="this.parentElement.classList.toggle('open')" type="button">応援票は毎日リセットされますか？<span class="ic">+</span></button>
     <div class="faq-a">はい、毎日0時（JST）にリセットされます。無料なら3票、Pro・創設メンバーなら4票が配られます。</div>
   </div>
 
-  <div class="faq-item" onclick="this.classList.toggle('open')">
-    <div class="faq-q">お問い合わせ先は？<span class="ic">+</span></div>
+  <div class="faq-item">
+    <button class="faq-q" onclick="this.parentElement.classList.toggle('open')" type="button">お問い合わせ先は？<span class="ic">+</span></button>
     <div class="faq-a">team.shikakeru@gmail.com または アプリ内の広場からご連絡ください。</div>
   </div>
 

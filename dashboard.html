@@ -2,12 +2,16 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
 <title>AIPO CONTROL TOWER</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://qjffvspnnxyykoyhnazm.supabase.co" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"></noscript>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" async></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -19,7 +23,7 @@
     --green-light: #22a85f;
     --red: #e53e3e;
     --text: #1a1a1a;
-    --text-muted: #888;
+    --text-muted: #666;
     --border: #e8e6e0;
   }
 
@@ -495,12 +499,12 @@
   <div class="header">
     <div class="header-row">
       <div>
-        <div class="header-title">AIPO CONTROL TOWER</div>
+        <h1 class="header-title">AIPO CONTROL TOWER</h1>
         <a href="index.html" class="header-back">← あいぽに戻る</a>
       </div>
       <div class="header-meta">
         <span class="last-updated" id="lastUpdated">--:--:--</span>
-        <button class="refresh-btn" onclick="refreshCurrentTab()">🔄</button>
+        <button class="refresh-btn" onclick="refreshCurrentTab()" aria-label="データを更新">🔄</button>
       </div>
     </div>
   </div>
@@ -604,7 +608,7 @@
               <div class="metric-cell"><div class="metric-num" id="ph-upgrade">—</div><div class="metric-lbl">課金タップ数</div></div>
             </div>
             <div style="margin-top:8px;display:flex;gap:6px;align-items:center">
-              <input id="ph-key-input" type="password" placeholder="phx_..."
+              <input id="ph-key-input" type="password" placeholder="phx_..." aria-label="PostHog APIキー"
                 style="flex:1;padding:6px 10px;font-size:11px;border:1px solid #e0ded8;border-radius:8px;font-family:monospace">
               <button onclick="savePosthogKey()"
                 style="padding:6px 12px;background:#e8850a;color:#fff;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer">保存</button>
@@ -619,7 +623,7 @@
         <div class="section-title">Sentry Auth Token</div>
         <div class="card">
           <div style="display:flex;gap:6px;align-items:center">
-            <input id="sentry-key-input" type="password" placeholder="sntryu_..."
+            <input id="sentry-key-input" type="password" placeholder="sntryu_..." aria-label="Sentry Auth Token"
               style="flex:1;padding:6px 10px;font-size:11px;border:1px solid #e0ded8;border-radius:8px;font-family:monospace">
             <button onclick="saveSentryKey()"
               style="padding:6px 12px;background:#e8850a;color:#fff;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer">保存</button>
@@ -651,7 +655,7 @@
     </div>
 
   </div>
-  <div class="footer" style="display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap"><a href="index.html">← あいぽに戻る</a><a href="https://notion.so/32d6342ba0c680158f52d581a0f9257c" target="_blank" style="background:#1a1918;color:#fff;padding:8px 16px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">📋 経営管理</a></div>
+  <div class="footer" style="display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap"><a href="index.html">← あいぽに戻る</a><a href="https://notion.so/32d6342ba0c680158f52d581a0f9257c" target="_blank" rel="noopener" style="background:#1a1918;color:#fff;padding:8px 16px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">📋 経営管理</a></div>
 </div>
 
 <!-- ══ Tab 2: Crisp チャット ══════════════════════════════════════════ -->
@@ -660,7 +664,7 @@
     <div style="font-size:40px">💬</div>
     <div style="font-size:16px;font-weight:700;color:var(--text)">Crispでチャットを管理</div>
     <div style="font-size:13px;color:var(--text2);line-height:1.7">ユーザーからのチャットメッセージは<br>Crisp管理画面で確認・返信できます</div>
-    <a href="https://app.crisp.chat/" target="_blank" style="background:#1f1f1f;color:#fff;padding:14px 28px;border-radius:12px;text-decoration:none;font-size:14px;font-weight:700;letter-spacing:0.3px;box-shadow:0 2px 12px rgba(0,0,0,0.18)">📥 Crisp受信箱を開く</a>
+    <a href="https://app.crisp.chat/" target="_blank" rel="noopener" style="background:#1f1f1f;color:#fff;padding:14px 28px;border-radius:12px;text-decoration:none;font-size:14px;font-weight:700;letter-spacing:0.3px;box-shadow:0 2px 12px rgba(0,0,0,0.18)">📥 Crisp受信箱を開く</a>
     <div style="font-size:11px;color:var(--text3)">新しいタブで開きます</div>
   </div>
 </div>
@@ -774,7 +778,7 @@
 
   <!-- 入力欄 -->
   <div class="msg-form">
-    <textarea id="hiroba-msg-input" class="msg-input" rows="1" maxlength="400"
+    <textarea id="hiroba-msg-input" class="msg-input" rows="1" maxlength="400" aria-label="広場への投稿"
       placeholder="返信を送る..."
       oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,80)+'px'"
       onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendHirobaReply();}"></textarea>
@@ -796,7 +800,7 @@
   </div>
   <div class="msg-list" id="user-messages-body"></div>
   <div class="msg-form">
-    <textarea id="msg-input" class="msg-input" rows="1" maxlength="200" placeholder="メッセージを送る..."
+    <textarea id="msg-input" class="msg-input" rows="1" maxlength="200" aria-label="メッセージ入力" placeholder="メッセージを送る..."
       oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,80)+'px'"
       onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAdminMessage();}"></textarea>
     <button class="msg-send-btn" onclick="sendAdminMessage()">送信</button>
@@ -816,7 +820,7 @@
       <div style="font-size:12px;color:var(--text-muted);line-height:1.7">全ユーザーの受信ボックスに同じメッセージが届きます。送信後の取り消しはできません。</div>
     </div>
     <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">メッセージ内容</div>
-    <textarea id="broadcast-input" class="broadcast-textarea" maxlength="400" placeholder="ここにメッセージを入力..." oninput="updateBroadcastCount(this)"></textarea>
+    <textarea id="broadcast-input" class="broadcast-textarea" maxlength="400" aria-label="一斉配信メッセージ" placeholder="ここにメッセージを入力..." oninput="updateBroadcastCount(this)"></textarea>
     <div style="text-align:right;font-size:11px;color:var(--text-muted);margin-top:4px"><span id="broadcast-count">0</span> / 400文字</div>
     <div id="broadcast-target" style="font-size:12px;color:var(--text-muted);margin-top:10px;text-align:center">送信先: — 名</div>
     <button class="broadcast-send-btn" id="broadcast-send-btn" onclick="sendBroadcast()">全ユーザーに送信する</button>

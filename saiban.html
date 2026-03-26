@@ -2,7 +2,9 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="index, follow">
+<meta name="description" content="家庭内のもめごとをAI裁判長が判決。夫婦・兄弟・親子間の揉め事を公平に裁きます。">
 <!-- PostHog Analytics -->
 <script>
 !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=(s.asset_host||s.api_host.replace(".i.posthog.com","-assets.i.posthog.com"))+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+" (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys getNextSurveyStep onSessionId setPersonPropertiesForFlags".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
@@ -11,7 +13,21 @@ posthog.init('phc_665tIWLYkMFBazlz7Q6CPiZjEK3rYzJtoTF7QG2JPYB',{api_host:'https:
 <title>家庭内民事裁判所</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600&family=Noto+Sans+JP:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://qjffvspnnxyykoyhnazm.supabase.co" crossorigin>
+<link rel="dns-prefetch" href="https://us.i.posthog.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600&family=Noto+Sans+JP:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600&family=Noto+Sans+JP:wght@400;500&display=swap" rel="stylesheet"></noscript>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "家庭内民事裁判所",
+  "description": "家庭内のもめごとをAI裁判長が判決。夫婦・兄弟・親子間の揉め事を公平に裁きます。",
+  "url": "https://aipo-tau.vercel.app/saiban",
+  "applicationCategory": "EntertainmentApplication"
+}
+</script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -20,7 +36,7 @@ posthog.init('phc_665tIWLYkMFBazlz7Q6CPiZjEK3rYzJtoTF7QG2JPYB',{api_host:'https:
   --border:rgba(0,0,0,0.10);
   --text:#1a1714;
   --text2:#5a5550;
-  --text3:#9a9088;
+  --text3:#6e6560;
   --accent:#1a1714;
   --accent-fg:#ffffff;
   --red:#c0392b;
@@ -281,7 +297,7 @@ textarea::placeholder{color:var(--text3)}
   <div id="screen-top" class="screen">
     <div class="logo-area">
       <div class="logo-rule-top"></div>
-      <div class="logo-title">家庭内民事裁判所</div>
+      <h1 class="logo-title">家庭内民事裁判所</h1>
       <div class="logo-sub">令和7年 · AI裁判長制度</div>
       <div class="logo-rule-bottom"></div>
     </div>
@@ -294,7 +310,7 @@ textarea::placeholder{color:var(--text3)}
       <button class="case-btn" onclick="selectCase(this,'その他')">その他</button>
     </div>
 
-    <div class="inp-label">訴　状</div>
+    <label class="inp-label" for="plaintiff-claim-input">訴　状</label>
     <textarea id="plaintiff-claim-input" rows="6" placeholder="事の経緯を詳細にご記入ください"></textarea>
 
     <button class="btn-primary" onclick="submitCase()">提訴する</button>
@@ -345,7 +361,7 @@ textarea::placeholder{color:var(--text3)}
       <div class="card-content" id="plaintiff-claim-display">読み込み中...</div>
     </div>
 
-    <div class="inp-label">答　弁</div>
+    <label class="inp-label" for="defendant-claim-input">答　弁</label>
     <textarea id="defendant-claim-input" rows="6" placeholder="あなたの言い分を話してください"></textarea>
 
     <button class="btn-primary" onclick="submitDefendant()">反論を提出する</button>
@@ -441,7 +457,7 @@ function shareToLine() {
   const text = encodeURIComponent(
     '【召喚状】\nあなたは第' + roomId + '号法廷に召喚されました。\n以下のリンクから入廷してください。\n\n' + getDefendantUrl()
   );
-  window.open('https://line.me/R/msg/text/?' + text, '_blank');
+  window.open('https://line.me/R/msg/text/?' + text, '_blank', 'noopener');
 }
 
 function copyUrl() {
@@ -527,7 +543,7 @@ function shareVerdictToLine() {
     '家庭内民事裁判所 判決\n\n【主文】\n' + main + '\n\n【裁判長のひとこと】\n' + comment +
     '\n\n' + location.origin + '/saiban'
   );
-  window.open('https://line.me/R/msg/text/?' + text, '_blank');
+  window.open('https://line.me/R/msg/text/?' + text, '_blank', 'noopener');
 }
 
 function copyVerdict() {

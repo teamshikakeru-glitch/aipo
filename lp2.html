@@ -2,7 +2,8 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="index, follow">
 <title>あいぽ — アイデアIPO市場</title>
 <link rel="canonical" href="https://aipo-tau.vercel.app/lp2">
 <meta property="og:type" content="website">
@@ -20,15 +21,31 @@
 <meta name="twitter:description" content="作る前に需要を確認する。思いついたら一行で上場。票とコメントでアイデアの価値がリアルタイムで動く。">
 <meta name="twitter:image" content="https://aipo-tau.vercel.app/og-image.png">
 <meta name="description" content="作る前に需要を確認する。思いついたら一行で上場。票とコメントでアイデアの価値がリアルタイムで動く。">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;700;900&family=Noto+Sans+JP:wght@400;500;700&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://qjffvspnnxyykoyhnazm.supabase.co" crossorigin>
+<link rel="dns-prefetch" href="https://us.i.posthog.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;700;900&family=Noto+Sans+JP:wght@400;500;700&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;700;900&family=Noto+Sans+JP:wght@400;500;700&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet"></noscript>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" async></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "あいぽ",
+  "description": "作る前に需要を確認する。思いついたら一行で上場。票とコメントでアイデアの価値がリアルタイムで動く。",
+  "url": "https://aipo-tau.vercel.app/lp2",
+  "applicationCategory": "SocialNetworkingApplication"
+}
+</script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
   --cream:#f0ebe1;--cream2:#e8e2d8;--ivory:#f8f5ef;
   --amber:#b86000;--amber-mid:#d97706;--amber-light:#f59e0b;
   --dark:#090806;--dark2:#100f0c;--dark3:#161410;
-  --text:#16140d;--text2:#5c5649;--text3:#a09890;
+  --text:#16140d;--text2:#5c5649;--text3:#736b62;
   --serif:'Noto Serif JP',serif;--sans:'Noto Sans JP',sans-serif;--mono:'DM Mono',monospace;
   --green:#15803d;--green-bright:#22c55e;--red:#dc2626;
 }
@@ -358,7 +375,7 @@ img,canvas,svg,video{max-width:100%}
     <a href="#philo" class="nav-link">思想</a>
     <a href="#roadmap" class="nav-link">ロードマップ</a>
     <!-- ★ UTM追加: ナビ「アプリを開く」 -->
-    <a href="/?utm_source=lp&utm_medium=nav&utm_campaign=open_app" class="nav-cta">アプリを開く <svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M4 10h12M10 4l6 6-6 6"/></svg></a>
+    <a href="/?utm_source=lp&utm_medium=nav&utm_campaign=open_app" class="nav-cta" aria-label="あいぽアプリを開く">アプリを開く <svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M4 10h12M10 4l6 6-6 6"/></svg></a>
   </div>
 </nav>
 
@@ -390,8 +407,8 @@ img,canvas,svg,video{max-width:100%}
     <p class="hero-desc"><strong>作る前に需要を確認する。</strong>思いついたら一行で上場。票とコメントでアイデアの価値がリアルタイムで動く。</p>
     <div class="hero-actions">
       <!-- ★ UTM追加: ヒーロー「無料ではじめる」 -->
-      <a href="/?utm_source=lp&utm_medium=hero&utm_campaign=start_free" class="btn-main">無料ではじめる <svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M4 10h12M10 4l6 6-6 6"/></svg></a>
-      <a href="#claim" class="btn-outline">なぜ作ったのか <svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 10h12M10 4l6 6-6 6"/></svg></a>
+      <a href="/?utm_source=lp&utm_medium=hero&utm_campaign=start_free" class="btn-main">無料ではじめる <svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M4 10h12M10 4l6 6-6 6"/></svg></a>
+      <a href="#claim" class="btn-outline">なぜ作ったのか <svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 10h12M10 4l6 6-6 6"/></svg></a>
     </div>
   </div>
   <div class="hero-scroll-ind"><div class="scroll-line"></div><span>SCROLL</span></div>
@@ -843,7 +860,7 @@ async function loadLiveStats() {
         const gc = genreColor(idea.genre);
         const name = (idea.name || '').length > 24 ? idea.name.slice(0, 24) + '…' : (idea.name || '');
         // ★ UTM追加: マーケットカード・応援ボタン
-        return `<div class="mrow" onclick="window.open('/?utm_source=lp&utm_medium=market_card&utm_campaign=vote','_blank')">
+        return `<div class="mrow" onclick="window.open('/?utm_source=lp&utm_medium=market_card&utm_campaign=vote','_blank','noopener')">
           <div class="mrow-rank">${i + 1}</div>
           <div class="mrow-score-wrap">
             <div class="mrow-score" style="color:#15803d">${score}</div>
@@ -857,7 +874,7 @@ async function loadLiveStats() {
               <span>${idea.votes || 0}票</span>
             </div>
           </div>
-          <button class="mrow-action" onclick="event.stopPropagation();window.open('/?utm_source=lp&utm_medium=market_vote&utm_campaign=vote','_blank')">応援</button>
+          <button class="mrow-action" onclick="event.stopPropagation();window.open('/?utm_source=lp&utm_medium=market_vote&utm_campaign=vote','_blank','noopener')">応援</button>
         </div>`;
       }).join('') + `<div style="padding:14px 18px;text-align:center;background:var(--ivory);border-top:1px solid rgba(0,0,0,.05)">
         <!-- ★ UTM追加: すべてのアイデアを見る -->
