@@ -104,12 +104,15 @@ module.exports = async function handler(req, res) {
 
 async function applyPlan(resolvedUserId, isFounderPurchase, isProPurchase, session) {
   if (isFounderPurchase) {
-    const { count } = await supabase
+    // MAX(founder_number) + 1 で採番（重複防止）
+    const { data: maxRow } = await supabase
       .from('profiles')
-      .select('id', { count: 'exact', head: true })
+      .select('founder_number')
       .eq('is_founder', true)
-      .neq('id', ADMIN_UUID);
-    const founderNumber = (count || 0) + 1;
+      .order('founder_number', { ascending: false })
+      .limit(1)
+      .single();
+    const founderNumber = (maxRow?.founder_number || 0) + 1;
 
     const { error } = await supabase.from('profiles').upsert({
       id: resolvedUserId,

@@ -1031,8 +1031,9 @@ async function applyPendingPlan() {
   try {
     const { data: prof } = await sb.from('profiles').select('is_founder, is_pro').eq('id', currentUser.id).single();
     if (pending.plan === 'founder' && !prof?.is_founder) {
-      const { count } = await sb.from('profiles').select('id', { count: 'exact', head: true }).eq('is_founder', true);
-      const founderNumber = (count || 0) + 1;
+      // MAX(founder_number) + 1 で採番（重複防止）
+      const { data: maxRow } = await sb.from('profiles').select('founder_number').eq('is_founder', true).order('founder_number', { ascending: false }).limit(1).single();
+      const founderNumber = (maxRow?.founder_number || 0) + 1;
       await sb.from('profiles').upsert({ id: currentUser.id, is_founder: true, is_pro: true, founder_number: founderNumber }, { onConflict: 'id' });
       isPro = true; currentUser.isFounder = true; currentUser.founderNumber = founderNumber;
       updatePlanBadge();
