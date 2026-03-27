@@ -1,0 +1,14 @@
+# Vercel
+.vercel-token
+.vercel
+
+# Dependencies
+node_modules/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
