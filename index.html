@@ -496,6 +496,7 @@ input[type=file] { display: none; }
       <div class="hd-right">
         <button id="plan-badge" onclick="toggleProMenu()" style="display:none;background:none;border:none;font:inherit;cursor:pointer;color:inherit;padding:0">残3回</button>
         <div class="votes-chip"><span class="votes-n" id="votes-left">3</span><span class="votes-l">票</span></div>
+        <button id="header-notif-btn" onclick="openNotifSheet()" aria-label="通知" style="position:relative;width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border2);cursor:pointer;background:var(--surface2);display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text2)" stroke-width="1.8" aria-hidden="true"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><div id="header-notif-badge" style="display:none;position:absolute;top:1px;right:1px;min-width:14px;height:14px;background:#c0392b;border-radius:7px;border:1.5px solid var(--surface);align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;padding:0 3px;line-height:1"></div></button>
         <button id="profile-btn" onclick="currentUser ? openProfileModal() : showLoginSheet()" title="プロフィール設定 / ログイン" aria-label="プロフィール設定 / ログイン" style="width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border2);cursor:pointer;overflow:hidden;background:var(--surface2);display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0"><span id="profile-btn-ico" style="font-size:14px" aria-hidden="true">👤</span></button>
       </div>
     </div>
@@ -1129,8 +1130,24 @@ async function voteIdeaToDB(ideaId, votesAtTime) {
     const { error: scoreError } = await sb.rpc('update_idea_score', { idea_id: ideaId, new_score: newScore });
     if (scoreError) { console.error('update_idea_score error:', scoreError); }
   }
-  const { data: current } = await sb.from('ideas').select('votes, user_id, name').eq('id', ideaId).single();
+  const { data: current } = await sb.from('ideas').select('votes, user_id, name, milestone_10_done').eq('id', ideaId).single();
   if ((current?.votes || 0) >= 20) checkMilestone(ideaId);
+  // 10票突破時：投票者全員に通知
+  if ((current?.votes || 0) >= 10 && !current?.milestone_10_done) {
+    try {
+      await sb.from('ideas').update({ milestone_10_done: true }).eq('id', ideaId);
+      const { data: voters } = await sb.from('votes').select('user_id').eq('idea_id', ideaId).not('user_id', 'is', null);
+      if (voters) {
+        const sent = new Set();
+        for (const v of voters) {
+          if (sent.has(v.user_id)) continue;
+          sent.add(v.user_id);
+          _sendNotification(v.user_id, 'vote_milestone', ideaId,
+            `「${(current.name||'').slice(0,20)}」が10票を突破しました！`);
+        }
+      }
+    } catch(e) { console.error('milestone_10 notif error:', e); }
+  }
   // アイデアオーナーに投票通知
   if (current?.user_id && current.user_id !== currentUser?.id) {
     _sendNotification(current.user_id, 'vote', ideaId,
@@ -1142,6 +1159,25 @@ async function voteIdeaToDB(ideaId, votesAtTime) {
 async function postCommentToDB(ideaId, text) {
   const { error } = await sb.from('comments').insert({ user_id: currentUser?.id, idea_id: ideaId, text });
   if (error) { console.error('comment:', error); return false; }
+  // アイデアオーナーに新コメント通知を送信
+  const idea = ideas.find(i => i.id === ideaId);
+  if (idea?.userId && idea.userId !== currentUser?.id) {
+    _sendNotification(idea.userId, 'new_comment', ideaId,
+      `「${(idea.name||'').slice(0,20)}」に新しいコメントがつきました`);
+  }
+  // このアイデアに投票済みのユーザーにもコメント通知（オーナー・自分を除く）
+  try {
+    const { data: voters } = await sb.from('votes').select('user_id').eq('idea_id', ideaId).not('user_id', 'is', null);
+    if (voters) {
+      const sent = new Set();
+      for (const v of voters) {
+        if (v.user_id === currentUser?.id || v.user_id === idea?.userId || sent.has(v.user_id)) continue;
+        sent.add(v.user_id);
+        _sendNotification(v.user_id, 'new_comment', ideaId,
+          `応援中の「${(idea?.name||'').slice(0,20)}」に新コメントがつきました`);
+      }
+    }
+  } catch(e) { console.error('voter comment notif error:', e); }
   return true;
 }
 
@@ -2130,6 +2166,15 @@ async function showDetail(id) {
       <div id="actions-edit-${idea.id}" style="display:none">${idea.actions.map(function(a,i){ return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-family:var(--mono);font-size:12px;color:var(--amber-mid);min-width:22px;font-weight:700">0'+(i+1)+'</span><input class="inp inp-sm" id="action-inp-'+idea.id+'-'+i+'" value="'+a.replace(/"/g,'&quot;')+'" style="flex:1"></div>'; }).join('')}<button onclick="saveField('${idea.id}','actions')" style="margin-top:4px;width:100%;padding:10px;background:var(--amber-mid);border:none;border-radius:var(--r-md);font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--sans)">保存する</button></div>
     </div>
     ${isMyIdea ? `<div class="info-card"><div class="ic-title">進捗ステータス</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">${[['0','アイデア段階','基本'],['1','開発中','+10pt'],['2','テスト中','+20pt'],['3','リリース済み','+30pt']].map(([val,label,sub])=>`<button onclick="updateProgress('${idea.id}',${val})" style="border:1.5px solid ${idea.progressStep==val?'var(--amber-mid)':'var(--border2)'};background:${idea.progressStep==val?'var(--amber-bg)':'var(--surface)'};border-radius:var(--r-md);padding:10px 12px;cursor:pointer;transition:all .15s;text-align:left;font:inherit;width:100%"><div style="font-size:12px;font-weight:700;color:${idea.progressStep==val?'var(--amber)':'var(--text2)'}">${label}</div><div style="font-size:10px;color:${idea.progressStep==val?'var(--amber-mid)':'var(--text3)'};margin-top:2px">${sub}</div></button>`).join('')}</div></div>` : ''}
+    <div class="info-card" id="trajectory-section-${idea.id}">
+      <div class="ic-title">TRAJECTORY — アイデアの軌跡</div>
+      <div style="position:relative;margin-bottom:12px">
+        <div id="trajectory-rank-${idea.id}" style="display:flex;gap:12px;margin-bottom:10px;flex-wrap:wrap"></div>
+        <svg id="trajectory-chart-${idea.id}" width="100%" height="160" style="display:block;border-radius:8px;background:var(--surface2)"></svg>
+        <div id="trajectory-loading-${idea.id}" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text3)">軌跡データ読込中...</div>
+      </div>
+      <div id="trajectory-timeline-${idea.id}" style="margin-top:8px"></div>
+    </div>
     <div class="info-card" id="comment-section-${idea.id}">
       <div class="ic-title">コメント（${(idea.commentList||[]).length}件）</div>
       <div id="comment-list-${idea.id}">${(idea.commentList||[]).length === 0 ? '<div style="font-size:12px;color:var(--text3);padding:8px 0">まだコメントはありません。最初のコメントを書いてみましょう。</div>' : (idea.commentList||[]).map(c=>`<div style="padding:10px 0;border-bottom:0.5px solid var(--border)"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px"><div style="display:flex;align-items:center;gap:6px"><span style="font-size:12px;font-weight:700;color:var(--text)">${c.name}</span>${c.tag ? `<span style="font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;${getTagStyle(c.tag)}">${c.tag}</span>` : ''}</div><span style="font-size:10px;color:var(--text3)">${c.time}</span></div><div style="font-size:13px;color:var(--text);line-height:1.6">${c.text}</div></div>`).join('')}</div>
@@ -2156,6 +2201,8 @@ async function showDetail(id) {
     fetchScoreHistory(id).then(hist => {
       drawLineChart('big-spark', hist, delta >= 0);
     });
+    // 軌跡セクション（日別投票推移・タイムライン・順位）を非同期描画
+    loadTrajectory(id);
   },60);
 }
 
@@ -4085,6 +4132,224 @@ async function init() {
 }
 
 
+// ─── アイデア軌跡表示システム ────────────────────────────
+// 日別投票推移を取得してSVGグラフ・タイムライン・順位を描画
+async function loadTrajectory(ideaId) {
+  const idea = ideas.find(i => i.id === ideaId);
+  if (!idea) return;
+
+  // 順位と前日比を表示
+  const rankEl = document.getElementById('trajectory-rank-' + ideaId);
+  if (rankEl) {
+    const sorted = [...ideas].sort((a,b) => b.score - a.score);
+    const rank = sorted.findIndex(i => i.id === ideaId) + 1;
+    const total = sorted.length;
+    const prevRank = prevRankingMap[ideaId] || null;
+    let rankChangeHtml = '';
+    if (prevRank) {
+      const diff = prevRank - rank;
+      if (diff > 0) rankChangeHtml = `<div style="background:var(--green-bg);border:1px solid var(--green-border);border-radius:8px;padding:6px 12px;font-size:12px;color:var(--green);font-weight:700">前日比 ▲${diff}位UP</div>`;
+      else if (diff < 0) rankChangeHtml = `<div style="background:#fff0f0;border:1px solid #f5c6c6;border-radius:8px;padding:6px 12px;font-size:12px;color:var(--red);font-weight:700">前日比 ▼${Math.abs(diff)}位DOWN</div>`;
+      else rankChangeHtml = `<div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:6px 12px;font-size:12px;color:var(--text3);font-weight:700">前日比 → 変動なし</div>`;
+    }
+    rankEl.innerHTML = `<div style="background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:8px;padding:6px 12px;font-size:12px;color:var(--amber);font-weight:700">現在 ${rank}/${total}位</div>${rankChangeHtml}`;
+  }
+
+  // 日別投票推移データを取得
+  try {
+    const { data: votesData, error } = await sb.from('votes')
+      .select('created_at')
+      .eq('idea_id', ideaId)
+      .order('created_at', { ascending: true });
+
+    const loadingEl = document.getElementById('trajectory-loading-' + ideaId);
+    if (loadingEl) loadingEl.style.display = 'none';
+
+    if (error || !votesData || votesData.length === 0) {
+      const svg = document.getElementById('trajectory-chart-' + ideaId);
+      if (svg) svg.innerHTML = '<text x="50%" y="50%" text-anchor="middle" fill="rgba(0,0,0,0.3)" font-size="11" font-family="sans-serif">まだ投票データがありません</text>';
+      return;
+    }
+
+    // 日別に集計
+    const dailyMap = {};
+    votesData.forEach(v => {
+      const d = v.created_at.slice(0, 10); // YYYY-MM-DD
+      dailyMap[d] = (dailyMap[d] || 0) + 1;
+    });
+
+    // 最初の投票日〜今日までの日付リストを生成
+    const firstDate = new Date(votesData[0].created_at.slice(0, 10));
+    const today = new Date(new Date().toISOString().slice(0, 10));
+    const days = [];
+    for (let d = new Date(firstDate); d <= today; d.setDate(d.getDate() + 1)) {
+      const key = d.toISOString().slice(0, 10);
+      days.push({ date: key, count: dailyMap[key] || 0 });
+    }
+
+    // 累積投票数も計算
+    let cumulative = 0;
+    days.forEach(d => { cumulative += d.count; d.cumulative = cumulative; });
+
+    drawTrajectoryChart(ideaId, days);
+    drawTrajectoryTimeline(ideaId, idea, votesData, days);
+
+  } catch(e) {
+    console.error('loadTrajectory error:', e);
+    const loadingEl = document.getElementById('trajectory-loading-' + ideaId);
+    if (loadingEl) loadingEl.textContent = 'データ取得に失敗しました';
+  }
+}
+
+// SVGで日別投票推移の棒グラフ＋累積折れ線を描画
+function drawTrajectoryChart(ideaId, days) {
+  const svg = document.getElementById('trajectory-chart-' + ideaId);
+  if (!svg) return;
+
+  const W = svg.getBoundingClientRect().width || 320;
+  const H = 160;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+
+  const padL = 36, padR = 10, padT = 16, padB = 30;
+  const cw = W - padL - padR;
+  const ch = H - padT - padB;
+
+  // 最大14日分を表示（多い場合は最新14日）
+  const maxDays = 14;
+  const displayDays = days.length > maxDays ? days.slice(-maxDays) : days;
+  const n = displayDays.length;
+  if (n === 0) return;
+
+  const maxCount = Math.max(...displayDays.map(d => d.count), 1);
+  const maxCum = Math.max(...displayDays.map(d => d.cumulative), 1);
+  const barW = Math.min(Math.floor(cw / n) - 4, 24);
+  const gap = (cw - barW * n) / (n + 1);
+
+  let html = '';
+
+  // 背景グリッド線
+  for (let i = 0; i <= 3; i++) {
+    const y = padT + (ch / 3) * i;
+    html += `<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="rgba(0,0,0,0.06)" stroke-width="0.5"/>`;
+  }
+
+  // Y軸ラベル（棒グラフ用）
+  html += `<text x="${padL-4}" y="${padT+4}" text-anchor="end" fill="rgba(0,0,0,0.3)" font-size="9" font-family="monospace">${maxCount}</text>`;
+  html += `<text x="${padL-4}" y="${padT+ch+4}" text-anchor="end" fill="rgba(0,0,0,0.3)" font-size="9" font-family="monospace">0</text>`;
+
+  // 棒グラフ
+  displayDays.forEach((d, i) => {
+    const x = padL + gap + i * (barW + gap);
+    const barH = (d.count / maxCount) * ch;
+    const y = padT + ch - barH;
+    const isToday = d.date === new Date().toISOString().slice(0, 10);
+    const fill = isToday ? 'var(--amber-mid)' : 'var(--green-light)';
+    const opacity = d.count === 0 ? 0.15 : 0.7;
+
+    html += `<rect x="${x}" y="${y}" width="${barW}" height="${barH}" rx="3" fill="${fill}" opacity="${opacity}">
+      <animate attributeName="height" from="0" to="${barH}" dur="0.4s" fill="freeze"/>
+      <animate attributeName="y" from="${padT+ch}" to="${y}" dur="0.4s" fill="freeze"/>
+    </rect>`;
+
+    // 棒の上に数値（0でない場合）
+    if (d.count > 0) {
+      html += `<text x="${x+barW/2}" y="${y-4}" text-anchor="middle" fill="var(--text2)" font-size="9" font-weight="700" font-family="monospace">${d.count}</text>`;
+    }
+
+    // X軸ラベル（日付）
+    const label = d.date.slice(5); // MM-DD
+    if (n <= 7 || i % Math.ceil(n/7) === 0 || i === n-1) {
+      html += `<text x="${x+barW/2}" y="${H-6}" text-anchor="middle" fill="rgba(0,0,0,0.35)" font-size="8" font-family="monospace">${label}</text>`;
+    }
+  });
+
+  // 累積折れ線（右Y軸）
+  if (n >= 2) {
+    const points = displayDays.map((d, i) => {
+      const x = padL + gap + i * (barW + gap) + barW / 2;
+      const y = padT + ch - (d.cumulative / maxCum) * ch;
+      return `${x},${y}`;
+    }).join(' ');
+
+    html += `<polyline points="${points}" fill="none" stroke="var(--amber-mid)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>`;
+
+    // 累積の終点にドット
+    const last = displayDays[displayDays.length - 1];
+    const lx = padL + gap + (n-1) * (barW + gap) + barW / 2;
+    const ly = padT + ch - (last.cumulative / maxCum) * ch;
+    html += `<circle cx="${lx}" cy="${ly}" r="3" fill="var(--amber-mid)" opacity="0.8"/>`;
+    html += `<text x="${lx}" y="${ly-8}" text-anchor="middle" fill="var(--amber)" font-size="9" font-weight="700" font-family="monospace">計${last.cumulative}票</text>`;
+  }
+
+  // 凡例
+  html += `<rect x="${padL}" y="${2}" width="8" height="8" rx="2" fill="var(--green-light)" opacity="0.7"/>`;
+  html += `<text x="${padL+11}" y="${9}" fill="var(--text3)" font-size="8" font-family="sans-serif">日別票数</text>`;
+  html += `<line x1="${padL+56}" y1="${6}" x2="${padL+68}" y2="${6}" stroke="var(--amber-mid)" stroke-width="1.5" opacity="0.6"/>`;
+  html += `<text x="${padL+71}" y="${9}" fill="var(--text3)" font-size="8" font-family="sans-serif">累積</text>`;
+
+  svg.innerHTML = html;
+}
+
+// タイムライン：主要イベントを時系列で表示
+function drawTrajectoryTimeline(ideaId, idea, votesData, days) {
+  const el = document.getElementById('trajectory-timeline-' + ideaId);
+  if (!el) return;
+
+  const events = [];
+
+  // 投稿日
+  if (idea.postedAt) {
+    events.push({ date: idea.postedAt.slice(0, 10), label: 'アイデア上場', icon: '🎉', color: 'var(--amber-mid)' });
+  }
+
+  // 累積で10票・20票・50票・100票を突破した日を検出
+  const milestones = [10, 20, 50, 100];
+  let cumulative = 0;
+  const reached = new Set();
+  for (const d of days) {
+    cumulative += d.count;
+    for (const m of milestones) {
+      if (cumulative >= m && !reached.has(m)) {
+        reached.add(m);
+        events.push({ date: d.date, label: `${m}票突破`, icon: m >= 50 ? '🔥' : '✨', color: m >= 50 ? 'var(--red)' : 'var(--green)' });
+      }
+    }
+  }
+
+  // コメント数マイルストーン
+  const commentCount = (idea.commentList || []).length;
+  if (commentCount >= 5) {
+    events.push({ date: '', label: `コメント${commentCount}件到達`, icon: '💬', color: '#185FA5' });
+  }
+
+  if (events.length === 0) {
+    el.innerHTML = '<div style="font-size:11px;color:var(--text3);padding:4px 0">まだイベントはありません</div>';
+    return;
+  }
+
+  // 日付順にソート（日付なしは末尾）
+  events.sort((a, b) => {
+    if (!a.date) return 1;
+    if (!b.date) return -1;
+    return a.date.localeCompare(b.date);
+  });
+
+  let html = '<div style="font-size:11px;font-weight:700;color:var(--text3);margin-bottom:8px;letter-spacing:.04em">MILESTONES</div>';
+  html += '<div style="position:relative;padding-left:20px;border-left:2px solid var(--border2);margin-left:6px">';
+  events.forEach(ev => {
+    const dateLabel = ev.date ? ev.date.slice(5).replace('-', '/') : '—';
+    html += `<div style="position:relative;padding:6px 0 10px">
+      <div style="position:absolute;left:-26px;top:8px;width:12px;height:12px;border-radius:50%;background:${ev.color};display:flex;align-items:center;justify-content:center;font-size:7px;border:2px solid var(--surface)">${ev.icon}</div>
+      <div style="display:flex;align-items:baseline;gap:8px">
+        <span style="font-size:10px;color:var(--text3);font-family:var(--mono);min-width:40px">${dateLabel}</span>
+        <span style="font-size:12px;font-weight:700;color:var(--text)">${ev.label}</span>
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+  el.innerHTML = html;
+}
+
 // ─── 通知システム ───────────────────────────────────────
 async function _sendNotification(userId, type, ideaId, message) {
   try {
@@ -4114,14 +4379,25 @@ async function loadNotifBadge() {
       .eq('user_id', currentUser.id)
       .eq('is_read', false);
     const badge = document.getElementById('notif-badge');
+    const headerBadge = document.getElementById('header-notif-badge');
     const entryBtn = document.getElementById('notif-entry-btn');
     const hasUnread = count && count > 0;
+    // ナビバーのバッジ
     if (badge) {
       if (hasUnread) {
         badge.textContent = count > 99 ? '99+' : count;
         badge.style.display = 'flex';
       } else {
         badge.style.display = 'none';
+      }
+    }
+    // ヘッダーのベルアイコンバッジ
+    if (headerBadge) {
+      if (hasUnread) {
+        headerBadge.textContent = count > 99 ? '99+' : count;
+        headerBadge.style.display = 'flex';
+      } else {
+        headerBadge.style.display = 'none';
       }
     }
     if (entryBtn) {
@@ -4147,31 +4423,39 @@ async function openNotifSheet() {
       await sb.from('notifications').update({ is_read: true }).in('id', unreadIds);
       const badge = document.getElementById('notif-badge');
       if (badge) badge.style.display = 'none';
+      const headerBadge = document.getElementById('header-notif-badge');
+      if (headerBadge) headerBadge.style.display = 'none';
       const entryBtn = document.getElementById('notif-entry-btn');
       if (entryBtn) entryBtn.style.display = 'none';
     }
   }
 
   const typeLabel = {
-    vote:     '投票',
-    score_up: 'スコア上昇',
-    share:    'シェア',
-    milestone:'注目銘柄',
-    admin:    'お知らせ',
+    vote:           '投票',
+    score_up:       'スコア上昇',
+    share:          'シェア',
+    milestone:      '注目銘柄',
+    new_comment:    'コメント',
+    vote_milestone: '突破',
+    admin:          'お知らせ',
   };
   const typeColor = {
-    vote:     'var(--green)',
-    score_up: 'var(--amber-mid)',
-    share:    '#185FA5',
-    milestone:'var(--amber-mid)',
-    admin:    'var(--text2)',
+    vote:           'var(--green)',
+    score_up:       'var(--amber-mid)',
+    share:          '#185FA5',
+    milestone:      'var(--amber-mid)',
+    new_comment:    '#185FA5',
+    vote_milestone: 'var(--green)',
+    admin:          'var(--text2)',
   };
   const typeBg = {
-    vote:     'var(--green-bg)',
-    score_up: 'var(--amber-bg)',
-    share:    '#f0f7ff',
-    milestone:'var(--amber-bg)',
-    admin:    'var(--surface2)',
+    vote:           'var(--green-bg)',
+    score_up:       'var(--amber-bg)',
+    share:          '#f0f7ff',
+    milestone:      'var(--amber-bg)',
+    new_comment:    '#f0f7ff',
+    vote_milestone: 'var(--green-bg)',
+    admin:          'var(--surface2)',
   };
 
   const overlay = document.createElement('div');
@@ -4317,6 +4601,27 @@ function _showExtBrowserBanner(url) {
 // ALTER TABLE chat_messages ENABLE ROW LEVEL SECURITY;
 // CREATE POLICY "cm_sel" ON chat_messages FOR SELECT USING (auth.uid() IN (SELECT owner_id FROM chat_rooms WHERE id=room_id UNION SELECT helper_id FROM chat_rooms WHERE id=room_id));
 // CREATE POLICY "cm_ins" ON chat_messages FOR INSERT WITH CHECK (auth.uid() IN (SELECT owner_id FROM chat_rooms WHERE id=room_id UNION SELECT helper_id FROM chat_rooms WHERE id=room_id));
+//
+// ── 投票通知・軌跡表示機能 (2026-03-28追加) ──────────────
+// -- notifications テーブルが未作成の場合（既存なら不要）
+// CREATE TABLE IF NOT EXISTS notifications (
+//   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+//   user_id uuid REFERENCES auth.users NOT NULL,
+//   idea_id uuid REFERENCES ideas,
+//   type text NOT NULL,
+//   message text NOT NULL,
+//   is_read boolean DEFAULT false,
+//   created_at timestamptz DEFAULT now()
+// );
+// ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
+// CREATE POLICY "notif_sel" ON notifications FOR SELECT USING (auth.uid() = user_id);
+// CREATE POLICY "notif_ins" ON notifications FOR INSERT WITH CHECK (true);
+// CREATE POLICY "notif_upd" ON notifications FOR UPDATE USING (auth.uid() = user_id);
+// CREATE INDEX IF NOT EXISTS idx_notifications_user_unread ON notifications (user_id, is_read) WHERE is_read = false;
+//
+// -- 10票突破マイルストーンフラグ
+// ALTER TABLE ideas ADD COLUMN IF NOT EXISTS milestone_10_done boolean DEFAULT false;
+// ──────────────────────────────────────────────────────────
 // ═══════════════════════════════════════════════════════
 
 const MATCH_SKILLS = [
