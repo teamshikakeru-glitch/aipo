@@ -128,6 +128,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); over
 @keyframes voteParticle { 0%{opacity:1;transform:translateY(0) scale(1)} 100%{opacity:0;transform:translateY(-40px) scale(0.5)} }
 .vote-pop { animation: votePop .4s cubic-bezier(.17,.67,.21,1.27); }
 .vote-particle { position:absolute;pointer-events:none;font-size:16px;animation:voteParticle .7s ease-out forwards; }
+@keyframes surgePulse { 0%,100%{opacity:1} 50%{opacity:.7} }
 /* Pull to refresh */
 .ptr-indicator { text-align:center;padding:0;max-height:0;overflow:hidden;transition:max-height .3s,padding .3s;font-size:12px;color:var(--text3);font-weight:600; }
 .ptr-indicator.show { max-height:50px;padding:14px 0; }
@@ -138,6 +139,13 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); over
 .stag { font-size: 9px; padding: 2px 7px; border-radius: 20px; font-weight: 700; }
 .stag-genre { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
 .stag-a { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
+/* チャレンジ応募スタイル */
+.challenge-badge { display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;background:linear-gradient(135deg,#5b21b6,#7c3aed);color:#fff;white-space:nowrap;flex-shrink:0; }
+.challenge-row { border-left:3px solid #7c3aed !important; }
+.challenge-check-wrap { display:flex;align-items:flex-start;gap:10px;background:#f5f3ff;border:1.5px solid #c4b5fd;border-radius:12px;padding:12px 14px;margin:12px 0;cursor:pointer; }
+.challenge-check-wrap input[type=checkbox] { width:18px;height:18px;margin-top:1px;accent-color:#7c3aed;flex-shrink:0;cursor:pointer; }
+.challenge-check-text { font-size:13px;font-weight:700;color:#5b21b6;line-height:1.4; }
+.challenge-check-sub { font-size:11px;color:#7c3aed;margin-top:2px;font-weight:400; }
 .xbonus { background: var(--surface); border-radius: var(--r-xl); padding: 16px 18px; margin-bottom: 12px; }
 .xb-hd { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
 .xb-row { display: flex; align-items: flex-start; justify-content: space-between; padding: 9px 0; border-bottom: 0.5px solid var(--border); flex-wrap: wrap; gap: 8px; }
@@ -500,6 +508,8 @@ input[type=file] { display: none; }
         <button class="pill-tab active" onclick="setTab(this,'all')" data-tab="all">すべて</button>
         <button class="pill-tab" onclick="setTab(this,'hot')" data-tab="hot">注目</button>
         <button class="pill-tab" onclick="setTab(this,'new')" data-tab="new">新着</button>
+        <!-- チャレンジ応募フィルタタブ -->
+        <button class="pill-tab" onclick="setTab(this,'challenge')" data-tab="challenge" style="border-color:#c4b5fd;color:#7c3aed">🏆 チャレンジ</button>
         <button class="pill-tab" onclick="showScoreGuide()" style="color:var(--amber);border-color:var(--amber-border);background:var(--amber-bg)">スコアとは？</button>
         <div style="width:0.5px;background:var(--border);flex-shrink:0;margin:2px 2px"></div>
         <button class="pill-tab genre-tab" onclick="setGenre(this,'テクノロジー')">テクノロジー</button>
@@ -549,6 +559,14 @@ input[type=file] { display: none; }
     <div class="field-wrap"><label class="field-lbl" for="inp-ticker">ティッカー <span class="field-opt">任意・英大文字5字以内</span></label><input class="inp inp-sm" id="inp-ticker" type="text" placeholder="例：HABIT" maxlength="5" style="text-transform:uppercase" autocomplete="off"><div class="hint">空欄だとアイデア名から自動生成します。</div></div>
     <div class="field-wrap"><label class="field-lbl" for="inp-desc">詳しく説明する <span class="field-opt">任意・後から追加可</span></label><textarea class="inp inp-sm" id="inp-desc" rows="3" placeholder="どんな問題を解決するか、誰に使ってほしいか、など自由に。書くほどスコアが上がります。"></textarea></div>
     <div class="field-wrap"><label class="field-lbl" for="inp-tech">作る技術 <span class="field-opt">任意</span></label><input class="inp inp-sm" id="inp-tech" type="text" placeholder="例：React Native、Python、Webアプリ" autocomplete="off"></div>
+    <!-- チャレンジ応募チェックボックス -->
+    <label class="challenge-check-wrap" for="inp-challenge">
+      <input type="checkbox" id="inp-challenge" onchange="onChallengeChange(this)">
+      <div>
+        <div class="challenge-check-text">🏆 あいぽチャレンジに応募する</div>
+        <div class="challenge-check-sub">チェックするとチャレンジ応募タグが付きます。上場にはSNS共有が必要です。</div>
+      </div>
+    </label>
     <div class="post-notice">情報を追加するほどスコアが上がります。まずはアイデア名とジャンルだけでも上場できます。</div>
     <button class="primary-btn" onclick="showPostPreview()">プレビューを確認して上場する →</button>
   </div>
@@ -941,6 +959,9 @@ async function fetchIdeas() {
       baseScore: parseFloat(row.base_score) || 50, score: parseFloat(row.score) || 50,
       votes: row.votes, views: row.views, shares: row.shares || 0, progress: row.progress_step,
       progressStep: row.progress_step,
+      // チャレンジ応募フラグ
+      isChallenge: row.is_challenge || false,
+      postedAt: row.posted_at, // ランキング変動表示用：投稿日時を保持
       postedDaysAgo: (Date.now() - new Date(row.posted_at)) / 86400000,
       daysSinceLastVote: row.last_voted_at ? (Date.now() - new Date(row.last_voted_at).getTime()) / 86400000 : (Date.now() - new Date(row.posted_at).getTime()) / 86400000,
       history: [parseFloat(row.score) || 50], lastReason: '最新データを取得しました', lastDelta: 0,
@@ -949,6 +970,10 @@ async function fetchIdeas() {
       userId: row.user_id,
     }));
     if (currentUser) { ideas.forEach(idea => { if (idea.userId === currentUser.id) myIdeas.add(idea.id); }); }
+    // ランキング変動データを取得（非同期だが初回描画をブロックしない）
+    await fetchRecentVotes();
+    loadPrevRanking();
+    saveCurrentRanking();
     renderFeed();
     const _sid = sessionStorage.getItem('aipo_idea_id');
     if (_sid) {
@@ -961,8 +986,110 @@ async function fetchIdeas() {
   } catch (e) { console.error('fetchIdeas error:', e); renderFeed(); }
 }
 
+// ── ランキング変動表示機能 ──
+
+// 過去24時間の投票増加数をアイデアごとに集計
+async function fetchRecentVotes() {
+  try {
+    const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const { data, error } = await sb.from('votes')
+      .select('idea_id')
+      .gte('created_at', since);
+    if (error || !data) return;
+    recentVotesMap = {};
+    data.forEach(row => {
+      recentVotesMap[row.idea_id] = (recentVotesMap[row.idea_id] || 0) + 1;
+    });
+  } catch(e) { console.error('fetchRecentVotes error:', e); }
+}
+
+// 前日のランキングスナップショットをlocalStorageから読み込み
+function loadPrevRanking() {
+  try {
+    const stored = localStorage.getItem('aipo_ranking_snapshot');
+    if (!stored) { prevRankingMap = {}; return; }
+    const parsed = JSON.parse(stored);
+    // 保存日が今日と異なれば「前日データ」として使う
+    const today = new Date().toISOString().slice(0, 10);
+    if (parsed.date === today) {
+      // 同日のデータ → 前日データは別キーにあるかチェック
+      const prev = localStorage.getItem('aipo_ranking_prev');
+      if (prev) { prevRankingMap = JSON.parse(prev); } else { prevRankingMap = {}; }
+    } else {
+      // 日付が違う → これが前日データ
+      prevRankingMap = parsed.ranking || {};
+    }
+  } catch(e) { prevRankingMap = {}; }
+}
+
+// 現在のランキングをlocalStorageに保存（日次スナップショット）
+function saveCurrentRanking() {
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const stored = localStorage.getItem('aipo_ranking_snapshot');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (parsed.date !== today) {
+        // 前日データとして退避
+        localStorage.setItem('aipo_ranking_prev', JSON.stringify(parsed.ranking || {}));
+      }
+    }
+    // 現在のランキングを保存
+    const sorted = [...ideas].sort((a, b) => b.score - a.score);
+    const ranking = {};
+    sorted.forEach((idea, i) => { ranking[idea.id] = i + 1; });
+    localStorage.setItem('aipo_ranking_snapshot', JSON.stringify({ date: today, ranking }));
+  } catch(e) {}
+}
+
+// 順位変動テキストを生成（▲2 / ▼1 / →）
+function getRankChangeHTML(ideaId) {
+  const sorted = [...ideas].sort((a, b) => b.score - a.score);
+  const currentRank = sorted.findIndex(i => i.id === ideaId) + 1;
+  const prevRank = prevRankingMap[ideaId];
+  if (!prevRank || !currentRank) return '';
+  const diff = prevRank - currentRank; // 正 = ランクアップ
+  if (diff > 0) return `<span style="font-size:10px;font-weight:700;color:var(--green);white-space:nowrap">▲${diff}</span>`;
+  if (diff < 0) return `<span style="font-size:10px;font-weight:700;color:var(--red);white-space:nowrap">▼${Math.abs(diff)}</span>`;
+  return `<span style="font-size:10px;font-weight:700;color:var(--text3);white-space:nowrap">→</span>`;
+}
+
+// 投票変動バッジHTML生成
+function getVoteChangeHTML(ideaId) {
+  const count = recentVotesMap[ideaId] || 0;
+  if (count <= 0) return '';
+  return `<span style="font-size:10px;font-weight:700;color:var(--green);font-family:var(--mono);white-space:nowrap">+${count}</span>`;
+}
+
+// 急上昇バッジHTML生成
+function getSurgeBadgeHTML(ideaId) {
+  const count = recentVotesMap[ideaId] || 0;
+  if (count < SURGE_THRESHOLD) return '';
+  return `<span style="font-size:9px;font-weight:700;background:linear-gradient(135deg,#ff6b35,#ff4444);color:#fff;border-radius:4px;padding:1px 6px;white-space:nowrap;animation:surgePulse 1.5s ease-in-out infinite">急上昇</span>`;
+}
+
+// 新着バッジHTML生成（投稿から48時間以内）
+function getNewBadgeHTML(idea) {
+  if (!idea.postedAt) return '';
+  const hoursSincePost = (Date.now() - new Date(idea.postedAt).getTime()) / (1000 * 60 * 60);
+  if (hoursSincePost > NEW_HOURS) return '';
+  return `<span style="font-size:9px;font-weight:700;background:#3b82f6;color:#fff;border-radius:4px;padding:1px 6px;white-space:nowrap">NEW</span>`;
+}
+
 async function postIdeaToDB(ideaData) {
-  const { data, error } = await sb.from('ideas').insert({ user_id: currentUser?.id, ticker: ideaData.ticker, emoji: ideaData.emoji, name: ideaData.name, description: ideaData.desc, genre: ideaData.genre, tech: ideaData.tech, score: ideaData.score, base_score: ideaData.score }).select().single();
+  // is_challengeフラグを含めてinsert
+  const { data, error } = await sb.from('ideas').insert({
+    user_id: currentUser?.id,
+    ticker: ideaData.ticker,
+    emoji: ideaData.emoji,
+    name: ideaData.name,
+    description: ideaData.desc,
+    genre: ideaData.genre,
+    tech: ideaData.tech,
+    score: ideaData.score,
+    base_score: ideaData.score,
+    is_challenge: ideaData.isChallenge || false,
+  }).select().single();
   if (error) { console.error('postIdea:', error); return null; }
   if (ideaData.actions?.length && data) { await sb.from('actions').insert(ideaData.actions.map((text, i) => ({ idea_id: data.id, text, order_num: i }))); }
   return data;
@@ -1045,9 +1172,13 @@ function timeAgo(dateStr) {
 
 const HOT_THRESHOLD = 20;
 const HOT_DISPLAY = 5;
+const SURGE_THRESHOLD = 10; // 急上昇判定：過去24時間で10票以上
+const NEW_HOURS = 48; // 新着判定：投稿から48時間以内
 let ideas = [];
 let votesLeft = 3;
 let votedIds = new Set();
+let recentVotesMap = {}; // { ideaId: 過去24時間の投票増加数 }
+let prevRankingMap = {}; // { ideaId: 前日の順位 }
 let currentTab = 'all';
 let selectedEmoji = '💡';
 let selectedGenre = '';
@@ -1578,13 +1709,21 @@ function buildRowCompact(idea) {
   const delta = idea.score - idea.baseScore;
   const scoreColor = delta > 0.3 ? '#1a6dcc' : delta < -0.3 ? '#cc3333' : 'var(--text2)';
   const voted = votedIds.has(idea.id);
-  return `<div id="row-${idea.id}" onclick="showDetail('${idea.id}')" role="button" tabindex="0" aria-label="${_n}の詳細を見る" style="border-bottom:0.5px solid var(--border);cursor:pointer;display:flex;align-items:center;padding:10px 14px;gap:10px">
+  // チャレンジ応募投稿のビジュアル強調
+  const challengeStyle = idea.isChallenge ? 'border-left:3px solid #7c3aed;background:linear-gradient(to right,rgba(124,58,237,.04),transparent);' : '';
+  const challengeBadge = idea.isChallenge ? '<span class="challenge-badge" style="font-size:8px;padding:1px 5px">🏆</span>' : '';
+  const voteChange = getVoteChangeHTML(idea.id);
+  const surgeBadge = getSurgeBadgeHTML(idea.id);
+  const newBadge = getNewBadgeHTML(idea);
+  const rankChange = getRankChangeHTML(idea.id);
+  return `<div id="row-${idea.id}" onclick="showDetail('${idea.id}')" role="button" tabindex="0" aria-label="${_n}の詳細を見る" style="border-bottom:0.5px solid var(--border);cursor:pointer;display:flex;align-items:center;padding:10px 14px;gap:10px;${challengeStyle}">
     <div style="min-width:36px;text-align:center;flex-shrink:0">
       <div style="font-family:var(--mono);font-size:16px;font-weight:700;color:${scoreColor};line-height:1">${idea.score.toFixed(1)}</div>
+      ${rankChange ? '<div style="margin-top:1px">'+rankChange+'</div>' : ''}
     </div>
     <div style="flex:1;min-width:0">
-      <div style="font-size:13px;font-weight:700;color:var(--text);overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${_n}</div>
-      <div style="font-size:11px;color:var(--text3);margin-top:2px">${_g} · ${idea.votes}票</div>
+      <div style="font-size:13px;font-weight:700;color:var(--text);overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${_n}${challengeBadge}${surgeBadge?' '+surgeBadge:''}${newBadge?' '+newBadge:''}</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:2px;display:flex;align-items:center;gap:4px"><span>${_g} · ${idea.votes}票</span>${voteChange}</div>
     </div>
     <button onclick="event.stopPropagation();voteIdea('${idea.id}')" aria-label="${_n}を応援する" style="background:${voted?'var(--surface2)':'var(--amber-mid)'};color:${voted?'var(--text3)':'#fff'};border:none;border-radius:10px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans);flex-shrink:0">${voted?'済':'応援'}</button>
   </div>`;
@@ -1595,12 +1734,19 @@ function buildRowList(idea) {
   const delta = idea.score - idea.baseScore;
   const scoreColor = delta > 0.3 ? '#1a6dcc' : delta < -0.3 ? '#cc3333' : 'var(--text2)';
   const voted = votedIds.has(idea.id);
-  return `<div id="row-${idea.id}" onclick="showDetail('${idea.id}')" role="button" tabindex="0" aria-label="${_n}の詳細を見る" style="border-bottom:0.5px solid var(--border);cursor:pointer;display:flex;align-items:center;padding:8px 14px;gap:10px">
-    <div style="font-family:var(--mono);font-size:14px;font-weight:700;color:${scoreColor};min-width:36px;text-align:center;flex-shrink:0">${idea.score.toFixed(1)}</div>
+  // チャレンジ応募投稿のビジュアル強調
+  const challengeStyle = idea.isChallenge ? 'border-left:3px solid #7c3aed;background:linear-gradient(to right,rgba(124,58,237,.04),transparent);' : '';
+  const challengeBadge = idea.isChallenge ? ' <span class="challenge-badge" style="font-size:8px;padding:1px 5px;vertical-align:middle">🏆</span>' : '';
+  const voteChange = getVoteChangeHTML(idea.id);
+  const rankChange = getRankChangeHTML(idea.id);
+  const surgeBadge = getSurgeBadgeHTML(idea.id);
+  const newBadge = getNewBadgeHTML(idea);
+  return `<div id="row-${idea.id}" onclick="showDetail('${idea.id}')" role="button" tabindex="0" aria-label="${_n}の詳細を見る" style="border-bottom:0.5px solid var(--border);cursor:pointer;display:flex;align-items:center;padding:8px 14px;gap:10px;${challengeStyle}">
+    <div style="font-family:var(--mono);font-size:14px;font-weight:700;color:${scoreColor};min-width:36px;text-align:center;flex-shrink:0">${idea.score.toFixed(1)}${rankChange ? '<div style="margin-top:1px">'+rankChange+'</div>' : ''}</div>
     <div style="flex:1;min-width:0">
-      <div style="font-size:13px;font-weight:700;color:var(--text);overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${_n}</div>
+      <div style="font-size:13px;font-weight:700;color:var(--text);overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${_n}${challengeBadge}${surgeBadge?' '+surgeBadge:''}${newBadge?' '+newBadge:''}</div>
     </div>
-    <div style="font-size:11px;color:var(--text3);flex-shrink:0">${idea.votes}票</div>
+    <div style="font-size:11px;color:var(--text3);flex-shrink:0;display:flex;align-items:center;gap:3px"><span>${idea.votes}票</span>${voteChange}</div>
   </div>`;
 }
 
@@ -1613,7 +1759,10 @@ function renderTop3() {
     const voted = votedIds.has(idea.id); const gold = i === 0 ? ' gold' : ''; const nm = idea.name.length > 16 ? idea.name.slice(0,16)+'…' : idea.name;
     const d = idea.score - idea.baseScore;
     const scoreColor = d > 0.3 ? '#1a6dcc' : d < -0.3 ? '#cc3333' : 'var(--text2)';
-    return `<div class="top3-card${gold}" onclick="showDetail('${idea.id}')" role="button" tabindex="0" aria-label="${esc(nm)}の詳細を見る"><div class="top3-rank${i===0?' r1':''}">${ranks[i]}</div><div class="top3-score-v" style="color:${scoreColor}">${idea.score.toFixed(1)}</div><div class="top3-name-v">${esc(nm)}</div><div class="top3-votes-v">${idea.votes}票</div><button class="top3-vb ${voted?'voted':''}" onclick="event.stopPropagation();voteIdea('${idea.id}')" aria-label="${esc(nm)}を応援する"><svg width="9" height="9" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="${voted?'var(--green-light)':'currentColor'}" stroke-width="2.5" stroke-linecap="round"/></svg></button></div>`;
+    const surgeBadge = getSurgeBadgeHTML(idea.id);
+    const newBadge = getNewBadgeHTML(idea);
+    const voteChange = getVoteChangeHTML(idea.id);
+    return `<div class="top3-card${gold}" onclick="showDetail('${idea.id}')" role="button" tabindex="0" aria-label="${esc(nm)}の詳細を見る"><div class="top3-rank${i===0?' r1':''}">${ranks[i]}</div><div class="top3-score-v" style="color:${scoreColor}">${idea.score.toFixed(1)}</div><div class="top3-name-v">${esc(nm)}</div><div class="top3-votes-v" style="display:flex;align-items:center;justify-content:center;gap:3px"><span>${idea.votes}票</span>${voteChange}</div>${(surgeBadge||newBadge)?'<div style="display:flex;gap:3px;justify-content:center;margin-top:2px">'+surgeBadge+newBadge+'</div>':''}<button class="top3-vb ${voted?'voted':''}" onclick="event.stopPropagation();voteIdea('${idea.id}')" aria-label="${esc(nm)}を応援する"><svg width="9" height="9" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="${voted?'var(--green-light)':'currentColor'}" stroke-width="2.5" stroke-linecap="round"/></svg></button></div>`;
   }).join('');
 }
 
@@ -1634,6 +1783,8 @@ function renderFeed() {
   let list = [...ideas]; const secEl = document.getElementById('sec-label');
   if (currentTab === 'hot') { list = list.filter(i => i.score >= 80).sort((a,b) => b.score - a.score); secEl.textContent = `注目銘柄 · ${list.length}件`; }
   else if (currentTab === 'new') { const todayStr = new Date().toISOString().slice(0,10); const todayList = list.filter(i => (i.created_at||'').slice(0,10) === todayStr || i.postedDaysAgo < 1); list = todayList.length > 0 ? todayList : [...list].reverse().slice(0,10); secEl.textContent = `新着（今日）· ${list.length}件`; }
+  // チャレンジ応募タブ：is_challengeがtrueの投稿のみ表示
+  else if (currentTab === 'challenge') { list = list.filter(i => i.isChallenge).sort((a,b) => b.score - a.score); secEl.textContent = `🏆 チャレンジ応募 · ${list.length}件`; }
   else { list = list.sort((a,b) => b.score - a.score); secEl.textContent = `銘柄一覧 · ${list.length}件`; }
   if (currentGenre) list = list.filter(i => i.genre === currentGenre);
   const el = document.getElementById('stock-list'); const inlineLbl = document.getElementById('next-lbl-inline'); if (inlineLbl) inlineLbl.textContent = '';
@@ -1649,16 +1800,28 @@ function buildRow(idea) {
   const scoreColor = delta > 0.3 ? '#1a6dcc' : delta < -0.3 ? '#cc3333' : 'var(--text2)';
   const voted = votedIds.has(idea.id);
   const isHot = idea.votes >= HOT_THRESHOLD;
-  return `<div id="row-${idea.id}" onclick="showDetail('${idea.id}')" role="button" tabindex="0" aria-label="${_n}の詳細を見る" style="border-bottom:0.5px solid var(--border);cursor:pointer;display:flex;align-items:center;padding:14px 16px;gap:12px">
+  // チャレンジ応募投稿は左ボーダーと背景色で視覚的に目立たせる
+  const challengeStyle = idea.isChallenge ? 'border-left:3px solid #7c3aed;background:linear-gradient(to right,rgba(124,58,237,.04),transparent);' : '';
+  const challengeBadge = idea.isChallenge ? '<span class="challenge-badge">🏆 チャレンジ</span>' : '';
+  // ランキング変動バッジ
+  const rankChange = getRankChangeHTML(idea.id);
+  const voteChange = getVoteChangeHTML(idea.id);
+  const surgeBadge = getSurgeBadgeHTML(idea.id);
+  const newBadge = getNewBadgeHTML(idea);
+  return `<div id="row-${idea.id}" onclick="showDetail('${idea.id}')" role="button" tabindex="0" aria-label="${_n}の詳細を見る" style="border-bottom:0.5px solid var(--border);cursor:pointer;display:flex;align-items:center;padding:14px 16px;gap:12px;${challengeStyle}">
     <div style="min-width:44px;text-align:center;flex-shrink:0">
       <div style="font-family:var(--mono);font-size:22px;font-weight:700;color:${scoreColor};line-height:1">${idea.score.toFixed(1)}</div>
-      <div style="font-size:11px;color:var(--text3);margin-top:3px">${idea.votes}票</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:3px;margin-top:3px"><span style="font-size:11px;color:var(--text3)">${idea.votes}票</span>${voteChange}</div>
+      ${rankChange ? '<div style="margin-top:2px;text-align:center">'+rankChange+'</div>' : ''}
     </div>
     <div style="flex:1;min-width:0">
       <div style="font-size:15px;font-weight:700;color:var(--text);line-height:1.4;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin-bottom:3px">${_n}</div>
-      <div style="display:flex;align-items:center;gap:6px">
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
         <span style="font-size:12px;color:var(--text3)">${_g}</span>
         ${isHot?'<span style="font-size:10px;background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border);border-radius:4px;padding:1px 6px;font-weight:700">注目</span>':''}
+        ${surgeBadge}
+        ${newBadge}
+        ${challengeBadge}
       </div>
     </div>
     <button onclick="event.stopPropagation();voteIdea('${idea.id}')" aria-label="${_n}を応援する" style="background:${voted?'var(--surface2)':'var(--amber-mid)'};color:${voted?'var(--text3)':'#fff'};border:none;border-radius:12px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans);white-space:nowrap;flex-shrink:0">${voted?'応援済み':'応援'}</button>
@@ -1834,6 +1997,10 @@ function initEmojiPicker() { document.querySelectorAll('.ep').forEach(el => { co
 function selEmoji(el) { document.querySelectorAll('.ep').forEach(x=>x.classList.remove('sel')); el.classList.add('sel'); selectedEmoji = el.dataset.e; }
 function selGenre(el) { document.querySelectorAll('.genre-item').forEach(x=>x.classList.remove('selected')); el.classList.add('selected'); selectedGenre = el.textContent; }
 
+// チャレンジ応募フラグ（投稿フォーム用）
+let selectedChallenge = false;
+function onChallengeChange(el) { selectedChallenge = el.checked; }
+
 function buildAvatars(ideaId) {
   const idea = ideas.find(i => i.id === ideaId);
   if (!idea || idea.votes === 0) return '<div style="font-size:11px;color:var(--text3)">まだ応援者がいません</div>';
@@ -1886,7 +2053,7 @@ async function showDetail(id) {
     </button>
     <div class="hero-card">
       <div class="hero-top">
-        <div class="hero-left">${icoSVG(idea.emoji, 48)}<div class="hero-ticker">${esc(idea.ticker)}</div><div class="hero-name">${esc(idea.name)}</div><div class="hero-genre">${esc(idea.genre)}${idea.tech?' · '+esc(idea.tech):''}</div></div>
+        <div class="hero-left">${icoSVG(idea.emoji, 48)}<div class="hero-ticker">${esc(idea.ticker)}</div><div class="hero-name">${esc(idea.name)}</div><div class="hero-genre">${esc(idea.genre)}${idea.tech?' · '+esc(idea.tech):''}${idea.isChallenge?' <span class="challenge-badge" style="vertical-align:middle;font-size:9px">🏆 チャレンジ応募</span>':''}</div></div>
         <div class="hero-score-wrap">
           <div class="hero-score ${sc}">${idea.score.toFixed(1)}</div>
           <div class="hero-pill" style="background:${pc}">${ds}</div>
@@ -1897,6 +2064,10 @@ async function showDetail(id) {
       <div class="reason-row"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="var(--text3)" stroke-width="1"/><line x1="6" y1="5" x2="6" y2="8" stroke="var(--text3)" stroke-width="1" stroke-linecap="round"/><circle cx="6" cy="3.5" r=".5" fill="var(--text3)"/></svg><span class="reason-text">${idea.lastReason||'スコアを計算中です'}</span></div>
       <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
         ${(()=>{ const pct=calcPercentile(idea); const gr=calcGenreRank(idea); const pctColor=pct>=80?'var(--green)':pct>=50?'var(--amber)':'var(--text3)'; return `<div style="background:var(--surface2);border-radius:8px;padding:6px 12px;font-size:12px;color:${pctColor};font-weight:700">全体 上位${100-pct+1<1?1:100-pct+1}%</div><div style="background:var(--surface2);border-radius:8px;padding:6px 12px;font-size:12px;color:var(--text2);font-weight:700">${esc(idea.genre)} ${gr.rank}/${gr.total}位</div>`; })()}
+        ${(()=>{ const rc=recentVotesMap[idea.id]||0; return rc>0?'<div style="background:var(--green-bg);border:1px solid var(--green-border);border-radius:8px;padding:6px 12px;font-size:12px;color:var(--green);font-weight:700">24h +'+rc+'票</div>':''; })()}
+        ${getRankChangeHTML(idea.id)?'<div style="background:var(--surface2);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700">'+getRankChangeHTML(idea.id)+' 順位変動</div>':''}
+        ${getSurgeBadgeHTML(idea.id)}
+        ${getNewBadgeHTML(idea)}
       </div>
     </div>
     <div style="display:flex;gap:8px;margin-bottom:12px">
@@ -2032,7 +2203,10 @@ function showPostPreview() {
   overlay.setAttribute('role', 'dialog');
   overlay.setAttribute('aria-modal', 'true');
   overlay.setAttribute('aria-label', 'プレビュー');
-  overlay.innerHTML = `<div class="preview-box"><div class="preview-handle"></div><div class="preview-title">マーケットでの表示プレビュー</div><div class="preview-sub">このように表示されます</div><div class="preview-card"><div class="preview-card-inner"><div class="preview-score-col"><div class="preview-score-num" style="color:${scoreColor}">${score.toFixed(1)}</div><div class="preview-score-lbl">スコア</div></div><div class="preview-info"><div class="preview-ticker-row"><span class="preview-ticker">${ticker}</span><span style="font-size:9px;color:var(--text3)">· ${selectedGenre || 'その他'}</span></div><div class="preview-name">${displayName}</div><div class="preview-meta">0票 · たった今</div></div><div class="preview-vote-btn"><svg width="11" height="11" viewBox="0 0 20 20" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="var(--green)" stroke-width="2.2" stroke-linecap="round"/></svg></div></div></div><div class="preview-hint">初期スコアは <strong>${score.toFixed(1)}</strong> です。</div><div class="preview-actions"><button class="preview-cancel" onclick="document.getElementById('post-preview-modal').remove()">修正する</button><button class="preview-confirm" onclick="document.getElementById('post-preview-modal').remove();doPost()">上場する →</button></div></div>`;
+  // チャレンジ応募の場合はプレビューにバッジとシェア案内を追加
+  const challengePreviewBadge = selectedChallenge ? '<span class="challenge-badge" style="font-size:9px;margin-left:6px;vertical-align:middle">🏆 チャレンジ</span>' : '';
+  const challengePreviewHint = selectedChallenge ? '<div style="background:#f5f3ff;border:1px solid #c4b5fd;border-radius:8px;padding:8px 10px;margin-bottom:10px;font-size:11px;color:#5b21b6;line-height:1.6">🏆 チャレンジ応募タグが付きます。上場後にSNSシェアの案内が表示されます。</div>' : '';
+  overlay.innerHTML = `<div class="preview-box"><div class="preview-handle"></div><div class="preview-title">マーケットでの表示プレビュー</div><div class="preview-sub">このように表示されます</div><div class="preview-card"><div class="preview-card-inner" style="${selectedChallenge ? 'border-left:3px solid #7c3aed;' : ''}"><div class="preview-score-col"><div class="preview-score-num" style="color:${scoreColor}">${score.toFixed(1)}</div><div class="preview-score-lbl">スコア</div></div><div class="preview-info"><div class="preview-ticker-row"><span class="preview-ticker">${ticker}</span><span style="font-size:9px;color:var(--text3)">· ${selectedGenre || 'その他'}</span>${challengePreviewBadge}</div><div class="preview-name">${displayName}</div><div class="preview-meta">0票 · たった今</div></div><div class="preview-vote-btn"><svg width="11" height="11" viewBox="0 0 20 20" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="var(--green)" stroke-width="2.2" stroke-linecap="round"/></svg></div></div></div><div class="preview-hint">初期スコアは <strong>${score.toFixed(1)}</strong> です。</div>${challengePreviewHint}<div class="preview-actions"><button class="preview-cancel" onclick="document.getElementById('post-preview-modal').remove()">修正する</button><button class="preview-confirm" onclick="document.getElementById('post-preview-modal').remove();doPost()">${selectedChallenge ? '応募して上場する →' : '上場する →'}</button></div></div>`;
   overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
   document.body.appendChild(overlay);
 }
@@ -2054,12 +2228,180 @@ async function doPost() {
   }
   const ticker = rawTicker || (title.replace(/[^A-Za-zぁ-ん一-龯]/g,'').slice(0,5).toUpperCase() || 'IDEA');
   const score = calcScore({votes:0,views:0,commentList:[],progress:0,progressStep:0,postedDaysAgo:0,daysSinceLastVote:0,desc,tech,supporters:0,genre:selectedGenre,id:'_'});
-  const newIdea = { id:'local-'+Date.now(), ticker, emoji:selectedEmoji, name:title, desc, genre:selectedGenre, tech, baseScore:score, score, votes:0, views:0, progress:0, progressStep:0, postedDaysAgo:0, daysSinceLastVote:0, history:[score], lastReason:'上場しました', lastDelta:0, commentList:[], actions:[], supporters:0, userId: currentUser?.id };
+  // チャレンジ応募フラグをnewIdeaに持たせる
+  const isChallenge = selectedChallenge;
+  const newIdea = { id:'local-'+Date.now(), ticker, emoji:selectedEmoji, name:title, desc, genre:selectedGenre, tech, baseScore:score, score, votes:0, views:0, progress:0, progressStep:0, postedDaysAgo:0, daysSinceLastVote:0, history:[score], lastReason:'上場しました', lastDelta:0, commentList:[], actions:[], supporters:0, userId: currentUser?.id, isChallenge };
   ideas.push(newIdea); myIdeas.add(newIdea.id); postCount++; updatePlanBadge();
-  postIdeaToDB(newIdea).then(data => { if (data) { newIdea.id = data.id; myIdeas.delete('local-'+Date.now()); myIdeas.add(data.id); } });
   phCapture('apply_submit');
-  if (typeof posthog !== 'undefined') posthog.capture('idea_posted');
-  goTo('feed'); showToast('上場しました。マーケットに掲載されました');
+  if (typeof posthog !== 'undefined') posthog.capture('idea_posted', { is_challenge: isChallenge });
+
+  // チャレンジ応募の場合はシェアゲートを表示してから上場完了
+  if (isChallenge) {
+    // まずDBに保存してIDを確定させる
+    const posted = await postIdeaToDB(newIdea);
+    if (posted) { newIdea.id = posted.id; myIdeas.add(posted.id); }
+    // チェックボックスをリセット
+    const chkEl = document.getElementById('inp-challenge');
+    if (chkEl) { chkEl.checked = false; selectedChallenge = false; }
+    goTo('feed');
+    showChallengeShareGate(newIdea);
+  } else {
+    // 通常投稿はそのまま上場 → Xシェアモーダルを表示
+    const posted = await postIdeaToDB(newIdea);
+    if (posted) { newIdea.id = posted.id; myIdeas.delete('local-'+Date.now()); myIdeas.add(posted.id); }
+    // チェックボックスをリセット
+    const chkEl = document.getElementById('inp-challenge');
+    if (chkEl) { chkEl.checked = false; selectedChallenge = false; }
+    goTo('feed'); showToast('上場しました。マーケットに掲載されました');
+    // 上場完了シェアモーダルを表示
+    showListingShareModal(newIdea);
+  }
+}
+
+/**
+ * チャレンジ応募シェアゲートモーダル
+ * 上場にはSNS共有が必要な旨を案内し、共有ボタンを提供する
+ */
+function showChallengeShareGate(idea) {
+  document.getElementById('challenge-share-gate')?.remove();
+  const shareUrl = `${location.origin}/api/share?id=${encodeURIComponent(idea.id)}`;
+  const shareText = `💡「${idea.name}」をあいぽチャレンジに応募しました！\n応援してください✨\n\n#あいぽ #あいぽチャレンジ${idea.genre ? ' #' + idea.genre : ''}`;
+  const xUrl  = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
+  const lineUrl = `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(shareUrl)}`;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'challenge-share-gate';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-label', 'チャレンジ応募シェアゲート');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+
+  overlay.innerHTML = `
+    <div style="background:var(--surface);border-radius:24px;width:100%;max-width:360px;padding:28px 20px 24px;animation:obFadeIn .3s ease;text-align:center">
+      <!-- チャレンジアイコン -->
+      <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#5b21b6,#7c3aed);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:26px">🏆</div>
+      <div style="font-size:17px;font-weight:700;color:var(--text);margin-bottom:6px">チャレンジ応募！</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:8px">
+        「${esc(idea.name)}」をチャレンジに応募しました。<br>
+        <span style="font-weight:700;color:#7c3aed">SNSでシェアして上場を完了</span>させましょう！
+      </div>
+      <div style="background:#f5f3ff;border:1px solid #c4b5fd;border-radius:10px;padding:10px 12px;margin-bottom:20px;font-size:11px;color:#5b21b6;line-height:1.6">
+        シェアすることでより多くの人に投票してもらえます。シェアしない場合もマーケットには掲載されます。
+      </div>
+      <!-- シェアボタン群 -->
+      <div style="display:flex;gap:10px;margin-bottom:12px">
+        <a href="${xUrl}" target="_blank" rel="noopener" onclick="onChallengeShared('${idea.id}')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:#000;color:#fff;border-radius:12px;padding:12px 8px;font-size:13px;font-weight:700;text-decoration:none">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="#fff"><path d="M2 2l7.5 8.5L2 18h2l6.3-7.1L16 18h4L12 9.2 18.5 2h-2L10.6 8.6 5 2H2z"/></svg>Xでシェア
+        </a>
+        <a href="${lineUrl}" target="_blank" rel="noopener" onclick="onChallengeShared('${idea.id}')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:#06C755;color:#fff;border-radius:12px;padding:12px 8px;font-size:13px;font-weight:700;text-decoration:none">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.630 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zM12 0C5.373 0 0 4.925 0 11c0 4.07 2.363 7.61 5.893 9.637C5.66 21.637 5 23 5 23s3.5-1.5 5-2.5c.64.09 1.306.14 1.98.14C18.627 20.64 24 15.715 24 9.64c0-5.345-5.373-9.64-12-9.64z"/></svg>LINE
+        </a>
+      </div>
+      <button onclick="onChallengeCopyLink('${idea.id}','${encodeURIComponent(shareUrl)}')" style="width:100%;background:var(--surface2);border:1.5px solid var(--border2);border-radius:12px;padding:11px;font-size:13px;font-weight:700;color:var(--text2);cursor:pointer;font-family:var(--sans);margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:6px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        リンクをコピー
+      </button>
+      <!-- スキップ（シェアなしでも上場は完了） -->
+      <button onclick="document.getElementById('challenge-share-gate').remove();showToast('上場しました！チャレンジ応募済みです')" style="background:none;border:none;font-size:12px;color:var(--text3);cursor:pointer;font-family:var(--sans);padding:4px">
+        スキップして閉じる
+      </button>
+    </div>`;
+  document.body.appendChild(overlay);
+  showToast('上場しました。チャレンジ応募タグで掲載されています');
+}
+
+/**
+ * 通常上場完了時のXシェアモーダル
+ * アイデア上場直後に表示し、Xでのシェアを促す
+ */
+function showListingShareModal(idea) {
+  document.getElementById('listing-share-modal')?.remove();
+  const shareUrl = `${location.origin}/api/share?id=${encodeURIComponent(idea.id)}`;
+  const descShort = idea.desc ? idea.desc.slice(0, 50) : '';
+  const shareText = `【アイデア上場】${idea.name}\n\n${descShort}\n\nあいぽでこのアイデアに投票する →\n${shareUrl}\n\n#あいぽ #アイデア上場`;
+  const xUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
+  const lineText = encodeURIComponent(shareText);
+  const lineUrl = `https://line.me/R/msg/text/?${lineText}`;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'listing-share-modal';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-label', '上場完了シェア');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+
+  overlay.innerHTML = `
+    <div style="background:var(--surface);border-radius:24px;width:100%;max-width:360px;padding:28px 20px 24px;animation:obFadeIn .3s ease;text-align:center">
+      <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#e8850a,#f5a623);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:26px">🎉</div>
+      <div style="font-size:17px;font-weight:700;color:var(--text);margin-bottom:6px">上場完了！</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:8px">
+        「${esc(idea.name)}」がマーケットに掲載されました。<br>
+        <span style="font-weight:700;color:var(--amber)">Xでシェアしてみんなに知らせましょう！</span>
+      </div>
+      <div style="background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:10px;padding:10px 12px;margin-bottom:20px;font-size:11px;color:var(--amber);line-height:1.6;text-align:left">
+        シェアするとより多くの人に投票してもらえます。スコアも上がりやすくなります。
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:12px">
+        <a href="${xUrl}" target="_blank" rel="noopener" onclick="onListingShared('${idea.id}')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:#000;color:#fff;border-radius:12px;padding:14px 8px;font-size:14px;font-weight:700;text-decoration:none;transition:opacity .15s">
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="#fff"><path d="M2 2l7.5 8.5L2 18h2l6.3-7.1L16 18h4L12 9.2 18.5 2h-2L10.6 8.6 5 2H2z"/></svg>Xでシェア
+        </a>
+        <a href="${lineUrl}" target="_blank" rel="noopener" onclick="onListingShared('${idea.id}')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:#06C755;color:#fff;border-radius:12px;padding:14px 8px;font-size:14px;font-weight:700;text-decoration:none;transition:opacity .15s">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.630 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zM12 0C5.373 0 0 4.925 0 11c0 4.07 2.363 7.61 5.893 9.637C5.66 21.637 5 23 5 23s3.5-1.5 5-2.5c.64.09 1.306.14 1.98.14C18.627 20.64 24 15.715 24 9.64c0-5.345-5.373-9.64-12-9.64z"/></svg>LINE
+        </a>
+      </div>
+      <button onclick="onListingCopyLink('${idea.id}','${encodeURIComponent(shareUrl)}')" style="width:100%;background:var(--surface2);border:1.5px solid var(--border2);border-radius:12px;padding:11px;font-size:13px;font-weight:700;color:var(--text2);cursor:pointer;font-family:var(--sans);margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:6px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        リンクをコピー
+      </button>
+      <button onclick="document.getElementById('listing-share-modal').remove()" style="background:none;border:none;font-size:12px;color:var(--text3);cursor:pointer;font-family:var(--sans);padding:4px">
+        スキップして閉じる
+      </button>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+
+// 上場完了シェア時の処理（PostHog計測・シェア数インクリメント）
+function onListingShared(ideaId) {
+  if (typeof posthog !== 'undefined') posthog.capture('listing_shared', { idea_id: ideaId, method: 'sns' });
+  _incrementShares(ideaId);
+  setTimeout(() => {
+    document.getElementById('listing-share-modal')?.remove();
+    showToast('シェアありがとうございます！');
+  }, 800);
+}
+
+// 上場完了リンクコピー処理
+function onListingCopyLink(ideaId, encodedUrl) {
+  const url = decodeURIComponent(encodedUrl);
+  navigator.clipboard.writeText(url).then(() => {
+    if (typeof posthog !== 'undefined') posthog.capture('listing_shared', { idea_id: ideaId, method: 'copy' });
+    _incrementShares(ideaId);
+    showToast('リンクをコピーしました！');
+    setTimeout(() => document.getElementById('listing-share-modal')?.remove(), 1200);
+  }).catch(() => {
+    showToast('コピーできませんでした');
+  });
+}
+
+// シェアボタン押下時の処理（PostHog計測）
+function onChallengeShared(ideaId) {
+  if (typeof posthog !== 'undefined') posthog.capture('challenge_shared', { idea_id: ideaId, method: 'sns' });
+  setTimeout(() => {
+    document.getElementById('challenge-share-gate')?.remove();
+    showToast('シェアありがとうございます！');
+  }, 800);
+}
+
+// リンクコピー処理
+function onChallengeCopyLink(ideaId, encodedUrl) {
+  const url = decodeURIComponent(encodedUrl);
+  navigator.clipboard.writeText(url).then(() => {
+    if (typeof posthog !== 'undefined') posthog.capture('challenge_shared', { idea_id: ideaId, method: 'copy' });
+    showToast('リンクをコピーしました！');
+    setTimeout(() => document.getElementById('challenge-share-gate')?.remove(), 1200);
+  }).catch(() => {
+    showToast('コピーできませんでした。URLを手動でコピーしてください');
+  });
 }
 
 function updateXBonus() { const card = document.getElementById('xbonus-card'); if (card) card.style.display = votesLeft === 0 ? 'block' : 'none'; }
@@ -2092,9 +2434,11 @@ function openShareSheet(id) {
   const idea = ideas.find(i=>i.id===id); if(!idea) return;
   document.getElementById('share-sheet-overlay')?.remove();
   const score = parseFloat(idea.score||50).toFixed(1);
-  _shareAppUrl = `${location.origin}/api/share?id=${idea.id}`;
-  _shareOgUrl  = `${location.origin}/api/share?id=${idea.id}`;
-  _shareText   = `「${idea.name}」${idea.ticker}\n📊 スコア ${score}pt ／ 応援 ${idea.votes||0}票\n\n#あいぽ #アイデアIPO${idea.genre?' #'+idea.genre:''}`;
+  const shareUrl = `${location.origin}/api/share?id=${idea.id}`;
+  _shareAppUrl = shareUrl;
+  _shareOgUrl  = shareUrl;
+  // 詳細ページ用シェアテンプレ
+  _shareText   = `このアイデア、どう思う？\n\n「${idea.name}」\n\n現在 ${idea.votes||0}票 →\n${shareUrl}\n\n#あいぽ`;
   const nameShort = idea.name.length > 18 ? idea.name.slice(0,18)+'…' : idea.name;
   _openShareSheetUI(nameShort, idea.ticker, score, idea.votes||0);
 }
@@ -2103,9 +2447,12 @@ function openShareSheetCert(ideaId, name, ticker) {
   document.getElementById('share-sheet-overlay')?.remove();
   const idea = ideas.find(i=>i.id===ideaId);
   const score = idea ? parseFloat(idea.score||50).toFixed(1) : '—';
-  _shareAppUrl = `${location.origin}/api/share?id=${ideaId}`;
-  _shareOgUrl  = `${location.origin}/api/share?id=${ideaId}`;
-  _shareText   = `「${name}」${ticker}\n📊 スコア ${score}pt\n\n#あいぽ #アイデアIPO`;
+  const shareUrl = `${location.origin}/api/share?id=${ideaId}`;
+  _shareAppUrl = shareUrl;
+  _shareOgUrl  = shareUrl;
+  // 上場完了時用シェアテンプレ（説明50文字カット）
+  const descShort = idea?.desc ? idea.desc.slice(0, 50) : '';
+  _shareText   = `【アイデア上場】${name}\n\n${descShort}\n\nあいぽでこのアイデアに投票する →\n${shareUrl}\n\n#あいぽ #アイデア上場`;
   const nameShort = name.length > 18 ? name.slice(0,18)+'…' : name;
   _openShareSheetUI(nameShort, ticker, score, '');
 }
@@ -2431,9 +2778,9 @@ function _shareCopy() { const ideaId3=_shareOgUrl.match(/id=([^&]+)/)?.[1]; if(i
 function shareToX(id) {
   const idea = ideas.find(i=>i.id===id); if(!idea) return;
   const shareUrl = `${location.origin}/api/share?id=${idea.id}`;
-  const score = parseFloat(idea.score||50).toFixed(1);
-  const text = [`「${idea.name}」${idea.ticker}`,`📊 スコア ${score}pt ／ 応援 ${idea.votes||0}票`,``,`#あいぽ #アイデアIPO${idea.genre ? ` #${idea.genre}` : ``}`].join('\n');
-  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl)}`, '_blank', 'noopener,width=600,height=500');
+  // 詳細ページ用シェアテンプレ
+  const text = `このアイデア、どう思う？\n\n「${idea.name}」\n\n現在 ${idea.votes||0}票 →\n${shareUrl}\n\n#あいぽ`;
+  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank', 'noopener,width=600,height=500');
 }
 
 function copyIdeaLink(id) {
@@ -3887,6 +4234,13 @@ function _showExtBrowserBanner(url) {
 
 // ═══════════════════════════════════════════════════════
 // SQL — Supabase SQL Editorで先に実行してください
+//
+// ── あいぽチャレンジ機能 (2026-03-27追加) ──────────────────
+// ALTER TABLE ideas ADD COLUMN IF NOT EXISTS is_challenge boolean DEFAULT false;
+// -- インデックス（チャレンジフィルタの高速化）
+// CREATE INDEX IF NOT EXISTS idx_ideas_is_challenge ON ideas (is_challenge) WHERE is_challenge = true;
+// ──────────────────────────────────────────────────────────
+//
 // ALTER TABLE ideas ADD COLUMN IF NOT EXISTS seeking_skills text[] DEFAULT '{}';
 // CREATE TABLE IF NOT EXISTS skill_profiles (
 //   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
