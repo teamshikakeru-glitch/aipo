@@ -5636,7 +5636,7 @@ function devBuildProductCard(product, index) {
       <button class="dev-upvote-btn ${voted?'voted':''}" onclick="event.stopPropagation();devVoteProduct('${product.id}')">
         <svg width="12" height="12" viewBox="0 0 20 20" fill="${voted?'#fff':'none'}" stroke="${voted?'#fff':'currentColor'}" stroke-width="2"><path d="M10 3l-7 11h14z"/></svg>${product.votes}
       </button>
-      ${product.url ? '<a href="'+esc(product.url)+'" target="_blank" rel="noopener" class="dev-try-btn" onclick="event.stopPropagation();devTrackProductClick(''+product.id+'')"><svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v4a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M15 1h4v4"/><path d="M10 10l9-9"/></svg>使ってみる</a>' : ''}
+      ${product.url ? '<a href="'+esc(product.url)+'" target="_blank" rel="noopener" class="dev-try-btn" onclick="event.stopPropagation();devTrackProductClick(\''+product.id+'\')"><svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v4a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M15 1h4v4"/><path d="M10 10l9-9"/></svg>使ってみる</a>' : ''}
     </div>
   </div>`;
 }
@@ -5662,7 +5662,7 @@ async function devShowDetail(id) {
     </div>
     <div style="font-size:12px;color:var(--text3);margin-bottom:14px">投稿者: ${esc(product.authorName)} · ${timeAgo(product.postedAt)}</div>
     <div style="display:flex;gap:8px;margin-bottom:14px">
-      ${product.url ? '<a href="'+esc(product.url)+'" target="_blank" rel="noopener" onclick="devTrackProductClick(''+id+'')" style="flex:2;display:flex;align-items:center;justify-content:center;gap:6px;padding:14px;background:#3b82f6;color:#fff;border:none;border-radius:var(--r-lg);font-size:15px;font-weight:700;text-decoration:none;font-family:var(--sans)"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2"><path d="M18 13v4a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M15 1h4v4"/><path d="M10 10l9-9"/></svg>使ってみる</a>' : ''}
+      ${product.url ? '<a href="'+esc(product.url)+'" target="_blank" rel="noopener" onclick="devTrackProductClick(\''+id+'\')" style="flex:2;display:flex;align-items:center;justify-content:center;gap:6px;padding:14px;background:#3b82f6;color:#fff;border:none;border-radius:var(--r-lg);font-size:15px;font-weight:700;text-decoration:none;font-family:var(--sans)"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2"><path d="M18 13v4a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M15 1h4v4"/><path d="M10 10l9-9"/></svg>使ってみる</a>' : ''}
       <button class="dev-upvote-btn ${voted?'voted':''}" onclick="devVoteProduct('${id}')" style="flex:1;padding:14px;font-size:15px;border-radius:var(--r-lg)">
         <svg width="14" height="14" viewBox="0 0 20 20" fill="${voted?'#fff':'none'}" stroke="${voted?'#fff':'currentColor'}" stroke-width="2"><path d="M10 3l-7 11h14z"/></svg>${voted?'応援済み':'応援'} ${product.votes}
       </button>
@@ -5733,7 +5733,7 @@ function devOpenRatingModal(productId) {
     +'<div style="margin-bottom:18px"><div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px">独自性 / イノベーション</div><div style="display:flex;gap:8px" id="dev-stars-innovation">'+devBuildInteractiveStars('innovation')+'</div></div>'
     +'<div style="margin-bottom:18px"><div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px">レビューコメント <span style="font-size:11px;color:var(--text3);font-weight:400">任意</span></div><textarea class="inp" id="dev-rating-comment" rows="3" placeholder="使ってみた感想を書いてください..."></textarea></div>'
     +'<button class="primary-btn" id="dev-rating-submit-btn" onclick="devSubmitRating()">評価を送信する</button>'
-    +'<button onclick="document.getElementById('dev-rating-overlay').remove()" style="width:100%;padding:12px;background:transparent;border:none;font-size:13px;color:var(--text3);cursor:pointer;font-family:var(--sans);margin-top:8px">キャンセル</button>'
+    +'<button onclick="document.getElementById(\'dev-rating-overlay\').remove()" style="width:100%;padding:12px;background:transparent;border:none;font-size:13px;color:var(--text3);cursor:pointer;font-family:var(--sans);margin-top:8px">キャンセル</button>'
     +'</div>';
   overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
   document.body.appendChild(overlay);
@@ -5742,7 +5742,7 @@ function devOpenRatingModal(productId) {
 function devBuildInteractiveStars(category) {
   let html = '';
   for (let i = 1; i <= 5; i++) {
-    html += '<svg width="32" height="32" viewBox="0 0 20 20" fill="var(--border2)" style="cursor:pointer;transition:all .1s" onclick="devSetRatingStar(''+category+'','+i+')" id="dev-star-'+category+'-'+i+'"><path d="M10 1l2.39 6.12L19 7.64l-5 4.28L15.82 19 10 15.27 4.18 19 6 11.92 1 7.64l6.61-.52z"/></svg>';
+    html += '<svg width="32" height="32" viewBox="0 0 20 20" fill="var(--border2)" style="cursor:pointer;transition:all .1s" onclick="devSetRatingStar(\''+category+'\','+i+')" id="dev-star-'+category+'-'+i+'"><path d="M10 1l2.39 6.12L19 7.64l-5 4.28L15.82 19 10 15.27 4.18 19 6 11.92 1 7.64l6.61-.52z"/></svg>';
   }
   return html;
 }
@@ -5829,10 +5829,10 @@ function devShowPostForm() {
     +'<div class="field-wrap"><div class="field-lbl">一言説明 <span class="field-req">必須</span></div><input id="dev-inp-tagline" class="inp" placeholder="例: アイデアIPO市場"></div>'
     +'<div class="field-wrap"><div class="field-lbl">アプリURL <span class="field-req">必須</span></div><input id="dev-inp-url" class="inp" placeholder="https://"></div>'
     +'<div class="field-wrap"><div class="field-lbl">説明 <span class="field-opt">任意</span></div><textarea id="dev-inp-desc" class="inp" rows="3" placeholder="プロダクトの詳細説明..."></textarea></div>'
-    +'<div class="field-wrap"><div class="field-lbl">スクリーンショット <span class="field-req">必須</span></div><div id="dev-screenshot-upload" style="border:1.5px dashed var(--border2);border-radius:var(--r-lg);padding:24px;text-align:center;cursor:pointer" onclick="document.getElementById('dev-file-input').click()"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><div style="font-size:12px;color:var(--text3);margin-top:6px">PNG, JPG, WebP (最大5MB)</div></div><input type="file" id="dev-file-input" accept="image/*" style="display:none" onchange="devHandleScreenshotUpload(this)"></div>'
-    +'<div class="field-wrap"><div class="field-lbl">技術スタック <span class="field-opt">任意</span></div><div id="dev-tech-wrap" style="display:flex;flex-wrap:wrap;gap:6px;border:1.5px solid var(--border2);border-radius:var(--r-md);padding:8px;min-height:42px;cursor:text" onclick="document.getElementById('dev-tech-input')?.focus()"><input type="text" id="dev-tech-input" placeholder="技術名を入力してEnter" style="border:none;outline:none;font-size:13px;font-family:var(--sans);background:transparent;flex:1;min-width:100px;padding:2px" onkeydown="devHandleTechInput(event)"></div></div>'
+    +'<div class="field-wrap"><div class="field-lbl">スクリーンショット <span class="field-req">必須</span></div><div id="dev-screenshot-upload" style="border:1.5px dashed var(--border2);border-radius:var(--r-lg);padding:24px;text-align:center;cursor:pointer" onclick="document.getElementById(\'dev-file-input\').click()"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><div style="font-size:12px;color:var(--text3);margin-top:6px">PNG, JPG, WebP (最大5MB)</div></div><input type="file" id="dev-file-input" accept="image/*" style="display:none" onchange="devHandleScreenshotUpload(this)"></div>'
+    +'<div class="field-wrap"><div class="field-lbl">技術スタック <span class="field-opt">任意</span></div><div id="dev-tech-wrap" style="display:flex;flex-wrap:wrap;gap:6px;border:1.5px solid var(--border2);border-radius:var(--r-md);padding:8px;min-height:42px;cursor:text" onclick="document.getElementById(\'dev-tech-input\')?.focus()"><input type="text" id="dev-tech-input" placeholder="技術名を入力してEnter" style="border:none;outline:none;font-size:13px;font-family:var(--sans);background:transparent;flex:1;min-width:100px;padding:2px" onkeydown="devHandleTechInput(event)"></div></div>'
     +'<button id="dev-post-submit-btn" class="primary-btn" onclick="devDoPost()" style="background:#3b82f6">プロダクトを投稿する</button>'
-    +'<button onclick="document.getElementById('dev-post-overlay').remove()" style="width:100%;padding:12px;background:transparent;border:none;font-size:13px;color:var(--text3);cursor:pointer;font-family:var(--sans);margin-top:8px">キャンセル</button>'
+    +'<button onclick="document.getElementById(\'dev-post-overlay\').remove()" style="width:100%;padding:12px;background:transparent;border:none;font-size:13px;color:var(--text3);cursor:pointer;font-family:var(--sans);margin-top:8px">キャンセル</button>'
     +'</div>';
   document.body.appendChild(overlay);
 }
