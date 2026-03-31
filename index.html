@@ -547,6 +547,7 @@ function renderStars(score, size) {
 // ── State ──
 let currentUser = null;
 let products = [];
+let legacyIdeas = [];
 let votedIds = new Set();
 let myProducts = new Set();
 let currentPeriod = 'daily';
@@ -748,8 +749,26 @@ async function fetchProducts() {
         return mapRankingRowToProduct(rankRow);
       });
     }
+    // 旧アイデア（is_product=false）も取得
+    try {
+      var { data: legacyData } = await sb.from('ideas')
+        .select('*, profiles(x_username, display_name)')
+        .eq('is_product', false)
+        .order('score', { ascending: false })
+        .limit(50);
+      if (legacyData) {
+        legacyIdeas = legacyData.map(function(row) {
+          var p = mapRowToProduct(row);
+          p.isLegacy = true;
+          if (currentUser && p.userId === currentUser.id) myProducts.add(p.id);
+          return p;
+        });
+      } else {
+        legacyIdeas = [];
+      }
+    } catch(e2) { legacyIdeas = []; }
     renderFeed();
-  } catch(e) { products = []; renderFeed(); }
+  } catch(e) { products = []; legacyIdeas = []; renderFeed(); }
 }
 
 async function loadVotedIds() {
@@ -824,9 +843,26 @@ function renderFeed() {
     return;
   }
 
-  el.innerHTML = list.map(function(product, index) {
+  var html = list.map(function(product, index) {
     return buildProductCard(product, index);
   }).join('');
+
+  // 旧アイデアの表示
+  if (legacyIdeas.length > 0) {
+    html += '<div style="margin-top:24px;padding-top:20px;border-top:2px solid var(--border)">'
+      + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">'
+      + '<span style="font-size:20px">💡</span>'
+      + '<div>'
+      + '<div style="font-size:14px;font-weight:700;color:var(--text)">みんなのアイデア</div>'
+      + '<div style="font-size:11px;color:var(--text3)">過去に投稿されたアイデア一覧</div>'
+      + '</div></div>';
+    html += legacyIdeas.map(function(idea, i) {
+      return buildLegacyIdeaCard(idea);
+    }).join('');
+    html += '</div>';
+  }
+
+  el.innerHTML = html;
 }
 
 function buildProductCard(product, index) {
@@ -875,9 +911,34 @@ function buildProductCard(product, index) {
     + '</div></div>';
 }
 
+function buildLegacyIdeaCard(idea) {
+  var voted = votedIds.has(idea.id);
+  return '<div class="product-card" onclick="showDetail(\'' + idea.id + '\')" style="border-left:3px solid var(--yellow)">'
+    + '<div class="pc-top">'
+    + '<div class="pc-thumb" style="width:52px;height:52px;border-radius:12px;font-size:22px">'
+    + '<span>💡</span></div>'
+    + '<div class="pc-info">'
+    + '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">'
+    + '<div class="pc-name" style="font-size:15px">' + esc(idea.name) + '</div>'
+    + '<span style="font-size:10px;font-weight:700;color:var(--yellow);background:var(--yellow-bg);padding:2px 7px;border-radius:4px">アイデア</span>'
+    + '</div>'
+    + '<div class="pc-tagline" style="font-size:12px">' + esc(idea.tagline) + '</div>'
+    + '<div style="display:flex;align-items:center;gap:8px;margin-top:4px">'
+    + '<span style="font-size:11px;color:var(--text3)">' + esc(idea.authorName) + '</span>'
+    + '<span style="font-size:11px;color:var(--text3)">' + timeAgo(idea.postedAt) + '</span>'
+    + '</div>'
+    + '</div></div>'
+    + '<div class="pc-actions">'
+    + '<button class="upvote-btn ' + (voted ? 'voted' : '') + '" onclick="event.stopPropagation();voteProduct(\'' + idea.id + '\')">'
+    + '<svg width="14" height="14" viewBox="0 0 20 20" fill="' + (voted ? '#fff' : 'none') + '" stroke="' + (voted ? '#fff' : 'currentColor') + '" stroke-width="2"><path d="M10 3l-7 11h14z"/></svg>'
+    + idea.votes + '</button>'
+    + '</div></div>';
+}
+
 // ── Detail ──
 async function showDetail(id) {
   var product = products.find(function(p) { return p.id === id; });
+  if (!product) product = legacyIdeas.find(function(p) { return p.id === id; });
   if (!product) return;
 
   phCapture('product_viewed', { product_id: id, name: product.name });
@@ -1310,8 +1371,9 @@ function renderPortfolio() {
     greetEl.textContent = 'おかえり、' + (currentUser.display_name || currentUser.x_username || 'ユーザー');
   }
   var listEl = document.getElementById('portfolio-list');
-  var myList = products.filter(function(p) { return myProducts.has(p.id); });
-  var votedList = products.filter(function(p) { return votedIds.has(p.id) && !myProducts.has(p.id); });
+  var allItems = products.concat(legacyIdeas);
+  var myList = allItems.filter(function(p) { return myProducts.has(p.id); });
+  var votedList = allItems.filter(function(p) { return votedIds.has(p.id) && !myProducts.has(p.id); });
 
   if (myList.length === 0 && votedList.length === 0) {
     listEl.innerHTML = '<div style="padding:60px 20px;text-align:center">'
