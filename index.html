@@ -581,6 +581,20 @@ input[type=file] { display: none; }
     <div class="stock-group" id="stock-list">
       <div style="display:flex;align-items:center;justify-content:center;padding:60px 0"><div class="loading-spinner"></div></div>
     </div>
+    <div id="dev-showcase">
+      <div style="padding:10px 14px 6px;display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:13px;font-weight:700;color:var(--text)">開発アプリ ランキング</div>
+        <div class="dev-period-tabs">
+          <button class="dev-period-tab active" onclick="devSetPeriod(this,'all')">全期間</button>
+          <button class="dev-period-tab" onclick="devSetPeriod(this,'daily')">日間</button>
+          <button class="dev-period-tab" onclick="devSetPeriod(this,'weekly')">週間</button>
+          <button class="dev-period-tab" onclick="devSetPeriod(this,'monthly')">月間</button>
+        </div>
+      </div>
+      <div id="dev-product-list" style="padding:0 10px 20px">
+        <div style="display:flex;align-items:center;justify-content:center;padding:60px 0"><div class="loading-spinner"></div></div>
+      </div>
+    </div>
     <div class="xbonus" id="xbonus-card" style="display:none">
       <div class="xb-hd"><svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M2 2l7.5 8.5L2 18h2l6.3-7.1L16 18h4L12 9.2 18.5 2h-2L10.6 8.6 5 2H2z"/></svg>X連携で追加票をもらう</div>
       <div style="font-size:12px;color:var(--green);background:var(--green-bg);border-radius:var(--r-md);padding:8px 12px;margin-bottom:12px;border:1px solid var(--green-border)">今日の3票を使い切りました！Xでシェアして追加票をもらいましょう。</div>
