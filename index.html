@@ -1880,6 +1880,7 @@ function setTab(el, tab) {
 }
 
 function renderFeed() {
+  if (currentMarket === 'dev') return;
   renderTop3();
   let list = [...ideas]; const secEl = document.getElementById('sec-label');
   if (currentTab === 'hot') { list = list.filter(i => i.score >= 80).sort((a,b) => b.score - a.score); secEl.textContent = `注目銘柄 · ${list.length}件`; }
@@ -6001,7 +6002,8 @@ async function devDoPost() {
     devMyProducts.add(newProduct.id);
     phCapture('product_posted', { product_id: newProduct.id });
     document.getElementById('dev-post-overlay')?.remove();
-    devRenderFeed();
+    switchMarket('dev');
+    goTo('feed');
     showToast('プロダクトを投稿しました！');
   } catch(e) {
     showToast('投稿に失敗しました: ' + (e.message || '不明なエラー'));
