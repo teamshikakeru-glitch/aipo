@@ -788,7 +788,7 @@ input[type=file] { display: none; }
 <nav class="bottom-nav" role="navigation" aria-label="メインナビゲーション">
   <button class="nav-item active" id="nav-feed" onclick="goTo('feed')" aria-label="マーケット" aria-current="page"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg><span>マーケット</span></button>
   <button class="nav-item" id="nav-hiroba" onclick="goTo('hiroba')" aria-label="広場"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span>広場</span></button>
-  <button class="nav-item" id="nav-post-tab" onclick="if(!currentUser){showLoginSheet();return;}goTo('post');phCapture('apply_cta_click')" aria-label="アイデアを上場する"><div style="width:42px;height:42px;border-radius:13px;background:var(--amber-mid);display:flex;align-items:center;justify-content:center;margin-top:-12px;box-shadow:0 4px 14px rgba(232,133,10,.3)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></div><span style="margin-top:1px">上場</span></button>
+  <button class="nav-item" id="nav-post-tab" onclick="phCapture('apply_cta_click');if(!currentUser){showLoginSheet();return;}goTo('post')" aria-label="アイデアを出す"><div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#e8850a,#f5a623);display:flex;align-items:center;justify-content:center;margin-top:-14px;box-shadow:0 4px 16px rgba(232,133,10,.35)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></div><span style="margin-top:1px">アイデアを出す</span></button>
   <button class="nav-item" id="nav-portfolio" onclick="if(!currentUser){showLoginSheet();return;}goTo('portfolio')" aria-label="ホーム" style="position:relative"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 9l9-6 9 6v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 22V12h6v10"/></svg><div id="notif-badge" style="display:none;position:absolute;top:2px;right:calc(50% - 14px);min-width:14px;height:14px;background:#c0392b;border-radius:7px;border:1.5px solid var(--bg);align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;padding:0 3px;line-height:1"></div><span>ホーム</span></button>
 </nav>
 
@@ -3958,33 +3958,37 @@ function showLoginSheet() {
   overlay.innerHTML = `
     <div style="background:var(--surface);border-radius:24px 24px 0 0;padding:28px 24px calc(48px + env(safe-area-inset-bottom,0px));width:100%;max-width:390px;animation:slideUp .35s cubic-bezier(.16,1,.3,1)">
       <div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 20px"></div>
-      <div style="font-size:18px;font-weight:700;color:var(--text);text-align:center;margin-bottom:6px">10秒で始められます</div>
-      <div style="font-size:13px;color:var(--text3);text-align:center;line-height:1.7;margin-bottom:24px">Googleアカウントでログインするだけ。<br>すぐにアイデアを応援できます。</div>
+      <div style="font-size:18px;font-weight:700;color:var(--text);text-align:center;margin-bottom:6px">あなたのアイデアを、みんなに見せよう</div>
+      <div style="font-size:13px;color:var(--text3);text-align:center;line-height:1.7;margin-bottom:24px">Googleアカウントで10秒でスタート</div>
       <div style="background:var(--surface2);border-radius:var(--r-lg);padding:16px;margin-bottom:20px">
-        <div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:0.5px solid var(--border)">
-          <div style="width:32px;height:32px;border-radius:8px;background:#fff8ed;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#bf6d00" stroke-width="2" stroke-linecap="round"/></svg>
+        <div style="display:flex;align-items:center;gap:0;justify-content:center;margin-bottom:4px">
+          <div style="display:flex;flex-direction:column;align-items:center;flex:1">
+            <div style="width:36px;height:36px;border-radius:50%;background:#fff8ed;display:flex;align-items:center;justify-content:center;margin-bottom:6px">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#bf6d00" stroke-width="2.5" stroke-linecap="round"/></svg>
+            </div>
+            <div style="font-size:11px;font-weight:700;color:var(--text);text-align:center">ログイン</div>
           </div>
-          <div><div style="font-size:13px;font-weight:700;color:var(--text)">1日3票でアイデアを応援</div><div style="font-size:11px;color:var(--text3);margin-top:1px">早期応援で配当がもらえます</div></div>
-        </div>
-        <div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:0.5px solid var(--border)">
-          <div style="width:32px;height:32px;border-radius:8px;background:#edf7f2;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><polyline points="8,13 10,10 12,12 14,8 16,5" stroke="#1a7a4a" stroke-width="2" stroke-linecap="round"/></svg>
+          <div style="width:32px;height:1px;background:var(--border2);margin-bottom:18px"></div>
+          <div style="display:flex;flex-direction:column;align-items:center;flex:1">
+            <div style="width:36px;height:36px;border-radius:50%;background:#edf7f2;display:flex;align-items:center;justify-content:center;margin-bottom:6px">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><polyline points="8,13 10,10 12,12 14,8 16,5" stroke="#1a7a4a" stroke-width="2" stroke-linecap="round"/></svg>
+            </div>
+            <div style="font-size:11px;font-weight:700;color:var(--text);text-align:center">アイデアを出す</div>
           </div>
-          <div><div style="font-size:13px;font-weight:700;color:var(--text)">アイデアを上場する</div><div style="font-size:11px;color:var(--text3);margin-top:1px">一行入力するだけでOK</div></div>
-        </div>
-        <div style="display:flex;align-items:center;gap:12px;padding:8px 0">
-          <div style="width:32px;height:32px;border-radius:8px;background:#f0f7ff;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="6" y="4" width="14" height="16" rx="2" stroke="#185FA5" stroke-width="2"/><path d="M2 6v14a2 2 0 002 2h12" stroke="#185FA5" stroke-width="2" stroke-linecap="round"/></svg>
+          <div style="width:32px;height:1px;background:var(--border2);margin-bottom:18px"></div>
+          <div style="display:flex;flex-direction:column;align-items:center;flex:1">
+            <div style="width:36px;height:36px;border-radius:50%;background:#f0f7ff;display:flex;align-items:center;justify-content:center;margin-bottom:6px">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M10 17l-7-7 2-2 5 5L18 5l2 2z" stroke="#185FA5" stroke-width="2" stroke-linecap="round"/></svg>
+            </div>
+            <div style="font-size:11px;font-weight:700;color:var(--text);text-align:center">みんなが投票</div>
           </div>
-          <div><div style="font-size:13px;font-weight:700;color:var(--text)">株券を受け取る</div><div style="font-size:11px;color:var(--text3);margin-top:1px">応援すると株券が発行されます</div></div>
         </div>
       </div>
-      <button onclick="document.getElementById('login-sheet-overlay').remove();doLogin()" style="width:100%;padding:15px;background:#fff;color:#1a1916;border:1.5px solid #e0ded8;border-radius:var(--r-lg);font-size:15px;font-weight:700;cursor:pointer;font-family:var(--sans);display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px">
-        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-        Googleでログインする
+      <button onclick="document.getElementById('login-sheet-overlay').remove();doLogin()" style="width:100%;padding:15px;background:linear-gradient(135deg,#e8850a,#f5a623);color:#fff;border:none;border-radius:var(--r-lg);font-size:15px;font-weight:700;cursor:pointer;font-family:var(--sans);display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;box-shadow:0 4px 14px rgba(232,133,10,.3)">
+        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#fff" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#fff" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="rgba(255,255,255,.7)" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="rgba(255,255,255,.85)" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        Googleでログインして始める
       </button>
-      <button onclick="document.getElementById('login-sheet-overlay').remove()" style="width:100%;padding:13px;background:transparent;border:none;font-size:13px;color:var(--text3);cursor:pointer;font-family:var(--sans)">今はしない</button>
+      <button onclick="document.getElementById('login-sheet-overlay').remove()" style="width:100%;padding:13px;background:transparent;border:none;font-size:13px;color:var(--text3);cursor:pointer;font-family:var(--sans)">あとで</button>
     </div>`;
   document.body.appendChild(overlay);
 }
