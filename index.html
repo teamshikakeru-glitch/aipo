@@ -3910,9 +3910,9 @@ async function openProfileModal() {
   const existing = document.getElementById('profile-overlay');
   if (existing) { existing.remove(); return; }
   if (!currentUser) { showLoginSheet(); return; }
-  const { data: prof } = await sb.from('profiles').select('x_username, display_name, avatar_url').eq('id', currentUser.id).single();
+  const { data: prof } = await sb.from('profiles').select('x_username, avatar_url').eq('id', currentUser.id).single();
   const xUsername = prof?.x_username || currentUser.x_username || '';
-  const displayName = prof?.display_name || currentUser.user_metadata?.full_name || '';
+  const displayName = currentUser.user_metadata?.full_name || xUsername || '';
   const avatarUrl = prof?.avatar_url || currentUser.user_metadata?.avatar_url || '';
   const initials = (displayName || xUsername || '?').slice(0,2).toUpperCase();
   const overlay = document.createElement('div');
@@ -3958,7 +3958,7 @@ async function saveProfile() {
     if (btn) { btn.textContent = '保存する'; btn.disabled = false; }
     return;
   }
-  const { error } = await sb.from('profiles').upsert({ id: currentUser.id, x_username: xUsername, display_name: displayName, updated_at: new Date() }, { onConflict: 'id' });
+  const { error } = await sb.from('profiles').upsert({ id: currentUser.id, x_username: xUsername, updated_at: new Date() }, { onConflict: 'id' });
   if (error) { console.error('saveProfile error:', error); if (status) { status.textContent = '保存に失敗しました: ' + (error.message || error.details || '不明なエラー'); status.style.color = 'var(--red)'; } if (btn) { btn.textContent = '保存する'; btn.disabled = false; } return; }
   currentUser.x_username = xUsername;
   if (status) { status.textContent = '✓ 保存しました'; status.style.color = 'var(--green)'; }
@@ -5586,7 +5586,7 @@ function devMapRowToProduct(row) {
     ratingAvg: parseFloat(row.rating_avg) || 0,
     userId: row.user_id,
     postedAt: row.posted_at,
-    authorName: row.profiles?.display_name || row.profiles?.x_username || 'ユーザー',
+    authorName: row.profiles?.x_username || 'ユーザー',
     status: row.product_status || 'active',
   };
 }
@@ -5610,7 +5610,7 @@ async function devFetchProducts() {
 
     if (devCurrentPeriod === 'all') {
       const { data, error } = await sb.from('ideas')
-        .select('*, profiles(x_username, display_name)')
+        .select('*, profiles(x_username)')
         .eq('is_product', true)
         .order('rating_avg', { ascending: false });
       if (error || !data) { devProducts = []; devRenderFeed(); return; }
@@ -5625,7 +5625,7 @@ async function devFetchProducts() {
       const ids = rankData.map(r => r.id);
       if (ids.length === 0) { devProducts = []; devRenderFeed(); return; }
       const { data: detailData } = await sb.from('ideas')
-        .select('*, profiles(x_username, display_name)')
+        .select('*, profiles(x_username)')
         .in('id', ids);
       const detailMap = {};
       if (detailData) detailData.forEach(row => { detailMap[row.id] = row; });
@@ -5780,7 +5780,7 @@ async function devLoadReviews(productId) {
   const el = document.getElementById('dev-reviews-list');
   try {
     const { data } = await sb.from('product_ratings')
-      .select('*, profiles(x_username, display_name)')
+      .select('*, profiles(x_username)')
       .eq('product_id', productId)
       .order('created_at', { ascending: false })
       .limit(20);
@@ -5790,7 +5790,7 @@ async function devLoadReviews(productId) {
       return;
     }
     el.innerHTML = data.map(r => {
-      const authorName = r.profiles?.display_name || r.profiles?.x_username || 'ユーザー';
+      const authorName = r.profiles?.x_username || 'ユーザー';
       const avgScore = ((r.ux_score || 0) + (r.design_score || 0) + (r.innovation_score || 0)) / 3;
       return '<div class="dev-review-card"><div class="dev-review-header"><div class="dev-review-avatar">'+esc(authorName.slice(0,1).toUpperCase())+'</div><div><div style="font-size:12px;font-weight:700;color:var(--text)">'+esc(authorName)+'</div><div style="display:flex;align-items:center;gap:2px">'+devRenderStars(avgScore, 10)+'</div></div><div style="font-size:10px;color:var(--text3);margin-left:auto">'+timeAgo(r.created_at)+'</div></div>'+(r.review_text?'<div style="font-size:12px;color:var(--text);line-height:1.6;margin-top:6px">'+esc(r.review_text)+'</div>':'')+'</div>';
     }).join('');
