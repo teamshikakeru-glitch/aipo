@@ -435,6 +435,10 @@ input[type=file] { display: none; }
 .board-sheet{background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:390px;animation:slideUp .3s cubic-bezier(.16,1,.3,1);display:flex;flex-direction:column;max-height:88vh;overflow:hidden}
 .board-handle{width:40px;height:4px;background:var(--border2);border-radius:2px;margin:12px auto 6px;flex-shrink:0}
 
+/* ── 市場切り替えタブ ── */
+.market-tab{flex:1;background:none;border:none;border-bottom:2.5px solid transparent;padding:10px 0;font-size:13px;font-weight:700;color:var(--text3);cursor:pointer;font-family:var(--sans);transition:all .2s;text-align:center}
+.market-tab.active{color:var(--text);border-bottom-color:var(--amber-mid)}
+
 /* ── 個人開発ショーケース (開発タブ) ── */
 #dev-showcase { display:none; }
 #dev-showcase.active { display:block; }
@@ -545,6 +549,10 @@ input[type=file] { display: none; }
       <div class="top3-label"><span class="top3-label-txt">TOP RANKING</span></div>
       <div class="top3-grid" id="top3-grid"><div style="display:flex;align-items:center;justify-content:center;padding:16px 0;width:100%"><div class="loading-spinner"></div></div></div>
     </div>
+    <div style="display:flex;padding:8px 12px 0;gap:0;background:var(--surface)">
+      <button id="market-tab-idea" class="market-tab active" onclick="switchMarket('idea')">アイデア市場</button>
+      <button id="market-tab-dev" class="market-tab" onclick="switchMarket('dev')">開発アプリ市場</button>
+    </div>
     <div style="display:flex;align-items:center;background:var(--surface);border-bottom:0.5px solid var(--border)">
       <div style="display:flex;gap:6px;overflow-x:auto;padding:8px 12px;flex:1;scrollbar-width:none" id="tab-scroll">
         <button class="pill-tab active" onclick="setTab(this,'all')" data-tab="all">すべて</button>
@@ -552,7 +560,6 @@ input[type=file] { display: none; }
         <button class="pill-tab" onclick="setTab(this,'new')" data-tab="new">新着</button>
         <!-- チャレンジ応募フィルタタブ -->
         <button class="pill-tab" onclick="setTab(this,'challenge')" data-tab="challenge" style="border-color:#c4b5fd;color:#7c3aed">🏆 チャレンジ</button>
-        <button class="pill-tab" onclick="setTab(this,'dev')" data-tab="dev" style="border-color:#3b82f6;color:#3b82f6">🚀 開発</button>
         <button class="pill-tab" onclick="showScoreGuide()" style="color:var(--amber);border-color:var(--amber-border);background:var(--amber-bg)">スコアとは？</button>
         <div style="width:0.5px;background:var(--border);flex-shrink:0;margin:2px 2px"></div>
         <button class="pill-tab genre-tab" onclick="setGenre(this,'テクノロジー')">テクノロジー</button>
@@ -788,7 +795,7 @@ input[type=file] { display: none; }
 <nav class="bottom-nav" role="navigation" aria-label="メインナビゲーション">
   <button class="nav-item active" id="nav-feed" onclick="goTo('feed')" aria-label="マーケット" aria-current="page"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg><span>マーケット</span></button>
   <button class="nav-item" id="nav-hiroba" onclick="goTo('hiroba')" aria-label="広場"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span>広場</span></button>
-  <button class="nav-item" id="nav-post-tab" onclick="phCapture('apply_cta_click');if(!currentUser){showLoginSheet();return;}goTo('post')" aria-label="アイデアを出す"><div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#e8850a,#f5a623);display:flex;align-items:center;justify-content:center;margin-top:-14px;box-shadow:0 4px 16px rgba(232,133,10,.35)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></div><span style="margin-top:1px">アイデアを出す</span></button>
+  <button class="nav-item" id="nav-post-tab" onclick="phCapture('apply_cta_click');if(!currentUser){showLoginSheet();return;}showPostTypeSheet()" aria-label="上場する"><div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#e8850a,#f5a623);display:flex;align-items:center;justify-content:center;margin-top:-14px;box-shadow:0 4px 16px rgba(232,133,10,.35)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></div><span style="margin-top:1px">上場する</span></button>
   <button class="nav-item" id="nav-portfolio" onclick="if(!currentUser){showLoginSheet();return;}goTo('portfolio')" aria-label="ホーム" style="position:relative"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 9l9-6 9 6v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 22V12h6v10"/></svg><div id="notif-badge" style="display:none;position:absolute;top:2px;right:calc(50% - 14px);min-width:14px;height:14px;background:#c0392b;border-radius:7px;border:1.5px solid var(--bg);align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;padding:0 3px;line-height:1"></div><span>ホーム</span></button>
 </nav>
 
@@ -5468,6 +5475,59 @@ requestAnimationFrame(function() {
 let devProducts = [];
 let devLegacyIdeas = [];
 let devCurrentPeriod = 'all';
+/* ── 市場切り替え & 投稿タイプ選択 ── */
+let currentMarket = 'idea';
+
+function switchMarket(market) {
+  currentMarket = market;
+  const ideaTab = document.getElementById('market-tab-idea');
+  const devTab = document.getElementById('market-tab-dev');
+  const tabScroll = document.getElementById('tab-scroll');
+  const top3 = document.getElementById('top3-grid')?.closest('.top3-wrap');
+
+  if (market === 'idea') {
+    ideaTab.classList.add('active');
+    devTab.classList.remove('active');
+    if (tabScroll) tabScroll.parentElement.style.display = '';
+    if (top3) top3.style.display = '';
+    devToggleShowcase(false);
+    renderFeed();
+  } else {
+    devTab.classList.add('active');
+    ideaTab.classList.remove('active');
+    if (tabScroll) tabScroll.parentElement.style.display = 'none';
+    if (top3) top3.style.display = 'none';
+    devToggleShowcase(true);
+    devFetchProducts();
+  }
+  phCapture('market_switch', { market: market });
+}
+
+function showPostTypeSheet() {
+  document.getElementById('post-type-sheet-overlay')?.remove();
+  const overlay = document.createElement('div');
+  overlay.id = 'post-type-sheet-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-label', '投稿タイプ選択');
+  overlay.style.cssText = 'position:fixed;left:0;right:0;top:0;bottom:0;background:rgba(0,0,0,.6);z-index:99999;display:flex;align-items:flex-end;justify-content:center';
+  overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
+  overlay.innerHTML = '<div style="background:var(--surface);border-radius:24px 24px 0 0;padding:28px 24px calc(48px + env(safe-area-inset-bottom,0px));width:100%;max-width:390px;animation:slideUp .35s cubic-bezier(.16,1,.3,1)">'
+    + '<div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 20px"></div>'
+    + '<div style="font-size:18px;font-weight:700;color:var(--text);text-align:center;margin-bottom:6px">何を上場しますか？</div>'
+    + '<div style="font-size:13px;color:var(--text3);text-align:center;line-height:1.7;margin-bottom:24px">あなたのアイデアやプロダクトを市場に出そう</div>'
+    + '<button onclick="document.getElementById(\'post-type-sheet-overlay\').remove();goTo(\'post\')" style="width:100%;padding:16px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r-lg);cursor:pointer;font-family:var(--sans);text-align:left;margin-bottom:10px;display:flex;align-items:center;gap:14px">'
+    +   '<div style="width:44px;height:44px;border-radius:12px;background:#fff8ed;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" stroke="#bf6d00" stroke-width="1.8" fill="none"/><path d="M12 8v8M8 12h8" stroke="#bf6d00" stroke-width="2" stroke-linecap="round"/></svg></div>'
+    +   '<div style="flex:1;min-width:0"><div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:2px">アイデアを上場する</div><div style="font-size:12px;color:var(--text3);line-height:1.5">一行のアイデアで市場を動かそう</div></div>'
+    + '</button>'
+    + '<button onclick="document.getElementById(\'post-type-sheet-overlay\').remove();devShowPostForm()" style="width:100%;padding:16px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r-lg);cursor:pointer;font-family:var(--sans);text-align:left;margin-bottom:0;display:flex;align-items:center;gap:14px">'
+    +   '<div style="width:44px;height:44px;border-radius:12px;background:#edf7ff;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="#3b82f6" stroke-width="1.8"/><path d="M8 12h8M12 8v8" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/></svg></div>'
+    +   '<div style="flex:1;min-width:0"><div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:2px">開発アプリを上場する</div><div style="font-size:12px;color:var(--text3);line-height:1.5">あなたのプロダクトをショーケースに</div></div>'
+    + '</button>'
+    + '</div>';
+  document.body.appendChild(overlay);
+}
+
 let devMyProducts = new Set();
 let devRatedProductIds = new Set();
 let devRatingState = { productId: null, ux: 0, design: 0, innovation: 0 };
